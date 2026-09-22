@@ -1,343 +1,198 @@
 <div align="center">
-
-<img src="public/veyra.png" alt="Veyra Editor" width="110" />
+  <img src="public/veyra.png" alt="Veyra logo" width="104" />
 
 # Veyra Editor
 
-### A fast, local-first desktop code editor built for focused development.
+### Your code. Your machine. Your flow.
 
-**Monaco editing · Native filesystem · Workspace search · Git inspection · Real shell terminal**
+A local-first desktop code editor powered by **Tauri, Rust, React and Monaco**.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
-[![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Rust](https://img.shields.io/badge/Rust-native_backend-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/) [![Rust](https://img.shields.io/badge/Rust-native_backend-black?logo=rust)](https://www.rust-lang.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-[Getting Started](#-getting-started) · [Features](#-features) · [Architecture](#-architecture) · [Roadmap](#-roadmap) · [Contributing](#-contributing)
+[**Get started**](#-quick-start) · [Features](#-what-you-can-do) · [Build](#-build-a-desktop-app) · [Roadmap](#-whats-next) · [Contribute](#-contributing)
 
 </div>
 
 ---
 
-## ✨ What is Veyra?
+## Meet Veyra
 
-**Veyra** is an open-source desktop code editor that combines a modern Monaco-powered editing experience with native desktop capabilities through **Tauri and Rust**.
+**Veyra is an open-source desktop editor for developers who want to work directly with their local projects.** It brings Monaco-powered editing, project navigation, workspace search, Git inspection and an interactive shell together in one focused interface.
 
-It is designed around a simple idea: the core development workflow should remain **fast, local and under the developer's control**.
+No cloud account or hosted workspace is required. Once built, the desktop application runs without a Vite development server or CDN.
 
-Veyra can open a real project directory, edit and save files, search a workspace, inspect Git changes and run commands inside an interactive terminal — without depending on a hosted editor or a permanent development server.
+> **Development status:** Early-stage project, tested primarily on Apple Silicon macOS. Windows and Linux are not yet verified. See [Current scope](#-current-scope) before distributing builds.
 
-> **Project status:** Veyra is under active development. The current native development path is tested primarily on Apple Silicon macOS. Windows and Linux support, advanced language intelligence and additional IDE capabilities are part of the roadmap.
+## ✨ What you can do
 
----
+| Capability | Details |
+| :--- | :--- |
+| **Edit comfortably** | Monaco syntax highlighting, find/replace, available language completion and formatting, plus JavaScript/TypeScript diagnostics. |
+| **Work across files** | Multiple tabs preserve unsaved edits; save/discard/cancel prompts protect changes. |
+| **Manage projects** | Open folders, explore directories, create files and folders, rename files and move individual files to system Trash. |
+| **Navigate quickly** | Quick Open, command palette, workspace text search and pattern-based symbol outline. |
+| **Inspect changes** | Git branch/status information and tracked-file text diffs against HEAD. |
+| **Run real commands** | Integrated xterm.js terminal connected to a native Rust PTY in your workspace. |
+| **Make it yours** | Dark/light themes, font settings, word wrap, minimap, resizable sidebar and split view of the active file. |
+| **Save defensively** | Atomic writes and conflict detection when another application changes a file on disk. |
 
-## 🚀 Features
+**Local-first does not mean sandboxed:** terminal commands execute with your normal account permissions. Only run projects and commands you trust.
 
-| Area | What Veyra provides |
-| --- | --- |
-| **Code editing** | Monaco Editor, syntax highlighting, find/replace, supported completion, formatting and JavaScript/TypeScript diagnostics |
-| **Tabs & buffers** | Multiple editor tabs, retained unsaved buffers and save/discard/cancel protection |
-| **File explorer** | Native folder picker, expandable project tree, file/folder creation, rename and recoverable Trash |
-| **Safe saving** | Atomic writes plus detection of files changed externally before overwriting |
-| **Workspace search** | Fast literal-text search across indexed project files |
-| **Quick navigation** | Quick Open, command palette and detected-symbol outline |
-| **Git inspection** | Repository status, branch information and text diffs against HEAD |
-| **Integrated terminal** | Real login shell backed by a Rust PTY and rendered with xterm.js |
-| **Editor layout** | Split view, resizable sidebar, minimap, word wrap and font preferences |
-| **Themes** | Native-feeling dark and light interfaces with locally stored preferences |
-| **Local-first runtime** | Packaged editor does not require a CDN or a running frontend development server |
+## ⚡ Quick start
 
-### Built for real local projects
+### Requirements
 
-Veyra works directly with files on your machine. Native file APIs deliberately restrict operations to the selected workspace, while terminal commands run with your normal user permissions.
+For the tested macOS development setup, install **Node.js 22.12+**, npm, stable **Rust/Cargo**, Git and Xcode Command Line Tools. See the [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) for platform dependencies.
 
----
-
-## 🧱 Tech Stack
-
-<div align="center">
-
-| Layer | Technology |
-| --- | --- |
-| Desktop shell | **Tauri 2** |
-| Native backend | **Rust** |
-| UI | **React 19** |
-| Language | **TypeScript** |
-| Code editor | **Monaco Editor** |
-| Terminal UI | **xterm.js** |
-| Native terminal | **portable-pty** |
-| Bundler | **Vite 7** |
-| UI testing | **Playwright** |
-
-</div>
-
----
-
-## 🏗 Architecture
-
-\`\`\`mermaid
-flowchart LR
-    A[React + TypeScript UI] --> B[Monaco Editor]
-    A --> C[xterm.js Terminal]
-    A --> D[Tauri IPC]
-    D --> E[Rust Backend]
-    E --> F[Filesystem]
-    E --> G[Workspace Search]
-    E --> H[Git Inspection]
-    E --> I[Native PTY / Shell]
-\`\`\`
-
-Veyra intentionally separates the editing interface from privileged desktop operations. React handles the application experience while Tauri commands delegate filesystem, search, Git and PTY operations to Rust.
-
----
-
-## ⚡ Getting Started
-
-### Prerequisites
-
-For the currently tested macOS development workflow you will need:
-
-- **Node.js 22.12+** and npm
-- **Stable Rust** and Cargo
-- **Xcode Command Line Tools**
-- **Git**
-
-Install the macOS command-line tools if needed:
-
-\`\`\`bash
+```bash
 xcode-select --install
-\`\`\`
+```
 
-Verify the environment:
+### Clone and launch
 
-\`\`\`bash
-node --version
-npm --version
-rustc --version
-cargo --version
-git --version
-\`\`\`
-
-### Run Veyra locally
-
-\`\`\`bash
+```bash
 git clone https://github.com/fcopensource/veyraeditor.git
 cd veyraeditor
 npm ci
 npm run tauri dev
-\`\`\`
+```
 
-A native Veyra desktop window opens after compilation.
+The first native build may take a few minutes. Veyra then opens in a desktop window.
 
-> Running \`npm run dev\` by itself starts only the Vite frontend. Native filesystem, folder-picker and terminal functionality require \`npm run tauri dev\` or a packaged application.
+> `npm run dev` launches only the frontend. Use `npm run tauri dev` for native file dialogs, filesystem operations and terminal integration.
 
----
+## 📦 Build a desktop app
 
-## 📦 Build the Desktop App
+On macOS, build a local application bundle:
 
-On macOS:
-
-\`\`\`bash
+```bash
 npm run tauri build -- --bundles app
-\`\`\`
+```
 
-The generated application is available at:
+Find it at:
 
-\`\`\`text
+```text
 src-tauri/target/release/bundle/macos/Veyra.app
-\`\`\`
+```
 
-You can launch the packaged app without keeping Node.js, Cargo or the Vite development server running.
+A packaged app does not require a running development server. **This repository does not yet provide verified Windows/Linux installers, a signed public macOS release or automatic updates.** Public macOS distribution requires appropriate signing and notarization.
 
-Public distribution still requires the appropriate platform signing/notarization process. The repository does not currently ship a signed installer or automatic updater.
+## 🧭 A typical workflow
 
----
+1. **Open a workspace** with **Cmd+O** and select a local project directory.
+2. **Find a file** in the Explorer or with **Cmd+P**; open it in a tab.
+3. **Edit and save** with **Cmd+S**, or save all with **Shift+Cmd+S**. Unsaved changes remain in open tabs.
+4. **Search** with **Shift+Cmd+F** across indexed files saved on disk. Search is case-insensitive literal text, capped at 500 results.
+5. **Inspect Git** in Source Control; use the terminal for staging, commits, merges and pushes.
+6. **Run your tools** from the terminal in the workspace folder, for example `git status` or your project's test command.
 
-## 🧭 Core Workflow
+Veyra prevents an edited file from silently overwriting a version changed by another application. **Save regularly:** crash recovery and session restoration are not implemented.
 
-### Open a project
+## ⌨️ Shortcuts
 
-Use **Open a project** or press \`Cmd+O\` to choose a local workspace. Browse files from the Explorer or press \`Cmd+P\` to quickly open an indexed file.
-
-### Edit safely
-
-Veyra keeps unsaved content in open tabs and prompts before destructive actions. If a file changes on disk while you are editing it, Veyra blocks the save instead of silently overwriting the newer external version.
-
-### Search the workspace
-
-Press \`Shift+Cmd+F\` to search saved project files. Workspace search is case-insensitive literal-text search and currently returns up to 500 results.
-
-### Run project commands
-
-Open the integrated terminal to start your login shell inside the workspace:
-
-\`\`\`bash
-git status
-python3 main.py
-npm install
-npm run dev
-\`\`\`
-
-The terminal is a **real shell, not a sandbox**. Run only commands and project scripts you trust.
-
-### Inspect Git changes
-
-The Source Control view exposes branch/status information and tracked-file diffs against \`HEAD\`. Staging, committing, pushing, merging and authentication are currently handled through the terminal.
-
----
-
-## ⌨️ Keyboard Shortcuts
+The following shortcuts describe the tested **macOS** interface.
 
 | Shortcut | Action |
-| --- | --- |
-| \`Cmd+O\` | Open workspace |
-| \`Cmd+N\` | New file |
-| \`Cmd+S\` | Save active file |
-| \`Shift+Cmd+S\` | Save all files |
-| \`Cmd+W\` | Close active tab |
-| \`Cmd+P\` | Quick Open |
-| \`Shift+Cmd+P\` | Command palette |
-| \`Cmd+F\` | Find in current file |
-| \`Option+Cmd+F\` | Replace in current file |
-| \`Shift+Cmd+F\` | Search workspace |
-| \`Shift+Option+F\` | Format document when supported |
-| \`Cmd+B\` | Toggle sidebar |
-| \`Cmd+,\` | Preferences |
+| :--- | :--- |
+| `Cmd+O` | Open workspace |
+| `Cmd+N` | New file |
+| `Cmd+S` / `Shift+Cmd+S` | Save file / save all |
+| `Cmd+W` | Close active tab |
+| `Cmd+P` | Quick Open |
+| `Shift+Cmd+P` | Command palette |
+| `Cmd+F` / `Option+Cmd+F` | Find / replace in editor |
+| `Shift+Cmd+F` | Search workspace |
+| `Shift+Option+F` | Format when supported |
+| `Cmd+B` | Toggle sidebar |
+| `Cmd+,` | Preferences |
 
-> These shortcuts describe the currently tested macOS interface.
+## 🏗 Under the hood
 
----
+```mermaid
+flowchart TD
+    UI[React + TypeScript interface] --> Monaco[Monaco Editor]
+    UI --> Terminal[xterm.js terminal]
+    UI --> IPC[Tauri IPC]
+    IPC --> Rust[Rust backend]
+    Rust --> Files[Workspace filesystem]
+    Rust --> Search[Search and Git inspection]
+    Rust --> PTY[Native PTY and shell]
+    Terminal --> IPC
+```
 
-## 🧪 Testing
+**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco Editor · xterm.js · portable-pty · Vite 7 · Playwright.
 
-Run the frontend type-check and production bundle:
+```text
+src/
+  App.tsx             Workspace UI and commands
+  App.css             Layout and themes
+  editor.ts           Monaco configuration
+  Terminal.tsx        Terminal interface
+  main.tsx            React entry point
+src-tauri/
+  src/lib.rs          Filesystem, search, Git and PTY commands
+  src/main.rs         Native entry point
+  capabilities/       Tauri permissions
+  icons/              Application icons
+  tauri.conf.json     Desktop configuration
+tests/                Browser UI tests
+public/veyra.png      Project icon
+```
 
-\`\`\`bash
+## 🧪 Development and tests
+
+```bash
+# Type-check and build the frontend
 npm run build
-\`\`\`
 
-Run the Playwright UI tests:
-
-\`\`\`bash
+# Install the browser and run UI tests
 npx playwright install chromium
 npx playwright test
-\`\`\`
 
-Run the native Rust tests:
-
-\`\`\`bash
+# Run native Rust unit tests
 cd src-tauri
 cargo test --lib
-\`\`\`
+```
 
-The browser tests exercise the Monaco-based UI with mocked native IPC. Rust tests cover native safety behavior such as path validation, symlink escapes and save conflicts.
+Playwright tests use mocked native IPC; they do **not** establish that terminal or installer integration works on every operating system. Native tests cover path validation, symlink escape protection and file-save conflicts.
 
----
+## 🔒 Current scope
 
-## 📁 Project Structure
+Veyra's editor file operations are limited to the selected workspace, with path checks and conflict-aware saving. The current implementation accepts UTF-8 text files up to **5 MB** and indexes up to **10,000 files** at a maximum depth of **25**. It skips common generated folders such as `.git`, `node_modules`, `dist`, `target` and `.venv`. The indexer does not yet honor custom `.gitignore` rules.
 
-\`\`\`text
-veyraeditor/
-├── src/
-│   ├── App.tsx          # Main workspace UI and commands
-│   ├── App.css          # Application layout and themes
-│   ├── editor.ts        # Monaco configuration and workers
-│   ├── Terminal.tsx     # xterm.js terminal UI
-│   └── main.tsx         # React entry point
-│
-├── src-tauri/
-│   ├── src/lib.rs       # Filesystem, search, Git and PTY backend
-│   ├── src/main.rs      # Native application entry point
-│   ├── capabilities/    # Tauri permissions
-│   ├── icons/           # Desktop application icons
-│   └── tauri.conf.json  # Window and bundle configuration
-│
-├── tests/               # Playwright regression tests
-├── public/              # Veyra and frontend assets
-└── package.json
-\`\`\`
+Language intelligence depends on bundled Monaco capabilities: Python/Rust language servers and full-project diagnostics are not implemented. Split view currently shows the **same active file** in both panes. Terminal sessions are not persistent, and unsaved buffers are not recovered after a crash.
 
----
+## 🗺 What's next
 
-## 🛡️ Safety & Local-First Design
+These are **planned improvements, not shipped features**:
 
-Veyra's editor-side native APIs are scoped to the workspace selected by the user. The application also includes protections against unsafe path traversal and conflicting file writes.
-
-Some current boundaries are intentional:
-
-- Text files must be UTF-8, contain no NUL bytes and be no larger than **5 MB**.
-- Workspace indexing is currently limited to **10,000 files** and a depth of **25**.
-- Common generated directories such as \`.git\`, \`node_modules\`, \`target\`, \`dist\`, \`build\`, \`.next\`, \`.venv\` and \`venv\` are skipped.
-- Terminal commands are outside those editor-file protections and execute with the user's normal shell permissions.
-
----
-
-## 🗺 Roadmap
-
-Veyra is intentionally growing in stages. Major areas planned for future development include:
-
-- [ ] Language Server Protocol integration
-- [ ] Rich Python and Rust diagnostics/completion
-- [ ] Integrated debugging and breakpoint management
-- [ ] Git staging, commit and merge workflows
-- [ ] Independent split-editor panes
+- [ ] Language Server Protocol integration and deeper language intelligence
+- [ ] Integrated debugger and breakpoint management
+- [ ] Git staging and commit interface
+- [ ] Independently selectable split panes and multi-root workspaces
 - [ ] Session restoration and crash recovery
 - [ ] Persistent terminal sessions
-- [ ] Multi-root workspaces
-- [ ] Extension/plugin architecture
-- [ ] AI-assisted development workflows
-- [ ] Verified Windows and Linux support
-- [ ] Signed releases and automatic updates
+- [ ] Extension architecture and optional AI-assisted workflows
+- [ ] Tested Windows/Linux support, signed releases and automatic updates
 
-Have an idea that fits Veyra's direction? Open an issue and describe the workflow it would improve.
-
----
+For feature requests or bugs, [open an issue](https://github.com/fcopensource/veyraeditor/issues).
 
 ## 🤝 Contributing
 
-Contributions are welcome.
-
-A good contribution should be focused, testable and consistent with Veyra's local-first desktop architecture.
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Make a focused change.
-4. Run the relevant frontend and/or Rust tests.
-5. Include screenshots for user-interface changes.
-6. Add regression coverage for filesystem-sensitive behavior.
-7. Open a pull request with a clear explanation of the change.
-
-Please do not commit credentials, private projects, dependency directories or generated release builds.
-
----
-
-## ⚠️ Current Limitations
-
-Veyra is not yet intended to replace every capability of mature IDEs such as VS Code.
-
-Current limitations include incomplete language-server support, no integrated debugger, no extension marketplace, no full Git write workflow, no session recovery and limited cross-platform verification.
-
-That scope is deliberate: the project is establishing a reliable native editing foundation first.
-
----
+Contributions are welcome. Fork the repository, create a focused branch, make your changes and open a pull request. Run `npm run build` and relevant UI/Rust tests before submitting. Include screenshots for visual changes and regression tests for filesystem-related fixes. Never commit secrets, private project files, dependencies or generated build artifacts.
 
 ## 📄 License
 
-Veyra is released under the [MIT License](LICENSE).
-
-Copyright © 2026 Vikram Singh.
-
-Third-party libraries and dependencies remain subject to their respective licenses.
+Released under the [MIT License](LICENSE). Copyright © 2026 Vikram Singh. Third-party dependencies retain their own licenses.
 
 ---
 
 <div align="center">
 
-### Build locally. Code with focus. Keep the workspace yours.
+**Your code. Your machine. Your flow.**
 
-If Veyra is useful to you, consider giving the repository a ⭐ and contributing to its development.
+If you find Veyra useful, consider starring the repository ⭐
 
-**[Back to top](#veyra-editor)**
+[Back to top](#veyra-editor)
 
 </div>
