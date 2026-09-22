@@ -1,100 +1,271 @@
-# vinext-starter
+<div align="center">
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+# Veyra Editor
 
-## Prerequisites
+### A developer-first code editor project focused on speed, clarity, and a clean coding experience.
 
-- Node.js `>=22.13.0`
+**Open source · TypeScript · React · Local-first direction · Built in public**
 
-## Quick Start
+[![License](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Open Source](https://img.shields.io/badge/open%20source-%E2%9D%A4-red)](https://github.com/fcopensource/veyraeditor)
+
+[Overview](#-overview) · [Current Status](#-current-status) · [Development](#-development) · [Roadmap](#-roadmap) · [Contributing](#-contributing)
+
+</div>
+
+---
+
+## ✨ Overview
+
+**Veyra Editor** is an open-source editor project exploring a faster, cleaner and more focused development environment.
+
+The long-term goal is to create an editor that keeps the core developer workflow simple:
+
+- write and navigate code quickly
+- work with projects without unnecessary interface noise
+- provide useful search, file and Git tooling
+- support an integrated terminal and developer commands
+- remain extensible as the project grows
+
+Veyra is being developed openly and iteratively rather than presented as a finished IDE before the underlying experience is ready.
+
+---
+
+## 🚧 Current Status
+
+> **Veyra is under active development and is not yet a production-ready replacement for VS Code, Zed, Cursor or other mature editors.**
+
+The repository is currently going through a rebuild of its application foundation.
+
+The current branch contains a modern React/TypeScript web runtime based on **vinext, Vite and Cloudflare-compatible tooling**. Core editor functionality is being layered onto this foundation progressively.
+
+This README intentionally distinguishes between what exists today and what is planned next.
+
+---
+
+## 🧱 Current Technology Stack
+
+| Layer | Technology |
+| --- | --- |
+| UI | React 19 |
+| Language | TypeScript |
+| Application runtime | vinext |
+| Build tooling | Vite 8 |
+| Styling | Tailwind CSS |
+| Data layer | Drizzle ORM |
+| Edge/runtime integration | Cloudflare-compatible worker |
+| Testing | Node test runner |
+| Linting | ESLint |
+
+---
+
+## 📁 Repository Structure
+
+```text
+veyraeditor/
+├── app/                 # Application routes and UI
+│   ├── _sites-preview/  # Preview surface
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── db/                  # Database layer and schema
+├── drizzle/             # Generated Drizzle metadata/migrations
+├── examples/            # Optional integration examples
+├── public/              # Static assets
+├── tests/               # Automated tests
+├── worker/              # Cloudflare-compatible worker entry point
+│
+├── next.config.ts
+├── drizzle.config.ts
+├── vite.config.ts
+├── tsconfig.json
+└── package.json
+```
+
+---
+
+## ⚡ Development
+
+### Requirements
+
+- Node.js **22.13+**
+- npm
+- Git
+
+### Clone the repository
+
+```bash
+git clone https://github.com/fcopensource/veyraeditor.git
+cd veyraeditor
+```
+
+### Install dependencies
 
 ```bash
 npm install
+```
+
+### Start development
+
+```bash
 npm run dev
+```
+
+### Create a production build
+
+```bash
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+### Run tests
 
-## Included Shape
-
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
-
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+### Lint the project
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+```bash
+npm run lint
+```
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+---
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+## 🎯 Product Direction
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+Veyra is being designed around several principles.
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+### ⚡ Fast by default
 
-## Useful Commands
+The editor should feel responsive during normal coding workflows instead of accumulating unnecessary UI and background complexity.
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+### 🧠 Developer focused
 
-## Learn More
+Features should earn their place by improving coding, navigation, debugging or project understanding.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+### 🧩 Extensible architecture
+
+The project should be able to evolve toward language intelligence, integrations and plugins without turning the core editor into a tightly coupled system.
+
+### 🔒 User-controlled workflow
+
+The long-term direction favors local project control and transparent developer tooling rather than hiding core operations behind opaque services.
+
+### 🌍 Open development
+
+Architecture, issues, roadmap decisions and contributions can evolve publicly through GitHub.
+
+---
+
+## 🗺 Roadmap
+
+The roadmap is intentionally ambitious, but features will be added incrementally.
+
+### Editor Core
+
+- [ ] Monaco-based editing surface
+- [ ] Syntax highlighting
+- [ ] Multi-tab editing
+- [ ] File explorer
+- [ ] Quick file navigation
+- [ ] Find and replace
+- [ ] Workspace-wide search
+- [ ] Command palette
+- [ ] Split editor views
+- [ ] Configurable themes and editor preferences
+
+### Developer Tooling
+
+- [ ] Integrated terminal
+- [ ] Git status and diff views
+- [ ] Git staging and commit workflow
+- [ ] Diagnostics panel
+- [ ] Language Server Protocol support
+- [ ] Rich autocomplete and symbol navigation
+- [ ] Formatter integration
+- [ ] Debugging and breakpoint support
+
+### Platform
+
+- [ ] Desktop packaging
+- [ ] macOS distribution
+- [ ] Windows distribution
+- [ ] Linux distribution
+- [ ] Automatic updates
+- [ ] Crash/session recovery
+- [ ] Extension architecture
+
+### Future Exploration
+
+- [ ] AI-assisted development workflows
+- [ ] Codebase-aware search
+- [ ] Project intelligence
+- [ ] Context-aware refactoring assistance
+- [ ] Collaborative developer workflows
+
+---
+
+## 🧪 Quality
+
+Before opening a pull request, run:
+
+```bash
+npm run build
+npm test
+npm run lint
+```
+
+New functionality should avoid unnecessary coupling and should include test coverage where practical.
+
+---
+
+## 🤝 Contributing
+
+Contributions, ideas and bug reports are welcome.
+
+A good contribution usually follows this flow:
+
+1. Fork the repository.
+2. Create a focused feature branch.
+3. Implement the change.
+4. Run the relevant build, lint and tests.
+5. Add screenshots for visible interface changes.
+6. Open a pull request explaining what changed and why.
+
+Please avoid committing credentials, generated dependency directories or private project data.
+
+---
+
+## 💡 Why Veyra?
+
+Developer editors are some of the most important tools engineers use every day.
+
+Veyra is an attempt to explore what that experience can look like when the project starts with a small, understandable architecture and grows deliberately around real developer workflows.
+
+The goal is not to clone every feature of an existing IDE.
+
+The goal is to build a focused editor worth using.
+
+---
+
+## 📄 License
+
+Veyra Editor is open source under the [MIT License](LICENSE).
+
+Copyright © 2026 Vikram Singh.
+
+---
+
+<div align="center">
+
+### Build with focus. Keep the tooling understandable.
+
+If you like the direction of Veyra, consider giving the repository a ⭐.
+
+**[Back to top](#veyra-editor)**
+
+</div>
