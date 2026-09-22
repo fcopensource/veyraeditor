@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/veyra-logo.png" alt="Veyra Editor Logo" width="110" />
+
 # Veyra Editor
 
 ### A developer-first code editor project focused on speed, clarity, and a clean coding experience.
