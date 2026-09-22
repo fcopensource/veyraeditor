@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/veyra-logo.png" alt="Veyra Editor Logo" width="110" />
+<img src="public/veyra-editor-icon.png" alt="Veyra Editor Logo" width="120" />
 
 # Veyra Editor
 
