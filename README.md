@@ -27,7 +27,7 @@
 ## ✨ Interface Preview
 
 <p align="center">
-  <img src="public/screenshots/veyra-ai-editor-preview.jpg" alt="Veyra Editor interface with Explorer, editor workspace and integrated terminal" width="100%" />
+  <img src="public/ssfile.png" alt="Veyra Editor interface with Explorer, editor workspace and integrated terminal" width="100%" />
 </p>
 
 <p align="center">
