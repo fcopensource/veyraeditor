@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "playwright test",
+    "test:soak": "playwright test tests/stability.spec.ts",
     "tauri": "tauri"
   },
   "dependencies": {
