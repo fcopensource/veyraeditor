@@ -14,6 +14,8 @@ impl Drop for TerminalSession { fn drop(&mut self) { let _ = self.child.kill(); 
 struct Entry { path: String, name: String, directory: bool }
 #[derive(Serialize)]
 struct Match { path: String, line: usize, text: String }
+#[derive(Serialize)]
+struct ContextFile { path: String, content: String, score: usize }
 type Result<T> = std::result::Result<T, String>;
 fn err(e: impl std::fmt::Display) -> String { e.to_string() }
 fn root(state: &Workspace) -> Result<PathBuf> { state.root.lock().map_err(err)?.clone().ok_or("Open a folder first".into()) }
@@ -168,6 +170,41 @@ async fn project_files(state: State<'_, Workspace>) -> Result<Vec<String>> {
     let root = root(&state)?;
     tauri::async_runtime::spawn_blocking(move || { let mut files = Vec::new(); index(&root, &root, &mut files, 0); files.sort(); files }).await.map_err(err)
 }
+fn relevant_context(root: &Path, query: &str, active: &str) -> Vec<ContextFile> {
+    let tokens: Vec<String> = query.split(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
+        .filter(|token| token.len() >= 3).take(16).map(str::to_lowercase).collect();
+    if tokens.is_empty() { return Vec::new(); }
+    let mut files=Vec::new();index(root,root,&mut files,0);
+    let active_extension=Path::new(active).extension().and_then(|value|value.to_str()).unwrap_or("");
+    let mut ranked=Vec::new();
+    for relative in files.into_iter().take(3000) {
+        let path=root.join(&relative);
+        let Ok(metadata)=fs::metadata(&path) else {continue};
+        if metadata.len()>256*1024 {continue;}
+        let Ok(text)=fs::read_to_string(&path) else {continue};
+        if text.contains('\0') {continue;}
+        let lower_path=relative.to_lowercase();let lower_text=text.to_lowercase();
+        let mut score=tokens.iter().map(|token|{
+            let path_score=if lower_path.contains(token){24}else{0};
+            path_score+lower_text.matches(token).count().min(8)
+        }).sum::<usize>();
+        if !active_extension.is_empty()&&Path::new(&relative).extension().and_then(|value|value.to_str())==Some(active_extension){score+=2;}
+        if relative==active {score+=8;}
+        if score>2 {
+            let content:String=text.chars().take(7000).collect();
+            ranked.push(ContextFile{path:relative,content,score});
+        }
+    }
+    ranked.sort_by(|a,b|b.score.cmp(&a.score).then_with(||a.path.cmp(&b.path)));
+    let mut bytes=0usize;
+    ranked.into_iter().filter(|item|{bytes+=item.content.len();bytes<=36*1024}).take(6).collect()
+}
+#[tauri::command]
+async fn ai_workspace_context(state:State<'_,Workspace>,query:String,active:String)->Result<Vec<ContextFile>>{
+    if query.len()>8000{return Err("AI context query is too large".into());}
+    let root=root(&state)?;
+    tauri::async_runtime::spawn_blocking(move||relevant_context(&root,&query,&active)).await.map_err(err)
+}
 #[tauri::command]
 async fn search_workspace(state: State<'_, Workspace>, query: String) -> Result<Vec<Match>> {
     let root = root(&state)?;
@@ -240,7 +277,7 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, project_files, search_workspace, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
+        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, project_files, search_workspace, ai_workspace_context, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });
@@ -316,5 +353,18 @@ mod tests {
         let base = a.path().canonicalize().unwrap();
         assert!(destination(&base, "escape/file").is_err());
         assert!(checked(&base, "escape").is_err());
+    }
+    #[test] fn workspace_context_prefers_relevant_files_and_stays_bounded() {
+        let dir=tempfile::tempdir().unwrap();let base=dir.path().canonicalize().unwrap();
+        fs::create_dir(base.join("src")).unwrap();
+        fs::write(base.join("src/auth.ts"),"export function authenticateUser() { return verifyToken(); }").unwrap();
+        fs::write(base.join("src/colors.ts"),"export const blue = '#00f';").unwrap();
+        fs::write(base.join("README.md"),"Authentication uses signed tokens.").unwrap();
+        let result=relevant_context(&base,"how does authentication verify token work?","src/auth.ts");
+        assert!(!result.is_empty());
+        assert_eq!(result[0].path,"src/auth.ts");
+        assert!(result.iter().all(|file|file.content.len()<=7000));
+        assert!(result.iter().map(|file|file.content.len()).sum::<usize>()<=36*1024);
+        assert!(!result.iter().any(|file|file.path=="src/colors.ts"));
     }
 }

@@ -1,10 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
-import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,MessageSquare,Plus,RefreshCw,Settings2,Sparkles,Square,X} from 'lucide-react';
+import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,FolderSearch,MessageSquare,Plus,RefreshCw,Settings2,Sparkles,Square,X} from 'lucide-react';
 export type AISnapshot={root:string;path:string;original:string;start:number;end:number;content:string};
 export type AIProposal={snapshot:AISnapshot;replacement:string;model:string};
 type Config={kind:string;endpoint:string};
 type Message={role:'user'|'assistant';content:string;display?:string;proposal?:AIProposal};
+type ContextFile={path:string;content:string;score:number};
 const defaults:Record<string,string>={ollama:'http://127.0.0.1:11434',openai:'https://api.openai.com/v1',openrouter:'https://openrouter.ai/api/v1',custom:'http://127.0.0.1:1234/v1'};
 function saved(){try{return JSON.parse(localStorage.getItem('veyra.ai.settings')||'{}');}catch{return {};}}
 export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{root:string;active:string;visible:boolean;onClose:()=>void;capture:(scope:string)=>AISnapshot|null;onReview:(proposal:AIProposal)=>void;intent:number}){
@@ -40,12 +41,19 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
   async function send(){
     if(request.current||!prompt.trim()||!model.trim())return;
     let snapshot:AISnapshot|null=null;
-    if(scope!=='none'){snapshot=capture(scope);if(!snapshot){setError(scope==='selection'?'Select some code in the editor first.':'Open a code file to attach it.');return;}}
+    let contextFiles:ContextFile[]=[];
+    if(scope==='workspace'){
+      if(mode==='edit'){setError('Workspace context is available in Ask mode. Choose the current file or a selection for reviewed edits.');return;}
+      try{contextFiles=await invoke<ContextFile[]>('ai_workspace_context',{query:prompt.trim(),active});}
+      catch(e){setError(String(e));return;}
+    }else if(scope!=='none'){snapshot=capture(scope);if(!snapshot){setError(scope==='selection'?'Select some code in the editor first.':'Open a code file to attach it.');return;}}
     if(mode==='edit'&&!snapshot){setError('Attach the current file or selected code to request an edit.');return;}
     if(snapshot&&new TextEncoder().encode(snapshot.content).length>48000){setError('This attachment is too large. Select a smaller block of code (48 KB maximum).');return;}
     const instruction=mode==='edit'?`Edit the attached ${scope==='selection'?'selection':'file'} as requested. Return its COMPLETE replacement in ONE fenced code block. Preserve unrelated code.\n\n`:'';
-    const content=instruction+prompt.trim()+(snapshot?`\n\nAttached ${scope} — ${snapshot.path}:\n<source>\n${snapshot.content}\n</source>`:'');
-    const next:Message[]=[...messages,{role:'user',content,display:prompt.trim()+(snapshot?`\n↳ ${snapshot.path} · ${scope}`:'')}];
+    const workspaceContext=contextFiles.length?`\n\nRelevant workspace context selected by Veyra:\n${contextFiles.map(file=>`<file path="${file.path}">\n${file.content}\n</file>`).join('\n')}`:'';
+    const contextLabel=contextFiles.length?`\n↳ Smart context · ${contextFiles.map(file=>file.path).join(', ')}`:'';
+    const content=instruction+prompt.trim()+(snapshot?`\n\nAttached ${scope} — ${snapshot.path}:\n<source>\n${snapshot.content}\n</source>`:'')+workspaceContext;
+    const next:Message[]=[...messages,{role:'user',content,display:prompt.trim()+(snapshot?`\n↳ ${snapshot.path} · ${scope}`:'')+contextLabel}];
     if(next.length>22){setError('Start a new chat to keep the model context focused.');return;}
     const revision=generation.current;const id=crypto.randomUUID();request.current=id;setBusy(true);setError('');setPrompt('');setMessages(next);
     const requestedModel=model;const requestedMode=mode;
@@ -72,14 +80,14 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
       <p className="ai-fine">Cloud providers need your own API account and may charge per request. Compatible APIs must support text chat completions.</p>
     </section>}
     <div className="ai-messages" ref={list} aria-live="polite">
-      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><Sparkles size={28}/></div><span className="ai-eyebrow">A SECOND PAIR OF EYES</span><h2>Think it.<br/>Build it.</h2><p>Talk through an idea, understand your code, or review a suggested change.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
+      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><Sparkles size={28}/></div><span className="ai-eyebrow">A SECOND PAIR OF EYES</span><h2>Think it.<br/>Build it.</h2><p>Talk through an idea, understand your code, or review a suggested change.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
       {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':'Veyra AI'}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div><pre>{message.display||message.content}</pre>{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
       {busy&&<div className="ai-thinking" role="status"><i/><span>{model} is thinking…</span></div>}
     </div>
     {error&&<div className="ai-error" role="alert">{error}<button aria-label="Dismiss AI error" onClick={()=>setError('')}><X size={12}/></button></div>}
     <form className="ai-composer" onSubmit={e=>{e.preventDefault();void send();}}>
       <div className="ai-compose-tabs"><button type="button" className={mode==='ask'?'active':''} disabled={busy} onClick={()=>setMode('ask')}><MessageSquare size={12}/>Ask</button><button type="button" className={mode==='edit'?'active':''} disabled={busy} onClick={()=>setMode('edit')}><Code2 size={12}/>Edit</button><kbd>⌘↵</kbd></div>
-      <label className="ai-context"><FileCode2 size={13}/><select aria-label="AI attachment" value={scope} disabled={busy} onChange={e=>setScope(e.target.value)}><option value="none">No file attached</option><option value="file" disabled={!active}>Current file{active?' · '+active.split('/').pop():''}</option><option value="selection" disabled={!active}>Selected code</option></select></label>
+      <label className="ai-context"><FileCode2 size={13}/><select aria-label="AI attachment" value={scope} disabled={busy} onChange={e=>setScope(e.target.value)}><option value="none">No file attached</option><option value="workspace">Smart workspace context</option><option value="file" disabled={!active}>Current file{active?' · '+active.split('/').pop():''}</option><option value="selection" disabled={!active}>Selected code</option></select></label>
       <textarea ref={input} aria-label="Ask Veyra AI" value={prompt} maxLength={8000} onChange={e=>setPrompt(e.target.value)} placeholder={mode==='edit'?'Describe the change you want…':'Ask anything about your code…'} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();void send();}}}/>
       <div className="ai-compose-footer"><div className="ai-model-select"><select aria-label="AI model" value={model} disabled={busy} onChange={e=>{reset();setModel(e.target.value);}}><option value="">Select model</option>{model&&!models.includes(model)&&<option value={model}>{model}</option>}{models.map(m=><option key={m} value={m}>{m}</option>)}</select><ChevronDown size={12}/></div>{busy?<button type="button" className="ai-send" aria-label="Stop AI request" onClick={()=>void stop()}><Square size={14}/></button>:<button className="ai-send" aria-label="Send to AI" disabled={!prompt.trim()||!model.trim()}><ArrowUp size={17}/></button>}</div>
       <p className="ai-transmission">{local?'Local':'Cloud'} · Sends this chat{scope==='none'?'':` + ${scope}`} to {destination}. Edits require review.</p>

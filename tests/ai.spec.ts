@@ -8,6 +8,7 @@ test.beforeEach(async({page})=>{
       if(cmd==='ai_models')return args.config.kind==='ollama'?['qwen2.5-coder:3b','local-second:1b']:['provider/chat-model'];
       if(cmd==='ai_chat'){if((window as any).delayAI)return new Promise<string>(resolve=>{pending=resolve;});return 'Here is the improvement.\n```typescript\nexport const greeting = "updated";\n```';}
       if(cmd==='ai_cancel'){pending?.('Stopped');return;}
+      if(cmd==='ai_workspace_context')return [{path:'hello.ts',content:files['hello.ts'],score:42},{path:'README.md',content:files['README.md'],score:8}];
       if(cmd==='choose_folder')return '/tmp/ai-test';
       if(cmd==='list_directory')return Object.keys(files).map(path=>({path,name:path,directory:false}));
       if(cmd==='project_files')return Object.keys(files);
@@ -54,4 +55,17 @@ test('new chat cancels pending request and discards late response; compact panel
   expect(await page.evaluate(()=>(window as any).aiCalls.some((c:any)=>c.cmd==='ai_cancel'))).toBe(true);
   await page.setViewportSize({width:700,height:500});await page.getByRole('button',{name:'Close AI',exact:true}).click();await expect(page.getByRole('complementary',{name:'AI assistant'})).toBeHidden();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(700);
+});
+test('smart workspace context retrieves relevant files and discloses what is sent',async({page})=>{
+  await openFile(page);
+  await page.getByLabel('AI attachment').selectOption('workspace');
+  await page.getByLabel('Ask Veyra AI').fill('How is the greeting documented?');
+  await page.getByRole('button',{name:'Send to AI'}).click();
+  await expect(page.locator('.ai-message.user')).toContainText('Smart context · hello.ts, README.md');
+  const calls=await page.evaluate(()=>(window as any).aiCalls);
+  const contextCall=calls.find((call:any)=>call.cmd==='ai_workspace_context');
+  expect(contextCall.args).toEqual({query:'How is the greeting documented?',active:'hello.ts'});
+  const sent=JSON.stringify(calls.find((call:any)=>call.cmd==='ai_chat').args.messages);
+  expect(sent).toContain('<file path=\\"hello.ts\\">');
+  expect(sent).toContain('# Demo');
 });
