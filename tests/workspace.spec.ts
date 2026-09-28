@@ -38,6 +38,25 @@ test.beforeEach(async ({page})=>{
           if(args.directory)directories.add(path);else files[path]="";
           return;
         }
+        if(cmd==="rename_file"){
+          const from=String(args.path),to=String(args.next);
+          if(exists(to))throw "A file or folder already exists at "+to;
+          if(directories.has(from)){
+            const movedDirectories=Array.from(directories).filter(entry=>entry===from||entry.startsWith(from+"/"));
+            const movedFiles=Object.keys(files).filter(entry=>entry.startsWith(from+"/"));
+            movedDirectories.forEach(entry=>directories.delete(entry));
+            movedDirectories.forEach(entry=>directories.add(to+entry.slice(from.length)));
+            movedFiles.forEach(entry=>{files[to+entry.slice(from.length)]=files[entry];delete files[entry];});
+          }else if(Object.prototype.hasOwnProperty.call(files,from)){files[to]=files[from];delete files[from];}
+          else throw "Not found";
+          return;
+        }
+        if(cmd==="trash_file"){
+          const path=String(args.path);
+          directories.delete(path);Array.from(directories).filter(entry=>entry.startsWith(path+"/")).forEach(entry=>directories.delete(entry));
+          Object.keys(files).filter(entry=>entry===path||entry.startsWith(path+"/")).forEach(entry=>delete files[entry]);
+          return;
+        }
         if(cmd==="search_workspace")return Object.entries(files).flatMap(([path,text])=>text.split("\n").flatMap((line,i)=>line.toLowerCase().includes(args.query.toLowerCase())?[{path,line:i+1,text:line}]:[]));
         if(cmd==="git_status")return "## main\n M src/App.tsx\n";
         if(cmd==="git_diff")return "- old\n+ new";
@@ -195,6 +214,31 @@ test("folder actions, workspace-root reset and compact explorer remain usable",a
   await expect(page.getByTitle("New file · ⌘N")).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(700);
   await page.screenshot({path:"test-results/explorer-compact.png"});
+});
+
+test("explorer context menu renames files and folders and offers folder actions",async({page})=>{
+  await page.goto("/");
+  await page.getByRole("button",{name:"Open a project",exact:false}).click();
+  await page.locator('.tree-row[title="src"]').click();
+  await page.locator('.tree-row[title="src/App.tsx"]').click({button:'right'});
+  const fileMenu=page.getByRole('menu',{name:'App.tsx actions'});
+  await expect(fileMenu).toBeVisible();
+  await fileMenu.getByRole('menuitem',{name:/Rename/}).click();
+  await page.getByRole('textbox',{name:'Rename file'}).fill('src/Main.tsx');
+  await page.getByRole('button',{name:'Rename',exact:true}).click();
+  await expect(page.locator('.tree-row[title="src/Main.tsx"]')).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).testFiles['src/App.tsx'])).toBeUndefined();
+
+  await page.locator('.tree-row[title="src"]').click({button:'right'});
+  const folderMenu=page.getByRole('menu',{name:'src actions'});
+  await expect(folderMenu.getByRole('menuitem',{name:'New File'})).toBeVisible();
+  await expect(folderMenu.getByRole('menuitem',{name:'New Folder'})).toBeVisible();
+  await folderMenu.getByRole('menuitem',{name:/Rename/}).click();
+  await page.getByRole('textbox',{name:'Rename folder'}).fill('source');
+  await page.getByRole('button',{name:'Rename',exact:true}).click();
+  await expect(page.locator('.tree-row[title="source"]')).toBeVisible();
+  await page.locator('.tree-row[title="source"]').click();
+  await expect(page.locator('.tree-row[title="source/Main.tsx"]')).toBeVisible();
 });
 
 test("creation rejects traversal without IPC, traps focus and dismisses safely with Escape",async({page})=>{

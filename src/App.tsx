@@ -21,6 +21,7 @@ type Tab = { path: string; text: string; original: string; external?: boolean };
 type Hit = { path: string; line: number; text: string };
 type Modal = { title: string; detail?: string; initial?: string; input?: boolean; choices: string[]; resolve: (value: string | null) => void };
 type Preferences = { fontSize: number; wrap: boolean; minimap: boolean; light: boolean };
+type ExplorerMenu = { x: number; y: number; entry: Entry };
 const baseName = (path: string) => path.split("/").pop() || path;
 const dirty = (tab: Tab) => tab.text !== tab.original;
 const IconFile = DimensionalIcon;
@@ -84,6 +85,7 @@ export default function App() {
   const [palette, setPalette] = useState<"files"|"commands"|null>(null);
   const [paletteQuery, setPaletteQuery] = useState("");
   const [modal, setModal] = useState<Modal|null>(null);
+  const [explorerMenu,setExplorerMenu]=useState<ExplorerMenu|null>(null);
   const [input, setInput] = useState("");
   const [problems, setProblems] = useState<monaco.editor.IMarker[]>([]);
   const [symbols, setSymbols] = useState<{name:string;line:number}[]>([]);
@@ -226,18 +228,41 @@ export default function App() {
     if(!creation.directory)await openFile(path);
     setStatus("Created "+path);setError("");
   }
-  async function rename() {
-    if(!file || !await allowDiscard("Save before renaming?",[file]))return;
-    const next=await ask("Rename file",["Cancel","Rename"],"The destination must not already exist.",file.path);
-    if(!next || next===file.path)return;
-    try {await invoke("rename_file",{path:file.path,next});setTabs(all=>all.filter(t=>t.path!==file.path));await refresh();await openFile(next);}catch(e){report(e);}
+  async function renameEntry(entry:Entry) {
+    setExplorerMenu(null);
+    const affected=state.current.tabs.filter(tab=>tab.path===entry.path||(entry.directory&&tab.path.startsWith(entry.path+"/")));
+    if(!await allowDiscard("Save before renaming?",affected))return;
+    const label=entry.directory?"folder":"file";
+    const next=await ask("Rename "+label,["Cancel","Rename"],"Enter a workspace-relative path. The destination must not already exist.",entry.path);
+    if(!next || next===entry.path)return;
+    try {
+      await invoke("rename_file",{path:entry.path,next});
+      affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
+      setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));
+      if(affected.some(tab=>tab.path===state.current.active))setActive("");
+      setSelectedPath(next);setSelectedFolder(entry.directory?next:(next.includes("/")?next.slice(0,next.lastIndexOf("/")):""));
+      await refresh(next.includes("/")?next.slice(0,next.lastIndexOf("/")):"");
+      if(!entry.directory&&affected.length)await openFile(next);
+      setStatus(`Renamed ${entry.name} to ${baseName(next)}`);
+    }catch(e){report(e);}
   }
-  async function trash() {
-    if(!file)return;
-    const result=await ask("Move "+baseName(file.path)+" to Trash?",["Cancel","Move to Trash"],"The disk file can be recovered from Trash. Unsaved edits in this tab will be discarded.");
+  async function rename(){if(file)await renameEntry({path:file.path,name:baseName(file.path),directory:false});}
+  async function trashEntry(entry:Entry) {
+    setExplorerMenu(null);
+    const affected=state.current.tabs.filter(tab=>tab.path===entry.path||(entry.directory&&tab.path.startsWith(entry.path+"/")));
+    if(!await allowDiscard("Save before moving to Trash?",affected))return;
+    const result=await ask("Move "+entry.name+" to Trash?",["Cancel","Move to Trash"],`The ${entry.directory?'folder and everything inside it':'file'} can be recovered from Trash.`);
     if(result!=="Move to Trash")return;
-    try {await invoke("trash_file",{path:file.path});setTabs(all=>all.filter(t=>t.path!==file.path));setActive("");await refresh();setStatus("Moved to Trash");}catch(e){report(e);}
+    try {
+      await invoke("trash_file",{path:entry.path});
+      affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
+      setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));
+      if(affected.some(tab=>tab.path===state.current.active))setActive("");
+      setSelectedPath("");setSelectedFolder(entry.path.includes("/")?entry.path.slice(0,entry.path.lastIndexOf("/")):"");
+      await refresh();setStatus("Moved "+entry.name+" to Trash");
+    }catch(e){report(e);}
   }
+  async function trash(){if(file)await trashEntry({path:file.path,name:baseName(file.path),directory:false});}
   async function reload() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
     try{const text=await invoke<string>("read_file",{path:file.path});setTabs(all=>all.map(t=>t.path===file.path?{...t,text,original:text,external:false}:t));}catch(e){report(e);}
@@ -267,7 +292,7 @@ export default function App() {
   useEffect(()=>{
     const key=(e:KeyboardEvent)=>{
       if(creation)return;
-      if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);return;}
+      if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);setExplorerMenu(null);return;}
       if(!(e.metaKey||e.ctrlKey))return;
       const k=e.key.toLowerCase();
       if(["s","o","p","n","b",",","w","l","k"].includes(k)){e.preventDefault();e.stopPropagation();}
@@ -321,7 +346,7 @@ export default function App() {
   };
   function treeItems(parent="",depth=0): React.ReactNode {
     return (tree[parent]||[]).map(entry=><div key={entry.path}>
-      <div className={"explorer-entry "+(selectedPath===entry.path?"selected":"")}>
+      <div className={"explorer-entry "+(selectedPath===entry.path?"selected":"")} onContextMenu={event=>{event.preventDefault();event.stopPropagation();setSelectedPath(entry.path);if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
       <button className={"tree-row "+(active===entry.path?"active":"")} aria-pressed={selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={()=>entry.directory?toggleFolder(entry.path):openFile(entry.path)}>
         {entry.directory?<>{expanded.has(entry.path)?<ChevronDown size={12}/>:<ChevronRight size={12}/>}<DimensionalIcon path={entry.path} directory open={expanded.has(entry.path)}/></>:<><span className="tree-indent"/><IconFile path={entry.path}/></>}
         <span>{entry.name}</span>{tabs.some(t=>t.path===entry.path&&dirty(t))&&<i className="dirty-dot"/>}
@@ -374,6 +399,11 @@ export default function App() {
     </div>
     <footer className="statusbar"><button onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={12}/>{git.split("\n")[0]?.replace("## ","").split("...")[0]||"Local workspace"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span><span className="status-position">Ln {position.lineNumber}, Col {position.column}</span><span>UTF-8</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
     {error&&<div className="toast" role="alert"><CircleAlert size={18}/><span>{error}</span><button onClick={()=>setError("")}><X size={15}/></button></div>}
+    {explorerMenu&&<><button className="context-menu-dismiss" aria-label="Close context menu" onClick={()=>setExplorerMenu(null)} onContextMenu={event=>{event.preventDefault();setExplorerMenu(null);}}/><div className="explorer-context-menu" role="menu" aria-label={explorerMenu.entry.name+" actions"} style={{left:Math.min(explorerMenu.x,window.innerWidth-220),top:Math.min(explorerMenu.y,window.innerHeight-220)}}>
+      <header><DimensionalIcon path={explorerMenu.entry.path} directory={explorerMenu.entry.directory}/><span><b>{explorerMenu.entry.name}</b><small>{explorerMenu.entry.directory?'Folder':'File'}</small></span></header>
+      {explorerMenu.entry.directory&&<><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(false,path);}}><FilePlus2 size={14}/>New File</button><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(true,path);}}><FolderPlus size={14}/>New Folder</button><i/></>}
+      <button role="menuitem" onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" className="danger" onClick={()=>void trashEntry(explorerMenu.entry)}><Trash2 size={14}/>Move to Trash</button>
+    </div></>}
     {palette&&<div className="overlay" onMouseDown={()=>setPalette(null)}><div className="palette" onMouseDown={e=>e.stopPropagation()}><div className="palette-search"><Search size={19}/><input autoFocus aria-label="Search commands or files" placeholder={palette==="files"?"Go to file…":"What would you like to do?"} value={paletteQuery} onChange={e=>setPaletteQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&matches.length){const first=matches[0];setPalette(null);if(typeof first==="string")void openFile(first);else void first.run();}}}/><kbd>esc</kbd></div><div className="palette-label">{palette==="files"?"WORKSPACE FILES":"COMMANDS"}</div><div className="palette-results">{matches.map(item=>typeof item==="string"?<button key={item} onClick={()=>openFile(item)}><IconFile path={item}/><span>{item}</span><ArrowUpRight size={13}/></button>:<button key={item.name} onClick={()=>{setPalette(null);void item.run();}}><Command size={14}/><span>{item.name}</span><kbd>{item.shortcut}</kbd></button>)}{!matches.length&&<p>No results. {root?"Try another search.":"Open a workspace first."}</p>}</div><div className="palette-footer">Enter to select the first result · Esc to close</div></div></div>}
     {creation&&<CreateEntryDialog directory={creation.directory} parent={creation.parent} project={projectName} onCreate={createAt} onClose={()=>setCreation(null)}/>}
     {proposal&&<div className="overlay ai-diff-overlay"><section className="ai-diff-dialog" role="dialog" aria-modal="true" aria-label="Review AI edit"><header><div><h2>Review AI edit</h2><small>{proposal.snapshot.path} · {proposal.model}</small></div><button aria-label="Close AI review" onClick={()=>setProposal(null)}><X size={17}/></button></header><div className="ai-diff-body"><DiffEditor original={proposal.snapshot.original} modified={proposal.snapshot.original.slice(0,proposal.snapshot.start)+proposal.replacement+proposal.snapshot.original.slice(proposal.snapshot.end)} language={languageFor(proposal.snapshot.path)} theme={effectiveTheme||(preferences.light?'vs':'veyra')} options={{readOnly:true,renderSideBySide:true,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false}}/></div>{proposalError&&<p role="alert">{proposalError}</p>}<footer><p>Applies to the editor buffer. ⌘Z to undo; ⌘S to save.</p><button className="secondary" onClick={()=>setProposal(null)}>Discard</button><button className="primary" onClick={applyProposal}>Apply edit</button></footer></section></div>}

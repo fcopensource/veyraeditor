@@ -147,7 +147,7 @@ fn rename_file(state: State<Workspace>, path: String, next: String) -> Result<()
 #[tauri::command]
 fn trash_file(state: State<Workspace>, path: String) -> Result<()> {
     let file = checked(&root(&state)?, &path)?;
-    if !file.is_file() { return Err("Only individual files can be moved to Trash".into()); }
+    if !file.is_file() && !file.is_dir() { return Err("Only files and folders can be moved to Trash".into()); }
     trash::delete(file).map_err(err)
 }
 fn index(dir: &Path, base: &Path, files: &mut Vec<String>, depth: usize) {
