@@ -3,6 +3,7 @@ use serde::Serialize;
 use std::{fs, io::{Read, Write}, path::{Component, Path, PathBuf}, process::Command, sync::{Mutex, atomic::{AtomicBool, Ordering}}};
 use tauri::{Emitter, Manager, State, ipc::Channel};
 use tauri_plugin_dialog::DialogExt;
+mod ai;
 
 const MAX_FILE: u64 = 5 * 1024 * 1024;
 #[derive(Default)]
@@ -237,9 +238,9 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default().manage(Workspace::default())
+    tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, project_files, search_workspace, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit])
+        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, project_files, search_workspace, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Veyra Explorer Preview",
-  "version": "0.2.1",
-  "identifier": "com.veyra.explorerpreview",
+  "productName": "Veyra Studio",
+  "version": "0.3.0",
+  "identifier": "com.veyra.extensionspreview",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Veyra Explorer Preview",
+        "title": "Veyra Studio",
         "width": 1360,
         "height": 880,
         "minWidth": 680,

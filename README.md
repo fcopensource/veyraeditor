@@ -8,7 +8,7 @@
 
 ### A local-first desktop coding environment being built for the AI era.
 
-**Veyra combines a native desktop shell, Monaco editing, project navigation, Git tooling and a real terminal — with an AI-native development layer on the roadmap.**
+**Veyra Studio 0.3 combines Monaco editing, project navigation, Git tooling, a real terminal, installable themes/snippets and a multi-provider AI assistant with reviewed edits.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
 [![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
@@ -16,7 +16,7 @@
 [![Monaco](https://img.shields.io/badge/Monaco-Editor-007ACC?logo=visualstudiocode&logoColor=white)](https://microsoft.github.io/monaco-editor/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![AI Native](https://img.shields.io/badge/AI--native-roadmap-8B5CF6)](#-ai-native-direction)
+[![AI Studio](https://img.shields.io/badge/AI_Studio-0.3-8B5CF6)](docs/STUDIO.md)
 
 [Preview](#-interface-preview) · [Features](#-what-works-today) · [AI Vision](#-ai-native-direction) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
@@ -42,7 +42,7 @@ Most developers spend hours every day inside an editor. Veyra is being designed 
 
 The project starts with a strong desktop foundation first: real local files, native project access, a proper shell, Monaco editing and predictable developer workflows. The next layer is AI — not as a separate chatbot bolted onto the side, but as tooling that can eventually understand the workspace, propose changes, explain code, help debug and operate across files with the developer in control.
 
-> **Current status:** Veyra is an early-stage open-source project. The editor foundation shown above is real and working. The full AI Studio/agent layer described below is a product direction and roadmap, not a claim that every AI feature already ships in the current build.
+> **Current status:** Veyra Studio 0.3 ships AI chat, local/cloud model selection, file/selection attachments, and reviewed edits with undo. It also includes dimensional file/folder icons and Open VSX theme/snippet installation. Autonomous agents, project-wide semantic indexing, automatic inline AI completion and general VS Code extension hosting remain future work. See the [Studio setup and usage guide](docs/STUDIO.md).
 
 ---
 
@@ -60,6 +60,9 @@ The project starts with a strong desktop foundation first: real local files, nat
 | **Safe writes** | Atomic saves plus protection against silently overwriting externally changed files |
 | **Desktop runtime** | Native Tauri application with Rust filesystem, search, Git and PTY commands |
 | **Customization** | Dark/light themes, font controls, minimap, word wrap, resizable UI and split view |
+| **Extensions** | Search Open VSX, install compatible themes/snippets or import VSIX, apply themes, disable and uninstall |
+| **AI Studio** | Ollama, OpenAI, OpenRouter and compatible text-chat APIs; attach a file/selection, review a diff, apply to the buffer and undo |
+| **Visuals** | Dimensional SVG file/folder icons, refined surfaces and a responsive right-hand AI panel |
 
 Veyra operates on your actual local project. The integrated terminal runs with your normal user permissions, so only execute code and commands you trust.
 
@@ -69,7 +72,9 @@ Veyra operates on your actual local project. The integrated terminal runs with y
 
 The long-term goal is for Veyra to become an **AI-native code editor** where intelligence is part of the coding workflow rather than a disconnected chat window.
 
-### AI Studio — planned
+### AI Studio — shipped and planned
+
+Chat, model switching, explicit file/selection context and single-file diff review ship in 0.3. The broader capabilities below describe the longer-term direction. Cloud providers require your own API keys; keys stay in native process memory for the current session. Ollama must be installed and have a downloaded model. [Connection instructions →](docs/STUDIO.md#ai-assistant)
 
 | Capability | Direction |
 | --- | --- |
@@ -169,10 +174,11 @@ flowchart LR
     Rust --> Git[Git Inspection]
     Rust --> PTY[Native PTY / Shell]
 
-    UI -. planned .-> AI[AI Studio]
-    AI -. planned .-> Context[Workspace Context Layer]
-    Context -. planned .-> Models[LLM / Local Model Providers]
-    AI -. approved actions .-> IPC
+    UI --> AI[AI Studio]
+    AI --> Context[Explicit file or selection context]
+    Context --> IPC
+    Rust --> Models[Ollama / OpenAI / OpenRouter / Compatible APIs]
+    AI --> Review[Diff review and undoable buffer edits]
 ```
 
 ### Core stack
@@ -235,6 +241,9 @@ veyraeditor/
 | `Shift+Cmd+F` | Search workspace |
 | `Shift+Option+F` | Format document when supported |
 | `Cmd+B` | Toggle sidebar |
+| `Cmd+L` | Toggle AI assistant |
+| `Cmd+K` | Edit selected code with AI |
+| `Cmd+Enter` | Send the AI prompt |
 | `Cmd+,` | Preferences |
 
 These shortcuts currently reflect the macOS build.
@@ -266,7 +275,7 @@ Veyra is designed around local project ownership.
 
 Editor-side native file operations are scoped to the selected workspace. Files are written defensively, and Veyra checks for save conflicts when another process changes a file on disk.
 
-For the future AI layer, the intended model is equally explicit: workspace context should be visible and controlled, generated changes should be reviewable, and destructive actions should never happen invisibly.
+AI sends only the displayed conversation and explicitly attached file/selection to the chosen provider. Local Ollama mode excludes cloud aliases. Cloud requests may incur provider fees. Reviewed changes update the editor buffer, require an explicit save, and are rejected if the original file or workspace changed. AI does not execute shell commands or automatically write files.
 
 ---
 
@@ -283,14 +292,15 @@ For the future AI layer, the intended model is equally explicit: workspace conte
 - [x] Git status/diff inspection
 
 ### AI-native development
-- [ ] AI Studio panel
+- [x] AI Studio panel
 - [ ] Workspace-aware context engine
-- [ ] Inline AI edit + diff review
+- [x] Selected-code AI edit + diff review
+- [ ] Automatic inline AI completion
 - [ ] Multi-file AI plans
 - [ ] Explain / refactor / debug actions
 - [ ] Test-generation workflow
 - [ ] Terminal-aware assistant
-- [ ] Provider abstraction for cloud/local models
+- [x] Provider abstraction for cloud/local models
 
 ### IDE depth
 - [ ] Language Server Protocol integration
@@ -299,7 +309,8 @@ For the future AI layer, the intended model is equally explicit: workspace conte
 - [ ] Git staging / commit UI
 - [ ] Independent split-editor panes
 - [ ] Session restore and crash recovery
-- [ ] Extension/plugin system
+- [x] Theme/snippet extensions from Open VSX and VSIX
+- [ ] General VS Code extension runtime
 
 ### Distribution
 - [ ] Signed macOS releases
