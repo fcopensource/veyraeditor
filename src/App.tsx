@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Editor, { DiffEditor, type OnMount } from "@monaco-editor/react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -94,6 +94,8 @@ export default function App() {
   const state = useRef({tabs,active,root}); state.current = {tabs,active,root};
   const saving = useRef(new Set<string>());
   const opening = useRef(new Set<string>());
+  const diskCheckRunning=useRef(false);
+  const cursorTimer=useRef<number|undefined>(undefined);
   const modalRef = useRef<Modal|null>(null); modalRef.current = modal;
   const file = tabs.find(t => t.path === active);
   const countDirty = tabs.filter(dirty).length;
@@ -317,29 +319,44 @@ export default function App() {
   },[query,root]);
   useEffect(()=>{
     const check=async()=>{
+      if(diskCheckRunning.current||document.visibilityState!=="visible")return;
       const {tabs,root}=state.current;
       if(!root)return;
-      for(const tab of tabs){
-        if(saving.current.has(tab.path))continue;
-        try{
-          const disk=await invoke<string>("read_file",{path:tab.path});
-          if(state.current.root!==root)return;
-          setTabs(all=>all.map(t=>t.path!==tab.path||saving.current.has(t.path)?t:dirty(t)?{...t,external:disk!==t.original}:{...t,text:disk,original:disk,external:false}));
-        }catch{ /* Deleted or temporarily unavailable files keep their buffer. */ }
-      }
+      diskCheckRunning.current=true;
+      try{
+        const results=await Promise.all(tabs.map(async tab=>{
+          if(saving.current.has(tab.path))return null;
+          try{return {path:tab.path,disk:await invoke<string>("read_file",{path:tab.path})};}
+          catch{return null;}
+        }));
+        if(state.current.root!==root)return;
+        const disks=new Map(results.filter((item):item is NonNullable<typeof item>=>item!==null).map(item=>[item.path,item.disk]));
+        setTabs(all=>{
+          let changed=false;
+          const next=all.map(tab=>{
+            const disk=disks.get(tab.path);if(disk===undefined||saving.current.has(tab.path))return tab;
+            if(dirty(tab)){const external=disk!==tab.original;if(external===!!tab.external)return tab;changed=true;return {...tab,external};}
+            if(disk===tab.original&&!tab.external)return tab;
+            changed=true;return {...tab,text:disk,original:disk,external:false};
+          });
+          return changed?next:all;
+        });
+      }finally{diskCheckRunning.current=false;}
     };
-    const timer=setInterval(check,4000);return()=>clearInterval(timer);
+    const timer=setInterval(check,8000);return()=>clearInterval(timer);
   },[]);
   useEffect(()=>{
     if(!file){setSymbols([]);return;}
-    setSymbols(file.text.split("\n").flatMap((line,i)=>{
-      const match=line.match(/(?:function|class|interface|type|def|fn|struct|enum)\s+(\w+)/) || line.match(/(?:export\s+)?(?:const|let)\s+(\w+)\s*=/);
-      return match?[{name:match[1],line:i+1}]:[];
-    }).slice(0,80));
+    const text=file.text;
+    const timer=window.setTimeout(()=>setSymbols(text.split("\n").flatMap((line,i)=>{
+        const match=line.match(/(?:function|class|interface|type|def|fn|struct|enum)\s+(\w+)/) || line.match(/(?:export\s+)?(?:const|let)\s+(\w+)\s*=/);
+        return match?[{name:match[1],line:i+1}]:[];
+      }).slice(0,80)),250);
+    return()=>clearTimeout(timer);
   },[file?.text]);
   const mounted: OnMount = (instance) => {
     editor.current=instance;
-    instance.onDidChangeCursorPosition(e=>setPosition(e.position));
+    instance.onDidChangeCursorPosition(e=>{clearTimeout(cursorTimer.current);cursorTimer.current=window.setTimeout(()=>setPosition(e.position),80);});
     instance.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,()=>void saveTab());
     instance.addAction({id:'veyra.ai.edit',label:'Edit selection with Veyra AI',contextMenuGroupId:'navigation',contextMenuOrder:1,run:editWithAI});
     instance.focus();
@@ -354,7 +371,7 @@ export default function App() {
     </div>);
   }
   const modelUri = file?monaco.Uri.file(root+"/"+file.path).toString():"";
-  const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {fontSize:preferences.fontSize,fontFamily:"Menlo, Monaco, monospace",fontLigatures:true,lineHeight:24,automaticLayout:true,minimap:{enabled:preferences.minimap},wordWrap:preferences.wrap?"on":"off",padding:{top:18},smoothScrolling:true,scrollBeyondLastLine:false,bracketPairColorization:{enabled:true},tabSize:2,renderLineHighlight:"all",stickyScroll:{enabled:true}};
+  const editorOptions=useMemo<monaco.editor.IStandaloneEditorConstructionOptions>(()=>({fontSize:preferences.fontSize,fontFamily:"Menlo, Monaco, monospace",fontLigatures:true,lineHeight:24,automaticLayout:true,minimap:{enabled:preferences.minimap},wordWrap:preferences.wrap?"on":"off",padding:{top:18},smoothScrolling:true,scrollBeyondLastLine:false,bracketPairColorization:{enabled:true},tabSize:2,renderLineHighlight:"all",stickyScroll:{enabled:true}}),[preferences.fontSize,preferences.minimap,preferences.wrap]);
   return <main style={workspaceTheme} className={"app "+((selectedTheme?themeLight:preferences.light)?"light":"")+(selectedTheme?' extension-themed':'')}>
     <header className="toolbar">
       <div className="identity"><span className="brand-gem"><img src="/veyra.png" alt="Veyra"/></span><span className="brand-copy"><strong>Veyra</strong><small>STUDIO</small></span><span className="separator">/</span><span className="workspace-name">{root?projectName:"Workspace"}</span></div>
