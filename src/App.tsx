@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import Editor, { DiffEditor, type OnMount } from "@monaco-editor/react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { Files, Search, GitBranch, Settings2, FolderOpen, ChevronRight, ChevronDown, Folder, Plus, X, RefreshCw, PanelLeft, PanelBottom, Columns2, TerminalSquare, Check, CircleAlert, CircleX, Save, ArrowUpRight, Command, MoreHorizontal, Sun, Moon, Braces, Trash2, Pencil, WrapText, FilePlus2, FolderPlus, CheckCheck, Sparkles } from "lucide-react";
+import { Files, Search, GitBranch, Settings2, FolderOpen, ChevronRight, ChevronDown, Folder, Plus, X, RefreshCw, PanelLeft, PanelBottom, Columns2, TerminalSquare, Check, CircleAlert, CircleX, Save, ArrowUpRight, Command, MoreHorizontal, Sun, Moon, Braces, Trash2, Pencil, WrapText, FilePlus2, FolderPlus, CheckCheck, Sparkles, Copy, Scissors, ClipboardPaste, ExternalLink } from "lucide-react";
 import { monaco, languageFor } from "./editor";
 import { Terminal } from "./Terminal";
 import "./App.css";
@@ -86,6 +86,7 @@ export default function App() {
   const [paletteQuery, setPaletteQuery] = useState("");
   const [modal, setModal] = useState<Modal|null>(null);
   const [explorerMenu,setExplorerMenu]=useState<ExplorerMenu|null>(null);
+  const [clipboard,setClipboard]=useState<{entry:Entry;cut:boolean}|null>(null);
   const [input, setInput] = useState("");
   const [problems, setProblems] = useState<monaco.editor.IMarker[]>([]);
   const [symbols, setSymbols] = useState<{name:string;line:number}[]>([]);
@@ -98,6 +99,7 @@ export default function App() {
   const cursorTimer=useRef<number|undefined>(undefined);
   const modalRef = useRef<Modal|null>(null); modalRef.current = modal;
   const file = tabs.find(t => t.path === active);
+  const selectedEntry=Object.values(tree).flat().find(entry=>entry.path===selectedPath);
   const countDirty = tabs.filter(dirty).length;
   const projectName = root ? baseName(root) : "Your next idea";
   const projectType = indexed.includes("Cargo.toml") ? "Rust" : indexed.includes("package.json") ? "JavaScript / TypeScript" : indexed.some(p=>p==="pyproject.toml"||p==="requirements.txt") ? "Python" : "Workspace";
@@ -265,6 +267,25 @@ export default function App() {
     }catch(e){report(e);}
   }
   async function trash(){if(file)await trashEntry({path:file.path,name:baseName(file.path),directory:false});}
+  function copyToClipboard(entry:Entry,cut=false){setClipboard({entry,cut});setExplorerMenu(null);setStatus(`${cut?'Cut':'Copied'} ${entry.name}`);}
+  async function pasteInto(parent:string){
+    if(!clipboard)return;setExplorerMenu(null);
+    const next=(parent?parent+"/":"")+clipboard.entry.name;
+    if(next===clipboard.entry.path){report('Choose a different destination folder.');return;}
+    try{
+      if(clipboard.cut){
+        const affected=state.current.tabs.filter(tab=>tab.path===clipboard.entry.path||(clipboard.entry.directory&&tab.path.startsWith(clipboard.entry.path+"/")));
+        if(!await allowDiscard("Save before moving?",affected))return;
+        await invoke('rename_file',{path:clipboard.entry.path,next});
+        affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
+        setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));if(affected.some(tab=>tab.path===state.current.active))setActive('');
+        setClipboard(null);setStatus(`Moved ${clipboard.entry.name}`);
+      }else{await invoke('copy_entry',{path:clipboard.entry.path,next});setStatus(`Pasted ${clipboard.entry.name}`);}
+      await refresh(parent);setSelectedPath(next);setSelectedFolder(clipboard.entry.directory?next:parent);
+    }catch(e){report(e);}
+  }
+  async function duplicateEntry(entry:Entry){setExplorerMenu(null);try{const next=await invoke<string>('duplicate_entry',{path:entry.path});await refresh(next.includes('/')?next.slice(0,next.lastIndexOf('/')):'');setSelectedPath(next);setStatus(`Duplicated ${entry.name}`);}catch(e){report(e);}}
+  async function revealEntry(entry:Entry){setExplorerMenu(null);try{await invoke('reveal_in_finder',{path:entry.path});setStatus(`Revealed ${entry.name} in Finder`);}catch(e){report(e);}}
   async function reload() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
     try{const text=await invoke<string>("read_file",{path:file.path});setTabs(all=>all.map(t=>t.path===file.path?{...t,text,original:text,external:false}:t));}catch(e){report(e);}
@@ -297,6 +318,13 @@ export default function App() {
       if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);setExplorerMenu(null);return;}
       if(!(e.metaKey||e.ctrlKey))return;
       const k=e.key.toLowerCase();
+      const explorerFocused=(e.target as Element|null)?.closest?.('.sidebar')&&selectedEntry;
+      if(explorerFocused&&['c','x','v','d'].includes(k)){
+        e.preventDefault();e.stopPropagation();
+        if(k==='c')copyToClipboard(selectedEntry,false);if(k==='x')copyToClipboard(selectedEntry,true);
+        if(k==='v')void pasteInto(selectedEntry.directory?selectedEntry.path:(selectedEntry.path.includes('/')?selectedEntry.path.slice(0,selectedEntry.path.lastIndexOf('/')):''));
+        if(k==='d')void duplicateEntry(selectedEntry);return;
+      }
       if(["s","o","p","n","b",",","w","l","k"].includes(k)){e.preventDefault();e.stopPropagation();}
       if(k==='l')setAiOpen(v=>!v);
       if(k==='k')editWithAI();
@@ -416,10 +444,11 @@ export default function App() {
     </div>
     <footer className="statusbar"><button onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={12}/>{git.split("\n")[0]?.replace("## ","").split("...")[0]||"Local workspace"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span><span className="status-position">Ln {position.lineNumber}, Col {position.column}</span><span>UTF-8</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
     {error&&<div className="toast" role="alert"><CircleAlert size={18}/><span>{error}</span><button onClick={()=>setError("")}><X size={15}/></button></div>}
-    {explorerMenu&&<><button className="context-menu-dismiss" aria-label="Close context menu" onClick={()=>setExplorerMenu(null)} onContextMenu={event=>{event.preventDefault();setExplorerMenu(null);}}/><div className="explorer-context-menu" role="menu" aria-label={explorerMenu.entry.name+" actions"} style={{left:Math.min(explorerMenu.x,window.innerWidth-220),top:Math.min(explorerMenu.y,window.innerHeight-220)}}>
+    {explorerMenu&&<><button className="context-menu-dismiss" aria-label="Close context menu" onClick={()=>setExplorerMenu(null)} onContextMenu={event=>{event.preventDefault();setExplorerMenu(null);}}/><div className="explorer-context-menu" role="menu" aria-label={explorerMenu.entry.name+" actions"} style={{left:Math.min(explorerMenu.x,window.innerWidth-220),top:Math.max(8,Math.min(explorerMenu.y,window.innerHeight-390))}}>
       <header><DimensionalIcon path={explorerMenu.entry.path} directory={explorerMenu.entry.directory}/><span><b>{explorerMenu.entry.name}</b><small>{explorerMenu.entry.directory?'Folder':'File'}</small></span></header>
       {explorerMenu.entry.directory&&<><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(false,path);}}><FilePlus2 size={14}/>New File</button><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(true,path);}}><FolderPlus size={14}/>New Folder</button><i/></>}
-      <button role="menuitem" onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" className="danger" onClick={()=>void trashEntry(explorerMenu.entry)}><Trash2 size={14}/>Move to Trash</button>
+      <button role="menuitem" onClick={()=>copyToClipboard(explorerMenu.entry)}><Copy size={14}/>Copy <kbd>⌘C</kbd></button><button role="menuitem" onClick={()=>copyToClipboard(explorerMenu.entry,true)}><Scissors size={14}/>Cut <kbd>⌘X</kbd></button>{explorerMenu.entry.directory&&<button role="menuitem" disabled={!clipboard} onClick={()=>void pasteInto(explorerMenu.entry.path)}><ClipboardPaste size={14}/>Paste {clipboard&&<small>{clipboard.entry.name}</small>}</button>}<button role="menuitem" onClick={()=>void duplicateEntry(explorerMenu.entry)}><Copy size={14}/>Duplicate <kbd>⌘D</kbd></button><i/>
+      <button role="menuitem" onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" onClick={()=>void revealEntry(explorerMenu.entry)}><ExternalLink size={14}/>Reveal in Finder</button><button role="menuitem" className="danger" onClick={()=>void trashEntry(explorerMenu.entry)}><Trash2 size={14}/>Move to Trash</button>
     </div></>}
     {palette&&<div className="overlay" onMouseDown={()=>setPalette(null)}><div className="palette" onMouseDown={e=>e.stopPropagation()}><div className="palette-search"><Search size={19}/><input autoFocus aria-label="Search commands or files" placeholder={palette==="files"?"Go to file…":"What would you like to do?"} value={paletteQuery} onChange={e=>setPaletteQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&matches.length){const first=matches[0];setPalette(null);if(typeof first==="string")void openFile(first);else void first.run();}}}/><kbd>esc</kbd></div><div className="palette-label">{palette==="files"?"WORKSPACE FILES":"COMMANDS"}</div><div className="palette-results">{matches.map(item=>typeof item==="string"?<button key={item} onClick={()=>openFile(item)}><IconFile path={item}/><span>{item}</span><ArrowUpRight size={13}/></button>:<button key={item.name} onClick={()=>{setPalette(null);void item.run();}}><Command size={14}/><span>{item.name}</span><kbd>{item.shortcut}</kbd></button>)}{!matches.length&&<p>No results. {root?"Try another search.":"Open a workspace first."}</p>}</div><div className="palette-footer">Enter to select the first result · Esc to close</div></div></div>}
     {creation&&<CreateEntryDialog directory={creation.directory} parent={creation.parent} project={projectName} onCreate={createAt} onClose={()=>setCreation(null)}/>}

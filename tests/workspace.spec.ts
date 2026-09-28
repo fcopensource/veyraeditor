@@ -57,6 +57,24 @@ test.beforeEach(async ({page})=>{
           Object.keys(files).filter(entry=>entry===path||entry.startsWith(path+"/")).forEach(entry=>delete files[entry]);
           return;
         }
+        if(cmd==="copy_entry"){
+          const from=String(args.path),to=String(args.next);
+          if(exists(to))throw "A file or folder already exists at "+to;
+          if(directories.has(from)){
+            directories.add(to);
+            Array.from(directories).filter(entry=>entry.startsWith(from+"/")).forEach(entry=>directories.add(to+entry.slice(from.length)));
+            Object.keys(files).filter(entry=>entry.startsWith(from+"/")).forEach(entry=>{files[to+entry.slice(from.length)]=files[entry];});
+          }else files[to]=files[from];
+          return;
+        }
+        if(cmd==="duplicate_entry"){
+          const from=String(args.path);const dot=from.lastIndexOf('.');const slash=from.lastIndexOf('/');
+          const next=dot>slash?from.slice(0,dot)+' copy'+from.slice(dot):from+' copy';
+          if(directories.has(from)){directories.add(next);Object.keys(files).filter(entry=>entry.startsWith(from+"/")).forEach(entry=>{files[next+entry.slice(from.length)]=files[entry];});}
+          else files[next]=files[from];
+          return next;
+        }
+        if(cmd==="reveal_in_finder")return;
         if(cmd==="search_workspace")return Object.entries(files).flatMap(([path,text])=>text.split("\n").flatMap((line,i)=>line.toLowerCase().includes(args.query.toLowerCase())?[{path,line:i+1,text:line}]:[]));
         if(cmd==="git_status")return "## main\n M src/App.tsx\n";
         if(cmd==="git_diff")return "- old\n+ new";
@@ -239,6 +257,27 @@ test("explorer context menu renames files and folders and offers folder actions"
   await expect(page.locator('.tree-row[title="source"]')).toBeVisible();
   await page.locator('.tree-row[title="source"]').click();
   await expect(page.locator('.tree-row[title="source/Main.tsx"]')).toBeVisible();
+});
+
+test("explorer pro copies, cuts, pastes, duplicates and reveals entries",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();await page.locator('.tree-row[title="src"]').click();
+  await page.locator('.tree-row[title="README.md"]').click({button:'right'});
+  await page.getByRole('menu',{name:'README.md actions'}).getByRole('menuitem',{name:/Copy/}).click();
+  await page.locator('.tree-row[title="src"]').click({button:'right'});
+  await page.getByRole('menu',{name:'src actions'}).getByRole('menuitem',{name:/Paste/}).click();
+  await expect(page.locator('.tree-row[title="src/README.md"]')).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).testFiles['src/README.md'])).toContain('Example project');
+
+  await page.locator('.tree-row[title="src/theme.css"]').click({button:'right'});
+  await page.getByRole('menu',{name:'theme.css actions'}).getByRole('menuitem',{name:/Duplicate/}).click();
+  await expect(page.locator('.tree-row[title="src/theme copy.css"]')).toBeVisible();
+  await page.locator('.tree-row[title="src/theme copy.css"]').click({button:'right'});
+  await page.getByRole('menu',{name:'theme copy.css actions'}).getByRole('menuitem',{name:'Reveal in Finder'}).click();
+  expect(await page.evaluate(()=>(window as any).testCalls.some((call:any)=>call.cmd==='reveal_in_finder'&&call.args.path==='src/theme copy.css'))).toBe(true);
+
+  await page.locator('.tree-row[title="src/theme.css"]').click({button:'right'});
+  await page.getByRole('menu',{name:'theme.css actions'}).getByRole('menuitem',{name:/Cut/}).click();
+  await expect(page.locator('.status-text')).toContainText('Cut theme.css');
 });
 
 test("creation rejects traversal without IPC, traps focus and dismisses safely with Escape",async({page})=>{

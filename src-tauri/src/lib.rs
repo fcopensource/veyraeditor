@@ -91,6 +91,35 @@ fn create_checked(root: &Path, relative: &str, directory: bool) -> Result<()> {
     }
     result
 }
+fn copy_directory(source:&Path,target:&Path)->Result<()> {
+    fs::create_dir(target).map_err(err)?;
+    for item in fs::read_dir(source).map_err(err)? {
+        let item=item.map_err(err)?;let kind=item.file_type().map_err(err)?;
+        if kind.is_symlink(){return Err("Folders containing symbolic links cannot be copied".into());}
+        let next=target.join(item.file_name());
+        if kind.is_dir(){copy_directory(&item.path(),&next)?;}else if kind.is_file(){fs::copy(item.path(),next).map_err(err)?;}
+    }
+    Ok(())
+}
+fn copy_checked(root:&Path,path:&str,next:&str)->Result<()> {
+    let source=checked(root,path)?;let target=destination(root,next)?;
+    if source.is_dir()&&target.starts_with(&source){return Err("A folder cannot be copied inside itself".into());}
+    let result=if source.is_dir(){copy_directory(&source,&target)}else if source.is_file(){fs::copy(&source,&target).map(|_|()).map_err(err)}else{Err("Only files and folders can be copied".into())};
+    if result.is_err()&&target.exists(){if target.is_dir(){let _=fs::remove_dir_all(&target);}else{let _=fs::remove_file(&target);}}
+    result
+}
+fn duplicate_name(root:&Path,path:&str)->Result<String>{
+    let source=checked(root,path)?;let relative=Path::new(path);let parent=relative.parent().unwrap_or(Path::new(""));
+    let name=relative.file_name().and_then(|value|value.to_str()).ok_or("Invalid name")?;
+    let (stem,extension)=if source.is_file(){let parsed=Path::new(name);(parsed.file_stem().and_then(|value|value.to_str()).unwrap_or(name),parsed.extension().and_then(|value|value.to_str()))}else{(name,None)};
+    for number in 1..1000 {
+        let suffix=if number==1{" copy".to_string()}else{format!(" copy {number}")};
+        let file_name=match extension{Some(ext)=>format!("{stem}{suffix}.{ext}"),None=>format!("{stem}{suffix}")};
+        let candidate=parent.join(file_name).to_string_lossy().into_owned();
+        if !root.join(&candidate).exists(){return Ok(candidate);}
+    }
+    Err("Could not choose a duplicate name".into())
+}
 fn text_file(path: &Path) -> Result<String> {
     if fs::metadata(path).map_err(err)?.len() > MAX_FILE { return Err("File exceeds the 5 MB editing limit".into()); }
     let text = fs::read_to_string(path).map_err(|_| "This file is not UTF-8 text".to_string())?;
@@ -151,6 +180,18 @@ fn trash_file(state: State<Workspace>, path: String) -> Result<()> {
     let file = checked(&root(&state)?, &path)?;
     if !file.is_file() && !file.is_dir() { return Err("Only files and folders can be moved to Trash".into()); }
     trash::delete(file).map_err(err)
+}
+#[tauri::command]
+fn copy_entry(state:State<Workspace>,path:String,next:String)->Result<()>{copy_checked(&root(&state)?,&path,&next)}
+#[tauri::command]
+fn duplicate_entry(state:State<Workspace>,path:String)->Result<String>{let root=root(&state)?;let next=duplicate_name(&root,&path)?;copy_checked(&root,&path,&next)?;Ok(next)}
+#[tauri::command]
+fn reveal_in_finder(state:State<Workspace>,path:String)->Result<()>{
+    let target=checked(&root(&state)?,&path)?;
+    #[cfg(target_os="macos")]
+    {Command::new("open").arg("-R").arg(target).spawn().map(|_|()).map_err(err)}
+    #[cfg(not(target_os="macos"))]
+    {open::that(target.parent().unwrap_or(&target)).map_err(err)}
 }
 fn index(dir: &Path, base: &Path, files: &mut Vec<String>, depth: usize) {
     if depth > 25 || files.len() >= 10000 { return; }
@@ -277,7 +318,7 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, project_files, search_workspace, ai_workspace_context, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
+        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });
@@ -366,5 +407,16 @@ mod tests {
         assert!(result.iter().all(|file|file.content.len()<=7000));
         assert!(result.iter().map(|file|file.content.len()).sum::<usize>()<=36*1024);
         assert!(!result.iter().any(|file|file.path=="src/colors.ts"));
+    }
+    #[test] fn copy_and_duplicate_preserve_trees_without_overwriting() {
+        let dir=tempfile::tempdir().unwrap();let base=dir.path().canonicalize().unwrap();
+        fs::create_dir(base.join("src")).unwrap();fs::write(base.join("src/main.ts"),"hello").unwrap();
+        copy_checked(&base,"src","backup").unwrap();
+        assert_eq!(fs::read_to_string(base.join("backup/main.ts")).unwrap(),"hello");
+        assert!(copy_checked(&base,"src","backup").is_err());
+        assert!(copy_checked(&base,"src","src/nested").is_err());
+        let next=duplicate_name(&base,"src/main.ts").unwrap();assert_eq!(next,"src/main copy.ts");
+        copy_checked(&base,"src/main.ts",&next).unwrap();
+        assert_eq!(duplicate_name(&base,"src/main.ts").unwrap(),"src/main copy 2.ts");
     }
 }
