@@ -16,6 +16,8 @@ struct Entry { path: String, name: String, directory: bool }
 struct Match { path: String, line: usize, text: String }
 #[derive(Serialize)]
 struct ContextFile { path: String, content: String, score: usize }
+#[derive(Serialize, Default)]
+struct GithubInfo { available: bool, authenticated: bool, login: String, name: String, avatar: String, repository: String, url: String, visibility: String, default_branch: String }
 type Result<T> = std::result::Result<T, String>;
 fn err(e: impl std::fmt::Display) -> String { e.to_string() }
 fn root(state: &Workspace) -> Result<PathBuf> { state.root.lock().map_err(err)?.clone().ok_or("Open a folder first".into()) }
@@ -291,6 +293,7 @@ fn git_run(root: PathBuf, args: Vec<String>) -> Result<String> {
     let output=Command::new("git").args(args).current_dir(root).output().map_err(err)?;
     if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}
 }
+fn gh_run(root:PathBuf,args:Vec<String>)->Result<String>{let output=Command::new("gh").args(args).current_dir(root).output().map_err(err)?;if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}}
 #[tauri::command]
 async fn git_stage(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["add".into(),"--".into(),path])).await.map_err(err)?}
 #[tauri::command]
@@ -304,6 +307,29 @@ async fn git_commit(state:State<'_,Workspace>,message:String)->Result<String>{
 }
 #[tauri::command]
 async fn git_log(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-12".into(),"--pretty=format:%h%x09%an%x09%ar%x09%s".into()])).await.map_err(err)?}
+#[tauri::command]
+async fn git_graph(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-40".into(),"--date=relative".into(),"--pretty=format:%h%x09%p%x09%d%x09%an%x09%ad%x09%s".into(),"--all".into()])).await.map_err(err)?}
+#[tauri::command]
+async fn github_info(state:State<'_,Workspace>)->Result<GithubInfo>{
+    let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||{
+        if Command::new("gh").arg("--version").output().is_err(){return Ok(GithubInfo::default());}
+        let mut info=GithubInfo{available:true,..Default::default()};
+        if let Ok(user)=gh_run(root.clone(),vec!["api".into(),"user".into(),"--jq".into(),"[.login,(.name // \"\"),.avatar_url]|@tsv".into()]){
+            let fields:Vec<_>=user.split('\t').collect();if fields.len()>=3{info.authenticated=true;info.login=fields[0].into();info.name=fields[1].into();info.avatar=fields[2].into();}
+        }
+        if info.authenticated {if let Ok(repo)=gh_run(root,vec!["repo".into(),"view".into(),"--json".into(),"nameWithOwner,url,visibility,defaultBranchRef".into(),"--jq".into(),"[.nameWithOwner,.url,.visibility,(.defaultBranchRef.name // \"\")]|@tsv".into()]){let fields:Vec<_>=repo.split('\t').collect();if fields.len()>=4{info.repository=fields[0].into();info.url=fields[1].into();info.visibility=fields[2].into();info.default_branch=fields[3].into();}}}
+        Ok(info)
+    }).await.map_err(err)?
+}
+#[tauri::command]
+async fn github_login()->Result<String>{tauri::async_runtime::spawn_blocking(||gh_run(std::env::current_dir().map_err(err)?,vec!["auth".into(),"login".into(),"--hostname".into(),"github.com".into(),"--web".into(),"--clipboard".into(),"--git-protocol".into(),"https".into()])).await.map_err(err)?}
+#[tauri::command]
+async fn github_open(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||gh_run(root,vec!["repo".into(),"view".into(),"--web".into()])).await.map_err(err)?}
+#[tauri::command]
+async fn git_remote_action(state:State<'_,Workspace>,action:String)->Result<String>{
+    if !matches!(action.as_str(),"fetch"|"pull"|"push"){return Err("Unsupported remote action".into());}let root=root(&state)?;
+    tauri::async_runtime::spawn_blocking(move||{let args=if action=="pull"{vec!["pull".into(),"--ff-only".into()]}else{vec![action]};git_run(root,args)}).await.map_err(err)?
+}
 #[tauri::command]
 fn terminal_start(state: State<Workspace>, output: Channel<Vec<u8>>) -> Result<()> {
     let root = root(&state)?;
@@ -340,7 +366,7 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, git_stage, git_unstage, git_discard, git_commit, git_log, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
+        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });

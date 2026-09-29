@@ -80,6 +80,8 @@ test.beforeEach(async ({page})=>{
         if(cmd==="git_status")return gitStatus;
         if(cmd==="git_diff")return "- old\n+ new";
         if(cmd==="git_log")return "abc1234\tVikram\t2 minutes ago\tBuild Veyra";
+        if(cmd==="git_graph")return "abc1234\tdef5678\t (HEAD -> main, origin/main)\tVikram\t2 minutes ago\tBuild Veyra";
+        if(cmd==="github_info")return {available:true,authenticated:true,login:'vikram',name:'Vikram',avatar:'',repository:'fcopensource/veyraeditor',url:'https://github.com/fcopensource/veyraeditor',visibility:'PUBLIC',default_branch:'main'};
         if(cmd==="git_stage"){gitStatus="## main\nM  src/App.tsx\n";return "";}
         if(cmd==="git_unstage"){gitStatus="## main\n M src/App.tsx\n";return "";}
         if(cmd==="git_commit"){gitStatus="## main\n";return "[main def5678] "+args.message;}
@@ -315,6 +317,8 @@ test("source control stages changes, commits and shows history",async({page})=>{
   await page.getByRole('button',{name:'Source control'}).click();
   await expect(page.getByText('src/App.tsx',{exact:true})).toBeVisible();
   await expect(page.getByText('Build Veyra',{exact:true})).toBeVisible();
+  await expect(page.getByText('fcopensource/veyraeditor',{exact:true})).toBeVisible();
+  await expect(page.getByText('COMMIT GRAPH',{exact:true})).toBeVisible();
   await page.getByTitle('Stage change').click();
   await expect(page.getByText('STAGED CHANGES')).toBeVisible();
   await page.getByRole('textbox',{name:'Commit message'}).fill('Test integrated commit');
