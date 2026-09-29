@@ -280,6 +280,14 @@ test("explorer pro copies, cuts, pastes, duplicates and reveals entries",async({
   await expect(page.locator('.status-text')).toContainText('Cut theme.css');
 });
 
+test("explorer drag and drop moves files into folders",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();await page.locator('.tree-row[title="src"]').click();
+  await page.locator('.explorer-entry:has(.tree-row[title="README.md"])').dragTo(page.locator('.explorer-entry:has(.tree-row[title="src"])'));
+  await expect(page.locator('.tree-row[title="src/README.md"]')).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).testFiles['README.md'])).toBeUndefined();
+  expect(await page.evaluate(()=>(window as any).testFiles['src/README.md'])).toContain('Example project');
+});
+
 test("creation rejects traversal without IPC, traps focus and dismisses safely with Escape",async({page})=>{
   await page.goto("/");
   await page.getByRole("button",{name:"Open a project",exact:false}).click();

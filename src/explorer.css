@@ -485,3 +485,17 @@
         transform: none
     }
 }
+
+.explorer-entry.dragging {
+    opacity: .4
+}
+
+.explorer-entry.drag-target {
+    background: color-mix(in srgb, var(--accent) 18%, var(--selection));
+    border-left-color: var(--accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 16px color-mix(in srgb, var(--accent) 18%, transparent)
+}
+
+.explorer-entry.drag-target>.tree-row {
+    color: var(--bright)
+}

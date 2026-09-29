@@ -87,6 +87,8 @@ export default function App() {
   const [modal, setModal] = useState<Modal|null>(null);
   const [explorerMenu,setExplorerMenu]=useState<ExplorerMenu|null>(null);
   const [clipboard,setClipboard]=useState<{entry:Entry;cut:boolean}|null>(null);
+  const [dragging,setDragging]=useState<Entry|null>(null);
+  const [dragTarget,setDragTarget]=useState("");
   const [input, setInput] = useState("");
   const [problems, setProblems] = useState<monaco.editor.IMarker[]>([]);
   const [symbols, setSymbols] = useState<{name:string;line:number}[]>([]);
@@ -286,6 +288,13 @@ export default function App() {
   }
   async function duplicateEntry(entry:Entry){setExplorerMenu(null);try{const next=await invoke<string>('duplicate_entry',{path:entry.path});await refresh(next.includes('/')?next.slice(0,next.lastIndexOf('/')):'');setSelectedPath(next);setStatus(`Duplicated ${entry.name}`);}catch(e){report(e);}}
   async function revealEntry(entry:Entry){setExplorerMenu(null);try{await invoke('reveal_in_finder',{path:entry.path});setStatus(`Revealed ${entry.name} in Finder`);}catch(e){report(e);}}
+  async function moveEntry(entry:Entry,parent:string){
+    const next=(parent?parent+"/":"")+entry.name;if(next===entry.path)return;
+    if(entry.directory&&(parent===entry.path||parent.startsWith(entry.path+"/"))){report('A folder cannot be moved inside itself.');return;}
+    const affected=state.current.tabs.filter(tab=>tab.path===entry.path||(entry.directory&&tab.path.startsWith(entry.path+"/")));
+    if(!await allowDiscard("Save before moving?",affected))return;
+    try{await invoke('rename_file',{path:entry.path,next});affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));if(affected.some(tab=>tab.path===state.current.active))setActive('');await refresh(parent);setSelectedPath(next);setSelectedFolder(entry.directory?next:parent);setStatus(`Moved ${entry.name} to ${parent||projectName}`);}catch(e){report(e);}
+  }
   async function reload() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
     try{const text=await invoke<string>("read_file",{path:file.path});setTabs(all=>all.map(t=>t.path===file.path?{...t,text,original:text,external:false}:t));}catch(e){report(e);}
@@ -391,7 +400,7 @@ export default function App() {
   };
   function treeItems(parent="",depth=0): React.ReactNode {
     return (tree[parent]||[]).map(entry=><div key={entry.path}>
-      <div className={"explorer-entry "+(selectedPath===entry.path?"selected":"")} onContextMenu={event=>{event.preventDefault();event.stopPropagation();setSelectedPath(entry.path);if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
+      <div draggable className={"explorer-entry "+(selectedPath===entry.path?"selected ":"")+(dragging?.path===entry.path?"dragging ":"")+(dragTarget===entry.path?"drag-target":"")} onDragStart={event=>{setDragging(entry);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',entry.path);}} onDragEnd={()=>{setDragging(null);setDragTarget("");}} onDragOver={event=>{if(entry.directory&&dragging&&dragging.path!==entry.path){event.preventDefault();event.dataTransfer.dropEffect='move';setDragTarget(entry.path);}}} onDragLeave={()=>{if(dragTarget===entry.path)setDragTarget("");}} onDrop={event=>{event.preventDefault();const moving=dragging;setDragging(null);setDragTarget("");if(entry.directory&&moving)void moveEntry(moving,entry.path);}} onContextMenu={event=>{event.preventDefault();event.stopPropagation();setSelectedPath(entry.path);if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
       <button className={"tree-row "+(active===entry.path?"active":"")} aria-pressed={selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={()=>entry.directory?toggleFolder(entry.path):openFile(entry.path)}>
         {entry.directory?<>{expanded.has(entry.path)?<ChevronDown size={12}/>:<ChevronRight size={12}/>}<DimensionalIcon path={entry.path} directory open={expanded.has(entry.path)}/></>:<><span className="tree-indent"/><IconFile path={entry.path}/></>}
         <span>{entry.name}</span>{tabs.some(t=>t.path===entry.path&&dirty(t))&&<i className="dirty-dot"/>}
