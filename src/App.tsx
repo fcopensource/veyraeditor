@@ -35,6 +35,7 @@ export default function App() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set([""]));
   const [selectedFolder,setSelectedFolder]=useState("");
   const [selectedPath,setSelectedPath]=useState("");
+  const [selectedPaths,setSelectedPaths]=useState<Set<string>>(new Set());
   const [creation,setCreation]=useState<{directory:boolean;parent:string}|null>(null);
   const [indexed, setIndexed] = useState<string[]>([]);
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -102,6 +103,7 @@ export default function App() {
   const modalRef = useRef<Modal|null>(null); modalRef.current = modal;
   const file = tabs.find(t => t.path === active);
   const selectedEntry=Object.values(tree).flat().find(entry=>entry.path===selectedPath);
+  const selectedEntries=Object.values(tree).flat().filter(entry=>selectedPaths.has(entry.path));
   const countDirty = tabs.filter(dirty).length;
   const projectName = root ? baseName(root) : "Your next idea";
   const projectType = indexed.includes("Cargo.toml") ? "Rust" : indexed.includes("package.json") ? "JavaScript / TypeScript" : indexed.some(p=>p==="pyproject.toml"||p==="requirements.txt") ? "Python" : "Workspace";
@@ -183,7 +185,7 @@ export default function App() {
       const selected = await invoke<string|null>("choose_folder");
       if (!selected) return;
       setTerminalStarted(false); setRoot(selected); state.current.root=selected;
-      setSelectedFolder("");setSelectedPath("");setCreation(null);
+      setSelectedFolder("");setSelectedPath("");setSelectedPaths(new Set());setCreation(null);
       setTabs([]); setActive(""); setTree({}); setIndexed([]); setQuery(""); setHits([]); setDiff(null);
       monaco.editor.getModels().forEach(model=>model.dispose());
       await refresh(); setStatus("Opened " + baseName(selected));
@@ -230,7 +232,7 @@ export default function App() {
     if(state.current.root!==workspace)return;
     const parent=path.includes("/")?path.slice(0,path.lastIndexOf("/")):"";
     await refresh(creation.directory?path:parent);
-    setSelectedFolder(creation.directory?path:parent);setSelectedPath(path);
+    setSelectedFolder(creation.directory?path:parent);setSelectedPath(path);setSelectedPaths(new Set([path]));
     if(!creation.directory)await openFile(path);
     setStatus("Created "+path);setError("");
   }
@@ -246,7 +248,7 @@ export default function App() {
       affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
       setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));
       if(affected.some(tab=>tab.path===state.current.active))setActive("");
-      setSelectedPath(next);setSelectedFolder(entry.directory?next:(next.includes("/")?next.slice(0,next.lastIndexOf("/")):""));
+      setSelectedPath(next);setSelectedPaths(new Set([next]));setSelectedFolder(entry.directory?next:(next.includes("/")?next.slice(0,next.lastIndexOf("/")):""));
       await refresh(next.includes("/")?next.slice(0,next.lastIndexOf("/")):"");
       if(!entry.directory&&affected.length)await openFile(next);
       setStatus(`Renamed ${entry.name} to ${baseName(next)}`);
@@ -264,8 +266,24 @@ export default function App() {
       affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
       setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));
       if(affected.some(tab=>tab.path===state.current.active))setActive("");
-      setSelectedPath("");setSelectedFolder(entry.path.includes("/")?entry.path.slice(0,entry.path.lastIndexOf("/")):"");
+      setSelectedPath("");setSelectedPaths(new Set());setSelectedFolder(entry.path.includes("/")?entry.path.slice(0,entry.path.lastIndexOf("/")):"");
       await refresh();setStatus("Moved "+entry.name+" to Trash");
+    }catch(e){report(e);}
+  }
+  async function trashEntries(entries:Entry[]) {
+    setExplorerMenu(null);
+    if(entries.length===1){await trashEntry(entries[0]);return;}
+    const topLevel=entries.filter(entry=>!entries.some(parent=>parent.directory&&entry.path.startsWith(parent.path+"/")));
+    const affected=state.current.tabs.filter(tab=>topLevel.some(entry=>tab.path===entry.path||(entry.directory&&tab.path.startsWith(entry.path+"/"))));
+    if(!await allowDiscard("Save before moving to Trash?",affected))return;
+    const result=await ask(`Move ${topLevel.length} items to Trash?`,["Cancel","Move to Trash"],"The selected files and folders can be recovered from Trash.");
+    if(result!=="Move to Trash")return;
+    try{
+      for(const entry of topLevel)await invoke("trash_file",{path:entry.path});
+      affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());
+      setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));
+      if(affected.some(tab=>tab.path===state.current.active))setActive("");
+      setSelectedPath("");setSelectedPaths(new Set());await refresh();setStatus(`Moved ${topLevel.length} items to Trash`);
     }catch(e){report(e);}
   }
   async function trash(){if(file)await trashEntry({path:file.path,name:baseName(file.path),directory:false});}
@@ -283,17 +301,17 @@ export default function App() {
         setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));if(affected.some(tab=>tab.path===state.current.active))setActive('');
         setClipboard(null);setStatus(`Moved ${clipboard.entry.name}`);
       }else{await invoke('copy_entry',{path:clipboard.entry.path,next});setStatus(`Pasted ${clipboard.entry.name}`);}
-      await refresh(parent);setSelectedPath(next);setSelectedFolder(clipboard.entry.directory?next:parent);
+      await refresh(parent);setSelectedPath(next);setSelectedPaths(new Set([next]));setSelectedFolder(clipboard.entry.directory?next:parent);
     }catch(e){report(e);}
   }
-  async function duplicateEntry(entry:Entry){setExplorerMenu(null);try{const next=await invoke<string>('duplicate_entry',{path:entry.path});await refresh(next.includes('/')?next.slice(0,next.lastIndexOf('/')):'');setSelectedPath(next);setStatus(`Duplicated ${entry.name}`);}catch(e){report(e);}}
+  async function duplicateEntry(entry:Entry){setExplorerMenu(null);try{const next=await invoke<string>('duplicate_entry',{path:entry.path});await refresh(next.includes('/')?next.slice(0,next.lastIndexOf('/')):'');setSelectedPath(next);setSelectedPaths(new Set([next]));setStatus(`Duplicated ${entry.name}`);}catch(e){report(e);}}
   async function revealEntry(entry:Entry){setExplorerMenu(null);try{await invoke('reveal_in_finder',{path:entry.path});setStatus(`Revealed ${entry.name} in Finder`);}catch(e){report(e);}}
   async function moveEntry(entry:Entry,parent:string){
     const next=(parent?parent+"/":"")+entry.name;if(next===entry.path)return;
     if(entry.directory&&(parent===entry.path||parent.startsWith(entry.path+"/"))){report('A folder cannot be moved inside itself.');return;}
     const affected=state.current.tabs.filter(tab=>tab.path===entry.path||(entry.directory&&tab.path.startsWith(entry.path+"/")));
     if(!await allowDiscard("Save before moving?",affected))return;
-    try{await invoke('rename_file',{path:entry.path,next});affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));if(affected.some(tab=>tab.path===state.current.active))setActive('');await refresh(parent);setSelectedPath(next);setSelectedFolder(entry.directory?next:parent);setStatus(`Moved ${entry.name} to ${parent||projectName}`);}catch(e){report(e);}
+    try{await invoke('rename_file',{path:entry.path,next});affected.forEach(tab=>monaco.editor.getModel(monaco.Uri.file(state.current.root+"/"+tab.path))?.dispose());setTabs(all=>all.filter(tab=>!affected.some(item=>item.path===tab.path)));if(affected.some(tab=>tab.path===state.current.active))setActive('');await refresh(parent);setSelectedPath(next);setSelectedPaths(new Set([next]));setSelectedFolder(entry.directory?next:parent);setStatus(`Moved ${entry.name} to ${parent||projectName}`);}catch(e){report(e);}
   }
   async function reload() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
@@ -325,9 +343,11 @@ export default function App() {
     const key=(e:KeyboardEvent)=>{
       if(creation)return;
       if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);setExplorerMenu(null);return;}
+      const explorerFocused=(e.target as Element|null)?.closest?.('.sidebar')&&selectedEntry;
+      if(explorerFocused&&(e.key==="Backspace"||e.key==="Delete")){e.preventDefault();void trashEntries(selectedEntries.length?selectedEntries:[selectedEntry]);return;}
       if(!(e.metaKey||e.ctrlKey))return;
       const k=e.key.toLowerCase();
-      const explorerFocused=(e.target as Element|null)?.closest?.('.sidebar')&&selectedEntry;
+      if(explorerFocused&&k==='a'){e.preventDefault();setSelectedPaths(new Set(visibleEntries().map(entry=>entry.path)));setStatus(`Selected ${visibleEntries().length} items`);return;}
       if(explorerFocused&&['c','x','v','d'].includes(k)){
         e.preventDefault();e.stopPropagation();
         if(k==='c')copyToClipboard(selectedEntry,false);if(k==='x')copyToClipboard(selectedEntry,true);
@@ -398,10 +418,16 @@ export default function App() {
     instance.addAction({id:'veyra.ai.edit',label:'Edit selection with Veyra AI',contextMenuGroupId:'navigation',contextMenuOrder:1,run:editWithAI});
     instance.focus();
   };
+  function visibleEntries(parent=""):Entry[]{return (tree[parent]||[]).flatMap(entry=>[entry,...(entry.directory&&expanded.has(entry.path)?visibleEntries(entry.path):[])]);}
+  function selectEntry(entry:Entry,event:React.MouseEvent){
+    if(event.metaKey||event.ctrlKey){setSelectedPaths(previous=>{const next=new Set(previous);if(next.has(entry.path))next.delete(entry.path);else next.add(entry.path);return next;});setSelectedPath(entry.path);return true;}
+    if(event.shiftKey&&selectedPath){const visible=visibleEntries(),start=visible.findIndex(item=>item.path===selectedPath),end=visible.findIndex(item=>item.path===entry.path);if(start>=0&&end>=0)setSelectedPaths(new Set(visible.slice(Math.min(start,end),Math.max(start,end)+1).map(item=>item.path)));return true;}
+    setSelectedPaths(new Set([entry.path]));setSelectedPath(entry.path);return false;
+  }
   function treeItems(parent="",depth=0): React.ReactNode {
     return (tree[parent]||[]).map(entry=><div key={entry.path}>
-      <div draggable className={"explorer-entry "+(selectedPath===entry.path?"selected ":"")+(dragging?.path===entry.path?"dragging ":"")+(dragTarget===entry.path?"drag-target":"")} onDragStart={event=>{setDragging(entry);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',entry.path);}} onDragEnd={()=>{setDragging(null);setDragTarget("");}} onDragOver={event=>{if(entry.directory&&dragging&&dragging.path!==entry.path){event.preventDefault();event.dataTransfer.dropEffect='move';setDragTarget(entry.path);}}} onDragLeave={()=>{if(dragTarget===entry.path)setDragTarget("");}} onDrop={event=>{event.preventDefault();const moving=dragging;setDragging(null);setDragTarget("");if(entry.directory&&moving)void moveEntry(moving,entry.path);}} onContextMenu={event=>{event.preventDefault();event.stopPropagation();setSelectedPath(entry.path);if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
-      <button className={"tree-row "+(active===entry.path?"active":"")} aria-pressed={selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={()=>entry.directory?toggleFolder(entry.path):openFile(entry.path)}>
+      <div draggable className={"explorer-entry "+(selectedPaths.has(entry.path)||selectedPath===entry.path?"selected ":"")+(dragging?.path===entry.path?"dragging ":"")+(dragTarget===entry.path?"drag-target":"")} onDragStart={event=>{setDragging(entry);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',entry.path);}} onDragEnd={()=>{setDragging(null);setDragTarget("");}} onDragOver={event=>{if(entry.directory&&dragging&&dragging.path!==entry.path){event.preventDefault();event.dataTransfer.dropEffect='move';setDragTarget(entry.path);}}} onDragLeave={()=>{if(dragTarget===entry.path)setDragTarget("");}} onDrop={event=>{event.preventDefault();const moving=dragging;setDragging(null);setDragTarget("");if(entry.directory&&moving)void moveEntry(moving,entry.path);}} onContextMenu={event=>{event.preventDefault();event.stopPropagation();if(!selectedPaths.has(entry.path)){setSelectedPaths(new Set([entry.path]));setSelectedPath(entry.path);}if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
+      <button className={"tree-row "+(active===entry.path?"active":"")} aria-pressed={selectedPaths.has(entry.path)||selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={event=>{if(selectEntry(entry,event))return;entry.directory?void toggleFolder(entry.path):void openFile(entry.path);}}>
         {entry.directory?<>{expanded.has(entry.path)?<ChevronDown size={12}/>:<ChevronRight size={12}/>}<DimensionalIcon path={entry.path} directory open={expanded.has(entry.path)}/></>:<><span className="tree-indent"/><IconFile path={entry.path}/></>}
         <span>{entry.name}</span>{tabs.some(t=>t.path===entry.path&&dirty(t))&&<i className="dirty-dot"/>}
       </button>{entry.directory&&<div className="folder-actions"><button aria-label={"New file in "+entry.path} title="New file here" onClick={()=>create(false,entry.path)}><FilePlus2 size={13}/></button><button aria-label={"New folder in "+entry.path} title="New folder here" onClick={()=>create(true,entry.path)}><FolderPlus size={13}/></button></div>}</div>{entry.directory&&expanded.has(entry.path)&&<div className="tree-children">{treeItems(entry.path,depth+1)}{tree[entry.path]?.length===0&&<button className="empty-folder" style={{paddingLeft:35+depth*14}} onClick={()=>create(false,entry.path)}>Empty folder · create a file</button>}</div>}
@@ -454,10 +480,10 @@ export default function App() {
     <footer className="statusbar"><button onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={12}/>{git.split("\n")[0]?.replace("## ","").split("...")[0]||"Local workspace"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span><span className="status-position">Ln {position.lineNumber}, Col {position.column}</span><span>UTF-8</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
     {error&&<div className="toast" role="alert"><CircleAlert size={18}/><span>{error}</span><button onClick={()=>setError("")}><X size={15}/></button></div>}
     {explorerMenu&&<><button className="context-menu-dismiss" aria-label="Close context menu" onClick={()=>setExplorerMenu(null)} onContextMenu={event=>{event.preventDefault();setExplorerMenu(null);}}/><div className="explorer-context-menu" role="menu" aria-label={explorerMenu.entry.name+" actions"} style={{left:Math.min(explorerMenu.x,window.innerWidth-220),top:Math.max(8,Math.min(explorerMenu.y,window.innerHeight-390))}}>
-      <header><DimensionalIcon path={explorerMenu.entry.path} directory={explorerMenu.entry.directory}/><span><b>{explorerMenu.entry.name}</b><small>{explorerMenu.entry.directory?'Folder':'File'}</small></span></header>
+      <header><DimensionalIcon path={explorerMenu.entry.path} directory={explorerMenu.entry.directory}/><span><b>{selectedEntries.length>1?`${selectedEntries.length} items`:explorerMenu.entry.name}</b><small>{selectedEntries.length>1?'Multiple selection':explorerMenu.entry.directory?'Folder':'File'}</small></span></header>
       {explorerMenu.entry.directory&&<><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(false,path);}}><FilePlus2 size={14}/>New File</button><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);void create(true,path);}}><FolderPlus size={14}/>New Folder</button><i/></>}
       <button role="menuitem" onClick={()=>copyToClipboard(explorerMenu.entry)}><Copy size={14}/>Copy <kbd>⌘C</kbd></button><button role="menuitem" onClick={()=>copyToClipboard(explorerMenu.entry,true)}><Scissors size={14}/>Cut <kbd>⌘X</kbd></button>{explorerMenu.entry.directory&&<button role="menuitem" disabled={!clipboard} onClick={()=>void pasteInto(explorerMenu.entry.path)}><ClipboardPaste size={14}/>Paste {clipboard&&<small>{clipboard.entry.name}</small>}</button>}<button role="menuitem" onClick={()=>void duplicateEntry(explorerMenu.entry)}><Copy size={14}/>Duplicate <kbd>⌘D</kbd></button><i/>
-      <button role="menuitem" onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" onClick={()=>void revealEntry(explorerMenu.entry)}><ExternalLink size={14}/>Reveal in Finder</button><button role="menuitem" className="danger" onClick={()=>void trashEntry(explorerMenu.entry)}><Trash2 size={14}/>Move to Trash</button>
+      <button role="menuitem" disabled={selectedEntries.length>1} onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" disabled={selectedEntries.length>1} onClick={()=>void revealEntry(explorerMenu.entry)}><ExternalLink size={14}/>Reveal in Finder</button><button role="menuitem" className="danger" onClick={()=>void trashEntries(selectedEntries.length?selectedEntries:[explorerMenu.entry])}><Trash2 size={14}/>Move {selectedEntries.length>1?`${selectedEntries.length} items`:'to Trash'}</button>
     </div></>}
     {palette&&<div className="overlay" onMouseDown={()=>setPalette(null)}><div className="palette" onMouseDown={e=>e.stopPropagation()}><div className="palette-search"><Search size={19}/><input autoFocus aria-label="Search commands or files" placeholder={palette==="files"?"Go to file…":"What would you like to do?"} value={paletteQuery} onChange={e=>setPaletteQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&matches.length){const first=matches[0];setPalette(null);if(typeof first==="string")void openFile(first);else void first.run();}}}/><kbd>esc</kbd></div><div className="palette-label">{palette==="files"?"WORKSPACE FILES":"COMMANDS"}</div><div className="palette-results">{matches.map(item=>typeof item==="string"?<button key={item} onClick={()=>openFile(item)}><IconFile path={item}/><span>{item}</span><ArrowUpRight size={13}/></button>:<button key={item.name} onClick={()=>{setPalette(null);void item.run();}}><Command size={14}/><span>{item.name}</span><kbd>{item.shortcut}</kbd></button>)}{!matches.length&&<p>No results. {root?"Try another search.":"Open a workspace first."}</p>}</div><div className="palette-footer">Enter to select the first result · Esc to close</div></div></div>}
     {creation&&<CreateEntryDialog directory={creation.directory} parent={creation.parent} project={projectName} onCreate={createAt} onClose={()=>setCreation(null)}/>}

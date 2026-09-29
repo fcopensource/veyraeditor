@@ -288,6 +288,23 @@ test("explorer drag and drop moves files into folders",async({page})=>{
   expect(await page.evaluate(()=>(window as any).testFiles['src/README.md'])).toContain('Example project');
 });
 
+test("explorer supports multi-selection and bulk trash",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
+  await page.locator('.tree-row[title="README.md"]').click();
+  await page.locator('.tree-row[title="package.json"]').click({modifiers:['Meta']});
+  await expect(page.locator('.explorer-entry.selected')).toHaveCount(2);
+  await page.locator('.tree-row[title="package.json"]').click({button:'right'});
+  const menu=page.getByRole('menu',{name:'package.json actions'});
+  await expect(menu).toContainText('2 items');
+  await menu.getByRole('menuitem',{name:'Move 2 items'}).click();
+  await expect(page.getByRole('heading',{name:'Move 2 items to Trash?'})).toBeVisible();
+  await page.locator('.dialog').getByRole('button',{name:'Move to Trash',exact:true}).click();
+  await expect(page.locator('.tree-row[title="README.md"]')).toHaveCount(0);
+  await expect(page.locator('.tree-row[title="package.json"]')).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as any).testFiles['README.md'])).toBeUndefined();
+  expect(await page.evaluate(()=>(window as any).testFiles['package.json'])).toBeUndefined();
+});
+
 test("creation rejects traversal without IPC, traps focus and dismisses safely with Escape",async({page})=>{
   await page.goto("/");
   await page.getByRole("button",{name:"Open a project",exact:false}).click();
