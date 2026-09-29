@@ -293,7 +293,11 @@ fn git_run(root: PathBuf, args: Vec<String>) -> Result<String> {
     let output=Command::new("git").args(args).current_dir(root).output().map_err(err)?;
     if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}
 }
-fn gh_run(root:PathBuf,args:Vec<String>)->Result<String>{let output=Command::new("gh").args(args).current_dir(root).output().map_err(err)?;if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}}
+fn gh_program()->Option<PathBuf>{
+    std::env::var_os("PATH").and_then(|paths|std::env::split_paths(&paths).map(|path|path.join("gh")).find(|path|path.is_file()))
+        .or_else(||["/opt/homebrew/bin/gh","/usr/local/bin/gh","/usr/bin/gh"].iter().map(PathBuf::from).find(|path|path.is_file()))
+}
+fn gh_run(root:PathBuf,args:Vec<String>)->Result<String>{let program=gh_program().ok_or("GitHub CLI is not installed. Install it from cli.github.com and restart Veyra.")?;let output=Command::new(program).args(args).current_dir(root).output().map_err(err)?;if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}}
 #[tauri::command]
 async fn git_stage(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["add".into(),"--".into(),path])).await.map_err(err)?}
 #[tauri::command]
@@ -311,13 +315,13 @@ async fn git_log(state:State<'_,Workspace>)->Result<String>{let root=root(&state
 async fn git_graph(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-40".into(),"--date=relative".into(),"--pretty=format:%h%x09%p%x09%d%x09%an%x09%ad%x09%s".into(),"--all".into()])).await.map_err(err)?}
 #[tauri::command]
 async fn github_info(state:State<'_,Workspace>)->Result<GithubInfo>{
-    let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||{
-        if Command::new("gh").arg("--version").output().is_err(){return Ok(GithubInfo::default());}
+    let workspace=state.root.lock().map_err(err)?.clone();let root=workspace.clone().unwrap_or(std::env::current_dir().map_err(err)?);tauri::async_runtime::spawn_blocking(move||{
+        if gh_program().is_none(){return Ok(GithubInfo::default());}
         let mut info=GithubInfo{available:true,..Default::default()};
         if let Ok(user)=gh_run(root.clone(),vec!["api".into(),"user".into(),"--jq".into(),"[.login,(.name // \"\"),.avatar_url]|@tsv".into()]){
             let fields:Vec<_>=user.split('\t').collect();if fields.len()>=3{info.authenticated=true;info.login=fields[0].into();info.name=fields[1].into();info.avatar=fields[2].into();}
         }
-        if info.authenticated {if let Ok(repo)=gh_run(root,vec!["repo".into(),"view".into(),"--json".into(),"nameWithOwner,url,visibility,defaultBranchRef".into(),"--jq".into(),"[.nameWithOwner,.url,.visibility,(.defaultBranchRef.name // \"\")]|@tsv".into()]){let fields:Vec<_>=repo.split('\t').collect();if fields.len()>=4{info.repository=fields[0].into();info.url=fields[1].into();info.visibility=fields[2].into();info.default_branch=fields[3].into();}}}
+        if info.authenticated&&workspace.is_some() {if let Ok(repo)=gh_run(root,vec!["repo".into(),"view".into(),"--json".into(),"nameWithOwner,url,visibility,defaultBranchRef".into(),"--jq".into(),"[.nameWithOwner,.url,.visibility,(.defaultBranchRef.name // \"\")]|@tsv".into()]){let fields:Vec<_>=repo.split('\t').collect();if fields.len()>=4{info.repository=fields[0].into();info.url=fields[1].into();info.visibility=fields[2].into();info.default_branch=fields[3].into();}}}
         Ok(info)
     }).await.map_err(err)?
 }

@@ -12,8 +12,8 @@ export function SourceControl({status,refresh,openDiff,report}:Props){
   const lines=status.split('\n').filter(Boolean);const branch=lines[0]?.startsWith('## ')?lines.shift()!.slice(3).split('...')[0]:'No repository';
   const changes=useMemo<Change[]>(()=>lines.filter(line=>line.length>=3).map(line=>({index:line[0],worktree:line[1],path:line.slice(3).replace(/^"|"$/g,'').split(' -> ').at(-1)!})),[status]);
   const staged=changes.filter(item=>item.index!==' '&&item.index!=='?');const unstaged=changes.filter(item=>item.worktree!==' '||item.index==='?');
-  async function loadDetails(){try{const [log,graphData,account]=await Promise.all([invoke<string>('git_log'),invoke<string>('git_graph'),invoke<GithubInfo>('github_info')]);setHistory(log||'');setGraph(graphData||'');if(account)setGithub(account);}catch{setHistory('');}}
-  useEffect(()=>{if(status)void loadDetails();},[status.split('\n')[0]]);
+  async function loadDetails(){const [log,graphData,account]=await Promise.allSettled([invoke<string>('git_log'),invoke<string>('git_graph'),invoke<GithubInfo>('github_info')]);setHistory(log.status==='fulfilled'?log.value||'':'');setGraph(graphData.status==='fulfilled'?graphData.value||'':'');if(account.status==='fulfilled'&&account.value)setGithub(account.value);}
+  useEffect(()=>{void loadDetails();},[status.split('\n')[0]]);
   async function action(command:string,path:string){setBusy(command+path);try{await invoke(command,{path});await refresh();if(command==='git_discard')setDiscard('');}catch(error){report(error);}finally{setBusy('');}}
   async function commit(){if(!message.trim())return;setBusy('commit');try{await invoke<string>('git_commit',{message});setMessage('');await refresh();await loadDetails();}catch(error){report(error);}finally{setBusy('');}}
   async function login(){setBusy('login');try{await invoke('github_login');await loadDetails();}catch(error){report(error);}finally{setBusy('');}}
