@@ -322,7 +322,7 @@ async fn github_info(state:State<'_,Workspace>)->Result<GithubInfo>{
     }).await.map_err(err)?
 }
 #[tauri::command]
-async fn github_login()->Result<String>{tauri::async_runtime::spawn_blocking(||gh_run(std::env::current_dir().map_err(err)?,vec!["auth".into(),"login".into(),"--hostname".into(),"github.com".into(),"--web".into(),"--clipboard".into(),"--git-protocol".into(),"https".into()])).await.map_err(err)?}
+async fn github_login()->Result<String>{tauri::async_runtime::spawn_blocking(||gh_run(std::env::current_dir().map_err(err)?,vec!["auth".into(),"login".into(),"--hostname".into(),"github.com".into(),"--web".into(),"--git-protocol".into(),"https".into()])).await.map_err(err)?}
 #[tauri::command]
 async fn github_open(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||gh_run(root,vec!["repo".into(),"view".into(),"--web".into()])).await.map_err(err)?}
 #[tauri::command]
