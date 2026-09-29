@@ -282,6 +282,28 @@ async fn git_diff(state: State<'_, Workspace>, path: String) -> Result<String> {
         if output.status.success() { Ok(String::from_utf8_lossy(&output.stdout).into_owned()) } else { Err(String::from_utf8_lossy(&output.stderr).into_owned()) }
     }).await.map_err(err)?
 }
+fn git_path(root: &Path, path: &str) -> Result<()> {
+    if path.is_empty() || Path::new(path).components().any(|part| !matches!(part, Component::Normal(_))) { return Err("Invalid Git path".into()); }
+    if !root.join(path).starts_with(root) { return Err("Git path is outside this workspace".into()); }
+    Ok(())
+}
+fn git_run(root: PathBuf, args: Vec<String>) -> Result<String> {
+    let output=Command::new("git").args(args).current_dir(root).output().map_err(err)?;
+    if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}
+}
+#[tauri::command]
+async fn git_stage(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["add".into(),"--".into(),path])).await.map_err(err)?}
+#[tauri::command]
+async fn git_unstage(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["restore".into(),"--staged".into(),"--".into(),path])).await.map_err(err)?}
+#[tauri::command]
+async fn git_discard(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["restore".into(),"--worktree".into(),"--".into(),path])).await.map_err(err)?}
+#[tauri::command]
+async fn git_commit(state:State<'_,Workspace>,message:String)->Result<String>{
+    let message=message.trim().to_string();if message.is_empty(){return Err("Enter a commit message".into());}if message.len()>5000{return Err("Commit message is too long".into());}
+    let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["commit".into(),"-m".into(),message])).await.map_err(err)?
+}
+#[tauri::command]
+async fn git_log(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-12".into(),"--pretty=format:%h%x09%an%x09%ar%x09%s".into()])).await.map_err(err)?}
 #[tauri::command]
 fn terminal_start(state: State<Workspace>, output: Channel<Vec<u8>>) -> Result<()> {
     let root = root(&state)?;
@@ -318,7 +340,7 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
+        .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, git_stage, git_unstage, git_discard, git_commit, git_log, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });

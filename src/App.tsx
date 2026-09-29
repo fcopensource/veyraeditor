@@ -15,6 +15,7 @@ import {AIStudio,type AISnapshot,type AIProposal} from './AIStudio';
 import {DimensionalIcon} from './DimensionalIcon';
 import {PrismIcon,type PrismTone} from './PrismIcon';
 import './studio.css';
+import {SourceControl} from './SourceControl';
 
 type Entry = { path: string; name: string; directory: boolean };
 type Tab = { path: string; text: string; original: string; external?: boolean };
@@ -317,7 +318,7 @@ export default function App() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
     try{const text=await invoke<string>("read_file",{path:file.path});setTabs(all=>all.map(t=>t.path===file.path?{...t,text,original:text,external:false}:t));}catch(e){report(e);}
   }
-  async function showDiff() {if(!file)return;try{setDiff(await invoke<string>("git_diff",{path:file.path}));}catch(e){report(e);}}
+  async function showGitDiff(path:string){try{setDiff(await invoke<string>("git_diff",{path}));setStatus("Diff · "+path);}catch(e){report(e);}}
   function openPalette(mode:"commands"|"files") { setPalette(mode);setPaletteQuery(""); }
   function showTerminal() {if(!root){setStatus("Open a workspace to start a terminal");return;}setTerminalStarted(true);setBottom("terminal");}
   const commands = [
@@ -456,7 +457,7 @@ export default function App() {
           <div className="outline"><div className="outline-heading"><ChevronDown size={12}/> OUTLINE <span>Detected symbols</span></div><div>{symbols.length?symbols.map(s=><button key={s.line} onClick={()=>{editor.current?.revealLineInCenter(s.line);editor.current?.setPosition({lineNumber:s.line,column:1});}}><Braces size={12}/>{s.name}<small>{s.line}</small></button>):<small className="hint">Open a code file to see symbols.</small>}</div></div>
         </>}
         {panel==="search"&&<div className="panel-body"><label className="search-input"><Search size={14}/><input autoFocus placeholder="Search in files…" value={query} onChange={e=>setQuery(e.target.value)}/></label><small className="hint">{searching?"Searching…":query?hits.length+" matches (up to 500)":"Case-insensitive text search"}</small><div className="search-results">{hits.map((hit,i)=><button key={i} onClick={()=>openFile(hit.path,hit.line)}><b><IconFile path={hit.path}/>{baseName(hit.path)}<small>:{hit.line}</small></b><p>{hit.text}</p><small>{hit.path}</small></button>)}</div><small className="hint">Search skips dependency/build folders. Index limit: 10,000 files.</small></div>}
-        {panel==="git"&&<div className="panel-body"><div className="git-heading"><GitBranch size={16}/><b>{git.split("\n")[0]?.replace("## ","")||"No repository"}</b><button className="icon-button" title="Refresh Git" onClick={refreshGit}><RefreshCw size={14}/></button></div><p className="hint">Working tree status from Git</p><pre className="git-status">{git.split("\n").slice(1).join("\n")||(git?"Working tree clean":"Open a Git repository to view its changes.")}</pre><button className="secondary" disabled={!file} onClick={showDiff}>View active file diff</button><p className="hint">Use the integrated terminal for stage, commit, and other Git commands.</p></div>}
+        {panel==="git"&&<SourceControl status={git} refresh={refreshGit} openDiff={showGitDiff} report={report}/>}
         {panel==="settings"&&<div className="panel-body settings"><h3>Make it yours</h3><p className="hint">Preferences are saved on this Mac.</p><label>Appearance<button className="secondary" onClick={()=>setPreferences(p=>({...p,light:!p.light}))}>{preferences.light?<Sun size={14}/>:<Moon size={14}/>} {preferences.light?"Light":"Midnight"}</button></label><label>Font size<input type="number" min={10} max={28} value={preferences.fontSize} onChange={e=>setPreferences(p=>({...p,fontSize:Math.max(10,Math.min(28,+e.target.value||14))}))}/></label><label>Word wrap<input type="checkbox" checked={preferences.wrap} onChange={e=>setPreferences(p=>({...p,wrap:e.target.checked}))}/></label><label>Minimap<input type="checkbox" checked={preferences.minimap} onChange={e=>setPreferences(p=>({...p,minimap:e.target.checked}))}/></label><hr/><h4>Keyboard shortcuts</h4>{commands.filter(c=>c.shortcut).map(c=><div className="shortcut" key={c.name}><span>{c.name}</span><kbd>{c.shortcut}</kbd></div>)}</div>}
       </aside><div className="resize-handle" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))setSidebarWidth(Math.max(190,Math.min(420,e.clientX-49)));}} onPointerUp={e=>e.currentTarget.releasePointerCapture(e.pointerId)}/></>}
       <section className="content">

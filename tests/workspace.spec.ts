@@ -11,6 +11,7 @@ test.beforeEach(async ({page})=>{
     const parent = (path:string) => path.split("/").slice(0,-1).join("/");
     const exists = (path:string) => directories.has(path) || Object.prototype.hasOwnProperty.call(files,path);
     const calls: {cmd:string;args:Record<string,unknown>}[]=[];
+    let gitStatus="## main\n M src/App.tsx\n";
     Object.assign(window,{testFiles:files,testDirectories:directories,testCalls:calls,__TAURI_INTERNALS__:{
       transformCallback:()=>1, unregisterCallback:()=>{},
       invoke:async(cmd:string,args:Record<string,any>={})=>{
@@ -76,8 +77,12 @@ test.beforeEach(async ({page})=>{
         }
         if(cmd==="reveal_in_finder")return;
         if(cmd==="search_workspace")return Object.entries(files).flatMap(([path,text])=>text.split("\n").flatMap((line,i)=>line.toLowerCase().includes(args.query.toLowerCase())?[{path,line:i+1,text:line}]:[]));
-        if(cmd==="git_status")return "## main\n M src/App.tsx\n";
+        if(cmd==="git_status")return gitStatus;
         if(cmd==="git_diff")return "- old\n+ new";
+        if(cmd==="git_log")return "abc1234\tVikram\t2 minutes ago\tBuild Veyra";
+        if(cmd==="git_stage"){gitStatus="## main\nM  src/App.tsx\n";return "";}
+        if(cmd==="git_unstage"){gitStatus="## main\n M src/App.tsx\n";return "";}
+        if(cmd==="git_commit"){gitStatus="## main\n";return "[main def5678] "+args.message;}
         if(cmd==="plugin:event|listen")return 1;
         return null;
       }
@@ -303,6 +308,20 @@ test("explorer supports multi-selection and bulk trash",async({page})=>{
   await expect(page.locator('.tree-row[title="package.json"]')).toHaveCount(0);
   expect(await page.evaluate(()=>(window as any).testFiles['README.md'])).toBeUndefined();
   expect(await page.evaluate(()=>(window as any).testFiles['package.json'])).toBeUndefined();
+});
+
+test("source control stages changes, commits and shows history",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
+  await page.getByRole('button',{name:'Source control'}).click();
+  await expect(page.getByText('src/App.tsx',{exact:true})).toBeVisible();
+  await expect(page.getByText('Build Veyra',{exact:true})).toBeVisible();
+  await page.getByTitle('Stage change').click();
+  await expect(page.getByText('STAGED CHANGES')).toBeVisible();
+  await page.getByRole('textbox',{name:'Commit message'}).fill('Test integrated commit');
+  await page.getByRole('button',{name:/Commit 1 staged/}).click();
+  await expect(page.getByText('Working tree clean')).toBeVisible();
+  const commands=await page.evaluate(()=>(window as any).testCalls.filter((call:any)=>call.cmd.startsWith('git_')).map((call:any)=>call.cmd));
+  expect(commands).toContain('git_stage');expect(commands).toContain('git_commit');
 });
 
 test("creation rejects traversal without IPC, traps focus and dismisses safely with Escape",async({page})=>{
