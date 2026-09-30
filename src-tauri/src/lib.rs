@@ -23,6 +23,7 @@ type Result<T> = std::result::Result<T, String>;
 fn err(e: impl std::fmt::Display) -> String { e.to_string() }
 fn menu_item(app:&tauri::App, id:&str, text:&str, accelerator:&str)->tauri::Result<MenuItem<tauri::Wry>>{MenuItem::with_id(app,id,text,true,Some(accelerator))}
 fn application_menu(app:&tauri::App)->tauri::Result<tauri::menu::Menu<tauri::Wry>>{
+    let application=SubmenuBuilder::new(app,"Veyra Studio").about(None).separator().services().separator().hide().hide_others().show_all().separator().quit().build()?;
     let file=SubmenuBuilder::new(app,"File").items(&[
         &menu_item(app,"file.new","New File…","CmdOrCtrl+N")?,&menu_item(app,"file.open","Open Folder…","CmdOrCtrl+O")?,
         &menu_item(app,"file.save","Save","CmdOrCtrl+S")?,&menu_item(app,"file.saveAll","Save All","CmdOrCtrl+Shift+S")?,
@@ -54,7 +55,7 @@ fn application_menu(app:&tauri::App)->tauri::Result<tauri::menu::Menu<tauri::Wry
     let run=SubmenuBuilder::new(app,"Run").items(&[&menu_item(app,"run.active","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"run.debug","Start Debugging","F5")?,&menu_item(app,"run.breakpoint","Toggle Breakpoint","F9")?]).build()?;
     let terminal=SubmenuBuilder::new(app,"Terminal").items(&[&menu_item(app,"terminal.new","New Terminal","Ctrl+Shift+`")?,&menu_item(app,"terminal.runActive","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"terminal.clear","Clear Terminal","CmdOrCtrl+K")?]).build()?;
     let help=SubmenuBuilder::new(app,"Help").items(&[&menu_item(app,"help.commands","Show All Commands","CmdOrCtrl+Shift+P")?,&menu_item(app,"help.shortcuts","Keyboard Shortcuts Reference","CmdOrCtrl+K")?,&menu_item(app,"help.about","About Veyra","")?]).build()?;
-    MenuBuilder::new(app).items(&[&file,&edit,&selection,&view,&go,&run,&terminal,&help]).build()
+    MenuBuilder::new(app).items(&[&application,&file,&edit,&selection,&view,&go,&run,&terminal,&help]).build()
 }
 fn root(state: &Workspace) -> Result<PathBuf> { state.root.lock().map_err(err)?.clone().ok_or("Open a folder first".into()) }
 fn checked(root: &Path, relative: &str) -> Result<PathBuf> {
