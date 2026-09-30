@@ -2,6 +2,7 @@ use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use serde::Serialize;
 use std::{fs, io::{Read, Write}, path::{Component, Path, PathBuf}, process::Command, sync::{Mutex, atomic::{AtomicBool, Ordering}}};
 use tauri::{Emitter, Manager, State, ipc::Channel};
+use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri_plugin_dialog::DialogExt;
 mod ai;
 
@@ -20,6 +21,41 @@ struct ContextFile { path: String, content: String, score: usize }
 struct GithubInfo { available: bool, authenticated: bool, login: String, name: String, avatar: String, repository: String, url: String, visibility: String, default_branch: String }
 type Result<T> = std::result::Result<T, String>;
 fn err(e: impl std::fmt::Display) -> String { e.to_string() }
+fn menu_item(app:&tauri::App, id:&str, text:&str, accelerator:&str)->tauri::Result<MenuItem<tauri::Wry>>{MenuItem::with_id(app,id,text,true,Some(accelerator))}
+fn application_menu(app:&tauri::App)->tauri::Result<tauri::menu::Menu<tauri::Wry>>{
+    let file=SubmenuBuilder::new(app,"File").items(&[
+        &menu_item(app,"file.new","New File…","CmdOrCtrl+N")?,&menu_item(app,"file.open","Open Folder…","CmdOrCtrl+O")?,
+        &menu_item(app,"file.save","Save","CmdOrCtrl+S")?,&menu_item(app,"file.saveAll","Save All","CmdOrCtrl+Shift+S")?,
+        &menu_item(app,"file.closeEditor","Close Editor","CmdOrCtrl+W")?,&menu_item(app,"file.closeFolder","Close Folder","CmdOrCtrl+K")?
+    ]).build()?;
+    let edit=SubmenuBuilder::new(app,"Edit").undo().redo().separator().cut().copy().paste().separator().items(&[
+        &menu_item(app,"edit.find","Find","CmdOrCtrl+F")?,&menu_item(app,"edit.replace","Replace","CmdOrCtrl+Alt+F")?,
+        &menu_item(app,"edit.findFiles","Find in Files","CmdOrCtrl+Shift+F")?,&menu_item(app,"edit.toggleLineComment","Toggle Line Comment","CmdOrCtrl+/")?,
+        &menu_item(app,"edit.toggleBlockComment","Toggle Block Comment","CmdOrCtrl+Alt+A")?
+    ]).select_all().build()?;
+    let selection=SubmenuBuilder::new(app,"Selection").items(&[
+        &menu_item(app,"selection.expand","Expand Selection","Ctrl+Shift+Right")?,&menu_item(app,"selection.shrink","Shrink Selection","Ctrl+Shift+Left")?,
+        &menu_item(app,"selection.copyUp","Copy Line Up","Alt+Shift+Up")?,&menu_item(app,"selection.copyDown","Copy Line Down","Alt+Shift+Down")?,
+        &menu_item(app,"selection.moveUp","Move Line Up","Alt+Up")?,&menu_item(app,"selection.moveDown","Move Line Down","Alt+Down")?,
+        &menu_item(app,"selection.cursorAbove","Add Cursor Above","Alt+CmdOrCtrl+Up")?,&menu_item(app,"selection.cursorBelow","Add Cursor Below","Alt+CmdOrCtrl+Down")?,
+        &menu_item(app,"selection.nextMatch","Add Next Occurrence","CmdOrCtrl+D")?,&menu_item(app,"selection.allMatches","Select All Occurrences","CmdOrCtrl+Shift+L")?
+    ]).build()?;
+    let view=SubmenuBuilder::new(app,"View").items(&[
+        &menu_item(app,"view.palette","Command Palette…","CmdOrCtrl+Shift+P")?,&menu_item(app,"view.explorer","Explorer","CmdOrCtrl+Shift+E")?,
+        &menu_item(app,"view.search","Search","CmdOrCtrl+Shift+F")?,&menu_item(app,"view.git","Source Control","Ctrl+Shift+G")?,
+        &menu_item(app,"view.extensions","Extensions","CmdOrCtrl+Shift+X")?,&menu_item(app,"view.problems","Problems","CmdOrCtrl+Shift+M")?,
+        &menu_item(app,"view.terminal","Terminal","Ctrl+`")?,&menu_item(app,"view.wordWrap","Word Wrap","Alt+Z")?,&menu_item(app,"view.split","Split Editor","CmdOrCtrl+\\")?
+    ]).build()?;
+    let go=SubmenuBuilder::new(app,"Go").items(&[
+        &menu_item(app,"go.file","Go to File…","CmdOrCtrl+P")?,&menu_item(app,"go.symbol","Go to Symbol in Editor…","CmdOrCtrl+Shift+O")?,
+        &menu_item(app,"go.definition","Go to Definition","F12")?,&menu_item(app,"go.references","Go to References","Shift+F12")?,
+        &menu_item(app,"go.line","Go to Line/Column…","Ctrl+G")?,&menu_item(app,"go.nextProblem","Next Problem","F8")?,&menu_item(app,"go.previousProblem","Previous Problem","Shift+F8")?
+    ]).build()?;
+    let run=SubmenuBuilder::new(app,"Run").items(&[&menu_item(app,"run.active","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"run.debug","Start Debugging","F5")?,&menu_item(app,"run.breakpoint","Toggle Breakpoint","F9")?]).build()?;
+    let terminal=SubmenuBuilder::new(app,"Terminal").items(&[&menu_item(app,"terminal.new","New Terminal","Ctrl+Shift+`")?,&menu_item(app,"terminal.runActive","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"terminal.clear","Clear Terminal","CmdOrCtrl+K")?]).build()?;
+    let help=SubmenuBuilder::new(app,"Help").items(&[&menu_item(app,"help.commands","Show All Commands","CmdOrCtrl+Shift+P")?,&menu_item(app,"help.shortcuts","Keyboard Shortcuts Reference","CmdOrCtrl+K")?,&menu_item(app,"help.about","About Veyra","")?]).build()?;
+    MenuBuilder::new(app).items(&[&file,&edit,&selection,&view,&go,&run,&terminal,&help]).build()
+}
 fn root(state: &Workspace) -> Result<PathBuf> { state.root.lock().map_err(err)?.clone().ok_or("Open a folder first".into()) }
 fn checked(root: &Path, relative: &str) -> Result<PathBuf> {
     let rel = Path::new(relative);
@@ -370,6 +406,8 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
+        .setup(|app|{app.set_menu(application_menu(app)?)?;Ok(())})
+        .on_menu_event(|app,event|{let _=app.emit("menu-command",event.id().as_ref());})
         .invoke_handler(tauri::generate_handler![choose_folder, list_directory, read_file, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, ai_workspace_context, git_status, git_diff, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")

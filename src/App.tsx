@@ -321,6 +321,9 @@ export default function App() {
   async function showGitDiff(path:string){try{setDiff(await invoke<string>("git_diff",{path}));setStatus("Diff · "+path);}catch(e){report(e);}}
   function openPalette(mode:"commands"|"files") { setPalette(mode);setPaletteQuery(""); }
   function showTerminal() {if(!root){setStatus("Open a workspace to start a terminal");return;}setTerminalStarted(true);setBottom("terminal");}
+  async function closeFolder(){if(!root||!await allowDiscard("Close workspace?"))return;setRoot("");state.current.root="";setTabs([]);setActive("");setTree({});setIndexed([]);setSelectedPath("");setSelectedPaths(new Set());setSelectedFolder("");setGit("");setDiff(null);setTerminalStarted(false);setBottom(null);monaco.editor.getModels().forEach(model=>model.dispose());setStatus("Workspace closed");}
+  function editorAction(id:string){void editor.current?.getAction(id)?.run();editor.current?.focus();}
+  function runActiveFile(){if(!file){setStatus("Open a file to run it");return;}showTerminal();const quoted="'"+file.path.replaceAll("'","'\\''")+"'";const extension=file.path.split('.').pop()?.toLowerCase();const command=extension==='py'?`python3 ${quoted}`:extension==='js'||extension==='mjs'||extension==='cjs'?`node ${quoted}`:extension==='ts'||extension==='tsx'?`npx tsx ${quoted}`:extension==='rs'?'cargo run':extension==='sh'?`bash ${quoted}`:'';if(!command){setStatus("No runner configured for ."+(extension||"file"));return;}window.setTimeout(()=>void invoke("terminal_write",{data:command+"\r"}).catch(report),350);setStatus("Running "+file.path);}
   const commands = [
     {name:'Toggle AI assistant',shortcut:'⌘L',run:()=>setAiOpen(v=>!v)},{name:'Edit selection with AI',shortcut:'⌘K',run:editWithAI},
     {name:"Open folder",shortcut:"⌘O",run:chooseFolder},{name:"New file",shortcut:"⌘N",run:()=>create()},
@@ -340,6 +343,15 @@ export default function App() {
     const unlisten=listen("confirm-quit",async()=>{if(modalRef.current)return;if(await allowDiscard("Quit Veyra?"))void invoke("quit");});
     return ()=>{void unlisten.then(f=>f());};
   },[]);
+  useEffect(()=>{
+    const unlisten=listen<string>("menu-command",event=>{const id=event.payload;
+      const panels:Record<string,string>={"view.explorer":"files","view.search":"search","view.git":"git","view.extensions":"extensions"};
+      if(panels[id]){setPanel(panels[id]);setSidebar(true);if(id==='view.git')void refreshGit();return;}
+      const actions:Record<string,string>={"edit.find":"actions.find","edit.replace":"editor.action.startFindReplaceAction","edit.toggleLineComment":"editor.action.commentLine","edit.toggleBlockComment":"editor.action.blockComment","selection.expand":"editor.action.smartSelect.expand","selection.shrink":"editor.action.smartSelect.shrink","selection.copyUp":"editor.action.copyLinesUpAction","selection.copyDown":"editor.action.copyLinesDownAction","selection.moveUp":"editor.action.moveLinesUpAction","selection.moveDown":"editor.action.moveLinesDownAction","selection.cursorAbove":"editor.action.insertCursorAbove","selection.cursorBelow":"editor.action.insertCursorBelow","selection.nextMatch":"editor.action.addSelectionToNextFindMatch","selection.allMatches":"editor.action.selectHighlights","go.symbol":"editor.action.quickOutline","go.definition":"editor.action.revealDefinition","go.references":"editor.action.goToReferences","go.line":"editor.action.gotoLine","go.nextProblem":"editor.action.marker.next","go.previousProblem":"editor.action.marker.prev"};
+      if(actions[id]){editorAction(actions[id]);return;}
+      if(id==='file.new')void create();else if(id==='file.open')void chooseFolder();else if(id==='file.save')void saveTab();else if(id==='file.saveAll')void saveAll();else if(id==='file.closeEditor')void closeTab(state.current.active);else if(id==='file.closeFolder')void closeFolder();else if(id==='edit.findFiles'){setPanel('search');setSidebar(true);}else if(id==='view.palette'||id==='help.commands')openPalette('commands');else if(id==='go.file')openPalette('files');else if(id==='view.problems')setBottom('problems');else if(id==='view.terminal'||id==='terminal.new')showTerminal();else if(id==='view.wordWrap')setPreferences(value=>({...value,wrap:!value.wrap}));else if(id==='view.split')setSplit(value=>!value);else if(id==='run.active'||id==='terminal.runActive')runActiveFile();else if(id==='run.debug')setStatus('Debugger adapters are the next runtime milestone');else if(id==='run.breakpoint')editorAction('editor.debug.action.toggleBreakpoint');else if(id==='help.shortcuts')setStatus('Keyboard shortcuts are shown in the native menus');else if(id==='help.about')setStatus('Veyra Studio 0.3 · local-first AI code editor');
+    });return()=>{void unlisten.then(dispose=>dispose());};
+  });
   useEffect(()=>{
     const key=(e:KeyboardEvent)=>{
       if(creation)return;
