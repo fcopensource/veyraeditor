@@ -22,6 +22,7 @@ target
 
 # Frontend dependencies, builds and test output
 node_modules/
+.next/
 dist/
 dist-ssr/
 test-results/

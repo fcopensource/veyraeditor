@@ -871,10 +871,97 @@ kbd {
 }
 
 .terminal-panel {
-    height: 220px;
-    flex-shrink: 0;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
     background: #13171e;
     min-height: 100px
+}
+
+.terminal-workbench {
+    height: 250px;
+    min-height: 130px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: #13171e
+}
+
+.terminal-session-bar {
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--toolbar) 78%, #0e131a)
+}
+
+.terminal-session-bar>div {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    overflow-x: auto
+}
+
+.terminal-session-bar button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    border: 0;
+    border-right: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap
+}
+
+.terminal-session-bar>div>button {
+    min-width: 112px;
+    justify-content: flex-start
+}
+
+.terminal-session-bar>div>button.active {
+    color: var(--bright);
+    background: #13171e;
+    box-shadow: inset 0 2px var(--accent)
+}
+
+.terminal-session-bar button:hover {
+    color: var(--bright);
+    background: var(--hover)
+}
+
+.terminal-session-bar button>i {
+    display: grid;
+    place-items: center;
+    margin-left: auto;
+    padding: 3px;
+    border-radius: 4px;
+    opacity: .55
+}
+
+.terminal-session-bar button>i:hover {
+    opacity: 1;
+    background: #ffffff16
+}
+
+.terminal-session-bar>button {
+    padding: 0 9px
+}
+
+.terminal-session-bar>button:disabled {
+    opacity: .3
+}
+
+.terminal-session {
+    display: none;
+    width: 100%;
+    height: 100%
+}
+
+.terminal-session.active {
+    display: block
 }
 
 .terminal-host {

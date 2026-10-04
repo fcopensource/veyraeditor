@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export function Footer(){return <footer><div><b>Veyra</b><p>A local-first studio for thoughtful software.</p></div><div><strong>Product</strong><Link href="/#features">Features</Link><Link href="/download">Download</Link><a href="https://github.com/fcopensource/veyraeditor">Source</a></div><div><strong>Account</strong><Link href="/login">Log in</Link><Link href="/register">Register</Link></div><small>© 2026 Veyra Studio · MIT licensed</small></footer>}

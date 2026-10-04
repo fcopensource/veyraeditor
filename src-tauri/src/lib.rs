@@ -1,6 +1,6 @@
 use portable_pty::{native_pty_system, CommandBuilder, PtySize};
 use serde::Serialize;
-use std::{fs, io::{Read, Write}, path::{Component, Path, PathBuf}, process::Command, sync::{Mutex, atomic::{AtomicBool, Ordering}}};
+use std::{collections::HashMap, fs, io::{Read, Write}, path::{Component, Path, PathBuf}, process::Command, sync::{Mutex, atomic::{AtomicBool, Ordering}}};
 use tauri::{Emitter, Manager, State, ipc::Channel};
 use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri_plugin_dialog::DialogExt;
@@ -8,7 +8,7 @@ mod ai;
 
 const MAX_FILE: u64 = 5 * 1024 * 1024;
 #[derive(Default)]
-struct Workspace { root: Mutex<Option<PathBuf>>, dirty: AtomicBool, terminal: Mutex<Option<TerminalSession>> }
+struct Workspace { root: Mutex<Option<PathBuf>>, dirty: AtomicBool, terminals: Mutex<HashMap<u32, TerminalSession>> }
 struct TerminalSession { master: Box<dyn portable_pty::MasterPty + Send>, writer: Box<dyn Write + Send>, child: Box<dyn portable_pty::Child + Send + Sync> }
 impl Drop for TerminalSession { fn drop(&mut self) { let _ = self.child.kill(); let _ = self.child.wait(); } }
 #[derive(Serialize)]
@@ -179,7 +179,7 @@ async fn choose_folder(app: tauri::AppHandle, state: State<'_, Workspace>) -> Re
     let selected = app.dialog().file().blocking_pick_folder();
     if let Some(selected) = selected {
         let selected = selected.into_path().map_err(err)?.canonicalize().map_err(err)?;
-        state.terminal.lock().map_err(err)?.take();
+        state.terminals.lock().map_err(err)?.clear();
         *state.root.lock().map_err(err)? = Some(selected.clone());
         Ok(Some(selected.to_string_lossy().into_owned()))
     } else { Ok(None) }
@@ -372,32 +372,32 @@ async fn git_remote_action(state:State<'_,Workspace>,action:String)->Result<Stri
     tauri::async_runtime::spawn_blocking(move||{let args=if action=="pull"{vec!["pull".into(),"--ff-only".into()]}else{vec![action]};git_run(root,args)}).await.map_err(err)?
 }
 #[tauri::command]
-fn terminal_start(state: State<Workspace>, output: Channel<Vec<u8>>) -> Result<()> {
+fn terminal_start(state: State<Workspace>, session_id: u32, output: Channel<Vec<u8>>) -> Result<()> {
     let root = root(&state)?;
-    let mut session = state.terminal.lock().map_err(err)?;
-    session.take();
+    let mut sessions = state.terminals.lock().map_err(err)?;
+    sessions.remove(&session_id);
     let pair = native_pty_system().openpty(PtySize { rows: 24, cols: 100, pixel_width: 0, pixel_height: 0 }).map_err(err)?;
     let mut command = CommandBuilder::new(std::env::var("SHELL").unwrap_or("/bin/zsh".into()));
     command.arg("-l"); command.cwd(root); command.env("TERM", "xterm-256color");
     let child = pair.slave.spawn_command(command).map_err(err)?;
     let mut reader = pair.master.try_clone_reader().map_err(err)?;
     let writer = pair.master.take_writer().map_err(err)?;
-    *session = Some(TerminalSession { master: pair.master, writer, child });
+    sessions.insert(session_id, TerminalSession { master: pair.master, writer, child });
     std::thread::spawn(move || { let mut buf = [0; 8192]; while let Ok(n) = reader.read(&mut buf) { if n == 0 || output.send(buf[..n].to_vec()).is_err() { break; } } });
     Ok(())
 }
 #[tauri::command]
-fn terminal_write(state: State<Workspace>, data: String) -> Result<()> {
-    if let Some(session) = state.terminal.lock().map_err(err)?.as_mut() { session.writer.write_all(data.as_bytes()).map_err(err)?; session.writer.flush().map_err(err)?; }
+fn terminal_write(state: State<Workspace>, session_id: u32, data: String) -> Result<()> {
+    if let Some(session) = state.terminals.lock().map_err(err)?.get_mut(&session_id) { session.writer.write_all(data.as_bytes()).map_err(err)?; session.writer.flush().map_err(err)?; }
     Ok(())
 }
 #[tauri::command]
-fn terminal_resize(state: State<Workspace>, rows: u16, cols: u16) -> Result<()> {
-    if let Some(session) = state.terminal.lock().map_err(err)?.as_mut() { session.master.resize(PtySize { rows: rows.max(1), cols: cols.max(1), pixel_width: 0, pixel_height: 0 }).map_err(err)?; }
+fn terminal_resize(state: State<Workspace>, session_id: u32, rows: u16, cols: u16) -> Result<()> {
+    if let Some(session) = state.terminals.lock().map_err(err)?.get_mut(&session_id) { session.master.resize(PtySize { rows: rows.max(1), cols: cols.max(1), pixel_width: 0, pixel_height: 0 }).map_err(err)?; }
     Ok(())
 }
 #[tauri::command]
-fn terminal_stop(state: State<Workspace>) { if let Ok(mut session) = state.terminal.lock() { session.take(); } }
+fn terminal_stop(state: State<Workspace>, session_id: u32) { if let Ok(mut sessions) = state.terminals.lock() { sessions.remove(&session_id); } }
 #[tauri::command]
 fn set_dirty(state: State<Workspace>, dirty: bool) { state.dirty.store(dirty, Ordering::SeqCst); }
 #[tauri::command]
