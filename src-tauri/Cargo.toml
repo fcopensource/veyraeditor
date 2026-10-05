@@ -28,3 +28,6 @@ tempfile = "3.27.0"
 trash = "5.2.9"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 tokio = { version = "1", features = ["sync", "macros"] }
+regex = "1"
+base64 = "0.22"
+dunce = "1"
