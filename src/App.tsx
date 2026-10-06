@@ -16,7 +16,23 @@ import {AIStudio,type AISnapshot,type AIProposal} from './AIStudio';
 import {DimensionalIcon} from './DimensionalIcon';
 import {PrismIcon,type PrismTone} from './PrismIcon';
 import './studio.css';
-import {SourceControl} from './SourceControl';
+import {SourceControl,parseBranch} from './SourceControl';
+import {HeartPulse,ArrowDown,ArrowUp,Rows2} from "lucide-react";
+import {HealthPanel} from './HealthPanel';
+import {clearErrors,runHealth,startMonitor,type HealthReport} from './health';
+import {lineChanges} from './linediff';
+import './workbench.css';
+/** Map `git status --short` lines to a per-path letter (M, A, D, U, R) plus the set of folders containing changes. */
+function gitDecorations(status:string){
+  const files=new Map<string,string>(),folders=new Set<string>();
+  for(const line of status.split('\n')){
+    if(line.length<4||line.startsWith('## '))continue;
+    const x=line[0],y=line[1],path=line.slice(3).replace(/^"|"$/g,'').split(' -> ').at(-1)!;
+    const code=x==='?'?'U':y!==' '?y:x;files.set(path,code==='?'?'U':code);
+    const parts=path.split('/');for(let i=1;i<parts.length;i++)folders.add(parts.slice(0,i).join('/'));
+  }
+  return {files,folders};
+}
 
 type Entry = { path: string; name: string; directory: boolean };
 type Tab = { path: string; text: string; original: string; external?: boolean };
@@ -83,7 +99,15 @@ export default function App() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [git, setGit] = useState("");
-  const [diff, setDiff] = useState<string|null>(null);
+  const [diff, setDiff] = useState<{path:string;original:string;modified:string}|null>(null);
+  const [diffInline,setDiffInline]=useState(false);
+  const [health,setHealth]=useState<HealthReport|null>(null);
+  const [healthRunning,setHealthRunning]=useState(false);
+  const headCache=useRef(new Map<string,string|null>());
+  const gitDecorationIds=useRef<monaco.editor.IEditorDecorationsCollection|null>(null);
+  const diskCheck=useRef<()=>Promise<void>>(async()=>{});
+  const decorations=useMemo(()=>gitDecorations(git),[git]);
+  const branchInfo=parseBranch(git.split("\n")[0]||"");
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<Hit[]>([]);
   const [searching, setSearching] = useState(false);
@@ -321,7 +345,19 @@ export default function App() {
     if(!file || !await allowDiscard("Reload from disk?",[file]))return;
     try{const text=await invoke<string>("read_file",{path:file.path});setTabs(all=>all.map(t=>t.path===file.path?{...t,text,original:text,external:false}:t));}catch(e){report(e);}
   }
-  async function showGitDiff(path:string){try{setDiff(await invoke<string>("git_diff",{path}));setStatus("Diff · "+path);}catch(e){report(e);}}
+  async function showGitDiff(path:string){
+    try{
+      const original=await invoke<string>("git_show",{path})??"";
+      const open=state.current.tabs.find(tab=>tab.path===path);
+      const modified=open?open.text:await invoke<string>("read_file",{path}).catch(()=>"");
+      setDiff({path,original,modified:modified??""});setStatus("Diff · "+path+" · HEAD ↔ working tree");
+    }catch(e){report(e);}
+  }
+  async function checkHealth(){
+    setHealthRunning(true);
+    try{const current=state.current;setHealth(await runHealth({root:current.root,openFiles:current.tabs.length,unsaved:current.tabs.filter(dirty).length,errorMarkers:monaco.editor.getModelMarkers({}).filter(m=>m.severity===8).length}));}
+    finally{setHealthRunning(false);}
+  }
   function openPalette(mode:"commands"|"files") { setPalette(mode);setPaletteQuery(""); }
   function newTerminal(){if(!root){setStatus("Open a workspace to start a terminal");return;}const id=terminalSequence.current++;setTerminals(all=>[...all,{id,name:`zsh ${all.length+1}`}]);setActiveTerminal(id);setBottom("terminal");setStatus("New terminal started");}
   function showTerminal() {if(!root){setStatus("Open a workspace to start a terminal");return;}if(!terminals.length)newTerminal();else{setActiveTerminal(current=>current??terminals[0].id);setBottom("terminal");}}
@@ -344,6 +380,34 @@ export default function App() {
   const matches = palette==="files"?indexed.filter(p=>p.toLowerCase().includes(paletteQuery.toLowerCase())).slice(0,70):commands.filter(c=>c.name.toLowerCase().includes(paletteQuery.toLowerCase()));
 
   useEffect(()=>{localStorage.setItem("veyra.preferences",JSON.stringify(preferences));},[preferences]);
+  // Health: passive monitoring from launch, a full check shortly after start and then every minute.
+  useEffect(()=>{startMonitor();const first=window.setTimeout(()=>void checkHealth(),2500);const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void checkHealth();},60000);return()=>{clearTimeout(first);clearInterval(timer);};},[]);
+  // Git: keep status fresh like VS Code (poll while visible, and whenever the window regains focus).
+  useEffect(()=>{
+    if(!root)return;
+    const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refreshGit();},10000);
+    const focus=()=>{void refresh();};window.addEventListener("focus",focus);
+    return()=>{clearInterval(timer);window.removeEventListener("focus",focus);};
+  },[root]);
+  // A new commit, checkout or stash changes HEAD, so cached HEAD contents are stale.
+  useEffect(()=>{headCache.current.clear();},[git]);
+  // Gutter markers: added (green), modified (blue) and deleted (red) lines against HEAD.
+  useEffect(()=>{
+    const instance=editor.current;if(!instance||!file)return;
+    const path=file.path,text=file.text,code=decorations.files.get(path);
+    const timer=window.setTimeout(async()=>{
+      const clear=()=>gitDecorationIds.current?.clear();
+      if(!git||code==="U"||code==="A"||path.includes("..")){clear();return;}
+      // Empty HEAD content for a file Git reports as clean means it is ignored, so it gets no markers.
+      if(!headCache.current.has(path)){try{const head=await invoke<string>("git_show",{path})??"";headCache.current.set(path,!head&&!code?null:head);}catch{headCache.current.set(path,null);}}
+      const head=headCache.current.get(path);
+      if(head==null||state.current.active!==path){if(head==null)clear();return;}
+      const changes=lineChanges(head,text)||[];
+      const decorationsList=changes.map(change=>({range:new monaco.Range(change.start,1,change.end,1),options:{isWholeLine:true,linesDecorationsClassName:"git-gutter git-gutter-"+change.kind,overviewRuler:{color:change.kind==="added"?"#4fb286":change.kind==="deleted"?"#e06c75":"#5aa5e6",position:monaco.editor.OverviewRulerLane.Left}}}));
+      if(gitDecorationIds.current)gitDecorationIds.current.set(decorationsList);else gitDecorationIds.current=instance.createDecorationsCollection(decorationsList);
+    },250);
+    return()=>clearTimeout(timer);
+  },[file?.path,file?.text,git,decorations]);
   useEffect(()=>{void invoke("set_dirty",{dirty:countDirty>0});},[countDirty]);
   useEffect(()=>{
     const unlisten=listen("confirm-quit",async()=>{if(modalRef.current)return;if(await allowDiscard("Quit Veyra?"))void invoke("quit");});
@@ -419,7 +483,7 @@ export default function App() {
         });
       }finally{diskCheckRunning.current=false;}
     };
-    const timer=setInterval(check,8000);return()=>clearInterval(timer);
+    diskCheck.current=check;const timer=setInterval(check,8000);return()=>clearInterval(timer);
   },[]);
   useEffect(()=>{
     if(!file){setSymbols([]);return;}
@@ -431,7 +495,7 @@ export default function App() {
     return()=>clearTimeout(timer);
   },[file?.text]);
   const mounted: OnMount = (instance) => {
-    editor.current=instance;
+    editor.current=instance;gitDecorationIds.current=null;
     instance.onDidChangeCursorPosition(e=>{clearTimeout(cursorTimer.current);cursorTimer.current=window.setTimeout(()=>setPosition(e.position),80);});
     instance.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,()=>void saveTab());
     instance.addAction({id:'veyra.ai.edit',label:'Edit selection with Veyra AI',contextMenuGroupId:'navigation',contextMenuOrder:1,run:editWithAI});
@@ -446,9 +510,9 @@ export default function App() {
   function treeItems(parent="",depth=0): React.ReactNode {
     return (tree[parent]||[]).map(entry=><div key={entry.path}>
       <div draggable className={"explorer-entry "+(selectedPaths.has(entry.path)||selectedPath===entry.path?"selected ":"")+(dragging?.path===entry.path?"dragging ":"")+(dragTarget===entry.path?"drag-target":"")} onDragStart={event=>{setDragging(entry);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',entry.path);}} onDragEnd={()=>{setDragging(null);setDragTarget("");}} onDragOver={event=>{if(entry.directory&&dragging&&dragging.path!==entry.path){event.preventDefault();event.dataTransfer.dropEffect='move';setDragTarget(entry.path);}}} onDragLeave={()=>{if(dragTarget===entry.path)setDragTarget("");}} onDrop={event=>{event.preventDefault();const moving=dragging;setDragging(null);setDragTarget("");if(entry.directory&&moving)void moveEntry(moving,entry.path);}} onContextMenu={event=>{event.preventDefault();event.stopPropagation();if(!selectedPaths.has(entry.path)){setSelectedPaths(new Set([entry.path]));setSelectedPath(entry.path);}if(entry.directory)setSelectedFolder(entry.path);setExplorerMenu({x:event.clientX,y:event.clientY,entry});}}>
-      <button className={"tree-row "+(active===entry.path?"active":"")} aria-pressed={selectedPaths.has(entry.path)||selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={event=>{if(selectEntry(entry,event))return;entry.directory?void toggleFolder(entry.path):void openFile(entry.path);}}>
+      <button className={"tree-row "+(active===entry.path?"active ":"")+(decorations.files.has(entry.path)?"git-"+decorations.files.get(entry.path):decorations.folders.has(entry.path)?"git-folder":"")} aria-pressed={selectedPaths.has(entry.path)||selectedPath===entry.path} aria-expanded={entry.directory?expanded.has(entry.path):undefined} style={{paddingLeft:12+depth*14}} title={entry.path} onClick={event=>{if(selectEntry(entry,event))return;entry.directory?void toggleFolder(entry.path):void openFile(entry.path);}}>
         {entry.directory?<>{expanded.has(entry.path)?<ChevronDown size={12}/>:<ChevronRight size={12}/>}<DimensionalIcon path={entry.path} directory open={expanded.has(entry.path)}/></>:<><span className="tree-indent"/><IconFile path={entry.path}/></>}
-        <span>{entry.name}</span>{tabs.some(t=>t.path===entry.path&&dirty(t))&&<i className="dirty-dot"/>}
+        <span>{entry.name}</span>{tabs.some(t=>t.path===entry.path&&dirty(t))&&<i className="dirty-dot"/>}{decorations.files.has(entry.path)?<em className="git-badge" title={{M:"Modified",A:"Added",D:"Deleted",U:"Untracked",R:"Renamed"}[decorations.files.get(entry.path)!]||"Changed"}>{decorations.files.get(entry.path)}</em>:decorations.folders.has(entry.path)&&!expanded.has(entry.path)?<em className="git-dot" title="Contains changes"/>:null}
       </button>{entry.directory&&<div className="folder-actions"><button aria-label={"New file in "+entry.path} title="New file here" onClick={()=>create(false,entry.path)}><FilePlus2 size={13}/></button><button aria-label={"New folder in "+entry.path} title="New folder here" onClick={()=>create(true,entry.path)}><FolderPlus size={13}/></button></div>}</div>{entry.directory&&expanded.has(entry.path)&&<div className="tree-children">{treeItems(entry.path,depth+1)}{tree[entry.path]?.length===0&&<button className="empty-folder" style={{paddingLeft:35+depth*14}} onClick={()=>create(false,entry.path)}>Empty folder · create a file</button>}</div>}
     </div>);
   }
@@ -463,11 +527,12 @@ export default function App() {
     <div className="workbench">
       <nav className="activity" aria-label="Workspace panels">
         {([{id:"files",icon:Files,label:"Explorer",tone:'blue'},{id:"search",icon:Search,label:"Search workspace · ⇧⌘F",tone:'cyan'},{id:"git",icon:GitBranch,label:"Source control",tone:'coral'}] as const).map(({id,icon:Icon,label,tone})=><button title={label} aria-label={label} className={panel===id&&sidebar?"selected":""} key={id} onClick={()=>{setPanel(id);setSidebar(true);if(id==="git")void refreshGit();}}><PrismIcon tone={tone as PrismTone}><Icon size={17}/></PrismIcon></button>)}
+        <button title="Health monitor" aria-label="Health monitor" className={panel==='health'&&sidebar?'selected':''} onClick={()=>{setPanel('health');setSidebar(true);void checkHealth();}}><PrismIcon tone="mint"><HeartPulse size={17}/></PrismIcon></button>
         <button title="Extensions" aria-label="Extensions" className={panel==='extensions'&&sidebar?'selected':''} onClick={()=>{setPanel('extensions');setSidebar(true);}}><PrismIcon tone="violet"><Package size={17}/></PrismIcon></button>
         <div className="nav-spacer"/><button title="Open terminal" onClick={showTerminal}><PrismIcon tone="mint"><TerminalSquare size={17}/></PrismIcon></button><button title="Settings · ⌘," className={panel==="settings"&&sidebar?"selected":""} onClick={()=>{setPanel("settings");setSidebar(true);}}><PrismIcon tone="gold"><Settings2 size={17}/></PrismIcon></button><span className="nav-avatar"><img src="/veyra.png" alt=""/></span>
       </nav>
       {sidebar&&<><aside className="sidebar" style={{width:sidebarWidth}}>
-        <div className="sidebar-heading"><span>{panel==='extensions'?'EXTENSIONS':panel==="files"?"EXPLORER":panel==="search"?"SEARCH":panel==="git"?"SOURCE CONTROL":"PREFERENCES"}</span><button className="icon-button" title="Open folder" onClick={chooseFolder}><FolderOpen size={15}/></button></div>
+        <div className="sidebar-heading"><span>{panel==='extensions'?'EXTENSIONS':panel==="files"?"EXPLORER":panel==="search"?"SEARCH":panel==="git"?"SOURCE CONTROL":panel==="health"?"HEALTH MONITOR":"PREFERENCES"}</span><button className="icon-button" title="Open folder" onClick={chooseFolder}><FolderOpen size={15}/></button></div>
         {panel==='extensions'&&<ExtensionsPanel items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme}/>}
         {panel==="files"&&<>
           <div className="workspace-section"><span><ChevronDown size={13}/>{root?projectName:"NO FOLDER OPEN"}</span><div><button title="New file · ⌘N" onClick={()=>create()}><FilePlus2 size={14}/></button><button title="New folder" onClick={()=>create(true)}><FolderPlus size={14}/></button><button title="Refresh files" onClick={refresh}><RefreshCw size={13}/></button></div></div>
@@ -475,7 +540,8 @@ export default function App() {
           <div className="outline"><div className="outline-heading"><ChevronDown size={12}/> OUTLINE <span>Detected symbols</span></div><div>{symbols.length?symbols.map(s=><button key={s.line} onClick={()=>{editor.current?.revealLineInCenter(s.line);editor.current?.setPosition({lineNumber:s.line,column:1});}}><Braces size={12}/>{s.name}<small>{s.line}</small></button>):<small className="hint">Open a code file to see symbols.</small>}</div></div>
         </>}
         {panel==="search"&&<div className="panel-body"><label className="search-input"><Search size={14}/><input autoFocus placeholder="Search in files…" value={query} onChange={e=>setQuery(e.target.value)}/></label><small className="hint">{searching?"Searching…":query?hits.length+" matches (up to 500)":"Case-insensitive text search"}</small><div className="search-results">{hits.map((hit,i)=><button key={i} onClick={()=>openFile(hit.path,hit.line)}><b><IconFile path={hit.path}/>{baseName(hit.path)}<small>:{hit.line}</small></b><p>{hit.text}</p><small>{hit.path}</small></button>)}</div><small className="hint">Search skips dependency/build folders. Index limit: 10,000 files.</small></div>}
-        {panel==="git"&&<SourceControl status={git} refresh={refreshGit} openDiff={showGitDiff} report={report}/>}
+        {panel==="git"&&<SourceControl status={git} activePath={file&&!file.path.includes("..")?file.path:""} refresh={refreshGit} openDiff={showGitDiff} report={report} notify={setStatus} onWorkspaceChanged={()=>{headCache.current.clear();void refresh();void diskCheck.current();}}/>}
+        {panel==="health"&&<HealthPanel report={health} running={healthRunning} onRun={()=>void checkHealth()} onClearErrors={()=>{clearErrors();void checkHealth();}}/>}
         {panel==="settings"&&<div className="panel-body settings"><h3>Make it yours</h3><p className="hint">Preferences are saved on this Mac.</p><label>Appearance<button className="secondary" onClick={()=>setPreferences(p=>({...p,light:!p.light}))}>{preferences.light?<Sun size={14}/>:<Moon size={14}/>} {preferences.light?"Light":"Midnight"}</button></label><label>Font size<input type="number" min={10} max={28} value={preferences.fontSize} onChange={e=>setPreferences(p=>({...p,fontSize:Math.max(10,Math.min(28,+e.target.value||14))}))}/></label><label>Word wrap<input type="checkbox" checked={preferences.wrap} onChange={e=>setPreferences(p=>({...p,wrap:e.target.checked}))}/></label><label>Minimap<input type="checkbox" checked={preferences.minimap} onChange={e=>setPreferences(p=>({...p,minimap:e.target.checked}))}/></label><hr/><h4>Keyboard shortcuts</h4>{commands.filter(c=>c.shortcut).map(c=><div className="shortcut" key={c.name}><span>{c.name}</span><kbd>{c.shortcut}</kbd></div>)}</div>}
       </aside><div className="resize-handle" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))setSidebarWidth(Math.max(190,Math.min(420,e.clientX-49)));}} onPointerUp={e=>e.currentTarget.releasePointerCapture(e.pointerId)}/></>}
       <section className="content">
@@ -483,7 +549,7 @@ export default function App() {
         {file&&<div className="breadcrumbs"><IconFile path={file.path}/><span>{file.path.split("/").join("  /  ")}</span><div/><button title="Save · ⌘S" onClick={()=>saveTab()} disabled={!dirty(file)}><Save size={14}/></button><button title="Rename" onClick={rename}><Pencil size={13}/></button><button title="Move to Trash" onClick={trash}><Trash2 size={13}/></button><button title="More commands" onClick={()=>openPalette("commands")}><MoreHorizontal size={16}/></button></div>}
         {file?.external&&<div className="warning"><CircleAlert size={15}/>This file changed on disk. Your unsaved edits are preserved.<button onClick={reload}>Review / reload</button></div>}
         <div className="editing-area">
-          {diff!==null?<div className="diff-view"><div><GitBranch size={16}/><b>Changes · {active}</b><button onClick={()=>setDiff(null)}><X size={16}/></button></div><pre>{diff||"No changes against HEAD. Untracked files have no HEAD diff."}</pre></div>:file?<div className="editor-splits">{[0,...(split?[1]:[])].map(index=><div className="monaco-pane" key={index}><Editor path={modelUri} keepCurrentModel language={languageFor(file.path)} value={file.text} theme={effectiveTheme||(preferences.light?"vs":"veyra")} onMount={mounted} onValidate={()=>setProblems(monaco.editor.getModelMarkers({}))} onChange={text=>setTabs(all=>all.map(t=>t.path===file.path?{...t,text:text??""}:t))} options={editorOptions}/></div>)}</div>:<div className="welcome">
+          {diff!==null?<div className="diff-view"><div><GitBranch size={16}/><b>{diff.path}</b><small>HEAD ↔ Working tree</small><button title={diffInline?"Show side by side":"Show inline"} aria-label="Toggle inline diff" onClick={()=>setDiffInline(v=>!v)}>{diffInline?<Columns2 size={15}/>:<Rows2 size={15}/>}</button><button title="Open file" aria-label="Open file" onClick={()=>{const path=diff.path;setDiff(null);void openFile(path);}}><ExternalLink size={14}/></button><button title="Close diff" aria-label="Close diff" onClick={()=>setDiff(null)}><X size={16}/></button></div>{diff.original===diff.modified?<pre>No changes against HEAD.</pre>:<div className="diff-editor"><DiffEditor original={diff.original} modified={diff.modified} language={languageFor(diff.path)} theme={effectiveTheme||(preferences.light?"vs":"veyra")} options={{readOnly:true,renderSideBySide:!diffInline,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false,renderOverviewRuler:true}}/></div>}</div>:file?<div className="editor-splits">{[0,...(split?[1]:[])].map(index=><div className="monaco-pane" key={index}><Editor path={modelUri} keepCurrentModel language={languageFor(file.path)} value={file.text} theme={effectiveTheme||(preferences.light?"vs":"veyra")} onMount={mounted} onValidate={()=>setProblems(monaco.editor.getModelMarkers({}))} onChange={text=>setTabs(all=>all.map(t=>t.path===file.path?{...t,text:text??""}:t))} options={editorOptions}/></div>)}</div>:<div className="welcome">
             <div className="welcome-top"><span className="eyebrow">A LITTLE SPACE. A LOT OF POSSIBILITY.</span><span className="version">Veyra · AI Studio</span></div>
             <div className="welcome-hero"><span className="hero-mark"><img src="/veyra.png" alt="Veyra"/><i/></span><div><h1 aria-label="Room to create.">Build beyond<br/><em>the ordinary.</em></h1><p>A cinematic workspace for focused code and local intelligence.<br/>Open a project and shape the next version.</p></div></div>
             <div className="welcome-grid"><div className="start-card"><div className="card-label">LAUNCHPAD</div><button onClick={chooseFolder}><PrismIcon tone="blue"><FolderOpen size={17}/></PrismIcon><span><b>Open a project</b><small>Bring your local workspace into Veyra</small></span><kbd>⌘O</kbd></button><button onClick={()=>create()}><PrismIcon tone="coral"><FilePlus2 size={17}/></PrismIcon><span><b>Create a file</b><small>A blank page for your next idea</small></span><kbd>⌘N</kbd></button><button onClick={()=>openPalette("commands")}><PrismIcon tone="violet"><Command size={17}/></PrismIcon><span><b>Find a command</b><small>Everything, a few keystrokes away</small></span><kbd>⇧⌘P</kbd></button></div><div className="workspace-card"><div className="card-orbit"/><div className="card-label">{root?"CURRENT WORKSPACE":"DESIGNED FOR FOCUS"}</div><div className="workspace-badge"><PrismIcon tone="mint" size="large"><Folder size={24}/></PrismIcon></div><h3>{root?projectName:"Stay in your flow."}</h3><p>{root?projectType+" · "+indexed.length+" indexed files":"Code, navigate, and explore without leaving your workspace."}</p><div className="feature-tags"><span><Check size={12}/> Local files</span><span><TerminalSquare size={12}/> Real terminal</span><span><Braces size={12}/> Code tools</span></div>{root&&<button className="text-button" onClick={()=>openPalette("files")}>Jump to a file <ArrowUpRight size={14}/></button>}</div></div>
@@ -496,7 +562,7 @@ export default function App() {
       </section>
       <AIStudio root={root} active={active} visible={aiOpen} onClose={()=>setAiOpen(false)} capture={captureAI} onReview={value=>{setProposal(value);setProposalError('');}} intent={aiIntent}/>
     </div>
-    <footer className="statusbar"><button onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={12}/>{git.split("\n")[0]?.replace("## ","").split("...")[0]||"Local workspace"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span><span className="status-position">Ln {position.lineNumber}, Col {position.column}</span><span>UTF-8</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
+    <footer className="statusbar"><button onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={12}/>{branchInfo.name||"Local workspace"}{decorations.files.size>0&&<span className="status-changes">{decorations.files.size}</span>}</button>{(branchInfo.ahead>0||branchInfo.behind>0)&&<button title={`${branchInfo.behind} to pull, ${branchInfo.ahead} to push`} onClick={()=>{setPanel("git");setSidebar(true);}}>{branchInfo.behind>0&&<><ArrowDown size={11}/>{branchInfo.behind}</>}{branchInfo.ahead>0&&<><ArrowUp size={11}/>{branchInfo.ahead}</>}</button>}<button className={"health-pill "+(health?.grade||"")} title={health?`Veyra health ${health.score}/100 · click for details`:"Checking Veyra health…"} aria-label="Open health monitor" onClick={()=>{setPanel("health");setSidebar(true);void checkHealth();}}><HeartPulse size={12}/>{health?health.score:"…"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span><span className="status-position">Ln {position.lineNumber}, Col {position.column}</span><span>UTF-8</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
     {error&&<div className="toast" role="alert"><CircleAlert size={18}/><span>{error}</span><button onClick={()=>setError("")}><X size={15}/></button></div>}
     {explorerMenu&&<><button className="context-menu-dismiss" aria-label="Close context menu" onClick={()=>setExplorerMenu(null)} onContextMenu={event=>{event.preventDefault();setExplorerMenu(null);}}/><div className="explorer-context-menu" role="menu" aria-label={explorerMenu.entry.name+" actions"} style={{left:Math.min(explorerMenu.x,window.innerWidth-220),top:Math.max(8,Math.min(explorerMenu.y,window.innerHeight-390))}}>
       <header><DimensionalIcon path={explorerMenu.entry.path} directory={explorerMenu.entry.directory}/><span><b>{selectedEntries.length>1?`${selectedEntries.length} items`:explorerMenu.entry.name}</b><small>{selectedEntries.length>1?'Multiple selection':explorerMenu.entry.directory?'Folder':'File'}</small></span></header>

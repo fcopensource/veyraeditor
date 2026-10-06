@@ -5,6 +5,7 @@ use tauri::{Emitter, Manager, State, ipc::Channel};
 use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri_plugin_dialog::DialogExt;
 mod ai;
+mod health;
 
 const MAX_FILE: u64 = 5 * 1024 * 1024;
 #[derive(Default)]
@@ -18,6 +19,8 @@ struct Match { path: String, line: usize, column: usize, text: String, start: us
 #[derive(Deserialize, Default)]
 #[serde(default, rename_all = "camelCase")]
 struct SearchOptions { case_sensitive: bool, whole_word: bool, regex: bool, include: String, exclude: String }
+#[derive(Serialize)]
+struct Branch { name: String, current: bool, upstream: String }
 #[derive(Serialize)]
 struct PlatformInfo { os: String, shell: String }
 #[derive(Serialize)]
@@ -469,9 +472,52 @@ async fn git_unstage(state:State<'_,Workspace>,path:String)->Result<String>{let 
 #[tauri::command]
 async fn git_discard(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["restore".into(),"--worktree".into(),"--".into(),path])).await.map_err(err)?}
 #[tauri::command]
-async fn git_commit(state:State<'_,Workspace>,message:String)->Result<String>{
-    let message=message.trim().to_string();if message.is_empty(){return Err("Enter a commit message".into());}if message.len()>5000{return Err("Commit message is too long".into());}
-    let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["commit".into(),"-m".into(),message])).await.map_err(err)?
+async fn git_commit(state:State<'_,Workspace>,message:String,amend:Option<bool>)->Result<String>{
+    let message=message.trim().to_string();let amend=amend.unwrap_or(false);
+    if message.is_empty()&&!amend{return Err("Enter a commit message".into());}if message.len()>5000{return Err("Commit message is too long".into());}
+    let mut args=vec!["commit".to_string()];if amend{args.push("--amend".into());}
+    if message.is_empty(){args.push("--no-edit".into());}else{args.push("-m".into());args.push(message);}
+    let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,args)).await.map_err(err)?
+}
+async fn git_async(state:&Workspace,args:Vec<&str>)->Result<String>{let root=root(state)?;let args=args.into_iter().map(String::from).collect();tauri::async_runtime::spawn_blocking(move||git_run(root,args)).await.map_err(err)?}
+#[tauri::command]
+async fn git_stage_all(state:State<'_,Workspace>)->Result<String>{git_async(&state,vec!["add","-A"]).await}
+#[tauri::command]
+async fn git_unstage_all(state:State<'_,Workspace>)->Result<String>{
+    // A repository without commits has no HEAD to restore from; untrack the index entries instead.
+    match git_async(&state,vec!["restore","--staged","--","."]).await{Ok(out)=>Ok(out),Err(_)=>git_async(&state,vec!["rm","-r","-q","--cached","--","."]).await}
+}
+/// Revert every tracked file to the index. Untracked files are never deleted.
+#[tauri::command]
+async fn git_discard_all(state:State<'_,Workspace>)->Result<String>{git_async(&state,vec!["restore","--worktree","--","."]).await}
+#[tauri::command]
+async fn git_branches(state:State<'_,Workspace>)->Result<Vec<Branch>>{
+    let out=git_async(&state,vec!["for-each-ref","--sort=-committerdate","--format=%(refname:short)%09%(HEAD)%09%(upstream:short)","refs/heads"]).await?;
+    Ok(out.lines().filter_map(|line|{let mut parts=line.split('\t');let name=parts.next()?.to_string();Some(Branch{name,current:parts.next()==Some("*"),upstream:parts.next().unwrap_or("").to_string()})}).collect())
+}
+fn branch_name(name:&str)->Result<()>{
+    if name.is_empty()||name.len()>200||name.starts_with('-')||name.chars().any(|c|c.is_whitespace()||c.is_control()){return Err("Enter a valid branch name without spaces".into());}
+    Ok(())
+}
+#[tauri::command]
+async fn git_switch(state:State<'_,Workspace>,branch:String,create:bool)->Result<String>{
+    let branch=branch.trim().to_string();branch_name(&branch)?;
+    git_async(&state,vec!["check-ref-format","--branch",&branch]).await.map_err(|_|format!("\"{branch}\" is not a valid branch name"))?;
+    if create{git_async(&state,vec!["switch","-c",&branch]).await}else{git_async(&state,vec!["switch",&branch]).await}
+}
+#[tauri::command]
+async fn git_stash(state:State<'_,Workspace>,action:String)->Result<String>{
+    match action.as_str(){
+        "push"=>git_async(&state,vec!["stash","push","--include-untracked","-m","Stashed from Veyra"]).await,
+        "pop"=>git_async(&state,vec!["stash","pop"]).await,
+        "list"=>git_async(&state,vec!["stash","list","--format=%gd%x09%cr%x09%s"]).await,
+        _=>Err("Unsupported stash action".into()),
+    }
+}
+#[tauri::command]
+async fn git_file_history(state:State<'_,Workspace>,path:String)->Result<String>{
+    let root=root(&state)?;git_path(&root,&path)?;
+    tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-30".into(),"--follow".into(),"--date=relative".into(),"--pretty=format:%h%x09%an%x09%ad%x09%s".into(),"--".into(),path])).await.map_err(err)?
 }
 #[tauri::command]
 async fn git_log(state:State<'_,Workspace>)->Result<String>{let root=root(&state)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["log".into(),"-12".into(),"--pretty=format:%h%x09%an%x09%ar%x09%s".into()])).await.map_err(err)?}
@@ -537,7 +583,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .setup(|app|{app.set_menu(application_menu(app)?)?;Ok(())})
         .on_menu_event(|app,event|{let _=app.emit("menu-command",event.id().as_ref());})
-        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_models, ai::ai_chat, ai::ai_cancel])
+        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_key_status, ai::ai_key_statuses, ai::ai_models, ai::ai_chat, ai::ai_cancel])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });
@@ -652,6 +698,10 @@ mod tests {
         assert_eq!(fs::read_to_string(base.join("src/a.ts")).unwrap(),"const Foo = foo + bot;\n");
         assert_eq!(replace_in(&base,"Foo",&SearchOptions::default(),"$0",&["src/a.ts".into()]).unwrap(),2);
         assert_eq!(fs::read_to_string(base.join("src/a.ts")).unwrap(),"const $0 = $0 + bot;\n");
+    }
+    #[test] fn branch_names_cannot_inject_options() {
+        assert!(branch_name("feature/login").is_ok());
+        for bad in ["", "-f", "--orphan", "has space", "tab\tname"] { assert!(branch_name(bad).is_err(), "accepted {bad:?}"); }
     }
     #[test] fn copy_and_duplicate_preserve_trees_without_overwriting() {
         let dir=tempfile::tempdir().unwrap();let base=dir.path().canonicalize().unwrap();

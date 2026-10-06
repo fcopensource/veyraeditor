@@ -358,3 +358,19 @@ test("creation rejects traversal without IPC, traps focus and dismisses safely w
   expect(await page.evaluate(()=>(window as any).testFiles)).toEqual(originalFiles);
   expect(await page.evaluate(()=>Array.from((window as any).testDirectories))).toEqual(originalDirectories);
 });
+
+test("health monitor scores the editor and git decorates the explorer",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
+  // src contains a modified file, so the collapsed folder shows a change dot and the file an M badge.
+  await expect(page.locator('.tree-row[title="src"] .git-dot')).toBeVisible();
+  await page.locator('.tree-row[title="src"]').click();
+  await expect(page.locator('.tree-row[title="src/App.tsx"] .git-badge')).toHaveText('M');
+  await page.getByRole('button',{name:'Health monitor',exact:true}).click();
+  await expect(page.getByRole('img',{name:/Health score \d+ of 100/})).toBeVisible();
+  await expect(page.getByText('Native backend',{exact:true})).toBeVisible();
+  await expect(page.getByText('UI responsiveness',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Open health monitor'})).toContainText(/\d+/);
+  await page.getByRole('button',{name:'Source control'}).click();
+  await page.getByTitle('View diff · src/App.tsx').click();
+  await expect(page.locator('.diff-view')).toContainText('HEAD ↔ Working tree');
+});

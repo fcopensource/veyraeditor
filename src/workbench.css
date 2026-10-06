@@ -1,0 +1,213 @@
+/* ---- Git: explorer decorations ------------------------------------------ */
+.tree-row .git-badge {
+    margin-left: auto;
+    padding-right: 4px;
+    font: 700 10px Menlo, Consolas, monospace;
+    font-style: normal
+}
+
+.tree-row .git-dot {
+    margin-left: auto;
+    margin-right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d9a95b;
+    flex-shrink: 0
+}
+
+.tree-row.git-M>span,
+.tree-row.git-M .git-badge,
+.git-letter.git-M { color: #e2c08d }
+
+.tree-row.git-U>span,
+.tree-row.git-U .git-badge,
+.tree-row.git-A>span,
+.tree-row.git-A .git-badge,
+.git-letter.git-U,
+.git-letter.git-A { color: #73c991 }
+
+.tree-row.git-D>span,
+.tree-row.git-D .git-badge,
+.git-letter.git-D { color: #e06c75; }
+
+.tree-row.git-D>span { text-decoration: line-through }
+
+.tree-row.git-R>span,
+.tree-row.git-R .git-badge,
+.git-letter.git-R { color: #6cb6ff }
+
+.tree-row.git-folder>span { color: #d9b77e }
+
+.app.light .tree-row.git-M>span, .app.light .tree-row.git-M .git-badge { color: #9a6700 }
+.app.light .tree-row.git-U>span, .app.light .tree-row.git-U .git-badge,
+.app.light .tree-row.git-A>span, .app.light .tree-row.git-A .git-badge { color: #1a7f37 }
+.app.light .tree-row.git-folder>span { color: #8a6116 }
+
+/* ---- Git: editor gutter markers ----------------------------------------- */
+.git-gutter { margin-left: 3px; width: 3px !important }
+.git-gutter-added { background: #4fb286 }
+.git-gutter-modified { background: #5aa5e6 }
+.git-gutter-deleted {
+    width: 0 !important;
+    height: 0 !important;
+    margin-top: 16px;
+    border-left: 5px solid #e06c75;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    background: none
+}
+
+/* ---- Git: side-by-side diff --------------------------------------------- */
+.diff-view>div>small { margin-right: auto; color: var(--muted); font-size: 10px }
+.diff-view>div>button { margin-left: 0; padding: 5px; border-radius: 5px }
+.diff-view>div>b { color: var(--bright); font-weight: 500 }
+.diff-editor { flex: 1; min-height: 0 }
+
+/* ---- Git: source control panel ------------------------------------------ */
+.source-control .git-heading { position: relative }
+.branch-button {
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 4px 6px;
+    border-radius: 5px
+}
+.branch-button b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: initial }
+.sync-badge {
+    gap: 2px;
+    padding: 3px 7px;
+    border-radius: 10px;
+    background: var(--hover);
+    color: var(--accent);
+    font-size: 10px
+}
+.no-upstream { color: var(--muted); font-size: 9px; white-space: nowrap }
+.branch-menu {
+    position: absolute;
+    z-index: 20;
+    top: 38px;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow: auto;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--toolbar);
+    box-shadow: 0 14px 34px #0008
+}
+.branch-menu form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 6px 6px;
+    color: var(--accent)
+}
+.branch-menu input { flex: 1; padding: 6px 8px; font-size: 11px }
+.branch-menu button {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 7px;
+    padding: 7px 8px;
+    border-radius: 5px;
+    font-size: 11px
+}
+.branch-menu button span { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.branch-menu button small { color: var(--muted); font-size: 9px }
+.branch-menu button.current { opacity: 1; color: var(--accent) }
+.branch-menu p { margin: 8px; color: var(--muted); font-size: 10px }
+.scm-group>header .scm-group-actions { display: flex; margin-left: auto; opacity: 0 }
+.scm-group>header:hover .scm-group-actions,
+.scm-group-actions:focus-within { opacity: 1 }
+.scm-group-actions button { width: 22px; height: 22px; color: var(--muted) }
+.scm-group-actions + b { margin-left: 6px !important }
+.scm-commit-row { display: flex; align-items: flex-start; gap: 8px }
+.scm-commit-row .scm-commit { flex: 1 }
+.scm-amend { display: flex; align-items: center; gap: 4px; height: 30px; color: var(--muted); font-size: 10px; cursor: pointer }
+.scm-amend input { accent-color: #85c5b3 }
+.scm-toolbar { display: flex; gap: 6px; margin-bottom: 4px }
+.scm-toolbar button {
+    flex: 1;
+    gap: 5px;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 10px
+}
+.scm-toolbar i { padding: 0 5px; border-radius: 8px; background: var(--hover); font-style: normal; font-size: 9px }
+.scm-empty code { color: var(--accent) }
+
+/* ---- Status bar ---------------------------------------------------------- */
+.status-changes { padding: 0 5px; border-radius: 8px; background: var(--hover); font-size: 9px }
+.health-pill { gap: 4px }
+.health-pill.excellent, .health-pill.good { color: #73c991 }
+.health-pill.degraded { color: #e2c08d }
+.health-pill.critical { color: #ff8d91 }
+
+/* ---- Health monitor ------------------------------------------------------- */
+.health-panel h4 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 18px 0 6px;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .8px
+}
+.health-panel h4 button { margin-left: auto; padding: 3px; color: var(--muted) }
+.health-summary {
+    --ring: #73c991;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card)
+}
+.health-summary.degraded { --ring: #e2c08d }
+.health-summary.critical { --ring: #ff8d91 }
+.health-summary h3 { margin: 0 0 3px; color: var(--bright); font-size: 15px; font-weight: 500 }
+.health-summary .hint { margin: 0 0 9px }
+.health-summary button { gap: 6px }
+.health-ring {
+    display: grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    text-align: center;
+    background:
+        radial-gradient(closest-side, var(--card) 79%, transparent 80%),
+        conic-gradient(var(--ring) calc(var(--score) * 1%), var(--hover) 0)
+}
+.health-ring b { color: var(--bright); font-size: 20px; font-weight: 600; line-height: 1 }
+.health-ring small { color: var(--muted); font-size: 9px }
+.health-check {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 8px 6px;
+    border-radius: 6px;
+    font-size: 11px
+}
+.health-check:hover { background: var(--hover) }
+.health-check>svg { margin-top: 1px }
+.health-check.ok>svg { color: #73c991 }
+.health-check.warn>svg { color: #e2c08d }
+.health-check.fail>svg { color: #ff8d91 }
+.health-check.info>svg { color: var(--muted) }
+.health-check div { display: grid; gap: 2px; min-width: 0 }
+.health-check b { color: var(--bright); font-weight: 500 }
+.health-check span { color: var(--text); overflow-wrap: anywhere }
+.health-check small { color: var(--muted); font-size: 10px }
+.health-check em { color: var(--muted); font-size: 9px; font-style: normal }
+
+@keyframes veyra-spin { to { transform: rotate(360deg) } }
+.spin { animation: veyra-spin .9s linear infinite }
