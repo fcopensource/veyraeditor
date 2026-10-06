@@ -1,161 +1,168 @@
 <div align="center">
 
-<img src="public/veyra.png" alt="Veyra Editor" width="112" />
+<img src="public/veyra.png" alt="Veyra Studio" width="112" />
 
-# Veyra Editor
+# Veyra Studio
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=72E0C4&center=true&vCenter=true&width=820&lines=AI-native+desktop+code+editor.;Local-first.+Fast.+Focused.;Tauri+%2B+Rust+%2B+Monaco.;Your+code.+Your+machine.+Your+AI.)](https://github.com/fcopensource/veyraeditor)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=72E0C4&center=true&vCenter=true&width=820&lines=AI-native+desktop+code+editor.;Local-first.+Fast.+Focused.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.;Your+code.+Your+machine.+Your+AI.)](https://github.com/fcopensource/veyraeditor)
 
-### A local-first desktop coding environment being built for the AI era.
+### A fast, local-first code editor with Git, a real terminal and AI from 11 providers built in.
 
-**Veyra Studio 0.3 combines Monaco editing, project navigation, Git tooling, a real terminal, installable themes/snippets and a multi-provider AI assistant with reviewed edits.**
-
+[![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=72E0C4)](https://github.com/fcopensource/veyraeditor/releases/latest)
+[![Release build](https://img.shields.io/github/actions/workflow/status/fcopensource/veyraeditor/release.yml?label=build)](https://github.com/fcopensource/veyraeditor/actions/workflows/release.yml)
+[![Downloads](https://img.shields.io/github/downloads/fcopensource/veyraeditor/total?color=8B5CF6)](https://github.com/fcopensource/veyraeditor/releases)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-24C8D8)](#-download)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+
 [![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
 [![Rust](https://img.shields.io/badge/Rust-native_backend-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Monaco](https://img.shields.io/badge/Monaco-Editor-007ACC?logo=visualstudiocode&logoColor=white)](https://microsoft.github.io/monaco-editor/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![AI Studio](https://img.shields.io/badge/AI_Studio-0.3-8B5CF6)](docs/STUDIO.md)
 
-[Preview](#-interface-preview) · [Features](#-what-works-today) · [AI Vision](#-ai-native-direction) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
+[**Download**](#-download) · [Features](#-features) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
 </div>
 
 ---
 
-## ✨ Interface Preview
-
 <p align="center">
-  <img src="public/ssfile.png" alt="Veyra Editor interface with Explorer, editor workspace and integrated terminal" width="100%" />
+  <img src="public/ssfile.png" alt="Veyra Studio with the Explorer, editor and integrated terminal" width="100%" />
 </p>
-
-<p align="center">
-  <sub>Veyra desktop interface — project Explorer, editor workspace, command search and native terminal.</sub>
-</p>
-
----
 
 ## Why Veyra?
 
-Most developers spend hours every day inside an editor. Veyra is being designed around the idea that this environment should be **fast, local, visually calm and intelligent by default**.
+Most developers spend hours every day inside an editor. Veyra is built on the idea that this place should be **fast, local, calm and intelligent by default**:
 
-The project starts with a strong desktop foundation first: real local files, native project access, a proper shell, Monaco editing and predictable developer workflows. The next layer is AI — not as a separate chatbot bolted onto the side, but as tooling that can eventually understand the workspace, propose changes, explain code, help debug and operate across files with the developer in control.
-
-> **Current status:** Veyra Studio 0.3 ships AI chat, local/cloud model selection, file/selection attachments, and reviewed edits with undo. It also includes dimensional file/folder icons and Open VSX theme/snippet installation. Autonomous agents, project-wide semantic indexing, automatic inline AI completion and general VS Code extension hosting remain future work. See the [Studio setup and usage guide](docs/STUDIO.md).
+- **Native and light.** A Rust backend and the system webview instead of a bundled browser, so installers are 7–11 MB.
+- **Your files stay yours.** Veyra works directly on your local folders, saves atomically and never overwrites a file that changed on disk behind your back.
+- **AI where you need it, under your control.** Pick from local models or 10 cloud providers. Every AI edit is shown as a diff and is undoable. Nothing is applied or saved without you.
+- **Everything included.** Git, a real terminal, workspace search, themes and a self-diagnosing health monitor work out of the box.
 
 ---
 
-## 🚀 What works today
+## 📥 Download
 
-| Area | Current capability |
+Get the latest build from **[GitHub Releases](https://github.com/fcopensource/veyraeditor/releases/latest)**:
+
+| Platform | Installer | Notes |
+| --- | --- | --- |
+| **Windows** 10 / 11 | `Veyra.Studio_x.y.z_x64-setup.exe` or `.msi` | WebView2 is installed automatically if missing |
+| **macOS** · Apple silicon | `Veyra.Studio_x.y.z_aarch64.dmg` | macOS 11 or newer |
+| **macOS** · Intel | `Veyra.Studio_x.y.z_x64.dmg` | macOS 11 or newer |
+| **Linux** | `.AppImage` (any distro) · `.deb` (Ubuntu/Debian) · `.rpm` (Fedora) | Requires WebKitGTK 4.1 |
+
+**Veyra updates itself.** Installed copies check for new versions on launch and every few hours, verify the download's signature, and offer a one-click **Update & restart**. You can also choose **Help → Check for Updates…**.
+
+> [!NOTE]
+> Preview builds are not yet code-signed by the OS vendors. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS**, if Gatekeeper reports the app as damaged, run `xattr -cr "/Applications/Veyra Studio.app"` once.
+
+---
+
+## ✨ Features
+
+| Area | What you get |
 | --- | --- |
-| **Editor** | Monaco-powered editing with syntax highlighting, find/replace, formatting support and JavaScript/TypeScript diagnostics |
-| **Explorer** | Open local folders, browse nested directories, expand/collapse trees and refresh the workspace |
-| **File creation** | Create files and folders inside the selected directory, including nested paths such as `components/ui/Button.tsx` |
-| **Tabs** | Work across multiple files while retaining unsaved buffers |
-| **Navigation** | Quick Open, command palette, workspace search and detected-symbol outline |
-| **Terminal** | Real interactive shell rendered with xterm.js and backed by a native Rust PTY |
-| **Git** | Repository branch/status inspection and tracked-file diffs against `HEAD` |
-| **Safe writes** | Atomic saves plus protection against silently overwriting externally changed files |
-| **Desktop runtime** | Native Tauri application with Rust filesystem, search, Git and PTY commands |
-| **Customization** | Dark/light themes, font controls, minimap, word wrap, resizable UI and split view |
-| **Extensions** | Search Open VSX, install compatible themes/snippets or import VSIX, apply themes, disable and uninstall |
-| **AI Studio** | Ollama, OpenAI, OpenRouter and compatible text-chat APIs; attach a file/selection, review a diff, apply to the buffer and undo |
-| **Visuals** | Dimensional SVG file/folder icons, refined surfaces and a responsive right-hand AI panel |
-
-Veyra operates on your actual local project. The integrated terminal runs with your normal user permissions, so only execute code and commands you trust.
+| **Editor** | Monaco (the editor behind VS Code): syntax highlighting for 80+ languages, IntelliSense and diagnostics for JS/TS/JSON/CSS/HTML, multi-cursor, find & replace, formatting, sticky scroll, minimap |
+| **Explorer** | Real local folders, nested create, rename, copy/cut/paste, duplicate, drag-and-drop, multi-select, move to Trash/Recycle Bin, reveal in Finder/File Explorer |
+| **Tabs & navigation** | Multiple tabs with preserved unsaved buffers, Quick Open, command palette, workspace text search, symbol outline, Problems panel |
+| **Terminal** | Real shells via a native PTY: PowerShell on Windows, your login shell on macOS/Linux. Multiple named sessions, plus "Run active file" |
+| **Git** | Change markers in the gutter, file-tree badges, side-by-side diffs, branches, sync, stash, amend, history. See [Git, built in](#-git-built-in) |
+| **AI Studio** | Chat, explain, and reviewed edits with 11 providers. Keys saved in your OS keychain. See [AI Studio](#-ai-studio) |
+| **Health monitor** | A live 0–100 score in the status bar, plus a panel checking the backend, UI responsiveness, memory, errors, Git, shell, credential store and Ollama, with a fix hint for each problem |
+| **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
+| **Customization** | Midnight and light themes, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
+| **Updates** | Signed automatic updates on every platform |
 
 ---
 
-## 🧠 AI-native direction
+## 🧠 AI Studio
 
-The long-term goal is for Veyra to become an **AI-native code editor** where intelligence is part of the coding workflow rather than a disconnected chat window.
+Open it with **Ctrl/⌘ + L**, or select code and press **Ctrl/⌘ + K** to edit the selection with AI.
 
-### AI Studio — shipped and planned
+**Providers**
 
-Chat, model switching, explicit file/selection context and single-file diff review ship in 0.3. The broader capabilities below describe the longer-term direction. Cloud providers require your own API keys; keys stay in native process memory for the current session. Ollama must be installed and have a downloaded model. [Connection instructions →](docs/STUDIO.md#ai-assistant)
-
-| Capability | Direction |
+| Local | Cloud |
 | --- | --- |
-| **Codebase-aware chat** | Ask questions with workspace files, symbols and project structure as context |
-| **Inline AI editing** | Select code, describe a change and review the generated diff before applying it |
-| **Multi-file changes** | Let AI propose coordinated edits across several files with explicit approval |
-| **Explain & refactor** | Explain unfamiliar code, simplify functions and suggest safer abstractions |
-| **Debug assistant** | Use diagnostics, terminal output and relevant files to reason about failures |
-| **Test generation** | Generate focused unit/integration tests from the code being edited |
-| **AI command palette** | Invoke transformations and common engineering tasks from the keyboard |
-| **Terminal intelligence** | Suggest commands and interpret errors without silently executing destructive actions |
-| **Model flexibility** | Architecture for cloud or local model providers instead of tying Veyra to one vendor |
-| **Developer control** | Clear context boundaries, visible diffs and explicit confirmation for file-changing actions |
+| **Ollama**: private, runs on your machine | **Anthropic Claude** · **OpenAI** · **Google Gemini** · **OpenRouter** · **Groq** · **Mistral** · **DeepSeek** · **xAI Grok** · **Together AI** · any **OpenAI-compatible** endpoint |
 
-The target experience is closer to:
+**API keys, handled like VS Code secrets**
+- Paste a key once. It is encrypted in **Windows Credential Manager**, the **macOS Keychain** or your Linux **Secret Service**, and loads automatically in the background on every launch.
+- Keys already set as environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `DEEPSEEK_API_KEY`, `XAI_API_KEY`, `TOGETHER_API_KEY`) are picked up with no setup.
+- The **API keys** list in AI settings shows where each provider's key comes from, and lets you remove saved keys.
+- Keys never touch your project files or browser storage.
 
-```text
-Developer intent
-      ↓
-Workspace context
-      ↓
-AI reasoning / proposal
-      ↓
-Visible diff or suggested action
-      ↓
-Developer approval
-      ↓
-Native Veyra file / terminal tooling
-```
+**You stay in control**
+- AI only sees the conversation plus what you explicitly attach: the current file, a selection, or *Smart workspace context*. Veyra picks the relevant files and shows you which ones were sent.
+- Proposed edits open in a side-by-side diff. Applying updates the editor buffer only. Undo with **Ctrl/⌘ + Z**; nothing is saved until you save.
+- AI never runs commands or writes files on its own.
 
-AI should accelerate the developer — not take control away from them.
+> Cloud providers use your own account and may bill per request. For fully offline AI, install [Ollama](https://ollama.com) and run `ollama pull qwen2.5-coder:3b`.
 
 ---
 
-## ⚡ Quick Start
+## 🌿 Git, built in
 
-### Prerequisites
+- **Gutter markers:** green for added lines, blue for modified, red for deletions. They update live as you type, against `HEAD`.
+- **Explorer badges:** `M` modified · `U` untracked · `A` added · `D` deleted · `R` renamed, plus a dot on folders containing changes.
+- **Side-by-side diff** against `HEAD` for any changed file, with an inline toggle.
+- **Stage / unstage / discard** per file or all at once. Discarding never deletes untracked files.
+- **Commit** with **Ctrl/⌘ + Enter**, or **amend** the last commit.
+- **Branches:** switch or create from the branch picker.
+- **Sync:** ahead/behind counts in the panel and status bar, with one-click pull + push.
+- **Stash / Pop**, **file history** for the active file, and a **commit graph**.
+- **GitHub:** sign in with the GitHub CLI, fetch/pull/push, and open the repository on github.com.
+- Status refreshes automatically every 10 seconds and whenever you return to the window.
 
-For the currently tested macOS workflow:
+---
 
-- Node.js **22.12+**
-- npm
-- stable Rust + Cargo
-- Git
-- Xcode Command Line Tools
+## ⌨️ Keyboard shortcuts
 
-```bash
-xcode-select --install
-```
+Shortcuts follow your platform: **Ctrl** on Windows/Linux, **⌘** on macOS.
 
-### Clone and run Veyra
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl/⌘ + P` | Quick Open (go to file) |
+| `Ctrl/⌘ + Shift + P` | Command palette |
+| `Ctrl/⌘ + O` · `Ctrl/⌘ + N` | Open folder · New file |
+| `Ctrl/⌘ + S` · `Ctrl/⌘ + Shift + S` | Save · Save all |
+| `Ctrl/⌘ + W` | Close editor |
+| `Ctrl/⌘ + F` · `Ctrl/⌘ + Shift + F` | Find in file · Search workspace |
+| `Ctrl/⌘ + D` · `Ctrl/⌘ + Shift + L` | Add next occurrence · Select all occurrences |
+| `Alt + ↑/↓` · `Alt + Shift + ↑/↓` | Move line · Copy line |
+| `F12` · `Shift + F12` · `Ctrl + G` | Go to definition · References · Line |
+| `Ctrl/⌘ + B` | Toggle sidebar |
+| ``Ctrl + ` `` · ``Ctrl + Shift + ` `` | Terminal · New terminal |
+| `Ctrl + Alt + N` | Run active file |
+| `Ctrl/⌘ + L` · `Ctrl/⌘ + K` | Toggle AI · Edit selection with AI |
+| `Ctrl/⌘ + ,` | Settings |
+
+---
+
+## 🛠 Build from source
+
+**Prerequisites:** [Node.js 22+](https://nodejs.org), [Rust (stable)](https://rustup.rs), Git, and the [Tauri system dependencies](https://tauri.app/start/prerequisites/) for your OS: WebView2 (preinstalled on Windows 11), Xcode Command Line Tools on macOS, WebKitGTK 4.1 on Linux.
 
 ```bash
 git clone https://github.com/fcopensource/veyraeditor.git
 cd veyraeditor
-
 npm ci
-npm run tauri dev
+npm run tauri dev       # full desktop app with native filesystem, Git and terminal
 ```
 
-The first Rust build may take a few minutes.
+The first Rust build compiles about 450 crates and takes a few minutes; after that, launches take seconds. `npm run dev` starts only the web UI, so native features won't work there.
 
-> `npm run dev` starts only the Vite frontend. Use `npm run tauri dev` for the complete desktop editor with native filesystem and terminal functionality.
+> [!TIP]
+> If the first build runs out of memory (common with 8–16 GB of RAM), compile one crate at a time:
+> `CARGO_BUILD_JOBS=1 npm run tauri dev` (PowerShell: `$env:CARGO_BUILD_JOBS=1; npm run tauri dev`).
 
----
-
-## 📦 Build the desktop application
-
-On macOS:
+**Production installers** for your own OS:
 
 ```bash
-npm run tauri build -- --bundles app
+npm run tauri build     # output: src-tauri/target/release/bundle/
 ```
 
-The application bundle is generated under:
-
-```text
-src-tauri/target/release/bundle/macos/
-```
-
-For a public release, macOS signing/notarization and proper Windows/Linux packaging still need to be completed.
+Official multi-platform releases are built by GitHub Actions. See **[docs/RELEASING.md](docs/RELEASING.md)**: one command bumps the version, and pushing a tag builds and publishes signed installers and updates for every OS.
 
 ---
 
@@ -163,192 +170,118 @@ For a public release, macOS signing/notarization and proper Windows/Linux packag
 
 ```mermaid
 flowchart LR
-    UI[React + TypeScript UI] --> Monaco[Monaco Editor]
-    UI --> Explorer[Workspace Explorer]
-    UI --> Terminal[xterm.js Terminal]
-    UI --> IPC[Tauri IPC]
+    subgraph UI["React + TypeScript UI"]
+      Monaco[Monaco Editor]
+      Explorer[Explorer & Search]
+      SCM[Source Control]
+      Term[xterm.js Terminal]
+      AI[AI Studio]
+      Health[Health Monitor]
+    end
 
-    IPC --> Rust[Rust Native Backend]
-    Rust --> FS[Filesystem]
-    Rust --> Search[Workspace Search]
-    Rust --> Git[Git Inspection]
-    Rust --> PTY[Native PTY / Shell]
-
-    UI --> AI[AI Studio]
-    AI --> Context[Explicit file or selection context]
-    Context --> IPC
-    Rust --> Models[Ollama / OpenAI / OpenRouter / Compatible APIs]
-    AI --> Review[Diff review and undoable buffer edits]
+    UI -->|Tauri IPC| Rust[Rust backend]
+    Rust --> FS[Scoped filesystem<br/>atomic saves]
+    Rust --> Git[git / gh CLI]
+    Rust --> PTY[Native PTY<br/>PowerShell · zsh · bash]
+    Rust --> Keys[OS credential store]
+    Rust --> Models[Ollama · Claude · OpenAI · Gemini · …]
+    Rust --> Updater[Signed updater]
+    Updater --> Releases[(GitHub Releases<br/>or your server)]
 ```
 
-### Core stack
-
-```text
-Tauri 2
-Rust
-React 19
-TypeScript
-Monaco Editor
-xterm.js
-portable-pty
-Vite 7
-Playwright
-```
-
-### Repository layout
+**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco · xterm.js · portable-pty · keyring · Vite 7 · Playwright
 
 ```text
 veyraeditor/
-├── src/
-│   ├── App.tsx
-│   ├── App.css
-│   ├── CreateEntryDialog.tsx
-│   ├── Terminal.tsx
-│   ├── editor.ts
-│   └── main.tsx
-│
-├── src-tauri/
-│   ├── src/
-│   ├── capabilities/
-│   ├── icons/
-│   └── tauri.conf.json
-│
-├── public/
-│   ├── veyra.png
-│   └── screenshots/
-│       └── veyra-ai-editor-preview.jpg
-│
-├── tests/
-├── package.json
-└── vite.config.ts
+├── src/                     React UI
+│   ├── App.tsx              Workbench: explorer, tabs, editor, panels, status bar
+│   ├── AIStudio.tsx         AI chat, providers, reviewed edits
+│   ├── SourceControl.tsx    Git panel
+│   ├── HealthPanel.tsx      Health monitor UI   (health.ts: scoring)
+│   ├── UpdateBanner.tsx     Auto-update prompt
+│   └── Terminal.tsx         xterm.js terminal sessions
+├── src-tauri/               Rust backend
+│   └── src/
+│       ├── lib.rs           Filesystem, search, Git, terminal, menus
+│       ├── ai.rs            AI providers and key storage
+│       └── health.rs        Native health checks
+├── website/                 Next.js product site, download page, update endpoint
+├── .github/workflows/       Cross-platform release pipeline
+├── docs/                    Studio guide, release guide
+└── tests/                   Playwright UI tests (mocked native IPC)
 ```
 
 ---
 
-## ⌨️ Keyboard workflow
-
-| Shortcut | Action |
-| --- | --- |
-| `Cmd+O` | Open workspace |
-| `Cmd+N` | New file |
-| `Cmd+S` | Save active file |
-| `Shift+Cmd+S` | Save all |
-| `Cmd+W` | Close active tab |
-| `Cmd+P` | Quick Open |
-| `Shift+Cmd+P` | Command palette |
-| `Cmd+F` | Find |
-| `Option+Cmd+F` | Replace |
-| `Shift+Cmd+F` | Search workspace |
-| `Shift+Option+F` | Format document when supported |
-| `Cmd+B` | Toggle sidebar |
-| `Cmd+L` | Toggle AI assistant |
-| `Cmd+K` | Edit selected code with AI |
-| `Cmd+Enter` | Send the AI prompt |
-| `Cmd+,` | Preferences |
-
-These shortcuts currently reflect the macOS build.
-
----
-
-## 🧪 Development & Testing
+## 🧪 Testing
 
 ```bash
-# Frontend type-check + production build
-npm run build
-
-# UI regression tests
-npx playwright install chromium
-npx playwright test
-
-# Native Rust tests
-cd src-tauri
-cargo test --lib
+npm run build                       # type-check + production frontend build
+npx playwright install chromium     # once
+npx playwright test                 # UI regression suite
+cd src-tauri && cargo test --lib    # native unit tests
 ```
 
-Playwright tests exercise the UI with mocked native IPC. Rust tests cover native behavior such as workspace path validation, symlink escape protection and save-conflict handling.
+The Playwright suite drives the real UI against mocked native IPC: editing, saving, explorer operations, search, Git staging and committing, AI review flows, extensions and the health monitor. Rust tests cover path-traversal and symlink protection, save conflicts, search/replace and glob rules, AI provider handling and Git safety.
 
 ---
 
-## 🔐 Local-first philosophy
+## 🔐 Privacy & security
 
-Veyra is designed around local project ownership.
-
-Editor-side native file operations are scoped to the selected workspace. Files are written defensively, and Veyra checks for save conflicts when another process changes a file on disk.
-
-AI sends only the displayed conversation and explicitly attached file/selection to the chosen provider. Local Ollama mode excludes cloud aliases. Cloud requests may incur provider fees. Reviewed changes update the editor buffer, require an explicit save, and are rejected if the original file or workspace changed. AI does not execute shell commands or automatically write files.
+- **Local-first:** native file operations are scoped to the folder you open, and symbolic links that escape the workspace are rejected.
+- **Safe writes:** atomic saves; Veyra refuses to overwrite a file that changed on disk and keeps your edits in the editor.
+- **Secrets:** API keys live in the OS credential store, never in project files or browser storage.
+- **AI boundaries:** only the conversation and what you explicitly attach is sent, and only to the provider you chose. Local Ollama mode excludes cloud aliases.
+- **Signed updates:** every update is verified against the public key built into the app before it is installed.
+- **Terminal:** shells run with your normal user permissions. Only run commands you trust.
 
 ---
 
 ## 🗺 Roadmap
 
-### Editor foundation
-- [x] Monaco editor
-- [x] Local workspace Explorer
-- [x] Nested file/folder creation
-- [x] Multi-tab editing
-- [x] Workspace search
-- [x] Command palette
-- [x] Real integrated terminal
-- [x] Git status/diff inspection
+**Shipped**
+- [x] Monaco editor, explorer, tabs, workspace search, command palette
+- [x] Real multi-session terminal (PowerShell / zsh / bash)
+- [x] Full Git workflow: gutter markers, diffs, staging, commits, branches, sync, stash
+- [x] AI Studio with 11 providers, keychain-stored keys and reviewed edits
+- [x] Open VSX themes & snippets, VSIX import
+- [x] Health monitor
+- [x] Windows, macOS and Linux installers with signed auto-updates
 
-### AI-native development
-- [x] AI Studio panel
-- [ ] Workspace-aware context engine
-- [x] Selected-code AI edit + diff review
-- [ ] Automatic inline AI completion
-- [ ] Multi-file AI plans
-- [ ] Explain / refactor / debug actions
-- [ ] Test-generation workflow
-- [ ] Terminal-aware assistant
-- [x] Provider abstraction for cloud/local models
+**In progress** (built, being integrated into the workbench)
+- [ ] Command palette 2.0: fuzzy matching, `>` `:` `@` prefixes, keyboard navigation
+- [ ] Search panel 2.0: regex, match case/word, include/exclude globs, replace across files
+- [ ] Searchable settings: auto save, format on save, tab size, rulers and more
+- [ ] Markdown preview, independent split-editor groups, session restore
 
-### IDE depth
-- [ ] Language Server Protocol integration
-- [ ] Rich Python/Rust diagnostics and completion
-- [ ] Debugger + breakpoints
-- [ ] Git staging / commit UI
-- [ ] Independent split-editor panes
-- [ ] Session restore and crash recovery
-- [x] Theme/snippet extensions from Open VSX and VSIX
-- [ ] General VS Code extension runtime
-
-### Distribution
-- [ ] Signed macOS releases
-- [ ] Verified Windows builds
-- [ ] Verified Linux builds
-- [ ] Automatic updates
-- [ ] Download page at **veyraeditor.com**
+**Next**
+- [ ] Language Server Protocol for rich Python/Rust/Go intelligence
+- [ ] Inline AI completions and multi-file AI plans
+- [ ] Debugger and breakpoints
+- [ ] Code-signed Windows and notarized macOS builds
 
 ---
 
 ## 🤝 Contributing
 
-Veyra is open source and contributions are welcome.
+Contributions are welcome. Fork the repository, create a focused branch, run the relevant tests and open a pull request with a clear explanation. For UI changes, screenshots help a lot; for native filesystem behavior, regression tests are especially valuable.
 
-Fork the repository, create a focused branch, make your changes, run the relevant tests and open a pull request with a clear explanation. For UI changes, screenshots are strongly encouraged. For native filesystem behavior, regression coverage is especially valuable.
-
-Please do not commit credentials, private workspace data, dependency directories or generated release artifacts.
+Please never commit credentials, signing keys, private workspace data, dependency folders or build artifacts.
 
 ---
 
 ## 📄 License
 
-Veyra Editor is released under the [MIT License](LICENSE).
-
-Copyright © 2026 Vikram Singh.
-
----
+Veyra Studio is released under the [MIT License](LICENSE). Copyright © 2026 Vikram Singh.
 
 <div align="center">
 
-### Veyra Editor
+---
 
 **Your code. Your machine. Your AI.**
 
-Built for developers who want a focused editor today — and a genuinely AI-native development environment tomorrow.
+If Veyra is useful to you, consider giving the repository a ⭐
 
-If the project interests you, consider giving the repository a ⭐
-
-[Back to top](#veyra-editor)
+[Back to top](#veyra-studio)
 
 </div>
