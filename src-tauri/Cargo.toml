@@ -12,7 +12,8 @@ edition = "2021"
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "veyra_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+# Desktop-only: "cdylib" (mobile) exceeds the GNU linker's 65k export limit on Windows.
+crate-type = ["rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -31,3 +32,16 @@ tokio = { version = "1", features = ["sync", "macros"] }
 regex = "1"
 base64 = "0.22"
 dunce = "1"
+
+# Dependencies (tauri, windows, etc.) build without debug info: far less memory and disk,
+# while Veyra's own code keeps it for debugging.
+[profile.dev.package."*"]
+debug = false
+
+# Smaller, faster release binary (Tauri's recommended size settings).
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
