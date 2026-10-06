@@ -79,7 +79,7 @@ fn application_menu(app:&tauri::App)->tauri::Result<tauri::menu::Menu<tauri::Wry
     ]).build()?;
     let run=SubmenuBuilder::new(app,"Run").items(&[&menu_item(app,"run.active","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"run.debug","Start Debugging","F5")?,&menu_item(app,"run.breakpoint","Toggle Breakpoint","F9")?]).build()?;
     let terminal=SubmenuBuilder::new(app,"Terminal").items(&[&menu_item(app,"terminal.new","New Terminal","Ctrl+Shift+`")?,&menu_item(app,"terminal.runActive","Run Active File","Ctrl+Alt+N")?,&menu_item(app,"terminal.clear","Clear Terminal","")?]).build()?;
-    let help=SubmenuBuilder::new(app,"Help").items(&[&menu_item(app,"help.commands","Show All Commands","CmdOrCtrl+Shift+P")?,&menu_item(app,"help.shortcuts","Keyboard Shortcuts Reference","")?,&menu_item(app,"help.about","About Veyra","")?]).build()?;
+    let help=SubmenuBuilder::new(app,"Help").items(&[&menu_item(app,"help.commands","Show All Commands","CmdOrCtrl+Shift+P")?,&menu_item(app,"help.shortcuts","Keyboard Shortcuts Reference","")?,&menu_item(app,"help.updates","Check for Updates…","")?,&menu_item(app,"help.about","About Veyra","")?]).build()?;
     MenuBuilder::new(app).items(&[&application,&file,&edit,&selection,&view,&go,&run,&terminal,&help]).build()
 }
 fn root(state: &Workspace) -> Result<PathBuf> { state.root.lock().map_err(err)?.clone().ok_or("Open a folder first".into()) }
@@ -581,6 +581,8 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app|{app.set_menu(application_menu(app)?)?;Ok(())})
         .on_menu_event(|app,event|{let _=app.emit("menu-command",event.id().as_ref());})
         .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_key_status, ai::ai_key_statuses, ai::ai_models, ai::ai_chat, ai::ai_cancel])

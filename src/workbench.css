@@ -211,3 +211,31 @@
 
 @keyframes veyra-spin { to { transform: rotate(360deg) } }
 .spin { animation: veyra-spin .9s linear infinite }
+
+/* ---- Auto-update banner --------------------------------------------------- */
+.update-banner {
+    position: fixed;
+    z-index: 90;
+    right: 18px;
+    bottom: 38px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: min(440px, calc(100vw - 36px));
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--toolbar);
+    box-shadow: 0 18px 50px #0009;
+    color: var(--text);
+    font-size: 11px
+}
+.update-banner>svg { flex-shrink: 0; margin-top: 2px; color: var(--accent) }
+.update-banner>div:first-of-type { display: grid; gap: 3px; flex: 1; min-width: 0 }
+.update-banner b { color: var(--bright); font-size: 12px; font-weight: 500 }
+.update-banner .text-button { padding: 0; color: var(--accent); font-size: 11px }
+.update-banner pre { max-height: 160px; margin: 6px 0 0; overflow: auto; white-space: pre-wrap; font: 10.5px/1.5 inherit; color: var(--muted) }
+.update-progress { height: 4px; margin-top: 6px; border-radius: 2px; background: var(--hover); overflow: hidden }
+.update-progress i { display: block; height: 100%; background: var(--accent); transition: width .2s }
+.update-actions { display: flex; flex-direction: column; gap: 6px }
+.update-actions button { gap: 6px; padding: 6px 10px; white-space: nowrap }

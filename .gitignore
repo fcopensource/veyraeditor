@@ -40,3 +40,6 @@ src-tauri/gen/
 !.env.example
 *.pem
 *.key
+
+# TypeScript incremental build info
+*.tsbuildinfo
