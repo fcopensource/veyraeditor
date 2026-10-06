@@ -239,3 +239,101 @@
 .update-progress i { display: block; height: 100%; background: var(--accent); transition: width .2s }
 .update-actions { display: flex; flex-direction: column; gap: 6px }
 .update-actions button { gap: 6px; padding: 6px 10px; white-space: nowrap }
+
+/* ---- Command palette 2.0 --------------------------------------------------- */
+.palette-row {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 9px 12px;
+    border-radius: 6px
+}
+.palette-row.selected { background: var(--selection); color: var(--bright) }
+.palette-row>span {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-align: left;
+    white-space: nowrap;
+    text-overflow: ellipsis
+}
+.palette-row>span small { overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 10px }
+.palette-row mark { background: none; color: var(--accent); font-weight: 700 }
+.palette-group {
+    padding: 8px 12px 4px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: .8px;
+    text-transform: uppercase
+}
+
+/* ---- Search panel 2.0 ---------------------------------------------------------- */
+.search-panel { display: flex; flex-direction: column; gap: 6px; height: calc(100% - 46px) }
+.search-panel[hidden] { display: none }
+.search-form { display: flex; align-items: flex-start; gap: 4px }
+.replace-toggle { width: 18px; height: 34px; color: var(--muted) }
+.search-fields { display: grid; flex: 1; gap: 6px; min-width: 0 }
+.search-fields .search-input { padding: 0 4px 0 9px }
+.search-fields .search-input input { padding: 8px 6px }
+.search-flag { width: 24px; height: 24px; border-radius: 4px; color: var(--muted) }
+.search-flag.on { background: var(--selection); color: var(--accent); outline: 1px solid color-mix(in srgb, var(--accent) 45%, transparent) }
+.search-details-toggle { display: flex; justify-content: flex-end; margin-top: -2px }
+.search-details-toggle button { padding: 0 4px; color: var(--muted) }
+.search-globs { display: grid; gap: 8px }
+.search-globs label { display: grid; gap: 4px; color: var(--muted); font-size: 10px }
+.search-globs input { padding: 7px 8px; font-size: 11px }
+.search-summary { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px }
+.search-summary .hint, .search-problem { margin: 0 }
+.search-problem { color: #ff8d91; font-size: 10px }
+.search-summary button { padding: 3px; color: var(--muted) }
+.search-tree { flex: 1; min-height: 0; overflow: auto; margin: 0 -14px; padding: 0 6px 12px }
+.search-file { display: flex; align-items: center; border-radius: 5px }
+.search-file:hover { background: var(--hover) }
+.search-file-name {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+    padding: 5px 4px;
+    font-size: 11px
+}
+.search-file-name b { color: var(--bright); font-weight: 500; white-space: nowrap }
+.search-file-name small { overflow: hidden; color: var(--muted); font-size: 10px; white-space: nowrap; text-overflow: ellipsis }
+.search-count { margin-right: 4px; padding: 0 6px; border-radius: 8px; background: var(--hover); color: var(--muted); font-size: 9px }
+.search-file-actions { display: flex; opacity: 0 }
+.search-file:hover .search-file-actions, .search-file-actions:focus-within { opacity: 1 }
+.search-file-actions button { width: 22px; height: 22px; color: var(--muted) }
+.search-hit {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    justify-content: flex-start;
+    padding: 4px 6px 4px 34px;
+    border-radius: 4px;
+    text-align: left
+}
+.search-hit span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 11px Menlo, Consolas, monospace; color: var(--text) }
+.search-hit mark { border-radius: 2px; background: color-mix(in srgb, #e2c08d 35%, transparent); color: var(--bright) }
+.search-hit small { color: var(--muted); font-size: 9px }
+
+/* ---- Settings 2.0 ------------------------------------------------------------------- */
+.settings-filter { margin: 4px 0 6px }
+.settings-section h4 { margin: 20px 0 2px; color: var(--accent); letter-spacing: .4px }
+.settings label>span { display: grid; gap: 3px }
+.settings label small { color: var(--muted); font-size: 10px }
+.settings select {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--editor);
+    color: var(--text);
+    font: inherit;
+    font-size: 11px
+}
+.settings label.setting-wide { display: grid; justify-content: stretch }
+.settings .setting-text { width: 100%; font-size: 11px }
+.settings-reset { gap: 6px; margin-top: 18px }

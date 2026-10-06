@@ -55,7 +55,7 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 **Veyra updates itself.** Installed copies check for new versions on launch and every few hours, verify the download's signature, and offer a one-click **Update & restart**. You can also choose **Help → Check for Updates…**.
 
 > [!NOTE]
-> Preview builds are not yet code-signed by the OS vendors. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS**, if Gatekeeper reports the app as damaged, run `xattr -cr "/Applications/Veyra Studio.app"` once.
+> Preview builds are not yet signed by Microsoft or Apple. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS** (v0.4.1+), drag the app to Applications, then **right-click → Open** the first time, or use **System Settings → Privacy & Security → Open Anyway**. On v0.4.0, if macOS says the app is *damaged*, run `xattr -cr "/Applications/Veyra Studio.app"` once.
 
 ---
 

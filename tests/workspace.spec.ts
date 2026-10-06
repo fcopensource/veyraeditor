@@ -116,8 +116,8 @@ test("offline editor, tab retention, save, close protection, search and settings
   await expect(page.getByRole("heading",{name:"Close App.tsx?"})).toBeVisible();
   await page.getByRole("button",{name:"Cancel",exact:true}).click();
   await page.getByRole("button",{name:"Search workspace · ⇧⌘F"}).click();
-  await page.getByPlaceholder("Search in files…").fill("Veyra");
-  await expect(page.locator(".search-results button")).toHaveCount(2);
+  await page.getByRole("textbox",{name:"Search in files"}).fill("Veyra");
+  await expect(page.locator(".search-hit")).toHaveCount(2);
   await page.getByRole("button",{name:"Settings · ⌘,"}).click();
   await page.getByRole("button",{name:"Appearance",exact:true}).click();
   await expect(page.locator(".app")).toHaveClass(/light/);
@@ -373,4 +373,36 @@ test("health monitor scores the editor and git decorates the explorer",async({pa
   await page.getByRole('button',{name:'Source control'}).click();
   await page.getByTitle('View diff · src/App.tsx').click();
   await expect(page.locator('.diff-view')).toContainText('HEAD ↔ Working tree');
+});
+
+test("command palette 2.0, search options and searchable settings",async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
+  // Fuzzy file matching with keyboard navigation.
+  await page.keyboard.press('Meta+p');
+  const input=page.getByRole('textbox',{name:'Search commands or files'});
+  await input.fill('thme');
+  await expect(page.getByRole('listbox').getByRole('option').first()).toContainText('theme.css');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('tab',{name:'theme.css'})).toBeVisible();
+  // ">" switches to commands; arrows move the selection.
+  await page.keyboard.press('Meta+p');
+  await input.fill('>toggle word');
+  await expect(page.getByRole('listbox').getByRole('option',{selected:true})).toContainText('Toggle word wrap');
+  await page.keyboard.press('Escape');
+  // ":" jumps to a line in the active editor.
+  await page.keyboard.press('Meta+p');
+  await input.fill(':1');
+  await expect(page.getByRole('listbox').getByRole('option').first()).toContainText('Go to line 1');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.palette')).toHaveCount(0);
+  // Search toggles are sent to the native search.
+  await page.getByRole('button',{name:'Search workspace · ⇧⌘F'}).click();
+  await page.getByRole('button',{name:'Match case'}).click();
+  await page.getByRole('textbox',{name:'Search in files'}).fill('Veyra');
+  await expect.poll(()=>page.evaluate(()=>(window as any).testCalls.filter((c:any)=>c.cmd==='search_workspace').at(-1)?.args?.options?.caseSensitive)).toBe(true);
+  // Settings can be filtered.
+  await page.getByRole('button',{name:'Settings · ⌘,'}).click();
+  await page.getByRole('textbox',{name:'Search settings'}).fill('tab size');
+  await expect(page.getByRole('spinbutton',{name:'Tab size'})).toBeVisible();
+  await expect(page.getByRole('checkbox',{name:'Minimap'})).toHaveCount(0);
 });

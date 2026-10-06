@@ -14,6 +14,7 @@ type Props = {
 };
 
 function preview(hit: SearchHit) {
+  if (hit.start === undefined || hit.end === undefined) return hit.text;
   const chars = [...hit.text];
   return <>{chars.slice(0, hit.start).join("")}<mark>{chars.slice(hit.start, hit.end).join("")}</mark>{chars.slice(hit.end).join("")}</>;
 }

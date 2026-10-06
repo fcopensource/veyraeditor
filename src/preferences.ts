@@ -5,8 +5,7 @@ export type Preferences = {
   cursorStyle: "line" | "block" | "underline"; cursorBlinking: "blink" | "smooth" | "phase" | "expand" | "solid"; smoothCaret: boolean;
   bracketGuides: boolean; stickyScroll: boolean; rulers: string;
   autoSave: "off" | "afterDelay" | "onFocusChange"; autoSaveDelay: number;
-  formatOnSave: boolean; trimTrailingWhitespace: boolean; insertFinalNewline: boolean;
-  terminalFontSize: number; zoom: number; restoreSession: boolean; gitGutter: boolean;
+  terminalFontSize: number; gitGutter: boolean;
 };
 
 export const defaultPreferences: Preferences = {
@@ -14,8 +13,8 @@ export const defaultPreferences: Preferences = {
   tabSize: 2, insertSpaces: true, wrap: false, minimap: true, light: false,
   lineNumbers: "on", renderWhitespace: "selection", cursorStyle: "line", cursorBlinking: "smooth", smoothCaret: true,
   bracketGuides: true, stickyScroll: true, rulers: "",
-  autoSave: "off", autoSaveDelay: 1000, formatOnSave: false, trimTrailingWhitespace: false, insertFinalNewline: false,
-  terminalFontSize: 13, zoom: 1, restoreSession: true, gitGutter: true,
+  autoSave: "off", autoSaveDelay: 1000,
+  terminalFontSize: 13, gitGutter: true,
 };
 
 export function readPreferences(): Preferences {

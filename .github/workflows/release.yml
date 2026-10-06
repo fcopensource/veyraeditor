@@ -63,6 +63,23 @@ jobs:
 
       - run: npm ci
 
+      # The CHANGELOG.md section for this version becomes the release notes and the
+      # in-app "What's new" text shown in the update prompt.
+      - name: Release notes from CHANGELOG.md
+        id: notes
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          notes=$(awk -v heading="## $version" '{sub(/\r$/,"")} $0==heading{found=1;next} /^## /{found=0} found' CHANGELOG.md)
+          {
+            echo "body<<VEYRA_NOTES_EOF"
+            echo "${notes:-Veyra Studio $version}"
+            echo
+            echo "---"
+            echo "**Download:** Windows \`.exe\`/\`.msi\` · macOS \`.dmg\` (\`aarch64\` = Apple silicon, \`x64\` = Intel) · Linux \`.AppImage\`/\`.deb\`/\`.rpm\`. Already installed? Veyra updates itself."
+            echo "VEYRA_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,13 +97,7 @@ jobs:
         with:
           tagName: v__VERSION__
           releaseName: Veyra Studio v__VERSION__
-          releaseBody: |
-            ## Download
-            - **Windows:** `Veyra.Studio_x.y.z_x64-setup.exe` (or the `.msi`)
-            - **macOS:** `.dmg` — `aarch64` for Apple silicon, `x64` for Intel Macs
-            - **Linux:** `.AppImage` (any distro), `.deb` (Ubuntu/Debian) or `.rpm` (Fedora)
-
-            Already using Veyra? It updates itself: you'll see an "Update & restart" prompt.
+          releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: true
           prerelease: false
           includeUpdaterJson: true

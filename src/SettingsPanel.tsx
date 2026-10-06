@@ -13,7 +13,6 @@ const settings: Setting[] = [
   { section: "Appearance", key: "lineHeight", label: "Line height", min: 14, max: 48 },
   { section: "Appearance", key: "ligatures", label: "Font ligatures" },
   { section: "Appearance", key: "minimap", label: "Minimap" },
-  { section: "Appearance", key: "zoom", label: "Window zoom", detail: "Ctrl/⌘ + and − also work", min: 0.5, max: 2, step: 0.1 },
   { section: "Editor", key: "tabSize", label: "Tab size", min: 1, max: 8 },
   { section: "Editor", key: "insertSpaces", label: "Insert spaces", detail: "Use spaces when pressing Tab" },
   { section: "Editor", key: "wrap", label: "Word wrap" },
@@ -27,11 +26,7 @@ const settings: Setting[] = [
   { section: "Editor", key: "stickyScroll", label: "Sticky scroll", detail: "Keep enclosing scopes pinned while scrolling" },
   { section: "Editor", key: "gitGutter", label: "Git change markers", detail: "Show added, modified and deleted lines in the gutter" },
   { section: "Files", key: "autoSave", label: "Auto save", options: ["off", "afterDelay", "onFocusChange"] },
-  { section: "Files", key: "autoSaveDelay", label: "Auto save delay (ms)", min: 200, max: 60000, step: 100 },
-  { section: "Files", key: "formatOnSave", label: "Format on save" },
-  { section: "Files", key: "trimTrailingWhitespace", label: "Trim trailing whitespace on save" },
-  { section: "Files", key: "insertFinalNewline", label: "Insert final newline on save" },
-  { section: "Workbench", key: "restoreSession", label: "Restore last workspace", detail: "Reopen the folder and editors on launch" },
+  { section: "Files", key: "autoSaveDelay", label: "Auto save delay (ms)", detail: "Used when auto save is afterDelay", min: 200, max: 60000, step: 100 },
   { section: "Terminal", key: "terminalFontSize", label: "Terminal font size", min: 8, max: 28 },
 ];
 

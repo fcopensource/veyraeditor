@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Veyra Studio",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "identifier": "com.veyra.extensionspreview",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -36,7 +36,11 @@
     "createUpdaterArtifacts": true,
     "publisher": "Veyra",
     "shortDescription": "AI-native desktop code editor",
-    "category": "DeveloperTool"
+    "category": "DeveloperTool",
+    "macOS": {
+      "signingIdentity": "-",
+      "minimumSystemVersion": "11.0"
+    }
   },
   "plugins": {
     "updater": {

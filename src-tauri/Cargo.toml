@@ -1,6 +1,6 @@
 [package]
 name = "veyra"
-version = "0.4.0"
+version = "0.4.1"
 description = "Veyra desktop code editor"
 authors = ["you"]
 edition = "2021"

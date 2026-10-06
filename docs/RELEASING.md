@@ -51,7 +51,8 @@ Unsigned builds work, but users see warnings the first time they open the app:
 - **macOS:** Gatekeeper blocks unsigned apps downloaded from the internet. Signing and notarizing need an
   Apple Developer account ($99/year). Add the `APPLE_*` secrets and uncomment them in
   `.github/workflows/release.yml`. See the Tauri guide *macOS Code Signing*.
-  Until then, testers can run `xattr -cr "/Applications/Veyra Studio.app"` after installing.
+  Until then, builds are ad-hoc signed (`bundle.macOS.signingIdentity: "-"`), so users open the app the first time
+  with **right-click → Open** (or *System Settings → Privacy & Security → Open Anyway*).
 
 ## Shipping a release
 
