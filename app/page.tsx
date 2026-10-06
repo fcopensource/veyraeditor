@@ -1,277 +1,189 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowRight,
-  Braces,
-  Check,
-  Command,
-  Download,
-  FolderGit2,
-  Github,
-  Layers3,
-  LockKeyhole,
-  Sparkles,
-  TerminalSquare,
-  Zap,
+  Apple, ArrowRight, Braces, Check, Command, FolderGit2, Github, HeartPulse, KeyRound,
+  LockKeyhole, Monitor, RefreshCw, Sparkles, Terminal, TerminalSquare, Zap,
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
-import { VeyraScene } from "@/components/VeyraScene";
-import { CodeBackdrop, CodeExperience } from "@/components/CodeExperience";
+import { CodeUniverse } from "@/components/CodeUniverse";
+import { LiveIDE } from "@/components/LiveIDE";
+import { DownloadCTA } from "@/components/DownloadCTA";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { latestRelease } from "@/lib/releases";
+
+export const revalidate = 300;
+
 const features = [
-  {
-    icon: Braces,
-    title: "A serious editor",
-    copy: "Monaco editing, language intelligence, multiple cursors, diagnostics and native command menus.",
-  },
-  {
-    icon: FolderGit2,
-    title: "Git, made visual",
-    copy: "Stage, commit, sync and understand your repository through a dimensional commit graph.",
-  },
-  {
-    icon: TerminalSquare,
-    title: "A real terminal",
-    copy: "Your shell, your tools and your project context—inside the workspace where you need them.",
-  },
-  {
-    icon: Sparkles,
-    title: "Intelligence with boundaries",
-    copy: "Use local or cloud models, attach explicit context and review every proposed edit before it lands.",
-  },
-  {
-    icon: Layers3,
-    title: "Built for deep work",
-    copy: "A calm, cinematic interface with responsive panels, quick navigation and expressive file icons.",
-  },
-  {
-    icon: LockKeyhole,
-    title: "Local by default",
-    copy: "Your projects stay on your machine. Local AI works through Ollama without sending code away.",
-  },
+  { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, diagnostics, formatting and 80+ languages, wrapped in a native, lightweight shell." },
+  { icon: FolderGit2, title: "Git you can see", copy: "Live gutter markers, file-tree badges and side-by-side diffs. Stage, commit, amend, switch branches, stash and sync in a click." },
+  { icon: TerminalSquare, title: "A real terminal", copy: "PowerShell, zsh or bash on a native PTY, with multiple sessions and one-key \"run this file\", right beside your code." },
+  { icon: Sparkles, title: "AI with boundaries", copy: "Local Ollama or 10 cloud providers. You choose the context, and every edit is a diff you approve and can undo." },
+  { icon: KeyRound, title: "Secrets done right", copy: "API keys are encrypted in your OS keychain and load in the background, exactly like VS Code secrets." },
+  { icon: HeartPulse, title: "Self-diagnosing", copy: "A live health score watches responsiveness, memory, errors, Git and your toolchain, with a fix for every warning." },
+  { icon: RefreshCw, title: "Always current", copy: "Signed automatic updates on every platform. A new version is one click away and never interrupts unsaved work." },
+  { icon: LockKeyhole, title: "Local by default", copy: "Your projects never leave your machine unless you send them. Atomic saves guard every file you touch." },
 ];
-export default function Home() {
+const providers = ["Ollama", "Claude", "OpenAI", "Gemini", "OpenRouter", "Groq", "Mistral", "DeepSeek", "Grok", "Together", "Any OpenAI API"];
+
+export default async function Home() {
+  const release = await latestRelease();
+  const version = release?.version ? `v${release.version}` : "preview";
   return (
     <>
       <Nav />
-      <main>
-        <section className="hero">
-          <div className="aurora one" />
-          <div className="aurora two" />
-          <CodeBackdrop />
-          <VeyraScene />
+      <ScrollReveal />
+      <main className="landing">
+        <section className="hero hero-universe">
+          <CodeUniverse />
+          <div className="hero-vignette" />
           <div className="hero-copy">
-            <div className="eyebrow">
+            <a className="eyebrow" href="https://github.com/fcopensource/veyraeditor/releases/latest">
               <i />
-              PUBLIC PREVIEW · V0.3
-            </div>
+              {version.toUpperCase()} · NOW ON WINDOWS, MACOS & LINUX
+              <ArrowRight size={12} />
+            </a>
             <h1>
-              Your code.
+              Code at the
               <br />
-              <em>In its element.</em>
+              <em>speed of thought.</em>
             </h1>
             <p>
-              Veyra is a fast, local-first desktop editor where beautiful craft,
-              native tools and practical AI meet.
+              Veyra is a fast, local-first code editor with Git, a real terminal and AI from
+              11 providers built in, so you can go from idea to shipped without leaving the window.
             </p>
             <div className="hero-actions">
-              <Link className="primary" href="/download">
-                <Download size={17} />
-                Download for macOS
-              </Link>
-              <a
-                className="secondary"
-                href="https://github.com/fcopensource/veyraeditor"
-              >
+              <DownloadCTA />
+              <a className="secondary" href="https://github.com/fcopensource/veyraeditor">
                 <Github size={17} />
-                View source
+                Star on GitHub
               </a>
             </div>
-            <span className="micro">
-              Apple silicon · Open source · No credit card
-            </span>
+            <div className="hero-meta">
+              <span><Check size={13} /> Free & open source</span>
+              <span><Check size={13} /> 7–11 MB installers</span>
+              <span><Check size={13} /> Auto-updates</span>
+            </div>
           </div>
+          <a className="scroll-cue" href="#showcase" aria-label="Scroll to explore"><span /></a>
+        </section>
+
+        <section className="trust" data-reveal>
+          <span>BUILT WITH</span>
+          <b>Rust</b><i /><b>Tauri</b><i /><b>Monaco</b><i /><b>React</b><i /><b>three.js</b>
+        </section>
+
+        <section id="showcase" className="showcase" data-reveal>
           <div className="product-shell">
             <div className="window-bar">
-              <span className="traffic">
-                <i />
-                <i />
-                <i />
-              </span>
-              <b>
-                <Image src="/veyra.png" width={20} height={20} alt="" />
-                Veyra Studio
-              </b>
-              <small>
-                <Command size={12} /> K
-              </small>
+              <span className="traffic"><i /><i /><i /></span>
+              <b><Image src="/veyra.png" width={20} height={20} alt="" />Veyra Studio</b>
+              <small><Command size={12} /> K</small>
             </div>
             <div className="screen">
-              <Image
-                src="/editor.png"
-                fill
-                priority
-                sizes="(max-width: 900px) 96vw, 1100px"
-                alt="Veyra code editor interface"
-              />
+              <Image src="/editor.png" fill sizes="(max-width: 900px) 96vw, 1100px" alt="The Veyra editor with explorer, code and terminal" />
             </div>
-            <div className="float-card left">
-              <Zap size={16} />
-              <span>
-                <b>Local intelligence</b>
-                <small>Powered by your model</small>
-              </span>
-            </div>
-            <div className="float-card right">
-              <Check size={16} />
-              <span>
-                <b>All changes reviewed</b>
-                <small>You stay in control</small>
-              </span>
-            </div>
+            <div className="float-card left"><Zap size={16} /><span><b>Local intelligence</b><small>Your model, your machine</small></span></div>
+            <div className="float-card right"><Check size={16} /><span><b>All changes reviewed</b><small>You stay in control</small></span></div>
+            <div className="float-card bottom"><HeartPulse size={16} /><span><b>Health 98 / 100</b><small>Everything running smoothly</small></span></div>
           </div>
         </section>
-        <section className="trust">
-          <span>BUILT WITH</span>
-          <b>Rust</b>
-          <i /> <b>Tauri</b>
-          <i /> <b>Monaco</b>
-          <i /> <b>React</b>
-          <i /> <b>TypeScript</b>
-        </section>
-        <CodeExperience />
+
+        <LiveIDE />
+
         <section id="features" className="section feature-story">
-          <div className="section-title">
+          <div className="section-title" data-reveal>
             <span>// THE WORKSPACE, REIMAGINED</span>
-            <h2>
-              Built for flow.
-              <br />
-              Designed with intent.
-            </h2>
-            <p>
-              A professional local editor foundation designed to stay quick as
-              your project grows.
-            </p>
+            <h2>Built for flow.<br />Designed with intent.</h2>
+            <p>Everything a modern developer reaches for, native and fast, in one calm window.</p>
           </div>
-          <div className="feature-ledger">
+          <div className="feature-grid">
             {features.map(({ icon: Icon, title, copy }, index) => (
-              <article key={title}>
-                <span className="feature-number">0{index + 1}</span>
-                <div className={"feature-icon tone-" + index}>
-                  <Icon size={23} />
-                </div>
-                <div>
-                  <small>{index % 2 ? "WORKFLOW" : "FOUNDATION"}</small>
-                  <h3>{title}</h3>
-                </div>
+              <article key={title} data-reveal style={{ transitionDelay: `${(index % 4) * 70}ms` }}>
+                <div className={"feature-icon tone-" + (index % 6)}><Icon size={22} /></div>
+                <h3>{title}</h3>
                 <p>{copy}</p>
-                <ArrowRight className="feature-arrow" size={18} />
+                <span className="feature-number">0{index + 1}</span>
               </article>
             ))}
           </div>
         </section>
-        <section className="manifesto">
-          <span>ONE WINDOW · EVERY IDEA</span>
-          <h2>Stay inside the work.</h2>
-          <p>
-            Files, terminal, source control, intelligent context and the final
-            diff—arranged as one continuous instrument.
-          </p>
-          <div className="signal-line">
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
+
+        <section className="platforms" data-reveal>
+          <div className="platforms-head">
+            <span>// ONE EDITOR, EVERY DESK</span>
+            <h2>Native on Windows,<br />macOS and Linux.</h2>
+            <p>Tiny installers built from the same source, kept current with signed one-click updates.</p>
+          </div>
+          <div className="platform-row">
+            <Link href="/download" className="platform-tile"><Monitor /><b>Windows</b><small>10 & 11 · .exe / .msi</small></Link>
+            <Link href="/download" className="platform-tile"><Apple /><b>macOS</b><small>Apple silicon & Intel · .dmg</small></Link>
+            <Link href="/download" className="platform-tile"><Terminal /><b>Linux</b><small>.AppImage · .deb · .rpm</small></Link>
+          </div>
+          <div className="update-demo" aria-hidden="true">
+            <Sparkles size={16} />
+            <span><b>Veyra {release?.version ? bump(release.version) : "0.5.0"} is ready</b><small>Signed and verified · installs in seconds</small></span>
+            <i>Update & restart</i>
           </div>
         </section>
-        <section id="ai" className="intelligence">
+
+        <section id="ai" className="intelligence" data-reveal>
           <div>
             <span>VEYRA INTELLIGENCE</span>
-            <h2>
-              AI that works
-              <br />
-              <em>at your pace.</em>
-            </h2>
+            <h2>AI that works<br /><em>at your pace.</em></h2>
             <p>
-              Ask questions across your workspace, understand unfamiliar code
-              and turn intent into a reviewable edit. Choose Ollama for private
-              local work or connect your preferred cloud model.
+              Ask questions across your workspace, understand unfamiliar code and turn intent into a
+              reviewable edit. Keep it private with local models, or bring your own key for the cloud.
             </p>
             <ul>
-              <li>
-                <Check />
-                Explicit file and selection context
-              </li>
-              <li>
-                <Check />
-                Diff review before every edit
-              </li>
-              <li>
-                <Check />
-                OpenAI, OpenRouter, Ollama and compatible APIs
-              </li>
+              <li><Check />Smart workspace context, and you see exactly what's sent</li>
+              <li><Check />Every edit is a diff you apply and can undo</li>
+              <li><Check />Keys stored in your OS keychain, never in your project</li>
             </ul>
-            <Link href="/register">
-              Get early access <ArrowRight size={15} />
-            </Link>
+            <div className="provider-cloud">{providers.map(name => <span key={name}>{name}</span>)}</div>
           </div>
           <div className="ai-demo">
-            <header>
-              <Sparkles size={15} />
-              VEYRA AI <b>LOCAL</b>
-            </header>
-            <div className="bubble user">
-              Make this parser handle empty input safely.
-            </div>
-            <div className="bubble ai">
-              <i />
-              <p>
-                I found the parsing boundary in <code>src/parser.ts</code>. I
-                can add an early return and a focused test.
-              </p>
-              <span>2 files in context</span>
-            </div>
+            <header><Sparkles size={15} />VEYRA AI <b>LOCAL</b></header>
+            <div className="bubble user">Make this parser handle empty input safely.</div>
+            <div className="bubble ai"><i /><p>I found the parsing boundary in <code>src/parser.ts</code>. I can add an early return and a focused test.</p><span>2 files in context</span></div>
             <div className="diff">
               <small>PROPOSED EDIT</small>
               <pre>
-                <del>- const tokens = scan(input);</del>
-                {"\n"}
-                <ins>+ if (!input.trim()) return [];</ins>
-                {"\n"}
+                <del>- const tokens = scan(input);</del>{"\n"}
+                <ins>+ if (!input.trim()) return [];</ins>{"\n"}
                 <ins>+ const tokens = scan(input);</ins>
               </pre>
-              <footer>
-                <button>Discard</button>
-                <button>Apply edit</button>
-              </footer>
+              <footer><button>Discard</button><button>Apply edit</button></footer>
             </div>
           </div>
         </section>
-        <section className="cta">
+
+        <section className="manifesto" data-reveal>
+          <span>ONE WINDOW · EVERY IDEA</span>
+          <h2>Stay inside the work.</h2>
+          <p>Files, terminal, source control, intelligent context and the final diff, arranged as one continuous instrument.</p>
+          <div className="signal-line"><i /><i /><i /><i /><i /></div>
+        </section>
+
+        <section className="cta" data-reveal>
           <div className="cta-glow" />
           <Image src="/veyra.png" width={84} height={84} alt="Veyra" />
           <span>YOUR NEXT IDEA DESERVES A GREAT ROOM</span>
-          <h2>
-            Build beyond
-            <br />
-            the ordinary.
-          </h2>
-          <p>
-            Download the preview, explore the source, and help shape an editor
-            built for the way software is changing.
-          </p>
+          <h2>Build beyond<br />the ordinary.</h2>
+          <p>Download Veyra for free, explore the source, and help shape an editor built for the way software is changing.</p>
           <div>
-            <Link className="primary" href="/download">
-              Download Veyra <ArrowRight size={16} />
-            </Link>
-            <Link className="secondary" href="/register">
-              Create account
-            </Link>
+            <DownloadCTA />
+            <a className="secondary" href="https://github.com/fcopensource/veyraeditor"><Github size={16} />View source</a>
           </div>
         </section>
       </main>
       <Footer />
     </>
   );
+}
+
+/** The next patch version, for the illustrative update prompt. */
+function bump(version: string) {
+  const [major, minor, patch] = version.split("-")[0].split(".").map(n => parseInt(n, 10) || 0);
+  return `${major}.${minor}.${patch + 1}`;
 }
