@@ -1,15 +1,13 @@
 import {NextResponse} from 'next/server';
-import {authConfig,setSession,supabaseError} from '@/lib/auth';
+import {authConfig,setSession,supabase,supabaseError,validEmail} from '@/lib/auth';
 
 export async function POST(request:Request){
-  const config=authConfig();
-  if(!config) return NextResponse.json({error:'Authentication is not configured yet. Add the Supabase environment variables.'},{status:503});
+  if(!authConfig()) return NextResponse.json({error:'Accounts are not available yet.'},{status:503});
   const body=await request.json().catch(()=>null) as {email?:string;password?:string}|null;
   const email=body?.email?.trim().toLowerCase();
-  if(!email||!body?.password) return NextResponse.json({error:'Email and password are required.'},{status:400});
-  const response=await fetch(`${config.url}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:config.key,Authorization:`Bearer ${config.key}`,'Content-Type':'application/json'},body:JSON.stringify({email,password:body.password}),cache:'no-store'});
-  const result=await response.json().catch(()=>({}));
-  if(!response.ok) return NextResponse.json({error:supabaseError(result,'Unable to log in.')},{status:response.status});
+  if(!email||!validEmail(email)||!body?.password) return NextResponse.json({error:'Enter your email address and password.'},{status:400});
+  const {response,result}=await supabase('token?grant_type=password',{method:'POST',body:JSON.stringify({email,password:body.password})});
+  if(!response.ok) return NextResponse.json({error:supabaseError(result,'Unable to log in.')},{status:response.status===400?401:response.status});
   await setSession(result.access_token,result.refresh_token,result.expires_in);
   return NextResponse.json({user:result.user});
 }

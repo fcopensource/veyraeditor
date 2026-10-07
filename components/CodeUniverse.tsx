@@ -87,16 +87,17 @@ export function CodeUniverse(){
     const element=host.current;if(!element)return;
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     const mono='"DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+    const small=innerWidth<700; // phones: lighter scene for smooth scrolling and battery
     let renderer:THREE.WebGLRenderer;
     try{renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});}catch{return;} // no WebGL: CSS backdrop remains
-    renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;element.appendChild(renderer.domElement);
+    renderer.setPixelRatio(Math.min(devicePixelRatio,small?1.5:1.75));renderer.outputColorSpace=THREE.SRGBColorSpace;element.appendChild(renderer.domElement);
     const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x06080d,0.034);
     const camera=new THREE.PerspectiveCamera(46,1,.1,120);camera.position.set(0,0,10);
 
     // 1. Token warp field
     const field=new THREE.Group();scene.add(field);
     const textures=TOKENS.map(([text,color])=>({...tokenTexture(text,color,mono)}));
-    const sprites=Array.from({length:90},(_,i)=>{
+    const sprites=Array.from({length:small?40:90},(_,i)=>{
       const {texture,aspect}=textures[i%textures.length];
       const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.85,fog:true}));
       const angle=Math.random()*Math.PI*2,radius=3.2+Math.random()*10;
@@ -117,7 +118,7 @@ export function CodeUniverse(){
     const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(5.75,3.2)),new THREE.LineBasicMaterial({color:0x68f4d1,transparent:true,opacity:.35}));frame.position.z=-.02;panel.add(frame);
 
     // 3. Particle streams spiralling into the editor
-    const COUNT=1400,positions=new Float32Array(COUNT*3),colors=new Float32Array(COUNT*3),seeds=new Float32Array(COUNT*3);
+    const COUNT=small?500:1400,positions=new Float32Array(COUNT*3),colors=new Float32Array(COUNT*3),seeds=new Float32Array(COUNT*3);
     const palette=[new THREE.Color(MINT),new THREE.Color(VIOLET),new THREE.Color(CYAN)];
     for(let i=0;i<COUNT;i++){seeds[i*3]=Math.random();seeds[i*3+1]=Math.random()*Math.PI*2;seeds[i*3+2]=.6+Math.random()*1.8;const c=palette[i%3];colors.set([c.r,c.g,c.b],i*3);}
     const streamGeometry=new THREE.BufferGeometry();streamGeometry.setAttribute('position',new THREE.BufferAttribute(positions,3));streamGeometry.setAttribute('color',new THREE.BufferAttribute(colors,3));

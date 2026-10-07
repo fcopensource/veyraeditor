@@ -1,2 +1,5 @@
-import type {Metadata} from 'next';import {AuthForm} from '@/components/AuthForm';import {AuthShell} from '@/components/AuthShell';
-export const metadata:Metadata={title:'Log in'};export default function Login(){return <AuthShell title="Welcome back." copy="Continue to your Veyra account and preview downloads."><AuthForm mode="login"/></AuthShell>}
+import type {Metadata} from 'next';import {Suspense} from 'react';
+import {AuthForm} from '@/components/AuthForm';import {AuthShell} from '@/components/AuthShell';import {authConfig} from '@/lib/auth';
+export const metadata:Metadata={title:'Log in'};
+export const dynamic='force-dynamic';
+export default function Login(){return <AuthShell title="Welcome back." copy="Log in to your Veyra account."><Suspense><AuthForm mode="login" configured={!!authConfig()}/></Suspense></AuthShell>}

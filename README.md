@@ -2,11 +2,11 @@
 
 The public website for Veyra Studio. It is a standalone Next.js application inside the editor repository and includes:
 
-- Responsive product landing page
-- Download page linked to the latest GitHub Release
-- Login and registration pages
-- Secure server-side Supabase Auth integration using HttpOnly cookies
-- Signed-in preview dashboard
+- Responsive landing page with a three.js hero and an interactive IDE demo
+- Download page and changelog, both read live from GitHub Releases
+- Accounts: register, log in, email confirmation, forgot/reset password, change password, auto-refreshing sessions
+- Account dashboard with per-OS downloads
+- Privacy, Terms and 404 pages; update endpoint for the desktop app (`/api/updates/...`)
 
 ## Run locally
 
@@ -28,6 +28,22 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
 Never commit a service-role key. The anon key is the correct browser-facing project key; authentication tokens are stored by Veyra's server routes in HttpOnly cookies.
+
+Without these variables the site still works: the account pages show "Accounts are opening soon" with a download button.
+
+### Turning on accounts (Supabase, free tier)
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. **Authentication → Providers → Email**: enabled. Keep **Confirm email** on (recommended).
+3. **Authentication → URL Configuration**:
+   - **Site URL:** `https://veyraeditor.com`
+   - **Redirect URLs:** add `https://veyraeditor.com/auth/callback` (and `http://localhost:3000/auth/callback` for local testing).
+   Confirmation and password-reset emails link to `/auth/callback`, which signs the user in or lets them choose a new password.
+4. **Project Settings → API**: copy the **Project URL** and the **anon public** key into `NEXT_PUBLIC_SUPABASE_URL` and
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY` (in Hostinger's environment variables for production), then redeploy. These are
+   read at build time, so a redeploy is required after changing them.
+5. Optional: Supabase's built-in email service is rate-limited; for real traffic set up custom SMTP under
+   **Authentication → Emails**.
 
 ## Production build
 
