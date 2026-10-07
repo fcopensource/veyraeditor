@@ -1,0 +1,32 @@
+# Publishes the website/ folder as the root of the `website` branch, which Hostinger deploys
+# from (Node.js app import needs the app at the repository root). Do not commit to that branch
+# by hand: every run replaces it with the current contents of website/ on main.
+name: Website branch
+
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", ".github/workflows/website-branch.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: website-branch
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Split website/ into its own history and push it
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git subtree split --prefix=website -b website-split
+          git push --force origin website-split:website
