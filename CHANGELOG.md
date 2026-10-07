@@ -3,6 +3,14 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.4.2
+
+**Autocomplete everywhere**
+- AI inline completions: grey ghost-text suggestions as you type, press Tab to accept. Uses the model chosen in AI Studio; on by default for local models (Ollama), and can be enabled for cloud models in Settings
+- Python, Rust, Go, Java, C/C++, C#, PHP, Ruby, Kotlin, Swift, shell and SQL now suggest keywords, snippets (`def`, `fn main`, `iferr`, `sout`...) and words from your open files
+- JavaScript and TypeScript IntelliSense now understands your whole project: imports, types and go-to-definition work across files that are not open
+- Suggestions while typing in strings, snippet previews, parameter hints and Tab completion
+
 ## 0.4.1
 
 **Smarter command palette**

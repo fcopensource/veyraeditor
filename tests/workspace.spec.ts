@@ -85,6 +85,7 @@ test.beforeEach(async ({page})=>{
         if(cmd==="git_stage"){gitStatus="## main\nM  src/App.tsx\n";return "";}
         if(cmd==="git_unstage"){gitStatus="## main\n M src/App.tsx\n";return "";}
         if(cmd==="git_commit"){gitStatus="## main\n";return "[main def5678] "+args.message;}
+        if(cmd==="ai_complete"){(window as any).completionRequests=((window as any).completionRequests||0)+1;return "return a + b;";}
         if(cmd==="plugin:event|listen")return 1;
         return null;
       }
@@ -405,4 +406,33 @@ test("command palette 2.0, search options and searchable settings",async({page})
   await page.getByRole('textbox',{name:'Search settings'}).fill('tab size');
   await expect(page.getByRole('spinbutton',{name:'Tab size'})).toBeVisible();
   await expect(page.getByRole('checkbox',{name:'Minimap'})).toHaveCount(0);
+});
+
+test("autocomplete: language snippets, cross-file TypeScript and AI ghost text",async({page})=>{
+  await page.addInitScript(()=>localStorage.setItem('veyra.ai.settings',JSON.stringify({kind:'ollama',endpoint:'http://127.0.0.1:11434',model:'qwen2.5-coder:3b'})));
+  await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
+  const editor=page.locator('.monaco-editor textarea').first();
+  // 1. Python gets keyword and snippet suggestions.
+  await page.getByTitle('New file · ⌘N').click();
+  await page.getByRole('textbox',{name:'New file',exact:true}).fill('tool.py');
+  await page.getByRole('button',{name:'Create',exact:true}).click();
+  await editor.focus();await page.keyboard.type('de');await page.keyboard.press('Control+Space');
+  await expect(page.locator('.suggest-widget .monaco-list-row').filter({hasText:/^def/}).first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  // 2. A new TypeScript file sees exports and types from src/App.tsx, which is not open.
+  await page.getByTitle('New file · ⌘N').click();
+  await page.getByRole('textbox',{name:'New file',exact:true}).fill('src/use.ts');
+  await page.getByRole('button',{name:'Create',exact:true}).click();
+  await page.waitForTimeout(2500); // background project models load
+  await editor.focus();await page.keyboard.type('import { greeting } from "./App";\ngreeting.toUpp');
+  await page.keyboard.press('Control+Space');
+  await expect(page.getByRole('option',{name:/toUpperCase/}).first()).toBeVisible({timeout:15000});
+  await page.keyboard.press('Escape');
+  // 3. AI ghost text appears after a pause and Tab accepts it.
+  await page.keyboard.press('Meta+End');
+  await page.keyboard.type('\nfunction add(a: number, b: number) {\n');
+  await expect(page.locator('.ghost-text-decoration, .ghost-text').first()).toBeVisible({timeout:10000});
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.view-lines').first()).toContainText('return a + b;');
+  expect(await page.evaluate(()=>(window as any).completionRequests)).toBeGreaterThan(0);
 });

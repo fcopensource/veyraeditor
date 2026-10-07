@@ -337,3 +337,9 @@
 .settings label.setting-wide { display: grid; justify-content: stretch }
 .settings .setting-text { width: 100%; font-size: 11px }
 .settings-reset { gap: 6px; margin-top: 18px }
+
+/* ---- AI inline completion status ---- */
+.statusbar .inline-ai { color: var(--accent) }
+.statusbar .inline-ai.busy { animation: inline-ai 1.2s ease-in-out infinite }
+.statusbar .inline-ai.paused { color: #e2c08d }
+@keyframes inline-ai { 50% { opacity: .45 } }
