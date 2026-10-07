@@ -4,7 +4,7 @@ The public website for Veyra Studio. It is a standalone Next.js application insi
 
 - Responsive landing page with a three.js hero and an interactive IDE demo
 - Download page and changelog, both read live from GitHub Releases
-- Accounts: register, log in, email confirmation, forgot/reset password, change password, auto-refreshing sessions
+- Accounts on your own MySQL database: register, log in, forgot/reset password by email, change password, delete account
 - Account dashboard with per-OS downloads
 - Privacy, Terms and 404 pages; update endpoint for the desktop app (`/api/updates/...`)
 
@@ -19,31 +19,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The landing and download pages work without environment variables. To enable account creation and login, create a Supabase project, enable Email authentication, and add its Project URL and anon/public key to `.env.local`:
+The landing, download and changelog pages work without any configuration. Accounts need a MySQL
+database (and email, for password resets). Copy `.env.example` to `.env.local` and fill it in.
 
-```env
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
+### Accounts on your Hostinger MySQL database
 
-Never commit a service-role key. The anon key is the correct browser-facing project key; authentication tokens are stored by Veyra's server routes in HttpOnly cookies.
+Accounts are stored in your own MySQL database; no third-party auth service is involved.
 
-Without these variables the site still works: the account pages show "Accounts are opening soon" with a download button.
+- **Tables are created automatically** (`users`, `sessions`, `password_resets`) the first time the site connects.
+- Passwords are hashed with **scrypt** (salted, Node.js built-in). Session and reset tokens are random and only their
+  SHA-256 hashes are stored, so a database leak does not expose working sessions or links.
+- Sessions last 30 days in an HttpOnly cookie. Changing your password signs out other devices; a reset signs out all.
+- Login, sign-up and reset requests are rate-limited.
 
-### Turning on accounts (Supabase, free tier)
+1. **hPanel → Databases → MySQL Databases**: create a database and user. Note the database name, user, password and
+   the **host** shown there (often `localhost` for apps on the same hosting plan).
+2. **hPanel → Emails**: create a mailbox such as `no-reply@veyraeditor.com` (used to send password-reset emails).
+3. In your **Node.js app → Environment variables**, add the values from `.env.example`: `SITE_URL`, the `DB_*`
+   settings (or one `DATABASE_URL`), and the `SMTP_*` settings. Then **redeploy**.
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. **Authentication → Providers → Email**: enabled. Keep **Confirm email** on (recommended).
-3. **Authentication → URL Configuration**:
-   - **Site URL:** `https://veyraeditor.com`
-   - **Redirect URLs:** add `https://veyraeditor.com/auth/callback` (and `http://localhost:3000/auth/callback` for local testing).
-   Confirmation and password-reset emails link to `/auth/callback`, which signs the user in or lets them choose a new password.
-4. **Project Settings → API**: copy the **Project URL** and the **anon public** key into `NEXT_PUBLIC_SUPABASE_URL` and
-   `NEXT_PUBLIC_SUPABASE_ANON_KEY` (in Hostinger's environment variables for production), then redeploy. These are
-   read at build time, so a redeploy is required after changing them.
-5. Optional: Supabase's built-in email service is rate-limited; for real traffic set up custom SMTP under
-   **Authentication → Emails**.
+Without database settings the account pages show "Accounts are opening soon"; without SMTP settings the
+forgot-password page asks people to contact you instead.
 
 ## Production build
 
@@ -59,7 +55,7 @@ npm start
 1. Import `fcopensource/veyraeditor` in Vercel.
 2. Set **Root Directory** to `website`.
 3. Add the three environment variables shown above, using the public production URL for `NEXT_PUBLIC_SITE_URL`.
-4. Deploy and add the production domain to Supabase Auth's allowed redirect URLs.
+4. Deploy. Your MySQL database must accept connections from Vercel (enable remote MySQL access for Vercel's IPs).
 
 ### Hostinger (veyraeditor.com)
 
@@ -70,8 +66,8 @@ directly. A GitHub Action (`.github/workflows/website-branch.yml`) refreshes tha
 1. hPanel → **Websites** → **Add website** → **Node.js Apps** → **Import Git repository** (menu names can vary slightly between hPanel versions).
 2. Connect GitHub, choose `fcopensource/veyraeditor` and the **`website`** branch. Framework: **Next.js**.
 3. Build command `npm run build`, start command `npm start`, Node.js **20 or 22**.
-4. Add the environment variables: `NEXT_PUBLIC_SITE_URL=https://veyraeditor.com`, plus the two Supabase values if you
-   want accounts.
+4. Add the environment variables from `.env.example` (site URL, MySQL database and SMTP email). See
+   "Accounts on your Hostinger MySQL database" above.
 5. Connect the domain `veyraeditor.com` to the app (hPanel shows the DNS records or nameservers to use at your
    domain registrar). Enable the free SSL certificate.
 6. Turn on automatic redeploys so each refresh of the `website` branch goes live.

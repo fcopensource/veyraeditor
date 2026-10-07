@@ -18,12 +18,12 @@ export default function Privacy(){
     </ul>
     <h2>Accounts on this website</h2>
     <ul>
-      <li>If you create an account we store your <strong>name, email address and a securely hashed password</strong> with our authentication provider, Supabase.</li>
-      <li>We use your email only for account messages (confirming your address, resetting your password) and, rarely, important product news. We never sell or share it.</li>
+      <li>If you create an account we store your <strong>name, email address and a securely hashed password</strong> (scrypt) in our own database at our hosting provider. We never store your password itself.</li>
+      <li>We use your email only for account messages such as password resets and, rarely, important product news. We never sell or share it.</li>
       <li>We set only essential cookies to keep you signed in. There are no advertising or tracking cookies.</li>
     </ul>
     <h2>Your choices</h2>
-    <p>You can use Veyra without an account. To delete your account and its data, open an issue or contact us through the repository below and we will remove it.</p>
+    <p>You can use Veyra without an account. You can delete your account and all its data at any time from your <a href="/dashboard">dashboard</a>.</p>
     <h2>Contact</h2>
     <p>Questions about privacy: <a href="https://github.com/fcopensource/veyraeditor/issues">github.com/fcopensource/veyraeditor/issues</a>.</p>
   </article></main><Footer/></>;

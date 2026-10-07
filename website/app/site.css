@@ -128,3 +128,10 @@ footer.site-footer{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px
   .intelligence{padding:40px 20px!important;margin-inline:14px!important}
   .trust{flex-wrap:wrap;height:auto;padding:22px 14px;gap:12px}
 }
+
+/* ---------- Danger zone ---------- */
+.danger-zone header{color:#ff9d9d}
+.danger-text{color:#ff9d9d!important}
+.delete-form{max-width:420px}
+.delete-form>div{display:flex;gap:8px}
+.danger-button{height:44px;padding:0 16px;border:0;border-radius:9px;background:#ff6b6b;color:#1a0505;font-weight:800;cursor:pointer}

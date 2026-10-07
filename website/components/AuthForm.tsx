@@ -32,7 +32,6 @@ export function AuthForm({mode,configured}:{mode:Mode;configured:boolean}){
       const result=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(result.error||'Something went wrong. Please try again.');
       if(mode==='forgot'){setSent(String(body.email));return;}
-      if(result.confirmationRequired){setSent(String(body.email));return;}
       router.push(next);router.refresh();
     }catch(reason){setError(reason instanceof Error?reason.message:'Something went wrong. Please try again.');}
     finally{setBusy(false);}
@@ -47,9 +46,7 @@ export function AuthForm({mode,configured}:{mode:Mode;configured:boolean}){
   if(sent)return <div className="auth-sent" role="status">
     <MailCheck size={28}/>
     <h3>Check your inbox</h3>
-    <p>{mode==='forgot'
-      ?<>If an account exists for <b>{sent}</b>, we've sent a link to choose a new password. It expires in one hour.</>
-      :<>We sent a confirmation link to <b>{sent}</b>. Open it to activate your account; it signs you straight in.</>}</p>
+    <p>If an account exists for <b>{sent}</b>, we've sent a link to choose a new password. It expires in one hour.</p>
     <small>Nothing there? Check your spam folder, or <button type="button" onClick={()=>setSent('')}>try again</button>.</small>
   </div>;
 
@@ -61,7 +58,7 @@ export function AuthForm({mode,configured}:{mode:Mode;configured:boolean}){
     {mode!=='forgot'&&<label>
       <span className="label-row">Password{mode==='login'&&<Link href="/forgot-password">Forgot password?</Link>}</span>
       <span className="password">
-        <input name="password" aria-label="Password" type={show?'text':'password'} required minLength={mode==='register'?8:1} maxLength={72} value={password} onChange={event=>setPassword(event.target.value)} autoComplete={mode==='login'?'current-password':'new-password'} placeholder={mode==='register'?'At least 8 characters':'Your password'}/>
+        <input name="password" aria-label="Password" type={show?'text':'password'} required minLength={mode==='register'?8:1} maxLength={128} value={password} onChange={event=>setPassword(event.target.value)} autoComplete={mode==='login'?'current-password':'new-password'} placeholder={mode==='register'?'At least 8 characters':'Your password'}/>
         <button type="button" aria-label={show?'Hide password':'Show password'} onClick={()=>setShow(value=>!value)}>{show?<EyeOff/>:<Eye/>}</button>
       </span>
       {mode==='register'&&password&&<span className={'strength s'+level} aria-live="polite"><i/><i/><i/><i/><em>{strengthLabel[level]}</em></span>}

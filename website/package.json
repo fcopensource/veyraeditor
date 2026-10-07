@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
+    "mysql2": "^3.24.5",
     "next": "^15.5.9",
+    "nodemailer": "^10.0.15",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
     "@types/three": "^0.180.0",
