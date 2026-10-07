@@ -3,6 +3,26 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.5.0
+
+**Web development tools, one click to install** (Extensions → Discover → Web development)
+- **TypeScript & JavaScript (Node.js):** full IntelliSense from your project's tsconfig and node_modules: real errors as you type, auto-imports, hover docs, go to definition, rename across files, quick fixes and organize imports
+- **ESLint:** your project's lint rules as you type, with quick fixes
+- **Prettier:** format with your project's Prettier and config; new **Format on save** setting
+- **Tailwind CSS IntelliSense:** class completion, CSS previews on hover, colour swatches and linting
+- **Emmet:** expand abbreviations like `ul>li*3` in HTML, JSX and CSS
+- **Svelte** and **Vue (beta):** language support for components; `.vue` and `.svelte` files now open as their own languages
+
+**Extensions**
+- The Open VSX marketplace now searches every category
+- Popular VS Code web extensions (ESLint, Prettier, Tailwind CSS, Volar, Svelte) are marked **Built into Veyra** and install Veyra's built-in equivalent
+- Extensions that need the VS Code extension host now explain that clearly instead of failing with a generic error
+
+**Under the hood**
+- A Language Server Protocol bridge, the same technology VS Code uses, ready for Rust, Go and C++ next
+- Go to definition and references open the target file in a tab; renames and quick fixes that touch other files open them so the changes can be saved
+- Tools need Node.js 18 or newer and are installed into Veyra's own app folder, never into your project
+
 ## 0.4.2
 
 **Autocomplete everywhere**

@@ -5,6 +5,7 @@ import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import CssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 import HtmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 import TsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
+import { conf as htmlConf, language as htmlLanguage } from "monaco-editor/esm/vs/basic-languages/html/html.js";
 
 self.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -34,11 +35,17 @@ monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   allowNonTsExtensions: true, allowJs: true,
   moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
 });
+// Vue and Svelte components: HTML highlighting until full grammars arrive; their language servers add the intelligence.
+for (const id of ["vue", "svelte"]) {
+  monaco.languages.register({ id, extensions: ["." + id], aliases: [id === "vue" ? "Vue" : "Svelte"] });
+  monaco.languages.setMonarchTokensProvider(id, { ...(htmlLanguage as monaco.languages.IMonarchLanguage), tokenPostfix: "." + id });
+  monaco.languages.setLanguageConfiguration(id, htmlConf as monaco.languages.LanguageConfiguration);
+}
 export const languageFor = (path: string) => {
   const name = path.split("/").pop()!.toLowerCase();
   if (name === "dockerfile") return "dockerfile";
   if (name === "makefile") return "makefile";
-  const languages: Record<string, string> = { ts: "typescript", tsx: "typescript", js: "javascript", jsx: "javascript", mjs: "javascript", cjs: "javascript", json: "json", css: "css", scss: "scss", less: "less", html: "html", htm: "html", md: "markdown", mdx: "markdown", py: "python", rs: "rust", java: "java", go: "go", php: "php", sql: "sql", yaml: "yaml", yml: "yaml", xml: "xml", svg: "xml", sh: "shell", zsh: "shell", bash: "shell", c: "c", h: "c", cpp: "cpp", hpp: "cpp", swift: "swift", rb: "ruby", toml: "ini", ini: "ini", vue: "html", svelte: "html", txt: "plaintext", gitignore: "plaintext", env: "ini" };
+  const languages: Record<string, string> = { ts: "typescript", tsx: "typescript", js: "javascript", jsx: "javascript", mjs: "javascript", cjs: "javascript", json: "json", css: "css", scss: "scss", less: "less", html: "html", htm: "html", md: "markdown", mdx: "markdown", py: "python", rs: "rust", java: "java", go: "go", php: "php", sql: "sql", yaml: "yaml", yml: "yaml", xml: "xml", svg: "xml", sh: "shell", zsh: "shell", bash: "shell", c: "c", h: "c", cpp: "cpp", hpp: "cpp", swift: "swift", rb: "ruby", toml: "ini", ini: "ini", vue: "vue", svelte: "svelte", txt: "plaintext", gitignore: "plaintext", env: "ini" };
   return languages[name.split(".").pop()!] || "plaintext";
 };
 export { monaco };

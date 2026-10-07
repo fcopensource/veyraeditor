@@ -58,9 +58,36 @@ test('VSIX import accepts snippets and rejects unsupported packages without pers
   await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
   const unsupported=zipSync({'extension/package.json':strToU8(JSON.stringify({publisher:'test',name:'runtime',version:'1',main:'index.js'}))});
   await page.locator('input[type=file]').setInputFiles({name:'unsupported.vsix',mimeType:'application/octet-stream',buffer:Buffer.from(unsupported)});
-  await expect(page.locator('.extensions-panel').getByRole('alert')).toContainText('does not support yet');
+  await expect(page.locator('.extensions-panel').getByRole('alert')).toContainText('needs the VS Code extension host');
   await page.locator('input[type=file]').setInputFiles({name:'studio.vsix',mimeType:'application/octet-stream',buffer:Buffer.from(packageBytes)});
   await expect(page.getByText('1 themes · 1 snippets · Enabled')).toBeVisible();
   await page.setViewportSize({width:700,height:500});await page.screenshot({path:'test-results/extensions-compact.png'});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('web development tools install in one click and stand in for their VS Code extensions',async({page})=>{
+  await page.addInitScript(()=>{
+    const installed:Record<string,string>={};const calls:string[]=[];
+    Object.assign(window,{toolCalls:calls,__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string,args:any={})=>{
+      calls.push(cmd+(args.key?':'+args.key:''));
+      if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:['typescript','eslint','prettier','tailwind','emmet','svelte','vue'].map(key=>({key,installed:!!installed[key],version:installed[key]||''}))};
+      if(cmd==='lsp_install'){installed[args.key]='1.0.0';return '1.0.0';}
+      if(cmd==='plugin:event|listen')return 1;return null;
+    }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}});
+  });
+  await page.route('https://open-vsx.org/api/**',route=>route.fulfill({json:{extensions:[{namespace:'dbaeumer',name:'vscode-eslint',version:'3.0.10',displayName:'ESLint',description:'Integrates ESLint',downloadCount:1000}]}}));
+  await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
+  await expect(page.getByText('TypeScript & JavaScript (Node.js)')).toBeVisible();
+  await expect(page.getByText(/Runs on your Node.js v22/)).toBeVisible();
+  // One-click install of a web tool.
+  await page.getByRole('button',{name:'Install Prettier',exact:true}).click();
+  await expect(page.locator('.extension-notice')).toContainText('Prettier installed');
+  await expect(page.getByRole('button',{name:'Disable Prettier'})).toBeVisible();
+  // A VS Code extension Veyra has built in installs the equivalent tool.
+  await expect(page.locator('.extension-card').filter({hasText:'Integrates ESLint'}).getByText('Built into Veyra')).toBeVisible();
+  await page.locator('.extension-card').filter({hasText:'Integrates ESLint'}).getByRole('button',{name:'Install',exact:true}).click();
+  await expect(page.locator('.extension-notice')).toContainText('ESLint is built into Veyra: installed ESLint');
+  expect(await page.evaluate(()=>(window as any).toolCalls)).toEqual(expect.arrayContaining(['lsp_install:prettier','lsp_install:eslint']));
+  await page.getByRole('button',{name:/Installed 2/}).click();
+  await expect(page.getByRole('button',{name:'Uninstall ESLint'})).toBeVisible();
 });

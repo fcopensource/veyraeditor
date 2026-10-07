@@ -20,7 +20,8 @@ export async function download(url: string, limit = 16 * 1024 * 1024): Promise<U
   } finally { clearTimeout(timer); }
 }
 export async function searchExtensions(query: string, category: string): Promise<Listing[]> {
-  const params = new URLSearchParams({ query, size: '24', category });
+  const params = new URLSearchParams({ query, size: '24' });
+  if (category) params.set('category', category);
   const data = JSON.parse(strFromU8(await download(`https://open-vsx.org/api/-/search?${params}`, 1024 * 1024)));
   return data.extensions || [];
 }
@@ -81,7 +82,7 @@ export function parseExtension(bytes: Uint8Array): Extension {
       for (const prefix of Array.isArray(snippet.prefix) ? snippet.prefix : [snippet.prefix]) if (typeof prefix === 'string') for (const language of languages) result.snippets.push({ name, prefix, body, language, description: String(snippet.description || name) });
     }
   }
-  if (!result.themes.length && !result.snippets.length) throw new Error('This extension needs capabilities Veyra does not support yet. Choose a color theme or snippet extension.');
+  if (!result.themes.length && !result.snippets.length) throw new Error(`${result.name} runs its own code, which needs the VS Code extension host (planned for a later Veyra release). Themes, snippets and the web development tools listed above work today.`);
   if (result.snippets.length > 10000) throw new Error('This extension contains too many snippets.');
   return result;
 }

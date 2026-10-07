@@ -4,7 +4,7 @@ export type Preferences = {
   lineNumbers: "on" | "relative" | "off"; renderWhitespace: "none" | "boundary" | "selection" | "trailing" | "all";
   cursorStyle: "line" | "block" | "underline"; cursorBlinking: "blink" | "smooth" | "phase" | "expand" | "solid"; smoothCaret: boolean;
   bracketGuides: boolean; stickyScroll: boolean; rulers: string;
-  autoSave: "off" | "afterDelay" | "onFocusChange"; autoSaveDelay: number;
+  autoSave: "off" | "afterDelay" | "onFocusChange"; autoSaveDelay: number; formatOnSave: boolean;
   terminalFontSize: number; gitGutter: boolean;
   aiInlineCompletions: "off" | "local" | "always";
 };
@@ -14,7 +14,7 @@ export const defaultPreferences: Preferences = {
   tabSize: 2, insertSpaces: true, wrap: false, minimap: true, light: false,
   lineNumbers: "on", renderWhitespace: "selection", cursorStyle: "line", cursorBlinking: "smooth", smoothCaret: true,
   bracketGuides: true, stickyScroll: true, rulers: "",
-  autoSave: "off", autoSaveDelay: 1000,
+  autoSave: "off", autoSaveDelay: 1000, formatOnSave: false,
   terminalFontSize: 13, gitGutter: true,
   aiInlineCompletions: "local",
 };

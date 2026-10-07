@@ -29,6 +29,7 @@ import {SettingsPanel} from './SettingsPanel';
 import {readPreferences,rulerColumns} from './preferences';
 import {isWindows,keys,quoteForShell,revealLabel} from './platform';
 import {backgroundModels,inlineStatus,registerInlineAI,registerLanguageCompletions,resetProjectModels,syncProjectModels} from './completions';
+import {ensureServers,initLanguageTools,stopAll as stopLanguageServers} from './lsp/tools';
 /** Map `git status --short` lines to a per-path letter (M, A, D, U, R) plus the set of folders containing changes. */
 function gitDecorations(status:string){
   const files=new Map<string,string>(),folders=new Set<string>();
@@ -198,8 +199,14 @@ export default function App() {
     if (saving.current.has(path)) return false;
     saving.current.add(path);
     try {
-      await invoke("save_file",{path,content:tab.text,original:tab.original});
-      setTabs(all=>all.map(t=>t.path===path?{...t,original:tab.text,external:false}:t));
+      let content=tab.text;
+      if(prefsRef.current.formatOnSave&&path===state.current.active&&editor.current){
+        try{await editor.current.getAction("editor.action.formatDocument")?.run();}catch{/* no formatter for this language */}
+        content=editor.current.getModel()?.getValue()??content;
+      }
+      await invoke("save_file",{path,content,original:tab.original});
+      setTabs(all=>all.map(t=>t.path===path?{...t,text:content,original:content,external:false}:t));
+      window.dispatchEvent(new CustomEvent("veyra-saved",{detail:path}));
       setStatus("Saved " + baseName(path)); void refreshGit(); return true;
     } catch(e) { report(e); return false; }
     finally { saving.current.delete(path); }
@@ -221,7 +228,7 @@ export default function App() {
       setTerminals([]);setActiveTerminal(null);setRoot(selected); state.current.root=selected;
       setSelectedFolder("");setSelectedPath("");setSelectedPaths(new Set());setCreation(null);
       setTabs([]); setActive(""); setTree({}); setIndexed([]); setRecentFiles([]); setDiff(null);
-      resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());
+      void stopLanguageServers();resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());
       await refresh(); setStatus("Opened " + baseName(selected));
     } catch(e) { report(e); } finally { setBusy(false); }
   }
@@ -241,6 +248,17 @@ export default function App() {
       } catch(e) { report(e); } finally { opening.current.delete(path); }
     }
     if (line) setTimeout(()=>{editor.current?.revealLineInCenter(line);editor.current?.setPosition({lineNumber:line,column});editor.current?.focus();},160);
+  }
+  /** Give a workspace file a model and a background tab (without switching to it), e.g. before a cross-file edit. */
+  async function ensureOpen(path:string){
+    if(state.current.tabs.some(tab=>tab.path===path))return;
+    const text=await invoke<string>("read_file",{path});
+    const uri=monaco.Uri.file(state.current.root+"/"+path);
+    const model=monaco.editor.getModel(uri);
+    if(model){backgroundModels.delete(uri.toString());if(model.getValue()!==text&&!state.current.tabs.some(tab=>tab.path===path))model.setValue(text);}
+    else monaco.editor.createModel(text,languageFor(path),uri);
+    setTabs(all=>all.some(tab=>tab.path===path)?all:[...all,{path,text,original:text}]);
+    state.current.tabs=[...state.current.tabs,{path,text,original:text}];
   }
   async function closeTab(path: string) {
     const tab = state.current.tabs.find(t=>t.path===path);
@@ -399,7 +417,7 @@ export default function App() {
   function showTerminal() {if(!root){setStatus("Open a workspace to start a terminal");return;}if(!terminals.length)newTerminal();else{setActiveTerminal(current=>current??terminals[0].id);setBottom("terminal");}}
   function closeTerminal(id:number){void invoke("terminal_stop",{sessionId:id});setTerminals(all=>{const index=all.findIndex(item=>item.id===id);const next=all.filter(item=>item.id!==id);if(activeTerminal===id)setActiveTerminal(next[Math.min(index,next.length-1)]?.id??null);if(!next.length)setBottom(null);return next;});}
   function renameTerminal(id:number){const current=terminals.find(item=>item.id===id);if(!current)return;const name=window.prompt("Terminal name",current.name)?.trim();if(name)setTerminals(all=>all.map(item=>item.id===id?{...item,name}:item));}
-  async function closeFolder(){if(!root||!await allowDiscard("Close workspace?"))return;terminals.forEach(item=>void invoke("terminal_stop",{sessionId:item.id}));setRoot("");state.current.root="";setTabs([]);setActive("");setTree({});setIndexed([]);setSelectedPath("");setSelectedPaths(new Set());setSelectedFolder("");setGit("");setDiff(null);setTerminals([]);setActiveTerminal(null);setBottom(null);resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());setStatus("Workspace closed");}
+  async function closeFolder(){if(!root||!await allowDiscard("Close workspace?"))return;terminals.forEach(item=>void invoke("terminal_stop",{sessionId:item.id}));setRoot("");state.current.root="";setTabs([]);setActive("");setTree({});setIndexed([]);setSelectedPath("");setSelectedPaths(new Set());setSelectedFolder("");setGit("");setDiff(null);setTerminals([]);setActiveTerminal(null);setBottom(null);void stopLanguageServers();resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());setStatus("Workspace closed");}
   function editorAction(id:string){void editor.current?.getAction(id)?.run();editor.current?.focus();}
   function runActiveFile(){if(!file){setStatus("Open a file to run it");return;}let sessionId=activeTerminal;if(sessionId===null){sessionId=terminalSequence.current++;setTerminals([{id:sessionId,name:`${shellName} 1`}]);setActiveTerminal(sessionId);}setBottom("terminal");const quoted=quoteForShell(shellName,file.path);const extension=file.path.split('.').pop()?.toLowerCase();const command=extension==='py'?`${isWindows?"python":"python3"} ${quoted}`:extension==='js'||extension==='mjs'||extension==='cjs'?`node ${quoted}`:extension==='ts'||extension==='tsx'?`npx tsx ${quoted}`:extension==='rs'?'cargo run':extension==='sh'?`bash ${quoted}`:extension==='ps1'?`& ${quoted}`:extension==='go'?`go run ${quoted}`:'';if(!command){setStatus("No runner configured for ."+(extension||"file"));return;}window.setTimeout(()=>void invoke("terminal_write",{sessionId,data:command+"\r"}).catch(report),450);setStatus("Running "+file.path);}
   const commands = [
@@ -425,6 +443,31 @@ export default function App() {
   // Autocomplete: language snippets and AI ghost text (registered once), plus project files for cross-file IntelliSense.
   useEffect(()=>{registerLanguageCompletions();registerInlineAI(()=>prefsRef.current.aiInlineCompletions);const listener=(value:string)=>setInlineAi(value);inlineStatus.listeners.add(listener);return()=>{inlineStatus.listeners.delete(listener);};},[]);
   useEffect(()=>{if(!root||!indexed.length)return;const timer=window.setTimeout(()=>void syncProjectModels(root,indexed,path=>invoke<string>("read_file",{path})),1500);return()=>clearTimeout(timer);},[root,indexed]);
+  // Language servers (web tools): started per workspace when a matching file opens.
+  useEffect(()=>{initLanguageTools({
+    root:()=>state.current.root,
+    openFile:(path,line,column)=>void openFile(path,line,column),
+    ensureOpen:ensureOpen,
+    notify:message=>setStatus(message),
+  });},[]);
+  useEffect(()=>{if(root)ensureServers();},[root]);
+  // Edits made to a model outside the active editor (rename, quick fixes, formatting) must reach its tab, or saving would lose them.
+  useEffect(()=>{
+    const subscriptions=new Map<string,monaco.IDisposable>();
+    const watch=(model:monaco.editor.ITextModel)=>{
+      if(subscriptions.has(model.id))return;
+      subscriptions.set(model.id,model.onDidChangeContent(()=>{
+        const rootPath=monaco.Uri.file(state.current.root).path,path=model.uri.path;
+        if(!path.startsWith(rootPath+"/"))return;
+        const relative=decodeURIComponent(path.slice(rootPath.length+1)),text=model.getValue();
+        setTabs(all=>all.some(tab=>tab.path===relative&&tab.text!==text)?all.map(tab=>tab.path===relative?{...tab,text}:tab):all);
+      }));
+      model.onWillDispose(()=>{subscriptions.get(model.id)?.dispose();subscriptions.delete(model.id);});
+    };
+    monaco.editor.getModels().forEach(watch);
+    const created=monaco.editor.onDidCreateModel(watch);
+    return()=>{created.dispose();subscriptions.forEach(subscription=>subscription.dispose());};
+  },[]);
   // Health: passive monitoring from launch, a full check shortly after start and then every minute.
   useEffect(()=>{startMonitor();const first=window.setTimeout(()=>void checkHealth(),2500);const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void checkHealth();},60000);return()=>{clearTimeout(first);clearInterval(timer);};},[]);
   // Git: keep status fresh like VS Code (poll while visible, and whenever the window regains focus).

@@ -27,6 +27,7 @@ const settings: Setting[] = [
   { section: "Editor", key: "aiInlineCompletions", label: "AI inline completions", detail: "Ghost-text suggestions from your AI Studio model, Tab to accept. \"local\" = only Ollama/localhost models (no cloud cost)", options: ["local", "always", "off"] },
   { section: "Editor", key: "gitGutter", label: "Git change markers", detail: "Show added, modified and deleted lines in the gutter" },
   { section: "Files", key: "autoSave", label: "Auto save", options: ["off", "afterDelay", "onFocusChange"] },
+  { section: "Files", key: "formatOnSave", label: "Format on save", detail: "Uses Prettier or the language server when installed (Extensions → Web development)" },
   { section: "Files", key: "autoSaveDelay", label: "Auto save delay (ms)", detail: "Used when auto save is afterDelay", min: 200, max: 60000, step: 100 },
   { section: "Terminal", key: "terminalFontSize", label: "Terminal font size", min: 8, max: 28 },
 ];

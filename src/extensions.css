@@ -201,3 +201,19 @@
 .extension-themed .extension-tabs button.active {
     border-color: var(--accent)
 }
+/* ---- Language tools ---- */
+.extension-section { display: flex; align-items: center; gap: 6px; margin: 16px 0 6px; color: var(--bright); font-size: 11px; font-weight: 600; letter-spacing: .3px }
+.extension-section svg { color: var(--accent) }
+.extension-warning { padding: 9px 10px; border: 1px solid #e2c08d55; border-radius: 7px; background: #e2c08d12; color: #e2c08d; font-size: 11px; line-height: 1.5 }
+.tool-card { display: grid; gap: 4px; padding: 11px; border: 1px solid var(--border); border-radius: 9px; background: var(--card) }
+.tool-card.on { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)) }
+.tool-card.failed { border-color: #ff8d9155 }
+.tool-card h4 { flex: 1 }
+.tool-card p { margin: 2px 0; color: var(--muted); font-size: 10.5px; line-height: 1.5 }
+.tool-status { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px }
+.tool-status.running { color: #73c991 }
+.tool-status.failed { color: #ff8d91 }
+.tool-error { color: #ff8d91 !important; font-family: Menlo, Consolas, monospace; font-size: 9.5px !important; overflow-wrap: anywhere }
+.tool-card .extension-footer { justify-content: flex-start; gap: 6px }
+.badge { margin-left: auto; padding: 1px 7px; border-radius: 8px; background: var(--hover); color: var(--muted); font-size: 9px; font-style: normal; white-space: nowrap }
+.badge.built-in { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent) }
