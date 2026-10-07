@@ -1,83 +1,107 @@
+import {createHash,randomBytes,scrypt,timingSafeEqual,type ScryptOptions} from 'node:crypto';
 import {cookies} from 'next/headers';
+import type {ResultSetHeader,RowDataPacket} from 'mysql2';
+import {databaseConfigured,query} from './db';
 
-export const ACCESS_COOKIE='veyra-access-token';
-export const REFRESH_COOKIE='veyra-refresh-token';
+export const SESSION_COOKIE='veyra-session';
 /** Readable (non-HttpOnly) flag so static pages can show "Account" instead of "Log in". Holds no secret. */
 export const SIGNED_IN_COOKIE='veyra-signed-in';
+const SESSION_DAYS=30;
 
-export type SupabaseUser={id:string;email?:string;created_at?:string;email_confirmed_at?:string|null;last_sign_in_at?:string;user_metadata?:{name?:string}};
-type Tokens={access_token:string;refresh_token?:string;expires_in?:number};
+export type User={id:number;name:string;email:string;createdAt:string;lastLoginAt:string|null};
+export const authConfigured=databaseConfigured;
 
-export function authConfig(){
-  const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/,'');
-  const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if(!url||!key) return null;
-  return {url,key};
+/* ---------- Passwords: scrypt with a per-user salt (Node built-in, no native modules) ---------- */
+const SCRYPT:ScryptOptions={N:16384,r:8,p:1,maxmem:64*1024*1024};
+const derive=(password:string,salt:Buffer)=>new Promise<Buffer>((resolve,reject)=>scrypt(password.normalize('NFKC'),salt,64,SCRYPT,(error,key)=>error?reject(error):resolve(key)));
+export async function hashPassword(password:string){
+  const salt=randomBytes(16);
+  return `scrypt$${SCRYPT.N}$${salt.toString('base64')}$${(await derive(password,salt)).toString('base64')}`;
 }
-
-/** Public origin for links in confirmation and password-reset emails. */
-export function siteUrl(request?:Request){
-  const configured=process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/,'');
-  if(configured) return configured;
-  if(request){const origin=request.headers.get('origin');if(origin) return origin;const host=request.headers.get('host');if(host) return `https://${host}`;}
-  return 'https://veyraeditor.com';
+export async function verifyPassword(password:string,stored:string){
+  const [scheme,,salt,hash]=stored.split('$');
+  if(scheme!=='scrypt'||!salt||!hash) return false;
+  const expected=Buffer.from(hash,'base64');
+  const actual=await derive(password,Buffer.from(salt,'base64'));
+  return actual.length===expected.length&&timingSafeEqual(actual,expected);
 }
+/** Same cost as a real check, so unknown emails can't be detected by response time. */
+const DUMMY_HASH='scrypt$16384$AAAAAAAAAAAAAAAAAAAAAA==$'+Buffer.alloc(64).toString('base64');
+export const burnPasswordCheck=(password:string)=>verifyPassword(password,DUMMY_HASH);
 
-export async function setSession(accessToken:string,refreshToken?:string,expiresIn=3600){
+/* ---------- Tokens: random secrets in the browser, only their SHA-256 in the database ---------- */
+export const newToken=()=>randomBytes(32).toString('base64url');
+export const tokenHash=(token:string)=>createHash('sha256').update(token).digest('hex');
+
+/* ---------- Sessions ---------- */
+export async function startSession(userId:number){
+  const token=newToken();
+  await query('INSERT INTO sessions (token_hash,user_id,expires_at) VALUES (?,?,DATE_ADD(UTC_TIMESTAMP(),INTERVAL ? DAY))',[tokenHash(token),userId,SESSION_DAYS]);
+  await query('UPDATE users SET last_login_at=UTC_TIMESTAMP() WHERE id=?',[userId]);
   const jar=await cookies();
-  const base={httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax' as const,path:'/'};
-  jar.set(ACCESS_COOKIE,accessToken,{...base,maxAge:expiresIn});
-  if(refreshToken) jar.set(REFRESH_COOKIE,refreshToken,{...base,maxAge:60*60*24*30});
-  jar.set(SIGNED_IN_COOKIE,'1',{...base,httpOnly:false,maxAge:60*60*24*30});
+  const base={secure:process.env.NODE_ENV==='production',sameSite:'lax' as const,path:'/',maxAge:60*60*24*SESSION_DAYS};
+  jar.set(SESSION_COOKIE,token,{...base,httpOnly:true});
+  jar.set(SIGNED_IN_COOKIE,'1',{...base,httpOnly:false});
 }
 
-export async function clearSession(){
-  const jar=await cookies();
-  for(const name of [ACCESS_COOKIE,REFRESH_COOKIE,SIGNED_IN_COOKIE]) jar.set(name,'',{path:'/',maxAge:0});
+export async function endSession(){
+  const jar=await cookies();const token=jar.get(SESSION_COOKIE)?.value;
+  if(token&&authConfigured()) await query('DELETE FROM sessions WHERE token_hash=?',[tokenHash(token)]).catch(()=>undefined);
+  for(const name of [SESSION_COOKIE,SIGNED_IN_COOKIE]) jar.set(name,'',{path:'/',maxAge:0});
 }
 
-export function supabaseError(payload:unknown,fallback:string){
-  if(payload&&typeof payload==='object'){
-    const item=payload as Record<string,unknown>;
-    for(const key of ['msg','message','error_description','error']) if(typeof item[key]==='string') return friendly(item[key] as string);
-  }
-  return fallback;
-}
-function friendly(message:string){
-  if(/invalid login credentials/i.test(message)) return 'That email and password do not match. Check them or reset your password.';
-  if(/email not confirmed/i.test(message)) return 'Please confirm your email first: open the link we sent you, then log in.';
-  if(/already registered|already been registered/i.test(message)) return 'An account with this email already exists. Log in instead, or reset your password.';
-  if(/rate limit|too many/i.test(message)) return 'Too many attempts. Please wait a minute and try again.';
-  return message;
+type UserRow=RowDataPacket&{id:number;name:string;email:string;created_at:Date;last_login_at:Date|null;password_hash:string};
+const toUser=(row:UserRow):User=>({id:row.id,name:row.name,email:row.email,createdAt:row.created_at.toISOString(),lastLoginAt:row.last_login_at?.toISOString()??null});
+
+/** The signed-in user, or null. Expired sessions are cleaned up as they are encountered. */
+export async function currentUser():Promise<User|null>{
+  if(!authConfigured()) return null;
+  const token=(await cookies()).get(SESSION_COOKIE)?.value;
+  if(!token) return null;
+  const rows=await query<UserRow[]>('SELECT u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>UTC_TIMESTAMP()',[tokenHash(token)]);
+  return rows[0]?toUser(rows[0]):null;
 }
 
-export async function supabase(path:string,init:RequestInit&{token?:string}={}){
-  const config=authConfig();if(!config) throw new Error('not-configured');
-  const {token,headers,...rest}=init;
-  const response=await fetch(`${config.url}/auth/v1/${path}`,{...rest,cache:'no-store',headers:{apikey:config.key,Authorization:`Bearer ${token||config.key}`,'Content-Type':'application/json',...headers}});
-  return {response,result:await response.json().catch(()=>({}))};
+export async function findUserByEmail(email:string){
+  const rows=await query<UserRow[]>('SELECT * FROM users WHERE email=?',[email]);
+  return rows[0]||null;
+}
+export async function createUser(name:string,email:string,password:string){
+  const result=await query<ResultSetHeader>('INSERT INTO users (name,email,password_hash) VALUES (?,?,?)',[name,email,await hashPassword(password)]);
+  return result.insertId;
+}
+export async function passwordHashFor(userId:number){
+  const rows=await query<UserRow[]>('SELECT password_hash FROM users WHERE id=?',[userId]);
+  return rows[0]?.password_hash||'';
+}
+/** Change a password and sign out every other session for that user. */
+export async function setPassword(userId:number,password:string,keepCurrentSession:boolean){
+  await query('UPDATE users SET password_hash=? WHERE id=?',[await hashPassword(password),userId]);
+  const current=(await cookies()).get(SESSION_COOKIE)?.value;
+  if(keepCurrentSession&&current) await query('DELETE FROM sessions WHERE user_id=? AND token_hash<>?',[userId,tokenHash(current)]);
+  else await query('DELETE FROM sessions WHERE user_id=?',[userId]);
 }
 
-export async function userFor(token:string):Promise<SupabaseUser|null>{
-  const {response,result}=await supabase('user',{token});
-  return response.ok?result as SupabaseUser:null;
-}
-
-/** The signed-in user and a valid access token, refreshing an expired token when possible. */
-export async function currentSession():Promise<{user:SupabaseUser;token:string}|null>{
-  if(!authConfig()) return null;
-  const jar=await cookies();
-  const access=jar.get(ACCESS_COOKIE)?.value,refresh=jar.get(REFRESH_COOKIE)?.value;
-  if(access){const user=await userFor(access);if(user) return {user,token:access};}
-  if(!refresh) return null;
-  const {response,result}=await supabase('token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:refresh})});
-  if(!response.ok) return null;
-  const tokens=result as Tokens&{user?:SupabaseUser};
-  await setSession(tokens.access_token,tokens.refresh_token,tokens.expires_in);
-  const user=tokens.user||await userFor(tokens.access_token);
-  return user?{user,token:tokens.access_token}:null;
-}
-export async function currentUser(){return (await currentSession())?.user||null;}
-
+/* ---------- Input checks and helpers ---------- */
+export const normalizeEmail=(email:unknown)=>typeof email==='string'?email.trim().toLowerCase():'';
 export const validEmail=(email:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)&&email.length<=254;
-export const validPassword=(password:unknown):password is string=>typeof password==='string'&&password.length>=8&&password.length<=72;
+export const validPassword=(password:unknown):password is string=>typeof password==='string'&&password.length>=8&&password.length<=128;
+
+/** Public origin for links in emails. */
+export function siteUrl(request?:Request){
+  // SITE_URL is read at runtime; NEXT_PUBLIC_SITE_URL is fixed at build time.
+  const configured=(process.env.SITE_URL||process.env.NEXT_PUBLIC_SITE_URL)?.replace(/\/$/,'');
+  if(configured) return configured;
+  const host=request?.headers.get('host');
+  return host?`https://${host}`:'https://veyraeditor.com';
+}
+
+/* ---------- Simple in-memory rate limiting (per server process) ---------- */
+const attempts=new Map<string,{count:number;resetAt:number}>();
+/** Returns true when the caller may proceed; allows `limit` attempts per `windowMs`. */
+export function rateLimit(key:string,limit:number,windowMs:number){
+  const now=Date.now();const entry=attempts.get(key);
+  if(!entry||entry.resetAt<now){attempts.set(key,{count:1,resetAt:now+windowMs});if(attempts.size>10000)for(const [k,v] of attempts)if(v.resetAt<now)attempts.delete(k);return true;}
+  entry.count++;return entry.count<=limit;
+}
+export const clientIp=(request:Request)=>(request.headers.get('x-forwarded-for')||'').split(',')[0].trim()||request.headers.get('x-real-ip')||'local';

@@ -1,14 +1,15 @@
 import {NextResponse} from 'next/server';
-import {authConfig,currentSession,supabase,supabaseError,validPassword} from '@/lib/auth';
+import {authConfigured,currentUser,passwordHashFor,rateLimit,setPassword,validPassword,verifyPassword} from '@/lib/auth';
 
-/** Sets a new password for the signed-in user (also used right after a reset link signs them in). */
+/** Change password while signed in. Requires the current password; other devices are signed out. */
 export async function POST(request:Request){
-  if(!authConfig()) return NextResponse.json({error:'Accounts are not available yet.'},{status:503});
-  const body=await request.json().catch(()=>null) as {password?:string}|null;
-  if(!validPassword(body?.password)) return NextResponse.json({error:'Use a password between 8 and 72 characters.'},{status:400});
-  const session=await currentSession();
-  if(!session) return NextResponse.json({error:'Your session has expired. Log in again.'},{status:401});
-  const {response,result}=await supabase('user',{method:'PUT',token:session.token,body:JSON.stringify({password:body!.password})});
-  if(!response.ok) return NextResponse.json({error:supabaseError(result,'Unable to change the password.')},{status:response.status});
+  if(!authConfigured()) return NextResponse.json({error:'Accounts are not available yet.'},{status:503});
+  const user=await currentUser();
+  if(!user) return NextResponse.json({error:'Your session has expired. Log in again.'},{status:401});
+  if(!rateLimit('password:'+user.id,10,15*60*1000)) return NextResponse.json({error:'Too many attempts. Please wait a few minutes.'},{status:429});
+  const body=await request.json().catch(()=>null) as {currentPassword?:string;password?:string}|null;
+  if(!body?.currentPassword||!await verifyPassword(body.currentPassword,await passwordHashFor(user.id))) return NextResponse.json({error:'Your current password is incorrect.'},{status:400});
+  if(!validPassword(body.password)) return NextResponse.json({error:'Use a new password between 8 and 128 characters.'},{status:400});
+  await setPassword(user.id,body.password,true);
   return NextResponse.json({ok:true});
 }
