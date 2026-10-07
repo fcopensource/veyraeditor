@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {Nav} from '@/components/Nav';import {Footer} from '@/components/Footer';
 
-export const metadata:Metadata={title:'Privacy Policy'};
+export const metadata:Metadata={title:'Privacy Policy',description:'How Veyra handles your data: your code stays on your machine, no telemetry, and accounts store only your name and email.',alternates:{canonical:'/privacy'}};
 
 export default function Privacy(){
   return <><Nav/><main className="page-shell"><article className="legal">

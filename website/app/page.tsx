@@ -11,8 +11,11 @@ import { LiveIDE } from "@/components/LiveIDE";
 import { DownloadCTA } from "@/components/DownloadCTA";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { latestRelease } from "@/lib/releases";
+import type { Metadata } from "next";
+import { FAQ, absolute, jsonLd } from "@/lib/site";
 
 export const revalidate = 300;
+export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
 
 const features = [
   { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, diagnostics, formatting and 80+ languages, wrapped in a native, lightweight shell." },
@@ -66,6 +69,23 @@ export default async function Home() {
             </div>
           </div>
           <a className="scroll-cue" href="#showcase" aria-label="Scroll to explore"><span /></a>
+        </section>
+
+        <section className="what-is" data-reveal aria-labelledby="what-is-veyra">
+          <span>// WHAT IS VEYRA?</span>
+          <h2 id="what-is-veyra">A free, open-source AI code editor that stays on your machine.</h2>
+          <p>
+            <strong>Veyra</strong> (Veyra Studio) is a desktop code editor for <strong>Windows, macOS and Linux</strong>. It pairs
+            the Monaco editor with a native Rust core, so it opens fast and its installers are only 7–11 MB. Git, a real
+            terminal, project-wide IntelliSense and an <strong>AI assistant</strong> are built in. Use local models with Ollama,
+            or bring your own key for Claude, OpenAI, Gemini and more. Every AI change is a diff you approve, and your code
+            never leaves your computer unless you send it.
+          </p>
+          <div className="what-is-links">
+            <Link href="/download">Download Veyra free</Link>
+            <a href="https://github.com/fcopensource/veyraeditor">Source code on GitHub</a>
+            <Link href="/changelog">What&apos;s new</Link>
+          </div>
         </section>
 
         <section className="trust" data-reveal>
@@ -163,6 +183,26 @@ export default async function Home() {
           <h2>Stay inside the work.</h2>
           <p>Files, terminal, source control, intelligent context and the final diff, arranged as one continuous instrument.</p>
           <div className="signal-line"><i /><i /><i /><i /><i /></div>
+        </section>
+
+        <section id="faq" className="faq" data-reveal aria-labelledby="faq-title">
+          <div className="faq-head">
+            <span>// QUESTIONS</span>
+            <h2 id="faq-title">Frequently asked questions</h2>
+            <p>Everything you need to know about Veyra. Still curious? <a href="https://github.com/fcopensource/veyraeditor/issues">Ask on GitHub</a>.</p>
+          </div>
+          <div className="faq-list">
+            {FAQ.map((item, index) => (
+              <details key={item.q} open={index === 0}>
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd({ "@context": "https://schema.org", "@type": "FAQPage", "@id": absolute("/#faq"), mainEntity: FAQ.map(item => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })) }) }}
+          />
         </section>
 
         <section className="cta" data-reveal>

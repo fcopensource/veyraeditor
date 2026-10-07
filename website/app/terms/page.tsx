@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {Nav} from '@/components/Nav';import {Footer} from '@/components/Footer';
 
-export const metadata:Metadata={title:'Terms of Use'};
+export const metadata:Metadata={title:'Terms of Use',description:'Terms for using the Veyra website and the open-source Veyra Studio code editor.',alternates:{canonical:'/terms'}};
 
 export default function Terms(){
   return <><Nav/><main className="page-shell"><article className="legal">

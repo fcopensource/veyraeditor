@@ -1,6 +1,6 @@
 import type {Metadata} from 'next';import {Suspense} from 'react';
 import {AuthForm} from '@/components/AuthForm';import {AuthShell} from '@/components/AuthShell';import {authConfigured} from '@/lib/auth';import {mailConfigured} from '@/lib/mail';
-export const metadata:Metadata={title:'Reset password'};
+export const metadata:Metadata={title:'Reset password',robots:{index:false,follow:true}};
 export const dynamic='force-dynamic';
 export default function ForgotPassword(){
   return <AuthShell title="Reset your password." copy="Enter your account's email and we'll send you a link to choose a new password.">
