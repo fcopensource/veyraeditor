@@ -45,9 +45,25 @@ npm start
 3. Add the three environment variables shown above, using the public production URL for `NEXT_PUBLIC_SITE_URL`.
 4. Deploy and add the production domain to Supabase Auth's allowed redirect URLs.
 
+### Hostinger (veyraeditor.com)
+
+The `website` branch of the repository contains only this folder, at its root, so Hostinger can import it
+directly. A GitHub Action (`.github/workflows/website-branch.yml`) refreshes that branch every time files under
+`website/` change on `main`. Never commit to the `website` branch by hand; it is overwritten.
+
+1. hPanel → **Websites** → **Add website** → **Node.js Apps** → **Import Git repository** (menu names can vary slightly between hPanel versions).
+2. Connect GitHub, choose `fcopensource/veyraeditor` and the **`website`** branch. Framework: **Next.js**.
+3. Build command `npm run build`, start command `npm start`, Node.js **20 or 22**.
+4. Add the environment variables: `NEXT_PUBLIC_SITE_URL=https://veyraeditor.com`, plus the two Supabase values if you
+   want accounts.
+5. Connect the domain `veyraeditor.com` to the app (hPanel shows the DNS records or nameservers to use at your
+   domain registrar). Enable the free SSL certificate.
+6. Turn on automatic redeploys so each refresh of the `website` branch goes live.
+
 ### Any Node host
 
-The app uses `output: "standalone"`. Build it with `npm run build`, provide the environment variables, and run the generated standalone server.
+Run `npm ci && npm run build && npm start` with Node.js 20+ and the environment variables above. The server listens
+on `$PORT` (default 3000).
 
 ## Publishing desktop downloads
 
