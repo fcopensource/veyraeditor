@@ -48,3 +48,19 @@ export function isNewer(candidate: string, current: string) {
   for (let i = 0; i < 3; i++) if ((a.parts[i] || 0) !== (b.parts[i] || 0)) return (a.parts[i] || 0) > (b.parts[i] || 0);
   return !a.pre && !!b.pre;
 }
+
+export type ReleaseNote = { version: string; name: string; publishedAt: string; body: string; url: string };
+
+/** Published releases, newest first, for the changelog page. */
+export async function releaseNotes(limit = 20): Promise<ReleaseNote[]> {
+  try {
+    const response = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=${limit}`, {
+      headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) return [];
+    const data: { tag_name: string; name: string; published_at: string; body: string | null; html_url: string; draft: boolean; assets: unknown[] }[] = await response.json();
+    // Skip drafts and placeholder releases with no files.
+    return data.filter(r => !r.draft && r.assets.length).map(r => ({ version: r.tag_name.replace(/^v/, ""), name: r.name, publishedAt: r.published_at, body: r.body || "", url: r.html_url }));
+  } catch { return []; }
+}

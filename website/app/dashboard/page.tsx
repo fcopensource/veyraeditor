@@ -1,3 +1,21 @@
-'use client';
-import {useEffect,useState} from 'react';import Link from 'next/link';import {Download,LogOut} from 'lucide-react';import {Nav} from '@/components/Nav';
-export default function Dashboard(){const [user,setUser]=useState<{email?:string;user_metadata?:{name?:string}}|null>(null);useEffect(()=>{fetch('/api/auth/me').then(response=>response.ok?response.json():null).then(data=>{if(data?.user)setUser(data.user);else location.href='/login';});},[]);async function logout(){await fetch('/api/auth/logout',{method:'POST'});location.href='/';}return <><Nav/><main className="page-shell"><div className="dashboard"><div className="page-head"><span>VEYRA ACCOUNT</span><h1>{user?.user_metadata?.name?`Hello, ${user.user_metadata.name}.`:'Your workspace.'}</h1><p>{user?.email||'Loading your account…'}</p></div><section className="dashboard-card"><h2>Preview access</h2><p>Your account is ready. Download the latest Veyra build or follow development on GitHub.</p><Link className="primary" href="/download"><Download/>Download Veyra</Link> <button className="secondary" onClick={logout}><LogOut/>Log out</button></section></div></main></>}
+import type {Metadata} from 'next';
+import {Suspense} from 'react';
+import {Nav} from '@/components/Nav';
+import {Footer} from '@/components/Footer';
+import {DashboardClient} from '@/components/DashboardClient';
+import {installers,latestRelease} from '@/lib/releases';
+
+export const metadata:Metadata={title:'Your account',robots:{index:false}};
+export const revalidate=300;
+
+export default async function Dashboard(){
+  const release=await latestRelease();
+  const files=installers(release);
+  const downloads=[
+    {os:'Windows',label:'Installer (.exe)',href:files.windows?.browser_download_url},
+    {os:'macOS',label:'Apple silicon (.dmg)',href:files.macArm?.browser_download_url},
+    {os:'macOS',label:'Intel (.dmg)',href:files.macIntel?.browser_download_url},
+    {os:'Linux',label:'AppImage',href:files.appImage?.browser_download_url},
+  ].filter((item):item is {os:string;label:string;href:string}=>!!item.href);
+  return <><Nav/><main className="page-shell"><Suspense><DashboardClient version={release?.version||''} downloads={downloads}/></Suspense></main><Footer/></>;
+}
