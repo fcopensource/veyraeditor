@@ -23,6 +23,7 @@ import {clearErrors,runHealth,startMonitor,type HealthReport} from './health';
 import {lineChanges} from './linediff';
 import './workbench.css';
 import {UpdateBanner} from './UpdateBanner';
+import {TabBar} from './TabBar';
 import {CommandPalette,type PaletteCommand} from './CommandPalette';
 import {SearchPanel} from './SearchPanel';
 import {SettingsPanel} from './SettingsPanel';
@@ -628,7 +629,12 @@ export default function App() {
         {panel==="settings"&&<SettingsPanel preferences={preferences} onChange={setPreferences} shortcuts={commands}/>}
       </aside><div className="resize-handle" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))setSidebarWidth(Math.max(190,Math.min(420,e.clientX-49)));}} onPointerUp={e=>e.currentTarget.releasePointerCapture(e.pointerId)}/></>}
       <section className="content">
-        <div className="tab-bar"><div className="tabs" role="tablist">{tabs.map(tab=><div className={"tab "+(tab.path===active?"active":"")} key={tab.path}><button role="tab" aria-selected={tab.path===active} onClick={()=>openFile(tab.path)}><IconFile path={tab.path}/><span>{baseName(tab.path)}</span></button><button className="close-tab" aria-label={"Close "+tab.path} onClick={()=>closeTab(tab.path)}>{dirty(tab)?<i className="dirty-dot"/>:<X size={12}/>}</button></div>)}{!tabs.length&&<div className="welcome-tab"><img src="/veyra.png" alt=""/>Welcome</div>}</div><button className="icon-button" title={"Quick open · "+keys("⌘P")} onClick={()=>openPalette("files")}><Plus size={16}/></button></div>
+        <TabBar tabs={tabs.map(tab=>({path:tab.path,dirty:dirty(tab)}))} active={active} root={root} quickOpenTitle={"Quick open · "+keys("⌘P")}
+          onSelect={path=>void openFile(path)} onClose={path=>void closeTab(path)}
+          onCloseMany={paths=>void (async()=>{for(const path of paths)await closeTab(path);})()}
+          onReorder={(from,to)=>setTabs(all=>{const next=[...all],moving=next.findIndex(tab=>tab.path===from),target=next.findIndex(tab=>tab.path===to);if(moving<0||target<0)return all;const [item]=next.splice(moving,1);next.splice(target,0,item);return next;})}
+          onQuickOpen={()=>openPalette("files")}
+          onReveal={path=>{setPanel("files");setSidebar(true);setSelectedPath(path);setSelectedPaths(new Set([path]));void refresh(path.includes("/")?path.slice(0,path.lastIndexOf("/")):"");}}/>
         {file&&<div className="breadcrumbs"><IconFile path={file.path}/><span>{file.path.split("/").join("  /  ")}</span><div/><button title={"Save · "+keys("⌘S")} onClick={()=>saveTab()} disabled={!dirty(file)}><Save size={14}/></button><button title="Rename" onClick={rename}><Pencil size={13}/></button><button title="Move to Trash" onClick={trash}><Trash2 size={13}/></button><button title="More commands" onClick={()=>openPalette("commands")}><MoreHorizontal size={16}/></button></div>}
         {file?.external&&<div className="warning"><CircleAlert size={15}/>This file changed on disk. Your unsaved edits are preserved.<button onClick={reload}>Review / reload</button></div>}
         <div className="editing-area">

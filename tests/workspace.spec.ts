@@ -436,3 +436,35 @@ test("autocomplete: language snippets, cross-file TypeScript and AI ghost text",
   await expect(page.locator('.view-lines').first()).toContainText('return a + b;');
   expect(await page.evaluate(()=>(window as any).completionRequests)).toBeGreaterThan(0);
 });
+test("VS Code-style tabs: overflow scrolling, middle-click close and context menu",async({page})=>{
+  const errors:string[]=[];page.on("pageerror",e=>{if(e.message!=="Canceled")errors.push(e.message);});
+  await page.goto("/");
+  const names=["index.ts","router.ts","store.ts","api.ts","utils.ts","hooks.ts","types.ts","config.ts","server.ts","client.ts","logger.ts","cache.ts"];
+  await page.evaluate(names=>{const files=(window as any).testFiles;for(const name of names)files["src/"+name]="export const "+name.replace(".ts","")+" = 1;\n";},names);
+  await page.getByRole("button",{name:"Open a project",exact:false}).click();
+  await page.locator('.tree-row[title="src"]').click();
+  for(const name of names)await page.locator(`.tree-row[title="src/${name}"]`).click();
+  await expect(page.getByRole("tab")).toHaveCount(names.length);
+  const strip=page.locator(".tabs");
+  // Overflowing tabs scroll, the active (last) tab is in view, and the scrollbar is a thin overlay rather than a chunky bar.
+  expect(await strip.evaluate(el=>el.scrollWidth>el.clientWidth)).toBe(true);
+  await expect(page.getByRole("tab",{name:"cache.ts"})).toBeInViewport();
+  expect(await strip.evaluate(el=>el.offsetHeight-el.clientHeight)).toBeLessThanOrEqual(3);
+  await expect(page.locator(".tab-bar")).toHaveClass(/shadow-left/);
+  await page.screenshot({path:"test-results/tabs-overflow.png",clip:{x:0,y:0,width:1360,height:120}});
+  // The mouse wheel scrolls the strip sideways.
+  await strip.hover();
+  const before=await strip.evaluate(el=>el.scrollLeft);
+  await page.mouse.wheel(0,-400);
+  await expect.poll(()=>strip.evaluate(el=>el.scrollLeft)).toBeLessThan(before);
+  // Middle-click closes a tab.
+  await page.getByRole("tab",{name:"router.ts"}).click({button:"middle"});
+  await expect(page.getByRole("tab",{name:"router.ts"})).toHaveCount(0);
+  // Context menu: Close Others leaves only that tab.
+  await page.getByRole("tab",{name:"store.ts"}).click({button:"right"});
+  await page.screenshot({path:"test-results/tabs-menu.png",clip:{x:0,y:0,width:1360,height:400}});
+  await page.getByRole("menuitem",{name:"Close Others"}).click();
+  await expect(page.getByRole("tab")).toHaveCount(1);
+  await expect(page.getByRole("tab",{name:"store.ts"})).toHaveAttribute("aria-selected","true");
+  expect(errors).toEqual([]);
+});

@@ -343,3 +343,139 @@
 .statusbar .inline-ai.busy { animation: inline-ai 1.2s ease-in-out infinite }
 .statusbar .inline-ai.paused { color: #e2c08d }
 @keyframes inline-ai { 50% { opacity: .45 } }
+
+/* ======================================================================
+   Editor tabs, VS Code style
+   ====================================================================== */
+.tab-bar {
+    position: relative;
+    height: 35px;
+    background: var(--sidebar);
+    box-shadow: none;
+    border-bottom: 1px solid var(--border)
+}
+/* Thin overlay-style scrollbar: invisible until the strip is hovered (like VS Code). */
+.tabs {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: auto; /* let the ::-webkit-scrollbar rules below apply */
+    scroll-behavior: smooth
+}
+.tabs::-webkit-scrollbar { height: 3px }
+.tabs::-webkit-scrollbar-track { background: transparent }
+.tabs::-webkit-scrollbar-thumb { background: transparent; border-radius: 0 }
+.tab-bar:hover .tabs::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text) 32%, transparent) }
+.tabs::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--text) 50%, transparent) !important }
+.tabs::-webkit-scrollbar-thumb:active { background: color-mix(in srgb, var(--text) 62%, transparent) !important }
+/* Soft edge shadows when tabs are scrolled out of view. */
+.tab-bar.shadow-left:before, .tab-bar.shadow-right:after {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    pointer-events: none
+}
+.tab-bar.shadow-left:before { left: 0; box-shadow: inset 8px 0 6px -6px #000a }
+.tab-bar.shadow-right:after { right: 38px; box-shadow: inset -8px 0 6px -6px #000a }
+
+.tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 260px;
+    height: 100%;
+    padding: 0 2px 0 0;
+    border: 0;
+    border-right: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--sidebar) 92%, #000);
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .1s, color .1s;
+    user-select: none
+}
+.tab:before { display: none }
+.tab:hover { background: color-mix(in srgb, var(--hover) 70%, var(--sidebar)); color: var(--text) }
+.tab.active {
+    background: var(--editor);
+    color: var(--bright);
+    box-shadow: none;
+    border-top: 0
+}
+/* Active indicator: a thin accent line along the top edge, and no bottom border so the tab joins the editor. */
+.tab.active:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: var(--accent)
+}
+.tab.active { margin-bottom: -1px; height: calc(100% + 1px) }
+.tab > button:first-child {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: 100%;
+    padding: 0 4px 0 12px;
+    font-size: 12px;
+    color: inherit;
+    background: none !important
+}
+.tab .tab-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.tab .tab-description { flex-shrink: 0; color: var(--muted); font-size: 11px; opacity: .75 }
+.tab .dimensional-icon, .tab .dimensional-icon svg { width: 16px !important; height: 16px !important }
+
+/* Close button: hidden on inactive tabs until hover; unsaved files show a dot that turns into ✕ on hover. */
+.close-tab {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin: 0 4px 0 2px;
+    border-radius: 5px;
+    color: inherit;
+    opacity: 0
+}
+.tab.active .close-tab, .tab:hover .close-tab, .tab.dirty .close-tab { opacity: 1 }
+.close-tab:hover { background: color-mix(in srgb, var(--text) 16%, transparent) !important; color: var(--bright) }
+.close-tab .dirty-dot { position: absolute; display: none; width: 8px; height: 8px; border-radius: 50%; background: currentColor }
+.close-tab svg { display: block }
+.tab.dirty .close-tab .dirty-dot { display: block }
+.tab.dirty .close-tab svg { display: none }
+.tab.dirty .close-tab:hover .dirty-dot { display: none }
+.tab.dirty .close-tab:hover svg { display: block }
+
+/* Drag to reorder. */
+.tab.dragging { opacity: .45 }
+.tab.drop-target { box-shadow: inset 2px 0 0 var(--accent) }
+
+.tab-add { flex-shrink: 0; align-self: center; margin: 0 6px !important; width: 26px; height: 26px }
+.welcome-tab { height: 100%; background: var(--editor); color: var(--bright); border-right: 1px solid var(--border); font-size: 12px }
+
+/* Tab context menu. */
+.tab-menu {
+    position: fixed;
+    z-index: 200;
+    display: grid;
+    min-width: 220px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--toolbar);
+    box-shadow: 0 16px 40px #0009
+}
+.tab-menu button { justify-content: flex-start; padding: 6px 10px; border-radius: 5px; font-size: 12px }
+.tab-menu button:hover:not(:disabled) { background: var(--selection) }
+.tab-menu i { height: 1px; margin: 4px 6px; background: var(--border) }
+.app.light .tab { background: color-mix(in srgb, var(--sidebar) 96%, #000) }
+.app.light .tab.active { background: var(--editor) }

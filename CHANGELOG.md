@@ -13,6 +13,12 @@ in-app update prompt. Headings must be `## <version>`.
 - **Emmet:** expand abbreviations like `ul>li*3` in HTML, JSX and CSS
 - **Svelte** and **Vue (beta):** language support for components; `.vue` and `.svelte` files now open as their own languages
 
+**Editor tabs, VS Code style**
+- Slim tab strip with a thin accent line on the active tab; close buttons appear on hover, and unsaved files show a dot
+- Many open files no longer show a chunky scrollbar: a thin overlay scrollbar appears on hover, the mouse wheel scrolls tabs sideways, and edge shadows show hidden tabs
+- Middle-click to close, drag to reorder, and a right-click menu: Close Others, Close to the Right, Close Saved, Close All, Copy Path, Reveal in Explorer
+- Files with the same name show their folder next to the name
+
 **Extensions**
 - The Open VSX marketplace now searches every category
 - Popular VS Code web extensions (ESLint, Prettier, Tailwind CSS, Volar, Svelte) are marked **Built into Veyra** and install Veyra's built-in equivalent
