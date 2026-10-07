@@ -5,7 +5,7 @@ import {Footer} from '@/components/Footer';
 import {DashboardClient} from '@/components/DashboardClient';
 import {installers,latestRelease} from '@/lib/releases';
 
-export const metadata:Metadata={title:'Your account',robots:{index:false}};
+export const metadata:Metadata={title:'Your account',robots:{index:false,follow:true}};
 export const revalidate=300;
 
 export default async function Dashboard(){

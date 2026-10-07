@@ -3,8 +3,9 @@ import Link from 'next/link';
 import {ArrowUpRight,Download} from 'lucide-react';
 import {Nav} from '@/components/Nav';import {Footer} from '@/components/Footer';import {Markdown} from '@/components/Markdown';
 import {releaseNotes,RELEASES_URL} from '@/lib/releases';
+import {Breadcrumbs} from '@/components/Breadcrumbs';
 
-export const metadata:Metadata={title:'Changelog',description:'What is new in each Veyra Studio release.'};
+export const metadata:Metadata={title:'Changelog: What\'s New in Veyra',description:'Release notes for every Veyra Studio version: new AI, Git, editor and platform features, fixes and improvements.',alternates:{canonical:'/changelog'},openGraph:{url:'/changelog',title:'Veyra changelog'}};
 export const revalidate=300;
 
 /** The notes part of a release body, without the download instructions appended by the release workflow. */
@@ -12,7 +13,7 @@ const notesOf=(body:string)=>body.replace(/\r/g,'').split(/\n---\n|^## Download|
 
 export default async function Changelog(){
   const releases=await releaseNotes();
-  return <><Nav/><main className="page-shell">
+  return <><Nav/><Breadcrumbs items={[{name:'Changelog',path:'/changelog'}]}/><main className="page-shell">
     <div className="page-head"><span>CHANGELOG</span><h1>What's new.</h1><p>Every Veyra release, newest first. Installed copies update themselves, so you'll always have the latest.</p></div>
     <div className="changelog">
       {releases.map((release,index)=><article key={release.version} id={'v'+release.version}>

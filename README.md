@@ -41,6 +41,24 @@ Accounts are stored in your own MySQL database; no third-party auth service is i
 Without database settings the account pages show "Accounts are opening soon"; without SMTP settings the
 forgot-password page asks people to contact you instead.
 
+## SEO
+
+Built in: unique titles, descriptions and canonical URLs per page; `/sitemap.xml` and `/robots.txt`; JSON-LD structured data
+(SoftwareApplication, Organization, WebSite with alternate names, FAQPage, BreadcrumbList); a generated Open Graph image
+(`/opengraph-image`); web app manifest and icons; self-hosted fonts. Private pages (login, dashboard, password reset) are `noindex`.
+Lighthouse (home page): SEO 100, Accessibility 100, Best Practices 100, Performance 95 mobile / 99 desktop.
+
+After the site is live:
+
+1. **Google Search Console** (search.google.com/search-console): add `https://veyraeditor.com` as a URL-prefix property, choose
+   the **HTML tag** method, copy the `content` code into `GOOGLE_SITE_VERIFICATION` in Hostinger, redeploy, then click Verify.
+   (Or verify the whole domain with a DNS TXT record.)
+2. In Search Console → **Sitemaps**, submit `sitemap.xml`. Use **URL inspection → Request indexing** for the home and download pages.
+3. Repeat in **Bing Webmaster Tools** (`BING_SITE_VERIFICATION`); Bing also feeds DuckDuckGo and Yahoo.
+4. Add a DNS **CNAME** for `www` → `veyraeditor.com` so both addresses work.
+5. Point the GitHub repository's website field at https://veyraeditor.com; links from GitHub, Product Hunt, Reddit,
+   dev.to and Hacker News are what move a new domain up for searches like veyra.
+
 ## Production build
 
 ```bash

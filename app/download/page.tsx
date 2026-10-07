@@ -4,8 +4,9 @@ import {Apple,Check,Download,Github,Laptop,Monitor,Terminal} from 'lucide-react'
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {installers,latestRelease,RELEASES_URL} from '@/lib/releases';
+import {Breadcrumbs} from '@/components/Breadcrumbs';
 
-export const metadata:Metadata={title:'Download'};
+export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free AI code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux (AppImage, .deb, .rpm). Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{url:'/download',title:'Download Veyra: free AI code editor'}};
 export const revalidate=300;
 
 type Link={label:string;href?:string;size?:number};
@@ -24,7 +25,7 @@ export default async function DownloadPage(){
   const release=await latestRelease();
   const files=installers(release);
   const asset=(file?:{browser_download_url:string;size:number})=>({href:file?.browser_download_url,size:file?.size});
-  return <><Nav/><main className="page-shell">
+  return <><Nav/><Breadcrumbs items={[{name:'Download',path:'/download'}]}/><main className="page-shell">
     <div className="page-head"><span>{release?`VERSION ${release.version}`:'PUBLIC PREVIEW'}</span><h1>Meet your new workspace.</h1><p>Veyra runs natively on Windows, macOS and Linux, and keeps itself up to date automatically.</p></div>
     <div className="download-grid platforms">
       <Platform icon={<Monitor className="platform"/>} name="Windows" detail="Windows 10 and 11 · 64-bit" primary={{label:'Download installer (.exe)',...asset(files.windows)}} others={[{label:'MSI package',...asset(files.windowsMsi)}]} requirements={['Windows 10 or newer','WebView2 (installed automatically)']}/>
