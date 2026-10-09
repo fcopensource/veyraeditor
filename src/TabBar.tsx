@@ -10,6 +10,29 @@ type Props = {
 };
 const baseName = (path: string) => path.split("/").pop() || path;
 
+/**
+ * For tabs that share a file name, the shortest run of parent folders that tells each one apart (like VS Code):
+ * app/src/index.ts and lib/src/index.ts → "app/src" and "lib/src". Unique names get "".
+ * Paths are read backwards from the file name and sorted, so the most similar paths end up next to each other
+ * and each one only needs comparing with its two neighbours. A file at the workspace top level shows `rootName`.
+ */
+export function tabDescriptions(paths: string[], rootName: string): Map<string, string> {
+  const ROOT = "\0";
+  const reversed = paths.map(path => ({ path, parts: [ROOT, ...path.split("/")].reverse() }));
+  const compare = (a: string[], b: string[]) => {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] < b[i] ? -1 : 1;
+    return a.length - b.length;
+  };
+  const common = (a: string[], b: string[]) => { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; };
+  reversed.sort((a, b) => compare(a.parts, b.parts));
+  const result = new Map<string, string>();
+  reversed.forEach(({ path, parts }, index) => {
+    const shared = Math.max(index > 0 ? common(parts, reversed[index - 1].parts) : 0, index + 1 < reversed.length ? common(parts, reversed[index + 1].parts) : 0);
+    result.set(path, shared === 0 ? "" : parts.slice(1, shared + 1).reverse().map(part => part === ROOT ? rootName : part).join("/"));
+  });
+  return result;
+}
+
 /** VS Code-style editor tabs: thin hover scrollbar, wheel scrolling, middle-click close, drag to reorder, context menu. */
 export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, onCloseMany, onReorder, onQuickOpen, onReveal }: Props) {
   const strip = useRef<HTMLDivElement>(null);
@@ -18,10 +41,9 @@ export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, 
   const [dropTarget, setDropTarget] = useState("");
   const [edges, setEdges] = useState({ left: false, right: false });
 
-  // Same file name in two folders: show the folder as a description, like VS Code.
-  const names = new Map<string, number>();
-  for (const tab of tabs) names.set(baseName(tab.path), (names.get(baseName(tab.path)) || 0) + 1);
-  const description = (path: string) => (names.get(baseName(path)) || 0) > 1 ? path.split("/").slice(-2, -1)[0] || "" : "";
+  // Same file name in several folders: show just enough of each folder path to tell them apart, like VS Code.
+  const descriptions = tabDescriptions(tabs.map(tab => tab.path), root.split(/[\\/]/).filter(Boolean).pop() || "root");
+  const description = (path: string) => descriptions.get(path) || "";
 
   const measure = () => {
     const el = strip.current; if (!el) return;

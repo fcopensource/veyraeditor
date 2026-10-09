@@ -468,3 +468,19 @@ test("VS Code-style tabs: overflow scrolling, middle-click close and context men
   await expect(page.getByRole("tab",{name:"store.ts"})).toHaveAttribute("aria-selected","true");
   expect(errors).toEqual([]);
 });
+test("tabs with the same file name show just enough folder path to tell them apart",async({page})=>{
+  await page.goto("/");
+  await page.evaluate(()=>{
+    const w=window as any;
+    for(const dir of ["app","app/src","lib","lib/src"])w.testDirectories.add(dir);
+    for(const file of ["app/src/index.ts","lib/src/index.ts","src/index.ts"])w.testFiles[file]="export {};\n";
+  });
+  await page.getByRole("button",{name:"Open a project",exact:false}).click();
+  for(const row of ["app","app/src","app/src/index.ts","lib","lib/src","lib/src/index.ts","src","src/index.ts"])await page.locator(`.tree-row[title="${row}"]`).click();
+  const label=(path:string)=>page.locator(`.tab[title="${path}"] .tab-description`);
+  await expect(label("app/src/index.ts")).toHaveText("app/src");
+  await expect(label("lib/src/index.ts")).toHaveText("lib/src");
+  await expect(label("src/index.ts")).toHaveText("studio-project/src");
+  await expect(page.locator('.tab[title="src/App.tsx"] .tab-description')).toHaveCount(0);
+  await page.screenshot({path:"test-results/tabs-same-name.png",clip:{x:0,y:0,width:1360,height:110}});
+});
