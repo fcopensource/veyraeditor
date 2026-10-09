@@ -43,7 +43,11 @@ test('download, activate, persist, disable and uninstall an extension',async({pa
     editor.trigger('test','editor.action.triggerSuggest',{});
     Object.assign(window,{snippetTestEditor:editor});
   });
-  await expect(page.locator('#snippet-test .suggest-widget')).toContainText('greet');
+  // On a cold start Monaco's TypeScript worker may still be loading, leaving the first suggest list on "Loading…"; ask again until it answers.
+  await expect(async()=>{
+    await page.evaluate(()=>{const editor=(window as any).snippetTestEditor;editor.trigger('test','hideSuggestWidget',{});editor.focus();editor.trigger('test','editor.action.triggerSuggest',{});});
+    await expect(page.locator('#snippet-test .suggest-widget')).toContainText('greet',{timeout:3000});
+  }).toPass({timeout:30000});
   await page.keyboard.press('Enter');
   expect(await page.evaluate(()=>(window as any).snippetTestEditor.getValue())).toBe('console.log("hello");');
   await expect(page.locator('#snippet-test .monaco-editor').first()).toHaveCSS('background-color','rgb(16, 32, 48)');
