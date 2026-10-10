@@ -16,6 +16,8 @@ const MILESTONES:Milestone[]=[
     items:['Monaco editor & tabs','Explorer with drag and drop','Built-in Git','Native terminal','AI assistant with 11 providers','AI inline completions','Health monitor','Signed auto-updates']},
   {title:'Web development language tools',status:'done',label:'SHIPPED · 0.5',copy:'The language servers behind VS Code\'s most popular web extensions, installed with one click.',
     items:['TypeScript & JavaScript (Node.js)','ESLint','Prettier & format on save','Tailwind CSS','Emmet','Svelte','Vue (beta)','VS Code-style tabs']},
+  {title:'Extensions & Veyra AI',status:'done',label:'SHIPPED · 0.6',copy:'A full extension experience and AI that works without an API key.',
+    items:['Extension pages in tabs','Real icons & ratings','Install any version','Veyra AI (sign in, no key)','Title-bar Update button']},
   {title:'Systems languages',status:'next',label:'UP NEXT',copy:'The same real IntelliSense for compiled languages: errors as you type, type-aware completion, go to definition, rename and formatting.',
     items:['Rust (rust-analyzer)','Go (gopls)','C / C++ (clangd)','Server detection & install help','Inlay type hints']},
   {title:'More languages',status:'planned',label:'PLANNED',copy:'Each additional language becomes a small addition on the same foundation.',

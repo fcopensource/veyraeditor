@@ -35,6 +35,27 @@ export default function Extensions(){
       </div>
     </section>
 
+    <section className="content-section split reverse">
+      <div>
+        <span className="kicker">NEW IN 0.6</span>
+        <h2>Every extension gets its own page.</h2>
+        <p>Click any extension to open it in an editor tab, just like VS Code, with more detail where it helps.</p>
+        <ul>
+          <li><Package/><span><strong>Real icons</strong>, verified publishers, download counts and star ratings</span></li>
+          <li><Code2/><span><strong>Details, Features, Changelog and Versions</strong> tabs: install any version you like</span></li>
+          <li><Sparkles/><span><strong>Install, Uninstall, Disable, Reinstall, Update</strong> and <strong>Set Colour Theme</strong> in one place</span></li>
+          <li><Wrench/><span>Each page says upfront whether the extension works in Veyra today</span></li>
+        </ul>
+      </div>
+      <div className="visual" aria-hidden="true">
+        <small>Extension: Prettier - Code formatter</small>
+        <b>Prettier - Code formatter</b> <i>v12.4.0</i><br/>
+        <span style={{color:'#5f6d7a'}}>✓ Prettier · 9.4M downloads · ★★★★☆</span><br/><br/>
+        [ Install Prettier ]  <span style={{color:'#5f6d7a'}}>Built into Veyra</span><br/><br/>
+        <span style={{color:'#5f6d7a'}}>DETAILS · FEATURES · CHANGELOG · VERSIONS (50)</span>
+      </div>
+    </section>
+
     <section className="content-section split">
       <div>
         <span className="kicker">OPEN VSX MARKETPLACE</span>

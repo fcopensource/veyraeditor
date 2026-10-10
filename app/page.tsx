@@ -28,7 +28,7 @@ const features = [
   { icon: RefreshCw, title: "Always current", copy: "Signed automatic updates on every platform. A new version is one click away and never interrupts unsaved work." },
   { icon: LockKeyhole, title: "Local by default", copy: "Your projects never leave your machine unless you send them. Atomic saves guard every file you touch." },
 ];
-const providers = ["Ollama", "Claude", "OpenAI", "Gemini", "OpenRouter", "Groq", "Mistral", "DeepSeek", "Grok", "Together", "Any OpenAI API"];
+const providers = ["Veyra AI", "Ollama", "Claude", "OpenAI", "Gemini", "OpenRouter", "Groq", "Mistral", "DeepSeek", "Grok", "Together", "Any OpenAI API"];
 
 export default async function Home() {
   const release = await latestRelease();

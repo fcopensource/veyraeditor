@@ -1,0 +1,119 @@
+/* ---------- Account page (/dashboard) ---------- */
+.account-shell{padding-top:120px;background:radial-gradient(circle at 20% 0,#123044,transparent 38%),radial-gradient(circle at 85% 10%,#2a1f4a,transparent 36%),var(--bg)}
+.account{max-width:1120px;margin:0 auto}
+
+/* Hero */
+.account-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:32px;padding:40px;overflow:hidden;border:1px solid #ffffff14;border-radius:28px;background:linear-gradient(135deg,#101826 0%,#0b1019 60%,#140f22 100%);box-shadow:0 30px 80px #0008}
+.account-hero-glow{position:absolute;inset:-40% -10% auto auto;width:520px;height:520px;border-radius:50%;background:conic-gradient(from 200deg,#68f4d1,#4cdcf2,#9673ff,#ff7d78,#68f4d1);filter:blur(110px);opacity:.22;animation:account-spin 22s linear infinite;pointer-events:none}
+@keyframes account-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.account-hero-glow{animation:none}}
+.account-identity{position:relative;display:flex;align-items:center;gap:22px;min-width:0}
+.account-avatar{display:grid;place-items:center;flex-shrink:0;width:76px;height:76px;border-radius:24px;background:linear-gradient(135deg,var(--mint),var(--cyan) 45%,var(--violet));color:#06100d;font-size:32px;font-weight:800;box-shadow:0 14px 40px #68f4d133}
+.account-kicker{color:var(--mint);font:500 10px var(--font-mono);letter-spacing:2px}
+.account-identity h1{margin:8px 0 6px;font-size:clamp(30px,4.2vw,46px);line-height:1.05;letter-spacing:-1.6px}
+.account-identity p{margin:0;overflow:hidden;color:var(--muted);font-size:14px;text-overflow:ellipsis}
+.account-download{position:relative;display:grid;gap:10px;justify-items:end;flex-shrink:0}
+.account-download-main{gap:12px!important;padding:14px 20px!important;border-radius:14px!important;font-size:14px!important}
+.account-download-main span{display:grid;text-align:left}
+.account-download-main small{font-size:11px;font-weight:600;opacity:.7}
+.account-download-others{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 12px}
+.account-download-others a{color:var(--muted);font-size:12px}
+.account-download-others a:hover{color:#fff}
+
+/* Stats */
+.account-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.account-stats>div{display:grid;gap:4px;padding:18px 20px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#111722,#0a0e15)}
+.account-stats svg{color:var(--mint)}
+.account-stats b{margin-top:6px;font-size:26px;letter-spacing:-.8px}
+.account-stats span{color:var(--muted);font-size:12.5px}
+
+/* Cards */
+.account-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.account-card{display:flex;flex-direction:column;gap:16px;min-width:0;padding:26px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#111722,#0a0e15)}
+.account-card>header{display:flex;align-items:flex-start;gap:14px}
+.account-card>header h2{margin:2px 0 3px;font-size:18px;letter-spacing:-.3px}
+.account-card>header p{margin:0;color:var(--muted);font-size:13px}
+.account-card-icon{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:12px;background:#ffffff0a}
+.account-card-icon.mint{color:var(--mint);background:#68f4d114}.account-card-icon.violet{color:#b9a3ff;background:#9673ff1c}
+.account-card-icon.blue{color:var(--cyan);background:#4cdcf214}.account-card-icon.coral{color:var(--coral);background:#ff7d7814}
+.account-fine{display:flex;align-items:center;gap:6px;margin:0;color:var(--muted);font-size:12.5px;line-height:1.6}
+.account-fine svg{flex-shrink:0;color:var(--mint)}
+.account-empty{margin:0;color:var(--muted);font-size:13px}
+
+/* Veyra AI usage ring */
+.ai-card{background:radial-gradient(circle at 90% 0,#9673ff26,transparent 45%),linear-gradient(145deg,#121626,#0a0e15)}
+.usage-ring{--p:0;display:grid;place-items:center;width:150px;height:150px;margin:2px auto;border-radius:50%;background:conic-gradient(var(--violet) calc(var(--p)*1%),#ffffff10 0)}
+.usage-ring>div{display:grid;place-items:center;align-content:center;width:120px;height:120px;border-radius:50%;background:#0d1220}
+.usage-ring b{font-size:34px;letter-spacing:-1px}
+.usage-ring span{color:var(--muted);font-size:12px}
+.account-howto{display:grid;gap:6px;margin:0;padding-left:18px;color:#b4c0cb;font-size:13px;line-height:1.5}
+.account-howto b{color:#fff}
+
+/* Get started */
+.progress-bar{height:6px;overflow:hidden;border-radius:6px;background:#ffffff10}
+.progress-bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--mint),var(--cyan));transition:width .4s}
+.account-steps{display:grid;gap:6px}
+.account-step{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid transparent;border-radius:12px;transition:background .15s,border-color .15s}
+.account-step:hover{border-color:#ffffff12;background:#ffffff06}
+.account-step>span:nth-child(2){display:grid;flex:1;gap:2px;min-width:0}
+.account-step b{font-size:13.5px}
+.account-step small{color:var(--muted);font-size:12px}
+.account-step>svg{color:var(--muted)}
+.step-check{display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;border:1px solid #ffffff1a;border-radius:50%;color:var(--muted)}
+.account-step.done .step-check{border-color:transparent;background:var(--mint);color:#06100d}
+.account-step.done b{color:var(--muted);text-decoration:line-through}
+
+/* Devices */
+.device-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.device-list li{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #ffffff0d;border-radius:12px;background:#ffffff05}
+.device-list li>svg{flex-shrink:0;color:var(--cyan)}
+.device-list li>span{display:grid;flex:1;gap:2px;min-width:0}
+.device-list b{overflow:hidden;font-size:13.5px;text-overflow:ellipsis;white-space:nowrap}
+.device-list small{color:var(--muted);font-size:12px}
+.device-signout{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid #ffffff14;border-radius:8px;background:transparent;color:#b4c0cb;font-size:12px;cursor:pointer}
+.device-signout:hover{border-color:#ff7d7866;color:#ff9d9d}
+
+/* What's new */
+.account-notes{max-height:260px;overflow:auto;color:#aeb9c4;font-size:13.5px;line-height:1.7;mask-image:linear-gradient(#000 80%,transparent)}
+.account-notes ul{padding-left:18px}
+.account-notes strong{color:#fff}
+.news-card .text-link{margin-top:0}
+
+/* Profile */
+.account-details{display:grid;gap:12px;margin:0}
+.account-details>div{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid #ffffff0b}
+.account-details dt{color:var(--muted);font-size:13px}
+.account-details dd{display:flex;align-items:center;gap:8px;margin:0;overflow:hidden;font-size:13.5px;text-align:right;text-overflow:ellipsis}
+.icon-link{display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:7px;background:#ffffff0a;color:var(--muted);cursor:pointer}
+.icon-link:hover{color:#fff}
+.inline-form{display:flex;gap:6px}
+.inline-form input{width:170px;height:32px;padding:0 10px;border:1px solid var(--line);border-radius:8px;outline:0;background:#0e131c;color:#fff;font-size:13px}
+.inline-form input:focus{border-color:#5bdcc2}
+.mini{height:32px;padding:0 10px;border:1px solid #ffffff17;border-radius:8px;background:#ffffff08;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.mini.primary{border:0;background:var(--mint);color:#06100d}
+.account-logout{align-self:flex-start;border:1px solid #ffffff17!important}
+.account-card .auth-form label{font-size:12px}
+
+/* Danger zone */
+.account-danger{margin:24px 0 0;padding:4px 0}
+.danger-toggle{display:inline-flex;align-items:center;gap:8px;padding:8px 2px;border:0;background:none;color:#7d8996;font-size:13px;cursor:pointer}
+.danger-toggle:hover{color:#ff9d9d}
+.danger-toggle svg:last-child{transition:transform .2s}
+.account-danger.open .danger-toggle svg:last-child{transform:rotate(180deg)}
+.account-danger .delete-form{margin-top:8px;padding:20px;border:1px solid #ff6b6b33;border-radius:16px;background:#ff6b6b08}
+.account-danger .delete-form p{margin:0;color:#c7a3a3;font-size:13px;line-height:1.6;text-align:left}
+
+@media(max-width:900px){
+  .account-hero{flex-direction:column;align-items:flex-start;padding:28px}
+  .account-download{justify-items:start;width:100%}
+  .account-download-others{justify-content:flex-start}
+  .account-stats{grid-template-columns:repeat(2,1fr)}
+  .account-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .account-identity{flex-direction:column;align-items:flex-start;gap:14px}
+  .account-avatar{width:60px;height:60px;border-radius:18px;font-size:26px}
+  .account-card{padding:20px}
+  .account-download-main{width:100%;justify-content:flex-start!important}
+  .inline-form{flex-wrap:wrap}.inline-form input{width:100%}
+}
