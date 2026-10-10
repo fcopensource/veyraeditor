@@ -484,3 +484,36 @@ test("tabs with the same file name show just enough folder path to tell them apa
   await expect(page.locator('.tab[title="src/App.tsx"] .tab-description')).toHaveCount(0);
   await page.screenshot({path:"test-results/tabs-same-name.png",clip:{x:0,y:0,width:1360,height:110}});
 });
+test("title-bar button: Sign in, your name once signed in, Update when one is ready, then updating",async({page})=>{
+  await page.clock.install();
+  await page.addInitScript(()=>{
+    const w=window as any;const calls:{cmd:string;args:any}[]=[];
+    const original=w.__TAURI_INTERNALS__.invoke;
+    w.buttonCalls=calls;
+    w.__TAURI_INTERNALS__.invoke=async(cmd:string,args:any={})=>{
+      calls.push({cmd,args});
+      if(cmd==="veyra_account")return w.account||null;
+      if(cmd==="plugin:updater|check")return w.updateReady?{rid:7,currentVersion:"0.5.1",version:"0.6.0",date:"2026-10-10",body:"New extensions",rawJson:{}}:null;
+      if(cmd==="plugin:updater|download_and_install")return new Promise(()=>{});
+      if(cmd==="plugin:opener|open_url")return null;
+      return original(cmd,args);
+    };
+  });
+  await page.goto("/");
+  const button=page.locator(".toolbar-actions .account-button");
+  await expect(button).toHaveText("Sign in");
+  await button.click();
+  expect(await page.evaluate(()=>(window as any).buttonCalls.find((c:any)=>c.cmd==="plugin:opener|open_url")?.args.url)).toBe("https://veyraeditor.com/login?next=/dashboard");
+  // Signing in (e.g. in the AI panel) shows your name.
+  await page.evaluate(()=>{(window as any).account={name:"Ada Lovelace",email:"ada@example.com"};window.dispatchEvent(new Event("veyra-account"));});
+  await expect(button).toHaveText(/Ada/);
+  // An update turns it into "Update"…
+  await page.evaluate(()=>{(window as any).updateReady=true;});
+  await page.clock.fastForward(16000);
+  await expect(page.getByRole("button",{name:"Update Veyra to 0.6.0"})).toBeVisible();
+  await page.screenshot({path:"test-results/update-button.png",clip:{x:900,y:0,width:460,height:60}});
+  // …and clicking it installs, showing progress until Veyra restarts on the new version.
+  await page.getByRole("button",{name:"Update Veyra to 0.6.0"}).click();
+  await expect(button).toHaveText(/Updating 0%/);
+  expect(await page.evaluate(()=>(window as any).buttonCalls.some((c:any)=>c.cmd==="plugin:updater|download_and_install"))).toBe(true);
+});

@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
 import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,FolderSearch,KeyRound,LogOut,MessageSquare,Plus,RefreshCw,Settings2,ShieldCheck,Sparkles,Square,Trash2,UserRound,X} from 'lucide-react';
 import {openUrl} from '@tauri-apps/plugin-opener';
+import {accountChanged} from './AccountButton';
 import {isMac,isWindows} from './platform';
 export type AISnapshot={root:string;path:string;original:string;start:number;end:number;content:string};
 export type AIProposal={snapshot:AISnapshot;replacement:string;model:string};
@@ -87,12 +88,12 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
   }
   async function signIn(){
     setSigning(true);setError('');
-    try{const result=await invoke<VeyraAccount>('veyra_sign_in',{email,password});setAccount(result);setPassword('');void loadKeyList();await refresh();}
+    try{const result=await invoke<VeyraAccount>('veyra_sign_in',{email,password});setAccount(result);setPassword('');accountChanged();void loadKeyList();await refresh();}
     catch(e){setError(String(e));}finally{setSigning(false);}
   }
   async function signOut(){
     setError('');
-    try{await invoke('veyra_sign_out');setAccount(null);setConnected(false);setModels([]);void loadKeyList();}catch(e){setError(String(e));}
+    try{await invoke('veyra_sign_out');setAccount(null);accountChanged();setConnected(false);setModels([]);void loadKeyList();}catch(e){setError(String(e));}
   }
   async function connect(){
     setError('');

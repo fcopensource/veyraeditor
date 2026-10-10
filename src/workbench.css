@@ -495,3 +495,16 @@
 .veyra-signin > p:first-child { color: var(--text) !important; font-size: 11px !important }
 .veyra-signin > .secondary { margin-top: 6px; width: 100%; justify-content: center; font-size: 11px }
 .link-button { display: inline; padding: 0; background: none !important; color: var(--accent); font-size: inherit; text-decoration: underline; cursor: pointer }
+
+/* ---------- Title-bar account / update button (right corner) ---------- */
+.toolbar-actions .account-button { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 29px; margin-left: 6px; padding: 0 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--card); color: var(--bright); font-size: 11px; font-weight: 600; white-space: nowrap; transition: background .15s, border-color .15s, box-shadow .15s }
+.toolbar-actions .account-button:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: var(--hover) }
+.toolbar-actions .account-button.signed-in { padding-left: 4px }
+.account-avatar { display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #9673ff); color: #06100d; font-size: 10.5px; font-weight: 800 }
+/* Update available: the button lights up until the update is installed. */
+.toolbar-actions .account-button.update { border-color: transparent; background: linear-gradient(120deg, var(--accent), #9fb4ff); color: #06100d; box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); animation: update-pulse 2.4s ease-out infinite }
+.toolbar-actions .account-button.update:hover { filter: brightness(1.08) }
+.toolbar-actions .account-button.update > i { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border: 2px solid var(--toolbar); border-radius: 50%; background: #ff7d78 }
+.toolbar-actions .account-button.updating { opacity: 1; border-color: var(--accent); color: var(--accent) }
+@keyframes update-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent) } 70%, 100% { box-shadow: 0 0 0 8px transparent } }
+@media (max-width: 760px) { .toolbar-actions .account-button { padding: 0 8px } }

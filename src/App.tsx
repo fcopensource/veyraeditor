@@ -12,6 +12,7 @@ import {CreateEntryDialog} from "./CreateEntryDialog";
 import {Package} from "lucide-react";
 import {ExtensionsPanel} from "./ExtensionsPanel";
 import {ExtensionPage} from "./ExtensionPage";
+import {AccountButton} from "./AccountButton";
 import {ExtIcon,PAGE_PREFIX,targetId,type ExtensionTarget} from "./extensionUi";
 import {activateExtensions,installedExtensions,saveExtensions,themeId,type Extension} from "./extensions";
 import {AIStudio,type AISnapshot,type AIProposal} from './AIStudio';
@@ -620,7 +621,7 @@ export default function App() {
     <header className="toolbar">
       <div className="identity"><span className="brand-gem"><img src="/veyra.png" alt="Veyra"/></span><span className="brand-copy"><strong>Veyra</strong><small>STUDIO</small></span><span className="separator">/</span><span className="workspace-name">{root?projectName:"Workspace"}</span></div>
       <button className="command-launch" onClick={()=>openPalette("commands")}><Search size={14}/><span>Search files and commands</span><kbd>{keys("⇧⌘P")}</kbd></button>
-      <div className="toolbar-actions"><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className={'ai-toggle '+(aiOpen?'selected':'')} title={"Toggle AI assistant · "+keys("⌘L")} aria-label="Toggle AI assistant" onClick={()=>setAiOpen(!aiOpen)}><Sparkles size={14}/>Veyra AI</button></div>
+      <div className="toolbar-actions"><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className={'ai-toggle '+(aiOpen?'selected':'')} title={"Toggle AI assistant · "+keys("⌘L")} aria-label="Toggle AI assistant" onClick={()=>setAiOpen(!aiOpen)}><Sparkles size={14}/>Veyra AI</button><AccountButton notify={setStatus} beforeInstall={()=>allowDiscard("Install update and restart?")}/></div>
     </header>
     <div className="workbench">
       <nav className="activity" aria-label="Workspace panels">
