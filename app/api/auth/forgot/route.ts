@@ -18,7 +18,7 @@ export const POST=withDatabase(async(request:Request)=>{
     await query('DELETE FROM password_resets WHERE user_id=? OR expires_at<UTC_TIMESTAMP()',[user.id]);
     await query('INSERT INTO password_resets (token_hash,user_id,expires_at) VALUES (?,?,DATE_ADD(UTC_TIMESTAMP(),INTERVAL 1 HOUR))',[tokenHash(token),user.id]);
     try{await sendPasswordReset(user.email,user.name,`${siteUrl(request)}/reset-password?token=${token}`);}
-    catch(error){console.error('Password reset email failed',error);return NextResponse.json({error:'We could not send the email right now. Please try again shortly.'},{status:502});}
+    catch(error){console.error('Password reset email failed',error);return NextResponse.json({error:'We could not send the email right now. Please try again shortly.',code:String((error as {code?:string})?.code||'MAIL_ERROR')},{status:502});}
   }
   return NextResponse.json({ok:true});
 });

@@ -88,6 +88,25 @@ const SCHEMA=[
     KEY resets_user (user_id),
     CONSTRAINT resets_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  // Sign-ins from the Veyra Studio app (one per device), used for Veyra AI.
+  `CREATE TABLE IF NOT EXISTS api_tokens (
+    token_hash CHAR(64) NOT NULL PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    device VARCHAR(80) NOT NULL DEFAULT '',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_used_at DATETIME NULL,
+    KEY tokens_user (user_id),
+    CONSTRAINT tokens_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  // Veyra AI requests and tokens per user per day (UTC), for daily limits.
+  `CREATE TABLE IF NOT EXISTS ai_usage (
+    user_id BIGINT UNSIGNED NOT NULL,
+    day DATE NOT NULL,
+    requests INT UNSIGNED NOT NULL DEFAULT 0,
+    tokens INT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id,day),
+    CONSTRAINT usage_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 ];
 
 /** Create tables once per server process. */

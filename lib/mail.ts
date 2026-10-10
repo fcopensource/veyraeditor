@@ -30,3 +30,25 @@ export async function sendPasswordReset(to:string,name:string,link:string){
     </div>`,
   });
 }
+
+/* ---------- Diagnostics for /api/health: log in to the SMTP server without sending anything ---------- */
+const MAIL_HINTS:Record<string,string>={
+  EAUTH:'The mail server rejected SMTP_USER / SMTP_PASSWORD. Use the full address (no-reply@veyraeditor.com) and that mailbox\'s password (hPanel → Emails), then redeploy.',
+  ECONNECTION:'Could not connect to SMTP_HOST:SMTP_PORT. Use smtp.hostinger.com and port 465.',
+  ETIMEDOUT:'The mail server did not answer in time. Check SMTP_HOST (smtp.hostinger.com) and SMTP_PORT (465).',
+  ESOCKET:'The secure connection failed. With port 465 use smtp.hostinger.com; with port 587 the connection upgrades automatically.',
+  EDNS:'SMTP_HOST is not a known host name. Use smtp.hostinger.com.',
+};
+export async function checkMail(){
+  if(!mailConfigured()) return {configured:false,ok:false,code:'NOT_CONFIGURED',hint:'Set SMTP_HOST, SMTP_PORT, SMTP_USER and SMTP_PASSWORD, then redeploy.'};
+  try{
+    await transporter().verify();
+    return {configured:true,ok:true,code:'OK',hint:'Signed in to the mail server; password-reset emails can be sent.'};
+  }catch(error){
+    transport=null; // retry with fresh settings next time
+    const e=error as {code?:string;responseCode?:number;response?:string};
+    const code=e.code||(e.responseCode?'SMTP_'+e.responseCode:'UNKNOWN');
+    console.error('[veyra] mail check failed:',code,error);
+    return {configured:true,ok:false,code,hint:MAIL_HINTS[code]||'The mail server refused the connection.',detail:String(e.response||'').slice(0,160)};
+  }
+}
