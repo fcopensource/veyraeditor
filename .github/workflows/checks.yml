@@ -1,0 +1,88 @@
+# Quality and security gates. Runs on every push and pull request, and the Release workflow
+# runs it first: a release is only built when every check here passes.
+#
+# Dependency policy
+#   npm (app):              any HIGH or CRITICAL advisory fails.
+#   npm (language tools):   the exact packages Veyra installs for users (src-tauri/src/lsp.rs) are
+#                           installed without scripts and audited; HIGH or CRITICAL fails.
+#   cargo audit:            any vulnerability fails; "unmaintained"/"unsound" warnings are reported only.
+name: Checks
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["website/**", "**.md", "docs/**"]
+  pull_request:
+    paths-ignore: ["website/**", "**.md", "docs/**"]
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend (TypeScript, build, Playwright)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Production build
+        run: npx vite build
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Playwright tests
+        run: npx playwright test --reporter=line
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
+
+  rust:
+    name: Rust (tests, clippy)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+      # The Tauri build script expects the web assets folder to exist.
+      - run: mkdir -p dist
+      - name: cargo test
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+      - name: cargo clippy (errors fail; warnings are reported)
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets
+
+  dependencies:
+    name: Dependency advisories
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: npm audit (app)
+        run: npm audit --omit=dev --audit-level=high
+      - name: npm audit (language tools installed for users)
+        run: node scripts/audit-language-tools.mjs
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      - name: cargo audit
+        run: cargo audit --file src-tauri/Cargo.lock

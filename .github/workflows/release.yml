@@ -3,6 +3,8 @@
 #
 # Release:  bump the version (npm run release:version 0.5.0), commit, then
 #           git tag v0.5.0 && git push origin main v0.5.0
+# Gates:    the Checks workflow (tests, builds, dependency audits) runs first; nothing is built or
+#           uploaded unless every check passes.
 # Publish:  review the draft release on GitHub and click "Publish". Installed copies of Veyra
 #           only see the update once the release is published.
 name: Release
@@ -17,8 +19,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yml
+
   build:
     name: ${{ matrix.name }}
+    needs: checks
     permissions:
       contents: write
     strategy:
