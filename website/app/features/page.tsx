@@ -20,7 +20,7 @@ export default function Features(){
     intro="Veyra brings the editing power of VS Code, real language intelligence, Git, a terminal and AI into one fast native app that keeps your code on your machine.">
 
     <div className="stats">
-      <div><b>~10 MB</b><span>installer download</span></div>
+      <div><b>7–11 MB</b><span>Windows, macOS, .deb/.rpm installers</span></div>
       <div><b>80+</b><span>languages highlighted</span></div>
       <div><b>11</b><span>AI providers, including local</span></div>
       <div><b>0</b><span>telemetry or tracking</span></div>

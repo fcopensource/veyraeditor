@@ -2,7 +2,7 @@
 const REPO = process.env.VEYRA_RELEASES_REPO || "fcopensource/veyraeditor";
 export const RELEASES_URL = `https://github.com/${REPO}/releases/latest`;
 
-type Asset = { name: string; browser_download_url: string; size: number };
+type Asset = { name: string; browser_download_url: string; size: number; digest?: string | null };
 export type Release = { version: string; publishedAt: string; assets: Asset[] };
 export type Manifest = { version: string; notes?: string; pub_date?: string; platforms: Record<string, { signature: string; url: string }> };
 
@@ -63,4 +63,19 @@ export async function releaseNotes(limit = 20): Promise<ReleaseNote[]> {
     // Skip drafts and placeholder releases with no files.
     return data.filter(r => !r.draft && r.assets.length).map(r => ({ version: r.tag_name.replace(/^v/, ""), name: r.name, publishedAt: r.published_at, body: r.body || "", url: r.html_url }));
   } catch { return []; }
+}
+
+const mb = (bytes: number) => Math.round(bytes / 1048576);
+/** Installer sizes from the actual release files: the native installers' range, and the larger self-contained AppImage. */
+export function installerSizes(release: Release | null) {
+  const native = (release?.assets || []).filter(a => /(-setup\.exe|\.msi|\.dmg|\.deb|\.rpm)$/i.test(a.name)).map(a => mb(a.size)).filter(Boolean);
+  const appImage = release?.assets.find(a => /\.appimage$/i.test(a.name));
+  if (!native.length) return { label: "Small native installers", min: 0, max: 0, appImage: 0 };
+  const min = Math.min(...native), max = Math.max(...native);
+  return { label: min === max ? `${min} MB installers` : `${min}–${max} MB installers`, min, max, appImage: appImage ? mb(appImage.size) : 0 };
+}
+/** SHA-256 of each downloadable file, as published by GitHub for the release. */
+export function checksums(release: Release | null) {
+  return (release?.assets || []).filter(a => a.digest?.startsWith("sha256:") && !/\.(sig|json)$/i.test(a.name))
+    .map(a => ({ name: a.name, sha256: a.digest!.slice(7), size: mb(a.size), url: a.browser_download_url }));
 }
