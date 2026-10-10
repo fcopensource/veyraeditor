@@ -3,6 +3,18 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.6.1
+
+**Security & privacy** (from an independent audit)
+- A strict Content Security Policy now protects the app: no inline or remote scripts, and network access from the interface only to the extension marketplace
+- AI workspace context never includes secrets: `.env` files, SSH keys, certificates, credential files, anything your `.gitignore` excludes, or files containing API keys or tokens
+- Attaching a file that looks like it contains secrets to a cloud AI now asks you to confirm before anything is sent
+- Language tools install without running any package install scripts, and a vulnerable dependency in the Emmet tool (node-tar) is replaced with a patched version
+- Every release now passes automated tests, builds and dependency audits before it is built
+
+**Fixes**
+- Find & Replace with regular expressions: `$1` followed by text (for example `$1px`) now keeps the matched group, like VS Code
+
 ## 0.6.0
 
 **Extensions, redesigned**
