@@ -364,7 +364,7 @@ mod tests {
                 let body=json!({"choices":[{"message":{"content":"test answer"},"finish_reason":reason}]}).to_string();
                 write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",body.len(),body).unwrap();
             });
-            let result=tauri::async_runtime::block_on(generate(Provider{kind:"custom".into(),endpoint:format!("http://{address}/v1")},Some("test-only-key".into()),"test-chat".into(),vec![Message{role:"user".into(),content:"test prompt".into()}]));
+            let result=tauri::async_runtime::block_on(generate(Provider{kind:"custom".into(),endpoint:format!("http://{address}/v1")},Some("test-only-key".into()),"test-chat".into(),vec![Message{role:"user".into(),content:"test prompt".into()}],&CHAT));
             server.join().unwrap();if reason=="stop"{assert_eq!(result.unwrap(),"test answer");}else{assert!(result.unwrap_err().contains("output limit"));}
         }
     }
