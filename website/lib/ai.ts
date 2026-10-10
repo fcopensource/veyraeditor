@@ -115,3 +115,17 @@ export class UpstreamError extends Error{constructor(message:string,readonly sta
 
 /** Errors in the shape OpenAI clients understand. */
 export const aiError=(message:string,status:number,type='invalid_request_error')=>Response.json({error:{message,type}},{status,headers:{'Cache-Control':'no-store'}});
+
+/* ---------- Devices (app sign-ins) for the account page ---------- */
+export type Device={id:string;device:string;createdAt:string;lastUsedAt:string|null};
+/** Devices signed in to the Veyra app. The id is a prefix of the token's hash: enough to revoke it, useless to sign in. */
+export async function listDevices(userId:number):Promise<Device[]>{
+  const rows=await query<(RowDataPacket&{token_hash:string;device:string;created_at:Date;last_used_at:Date|null})[]>(
+    'SELECT token_hash,device,created_at,last_used_at FROM api_tokens WHERE user_id=? ORDER BY COALESCE(last_used_at,created_at) DESC LIMIT 20',[userId]);
+  return rows.map(row=>({id:row.token_hash.slice(0,16),device:row.device||'Veyra Studio',createdAt:row.created_at.toISOString(),lastUsedAt:row.last_used_at?.toISOString()??null}));
+}
+export async function revokeDevice(userId:number,id:string){
+  if(!/^[0-9a-f]{16}$/.test(id)) return false;
+  const result=await query<ResultSetHeader>('DELETE FROM api_tokens WHERE user_id=? AND token_hash LIKE ?',[userId,id+'%']);
+  return result.affectedRows>0;
+}

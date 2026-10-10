@@ -81,6 +81,12 @@ export default function Docs(){
 
         <section id="ai"><h2>Set up AI</h2>
           <p>AI is optional. Open the assistant with <kbd>Ctrl</kbd>+<kbd>L</kbd> and pick a provider.</p>
+          <h3>Easiest: Veyra AI</h3>
+          <ol>
+            <li><Link href="/register">Create a free Veyra account</Link> (or use the one you have).</li>
+            <li>In Veyra, open the AI panel, choose <strong>Veyra AI</strong>, open its settings and sign in with your email and password.</li>
+            <li>Start asking. There's no API key, and the panel shows how many requests you have left today.</li>
+          </ol>
           <h3>Private and free: Ollama</h3>
           <ol>
             <li>Install Ollama from <a href="https://ollama.com">ollama.com</a>.</li>
@@ -108,7 +114,7 @@ export default function Docs(){
         </section>
 
         <section id="updates"><h2>Updates</h2>
-          <p>Veyra checks for new versions automatically and shows a banner when one is ready. Updates are signed and verified before they install, and never interrupt unsaved work. You can also run <strong>Check for updates</strong> from the command palette. See what changed in the <Link href="/changelog">changelog</Link>.</p>
+          <p>Veyra checks for new versions automatically. When one is ready, the <strong>Sign in</strong> button in the top-right corner turns into a glowing <strong>Update</strong> button; click it and Veyra installs the update and restarts. Updates are signed and verified before they install, and never interrupt unsaved work. You can also run <strong>Check for updates</strong> from the command palette. See what changed in the <Link href="/changelog">changelog</Link>.</p>
         </section>
 
         <section id="troubleshooting"><h2>Troubleshooting</h2>
