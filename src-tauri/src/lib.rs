@@ -412,8 +412,32 @@ async fn search_workspace(state: State<'_, Workspace>, query: String, options: O
     if query.is_empty() { return Ok(Vec::new()); }
     tauri::async_runtime::spawn_blocking(move || search_in(&root, &query, &options.unwrap_or_default())).await.map_err(err)?
 }
+/// VS Code replacement syntax → the regex crate's. `$1t` must mean group 1 then "t" (the crate would read a group
+/// named "1t"), `$&` is the whole match, `$$` is a literal dollar and `${name}` passes through.
+fn vscode_replacement(replacement: &str) -> String {
+    let chars: Vec<char> = replacement.chars().collect();
+    let mut out = String::with_capacity(replacement.len() + 8);
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] != '$' || i + 1 == chars.len() { out.push(chars[i]); i += 1; continue; }
+        match chars[i + 1] {
+            '$' => { out.push_str("$$"); i += 2; }
+            '&' => { out.push_str("${0}"); i += 2; }
+            c if c.is_ascii_digit() => {
+                let start = i + 1; let mut end = start;
+                while end < chars.len() && chars[end].is_ascii_digit() { end += 1; }
+                out.push_str("${"); out.extend(&chars[start..end]); out.push('}'); i = end;
+            }
+            '{' => { out.push('$'); i += 1; }
+            // A lone "$" before anything else is literal text, as in VS Code.
+            _ => { out.push_str("$$"); i += 1; }
+        }
+    }
+    out
+}
 fn replace_in(root: &Path, query: &str, options: &SearchOptions, replacement: &str, paths: &[String]) -> Result<usize> {
     let pattern = search_regex(query, options)?;
+    let replacement = &if options.regex { vscode_replacement(replacement) } else { replacement.to_string() };
     let mut total = 0;
     for path in paths {
         let file = checked(root, path)?;
@@ -703,6 +727,15 @@ mod tests {
         let nested = glob_list("src/**/*.{ts,tsx}");
         assert_eq!(nested.len(), 1);
         assert!(nested[0].is_match("src/main.tsx") && nested[0].is_match("src/a/b/c.ts") && !nested[0].is_match("lib/a.ts"));
+    }
+    #[test] fn replacements_follow_vscode_syntax() {
+        assert_eq!(vscode_replacement("b$1t"), "b${1}t");
+        assert_eq!(vscode_replacement("$12px"), "${12}px");
+        assert_eq!(vscode_replacement("[$&]"), "[${0}]");
+        assert_eq!(vscode_replacement("cost: $$5"), "cost: $$5");
+        assert_eq!(vscode_replacement("${name}!"), "${name}!");
+        assert_eq!(vscode_replacement("price $ only"), "price $$ only");
+        assert_eq!(vscode_replacement("end$"), "end$");
     }
     #[test] fn search_and_replace_respect_options() {
         let dir=tempfile::tempdir().unwrap();let base=dir.path().canonicalize().unwrap();
