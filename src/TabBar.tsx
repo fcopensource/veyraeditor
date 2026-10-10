@@ -2,7 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { DimensionalIcon } from "./DimensionalIcon";
 
-type TabInfo = { path: string; dirty: boolean };
+/** A file tab, or a page tab (e.g. an extension) with its own label and icon. */
+type TabInfo = { path: string; dirty: boolean; label?: string; icon?: React.ReactNode };
 type Props = {
   tabs: TabInfo[]; active: string; root: string; quickOpenTitle: string;
   onSelect: (path: string) => void; onClose: (path: string) => void; onCloseMany: (paths: string[]) => void;
@@ -42,7 +43,7 @@ export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, 
   const [edges, setEdges] = useState({ left: false, right: false });
 
   // Same file name in several folders: show just enough of each folder path to tell them apart, like VS Code.
-  const descriptions = tabDescriptions(tabs.map(tab => tab.path), root.split(/[\\/]/).filter(Boolean).pop() || "root");
+  const descriptions = tabDescriptions(tabs.filter(tab => !tab.label).map(tab => tab.path), root.split(/[\\/]/).filter(Boolean).pop() || "root");
   const description = (path: string) => descriptions.get(path) || "";
 
   const measure = () => {
@@ -78,8 +79,8 @@ export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, 
   return <div className={"tab-bar" + (edges.left ? " shadow-left" : "") + (edges.right ? " shadow-right" : "")}>
     <div className="tabs" role="tablist" ref={strip} onScroll={measure}>
       {tabs.map(tab => {
-        const isActive = tab.path === active, folder = description(tab.path);
-        return <div key={tab.path} title={tab.path}
+        const isActive = tab.path === active, folder = tab.label ? '' : description(tab.path);
+        return <div key={tab.path} title={tab.label ?? tab.path}
           className={"tab" + (isActive ? " active" : "") + (tab.dirty ? " dirty" : "") + (dragging === tab.path ? " dragging" : "") + (dropTarget === tab.path ? " drop-target" : "")}
           draggable onDragStart={event => { setDragging(tab.path); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", tab.path); }}
           onDragEnd={() => { setDragging(""); setDropTarget(""); }}
@@ -90,11 +91,11 @@ export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, 
           onMouseDown={event => { if (event.button === 1) event.preventDefault(); }}
           onContextMenu={event => { event.preventDefault(); setMenu({ x: event.clientX, y: event.clientY, path: tab.path }); }}>
           <button role="tab" aria-selected={isActive} onClick={() => onSelect(tab.path)}>
-            <DimensionalIcon path={tab.path} />
-            <span className="tab-label">{baseName(tab.path)}</span>
+            {tab.icon ?? <DimensionalIcon path={tab.path} />}
+            <span className="tab-label">{tab.label ?? baseName(tab.path)}</span>
             {folder && <span className="tab-description">{folder}</span>}
           </button>
-          <button className="close-tab" aria-label={"Close " + tab.path} title={tab.dirty ? "Unsaved changes · Close" : "Close"} onClick={() => onClose(tab.path)}>
+          <button className="close-tab" aria-label={"Close " + (tab.label ?? tab.path)} title={tab.dirty ? "Unsaved changes · Close" : "Close"} onClick={() => onClose(tab.path)}>
             <i className="dirty-dot" /><X size={14} />
           </button>
         </div>;
@@ -108,10 +109,12 @@ export function TabBar({ tabs, active, root, quickOpenTitle, onSelect, onClose, 
       <button role="menuitem" disabled={index(menu.path) === tabs.length - 1} onClick={action(() => onCloseMany(tabs.slice(index(menu.path) + 1).map(tab => tab.path)))}>Close to the Right</button>
       <button role="menuitem" disabled={!tabs.some(tab => !tab.dirty)} onClick={action(() => onCloseMany(tabs.filter(tab => !tab.dirty).map(tab => tab.path)))}>Close Saved</button>
       <button role="menuitem" onClick={action(() => onCloseMany(tabs.map(tab => tab.path)))}>Close All</button>
-      <i />
-      <button role="menuitem" onClick={action(() => void navigator.clipboard.writeText(absolute(menu.path)))}>Copy Path</button>
-      <button role="menuitem" onClick={action(() => void navigator.clipboard.writeText(menu.path))}>Copy Relative Path</button>
-      <button role="menuitem" onClick={action(() => onReveal(menu.path))}>Reveal in Explorer View</button>
+      {!tabs.find(tab => tab.path === menu.path)?.label && <>
+        <i />
+        <button role="menuitem" onClick={action(() => void navigator.clipboard.writeText(absolute(menu.path)))}>Copy Path</button>
+        <button role="menuitem" onClick={action(() => void navigator.clipboard.writeText(menu.path))}>Copy Relative Path</button>
+        <button role="menuitem" onClick={action(() => onReveal(menu.path))}>Reveal in Explorer View</button>
+      </>}
     </div>}
   </div>;
 }

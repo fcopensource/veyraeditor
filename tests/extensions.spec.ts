@@ -22,12 +22,15 @@ test('download, activate, persist, disable and uninstall an extension',async({pa
     return route.fulfill({json:{files:{download:'https://open-vsx.org/api/test/studio/package.vsix'}}});
   });
   await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
-  await page.getByRole('button',{name:'Install',exact:true}).click();
+  await page.getByRole('button',{name:'Install Studio Tools',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Studio Tools installed');
-  await page.getByRole('button',{name:/Installed 1/}).click();
-  await page.getByRole('button',{name:'Apply Studio Mint',exact:true}).click();
+  // The installed extension opens as a page tab with a "Set Colour Theme" action, like VS Code.
+  await page.locator('.ext-section').first().getByRole('button',{name:'Studio Tools',exact:true}).click();
+  await expect(page.getByRole('tab',{name:'Extension: Studio Tools'})).toBeVisible();
+  await page.locator('.ext-page').getByRole('button',{name:'Set Colour Theme'}).click();
   await expect(page.locator('main.app')).toHaveCSS('background-color','rgb(16, 32, 48)');
-  await expect(page.getByRole('button',{name:'Applied Studio Mint',exact:true})).toBeDisabled();
+  await expect(page.locator('.ext-page').getByRole('button',{name:'Colour theme applied'})).toBeDisabled();
+  await page.getByRole('button',{name:'Close Extension: Studio Tools'}).click();
   await expect(page.getByLabel('Extension editor theme')).toHaveValue('ext-746573742e73747564696f-0');
   await page.getByRole('button',{name:/Open a project/}).click();
   await page.getByRole('button',{name:'Explorer',exact:true}).click();
@@ -51,10 +54,10 @@ test('download, activate, persist, disable and uninstall an extension',async({pa
   await page.keyboard.press('Enter');
   expect(await page.evaluate(()=>(window as any).snippetTestEditor.getValue())).toBe('console.log("hello");');
   await expect(page.locator('#snippet-test .monaco-editor').first()).toHaveCSS('background-color','rgb(16, 32, 48)');
-  await page.reload();await page.getByRole('button',{name:'Extensions',exact:true}).click();await page.getByRole('button',{name:/Installed 1/}).click();
+  await page.reload();await page.getByRole('button',{name:'Extensions',exact:true}).click();
   await expect(page.getByText('1 themes · 1 snippets · Enabled')).toBeVisible();
-  await page.getByRole('button',{name:'Disable',exact:true}).click();await expect(page.getByLabel('Extension editor theme')).toHaveValue('');
-  await page.getByRole('button',{name:'Enable',exact:true}).click();await page.getByRole('button',{name:'Uninstall',exact:true}).click();
+  await page.getByRole('button',{name:'Disable Studio Tools',exact:true}).click();await expect(page.getByLabel('Extension editor theme')).toHaveCount(0);
+  await page.getByRole('button',{name:'Enable Studio Tools',exact:true}).click();await page.getByRole('button',{name:'Uninstall Studio Tools',exact:true}).click();
   await expect(page.getByText('Your installed extensions will appear here.')).toBeVisible();
 });
 test('VSIX import accepts snippets and rejects unsupported packages without persisting them',async({page})=>{
@@ -88,10 +91,56 @@ test('web development tools install in one click and stand in for their VS Code 
   await expect(page.locator('.extension-notice')).toContainText('Prettier installed');
   await expect(page.getByRole('button',{name:'Disable Prettier'})).toBeVisible();
   // A VS Code extension Veyra has built in installs the equivalent tool.
-  await expect(page.locator('.extension-card').filter({hasText:'Integrates ESLint'}).getByText('Built into Veyra')).toBeVisible();
-  await page.locator('.extension-card').filter({hasText:'Integrates ESLint'}).getByRole('button',{name:'Install',exact:true}).click();
+  const eslintRow=page.locator('.ext-row').filter({hasText:'Integrates ESLint'});
+  await expect(eslintRow.getByText('Built into Veyra')).toBeVisible();
+  await eslintRow.getByRole('button',{name:'Install ESLint',exact:true}).click();
   await expect(page.locator('.extension-notice')).toContainText('ESLint is built into Veyra: installed ESLint');
   expect(await page.evaluate(()=>(window as any).toolCalls)).toEqual(expect.arrayContaining(['lsp_install:prettier','lsp_install:eslint']));
-  await page.getByRole('button',{name:/Installed 2/}).click();
-  await expect(page.getByRole('button',{name:'Uninstall ESLint'})).toBeVisible();
+  await expect(page.locator('.ext-section').first().getByRole('button',{name:'Uninstall ESLint'})).toBeVisible();
+});
+
+test('extension pages open as editor tabs with details, features, versions and real icons',async({page})=>{
+  await page.addInitScript(()=>Object.assign(window,{__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string)=>{
+    if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:[]};
+    if(cmd==='plugin:event|listen')return 1;return null;
+  }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}}));
+  const icon='https://open-vsx.org/api/test/studio/1.0.0/file/icon.png';
+  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');
+  await page.route('https://open-vsx.org/api/**',async route=>{
+    const url=route.request().url();
+    if(url.includes('/-/search'))return route.fulfill({json:{extensions:[{namespace:'test',name:'studio',version:'1.0.0',displayName:'Studio Tools',description:'Themes and snippets',downloadCount:1234567,averageRating:4.5,verified:true,files:{icon}}]}});
+    if(url===icon)return route.fulfill({body:png,contentType:'image/png'});
+    if(url.endsWith('/README.md'))return route.fulfill({body:'# Studio Tools\n\nMakes [Veyra](https://veyraeditor.com) beautiful.',contentType:'text/markdown'});
+    if(url.endsWith('/package.json'))return route.fulfill({json:{publisher:'test',name:'studio',contributes:{themes:[{label:'Studio Mint',uiTheme:'vs-dark',path:'theme.json'}],snippets:[{language:'typescript',path:'snippets.json'}],commands:[{command:'studio.hello',title:'Say hello'}]}}});
+    if(url.endsWith('.vsix'))return route.fulfill({body:Buffer.from(packageBytes),contentType:'application/octet-stream'});
+    const files={download:'https://open-vsx.org/api/test/studio/package.vsix',icon,readme:'https://open-vsx.org/api/test/studio/1.0.0/file/README.md',manifest:'https://open-vsx.org/api/test/studio/1.0.0/file/package.json'};
+    return route.fulfill({json:{namespace:'test',name:'studio',version:'1.0.0',displayName:'Studio Tools',description:'Themes and snippets',verified:true,downloadCount:1234567,averageRating:4.5,reviewCount:8,license:'MIT',categories:['Themes'],timestamp:'2026-10-01T00:00:00Z',files,allVersions:{latest:'x','1.0.0':'x','0.9.0':'x'}}});
+  });
+  await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
+  const row=page.locator('.ext-row').filter({hasText:'Themes and snippets'});
+  await expect(row.locator('img.ext-icon')).toBeVisible();
+  await expect(row).toContainText('1.2M');
+  await row.click();
+  // The page opens as a tab and shows the README, publisher, downloads and rating.
+  await expect(page.getByRole('tab',{name:'Extension: Studio Tools'})).toHaveAttribute('aria-selected','true');
+  const extensionPage=page.locator('.ext-page');
+  await expect(extensionPage.locator('.ext-hero h1')).toHaveText('Studio Tools');
+  await expect(extensionPage.locator('.ext-markdown')).toContainText('Makes Veyra beautiful');
+  await expect(extensionPage).toContainText('1.2M downloads');
+  await expect(extensionPage.locator('.ext-hero img.ext-icon')).toBeVisible();
+  // Features lists what the extension contributes and what works in Veyra.
+  await extensionPage.getByRole('tab',{name:'Features'}).click();
+  await expect(extensionPage.locator('.ext-features')).toContainText('Colour themes');
+  await expect(extensionPage.locator('.ext-features')).toContainText('Say hello');
+  // Versions: install an older version, then the page offers the update.
+  await extensionPage.getByRole('tab',{name:/Versions/}).click();
+  await expect(extensionPage.locator('.ext-version-row')).toHaveCount(2);
+  await extensionPage.getByRole('button',{name:'Install',exact:true}).click();
+  await expect(extensionPage.getByRole('status')).toContainText('Studio Tools installed');
+  await expect(extensionPage.getByRole('button',{name:'Uninstall'})).toBeVisible();
+  await expect(extensionPage.getByRole('button',{name:'Reinstall'})).toBeVisible();
+  // Opening a file returns to the editor; the page tab stays available.
+  await page.getByRole('tab',{name:'Extension: Studio Tools'}).click({button:'middle'});
+  await expect(page.getByRole('tab',{name:'Extension: Studio Tools'})).toHaveCount(0);
+  await page.screenshot({path:'test-results/extension-page.png'});
 });

@@ -20,6 +20,8 @@ pub struct KeyStatus { kind: String, source: String, env: String, persisted: boo
 
 /// Built-in cloud providers: (kind, base URL, environment variables checked in order).
 const PROVIDERS: &[(&str, &str, &[&str])] = &[
+    // Veyra AI: the user's Veyra account token; the provider keys stay on veyraeditor.com.
+    ("veyra", VEYRA_API, &["VEYRA_AI_TOKEN"]),
     ("openai", "https://api.openai.com/v1", &["OPENAI_API_KEY"]),
     ("anthropic", "https://api.anthropic.com/v1", &["ANTHROPIC_API_KEY"]),
     ("gemini", "https://generativelanguage.googleapis.com/v1beta/openai", &["GEMINI_API_KEY", "GOOGLE_API_KEY"]),
@@ -31,14 +33,19 @@ const PROVIDERS: &[(&str, &str, &[&str])] = &[
     ("together", "https://api.together.xyz/v1", &["TOGETHER_API_KEY"]),
 ];
 const KEYRING_SERVICE: &str = "Veyra Studio AI";
+const VEYRA_API: &str = "https://veyraeditor.com/api/ai/v1";
+/// Veyra AI's address; VEYRA_API_BASE points a development build at a local website instead.
+fn veyra_api() -> String { std::env::var("VEYRA_API_BASE").ok().filter(|v| !v.trim().is_empty()).unwrap_or_else(|| VEYRA_API.into()) }
 /// Claude models that accept the server-side refusal fallback (`fallbacks: "default"`).
 const CLAUDE_FALLBACK_MODELS: &[&str] = &["claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"];
 
 fn provider(kind: &str) -> Option<&'static (&'static str, &'static str, &'static [&'static str])> { PROVIDERS.iter().find(|p| p.0 == kind) }
 fn base(config: &Provider) -> Result<String> {
+    let veyra = veyra_api();
     let address = match config.kind.as_str() {
         "ollama" => "http://127.0.0.1:11434",
         "custom" => config.endpoint.trim_end_matches('/'),
+        "veyra" => veyra.as_str(),
         kind => provider(kind).map(|p| p.1).ok_or("Unknown AI provider")?,
     };
     let url = reqwest::Url::parse(address).map_err(|_| "Enter a valid API base URL")?;
@@ -115,6 +122,12 @@ fn anthropic_headers(request: reqwest::RequestBuilder, key: &str) -> reqwest::Re
 }
 async fn response_json(mut response: reqwest::Response) -> Result<Value> {
     let status = response.status();
+    // Veyra AI explains its own errors (signed out, daily limit reached...): show them as they are.
+    if !status.is_success() && response.url().path().contains("/api/ai/v1/") {
+        let data: Value = response.json().await.unwrap_or_default();
+        return Err(data["error"]["message"].as_str().filter(|m| !m.is_empty() && m.len() < 300).map(str::to_owned)
+            .unwrap_or_else(|| format!("Veyra AI returned HTTP {}. Please try again.", status.as_u16())));
+    }
     if !status.is_success() {
         return Err(match status.as_u16() {
             401 | 403 => "Provider rejected the API key or model access. Check your connection settings.".into(),
@@ -255,6 +268,53 @@ pub fn ai_cancel(state: State<'_, AiState>, id: String) -> Result<()> {
     if let Some(cancel) = state.requests.lock().map_err(|_| "AI unavailable")?.get(&id) { cancel.notify_one(); }
     Ok(())
 }
+/* ---------- Veyra account (Veyra AI) ---------- */
+fn veyra_provider() -> Provider { Provider { kind: "veyra".into(), endpoint: String::new() } }
+/// The website's origin, from the Veyra AI address (.../api/ai/v1).
+fn veyra_site() -> String { veyra_api().trim_end_matches('/').trim_end_matches("/api/ai/v1").to_string() }
+#[derive(Serialize)]
+pub struct VeyraAccount { name: String, email: String, used: u64, limit: u64, resets_at: String, available: bool }
+
+/// Sign in with a Veyra account. The device token is kept like an API key (session + OS credential store).
+#[tauri::command]
+pub async fn veyra_sign_in(state: State<'_, AiState>, email: String, password: String) -> Result<VeyraAccount> {
+    if email.len() > 254 || password.len() > 256 { return Err("Check your email address and password.".into()); }
+    let device = format!("Veyra Studio on {}", std::env::consts::OS);
+    let response = client()?.post(format!("{}/api/auth/token", veyra_site())).timeout(Duration::from_secs(30))
+        .json(&json!({"email": email.trim(), "password": password, "device": device})).send().await
+        .map_err(|_| "Cannot reach veyraeditor.com. Check your internet connection.".to_string())?;
+    let status = response.status();
+    let data: Value = response.json().await.unwrap_or_default();
+    if !status.is_success() { return Err(data["error"].as_str().unwrap_or("Sign-in failed. Please try again.").to_string()); }
+    let token = data["token"].as_str().filter(|t| t.starts_with("vey_")).ok_or("Sign-in failed. Please try again.")?.to_string();
+    ai_set_key(state.clone(), veyra_provider(), token)?;
+    veyra_account(state).await?.ok_or_else(|| "Signed in, but Veyra AI could not be reached.".into())
+}
+
+/// The signed-in account and today's usage, or None when not signed in (or the sign-in was revoked).
+#[tauri::command]
+pub async fn veyra_account(state: State<'_, AiState>) -> Result<Option<VeyraAccount>> {
+    let Some((token, _)) = lookup(&state, &veyra_provider())? else { return Ok(None) };
+    let response = client()?.get(format!("{}/usage", veyra_api())).bearer_auth(token).timeout(Duration::from_secs(20)).send().await
+        .map_err(|_| "Cannot reach veyraeditor.com. Check your internet connection.".to_string())?;
+    if response.status().as_u16() == 401 { return Ok(None); }
+    let data = response_json(response).await?;
+    Ok(Some(VeyraAccount {
+        name: data["user"]["name"].as_str().unwrap_or("").into(), email: data["user"]["email"].as_str().unwrap_or("").into(),
+        used: data["used"].as_u64().unwrap_or(0), limit: data["limit"].as_u64().unwrap_or(0),
+        resets_at: data["resetsAt"].as_str().unwrap_or("").into(), available: data["available"].as_bool().unwrap_or(false),
+    }))
+}
+
+/// Sign out: revoke the token on the server (best effort) and forget it on this device.
+#[tauri::command]
+pub async fn veyra_sign_out(state: State<'_, AiState>) -> Result<()> {
+    if let Some((token, _)) = lookup(&state, &veyra_provider())? {
+        let _ = client()?.delete(format!("{}/api/auth/token", veyra_site())).bearer_auth(token).timeout(Duration::from_secs(10)).send().await;
+    }
+    ai_set_key(state, veyra_provider(), String::new()).map(|_| ())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
-import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,FolderSearch,KeyRound,MessageSquare,Plus,RefreshCw,Settings2,ShieldCheck,Sparkles,Square,Trash2,X} from 'lucide-react';
+import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,FolderSearch,KeyRound,LogOut,MessageSquare,Plus,RefreshCw,Settings2,ShieldCheck,Sparkles,Square,Trash2,UserRound,X} from 'lucide-react';
+import {openUrl} from '@tauri-apps/plugin-opener';
 import {isMac,isWindows} from './platform';
 export type AISnapshot={root:string;path:string;original:string;start:number;end:number;content:string};
 export type AIProposal={snapshot:AISnapshot;replacement:string;model:string};
@@ -8,8 +9,11 @@ type Config={kind:string;endpoint:string};
 type Message={role:'user'|'assistant';content:string;display?:string;proposal?:AIProposal};
 type ContextFile={path:string;content:string;score:number};
 type KeyStatus={kind:string;source:string;env:string;persisted:boolean};
+type VeyraAccount={name:string;email:string;used:number;limit:number;resets_at:string;available:boolean};
+const SITE='https://veyraeditor.com';
 /** Providers the native side knows about; the endpoint only matters for "custom". */
 const PROVIDERS:{kind:string;label:string;name:string;endpoint:string;env?:string;model?:string}[]=[
+  {kind:'veyra',label:'Veyra AI',name:'Veyra AI',endpoint:SITE+'/api/ai/v1',model:'veyra-ai'},
   {kind:'ollama',label:'Ollama · local',name:'Ollama on this computer',endpoint:'http://127.0.0.1:11434'},
   {kind:'anthropic',label:'Anthropic · Claude',name:'Anthropic',endpoint:'https://api.anthropic.com/v1',env:'ANTHROPIC_API_KEY',model:'claude-opus-5-5'},
   {kind:'openai',label:'OpenAI',name:'OpenAI',endpoint:'https://api.openai.com/v1',env:'OPENAI_API_KEY'},
@@ -34,7 +38,8 @@ function describe(status:KeyStatus|null){
 function saved(){try{return JSON.parse(localStorage.getItem('veyra.ai.settings')||'{}');}catch{return {};}}
 export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{root:string;active:string;visible:boolean;onClose:()=>void;capture:(scope:string)=>AISnapshot|null;onReview:(proposal:AIProposal)=>void;intent:number}){
   const initial=useRef(saved());
-  const [config,setConfig]=useState<Config>({kind:initial.current.kind||'ollama',endpoint:initial.current.endpoint||info(initial.current.kind||'ollama').endpoint});
+  const [config,setConfig]=useState<Config>({kind:initial.current.kind||'veyra',endpoint:initial.current.endpoint||info(initial.current.kind||'veyra').endpoint});
+  const [account,setAccount]=useState<VeyraAccount|null>(null);const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [signing,setSigning]=useState(false);
   const [model,setModel]=useState<string>(initial.current.model||'');const [models,setModels]=useState<string[]>([]);
   const [key,setKey]=useState('');const [keyStatus,setKeyStatus]=useState<KeyStatus|null>(null);const keyReady=!!keyStatus&&keyStatus.source!=='none';const [keyList,setKeyList]=useState<KeyStatus[]>([]);const [settings,setSettings]=useState(false);
   const [prompt,setPrompt]=useState('');const [mode,setMode]=useState<'ask'|'edit'>('ask');const [scope,setScope]=useState('none');
@@ -65,11 +70,29 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
     catch{setKeyStatus(null);return false;}
   }
   async function loadKeyList(){try{const list=await invoke<KeyStatus[]|null>('ai_key_statuses');setKeyList(Array.isArray(list)?list:[]);}catch{setKeyList([]);}}
-  useEffect(()=>{void (async()=>{const ready=config.kind!=='ollama'&&await loadKeyStatus();if(config.kind==='ollama'||ready)void refresh();})();},[]);
+  useEffect(()=>{void (async()=>{
+    if(config.kind==='veyra'){if(await loadAccount())void refresh();return;}
+    const ready=config.kind!=='ollama'&&await loadKeyStatus();if(config.kind==='ollama'||ready)void refresh();
+  })();},[]);
   useEffect(()=>{if(settings)void loadKeyList();},[settings]);
   function provider(kind:string){
     reset();const next={kind,endpoint:info(kind).endpoint};setConfig(next);setModels([]);setModel('');setKey('');setKeyStatus(null);setConnected(false);setSettings(true);
-    if(kind!=='ollama')void loadKeyStatus(next);
+    if(kind==='veyra')void loadAccount().then(signed=>{if(signed)void refresh();});
+    else if(kind!=='ollama')void loadKeyStatus(next);
+  }
+  /** Veyra AI: the signed-in account and today's allowance (null when signed out). */
+  async function loadAccount(){
+    try{const result=await invoke<VeyraAccount|null>('veyra_account');setAccount(result??null);return !!result;}
+    catch(e){setError(String(e));return false;}
+  }
+  async function signIn(){
+    setSigning(true);setError('');
+    try{const result=await invoke<VeyraAccount>('veyra_sign_in',{email,password});setAccount(result);setPassword('');void loadKeyList();await refresh();}
+    catch(e){setError(String(e));}finally{setSigning(false);}
+  }
+  async function signOut(){
+    setError('');
+    try{await invoke('veyra_sign_out');setAccount(null);setConnected(false);setModels([]);void loadKeyList();}catch(e){setError(String(e));}
   }
   async function connect(){
     setError('');
@@ -109,6 +132,7 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
       const blocks=[...answer.matchAll(/```[^\n]*\n([\s\S]*?)\n?```/g)];
       const proposal=requestedMode==='edit'&&snapshot&&blocks.length===1?{snapshot,replacement:blocks[0][1],model:requestedModel}:undefined;
       setConnected(true);setMessages([...next,{role:'assistant',content:answer,proposal}]);
+      if(config.kind==='veyra')void loadAccount();
       if(requestedMode==='edit'&&!proposal)setError('The response did not contain one complete code block. Ask the model for a single replacement before applying.');
     }catch(e){if(alive.current&&revision===generation.current){setError(String(e));setMessages(messages);setPrompt(next.at(-1)?.display?.split('\n↳')[0]||'');}}
     finally{if(request.current===id){request.current='';if(alive.current)setBusy(false);}}
@@ -119,14 +143,26 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
     <div className="ai-modelbar"><select aria-label="AI provider" value={config.kind} disabled={busy||loading} onChange={e=>provider(e.target.value)}>{PROVIDERS.map(p=><option key={p.kind} value={p.kind}>{p.label}</option>)}</select><span className={'ai-connection '+(connected?'online':'')}>{connected?'Connected':'Not connected'}</span></div>
     {settings&&<section className="ai-settings"><h3>Choose your intelligence</h3><p>Switch models without leaving your workspace.</p>
       {config.kind==='custom'&&<label>API base URL<input aria-label="AI API base URL" disabled={busy||loading} value={config.endpoint} onChange={e=>{reset();setConfig({...config,endpoint:e.target.value});setKeyStatus(null);setConnected(false);setModels([]);}} placeholder="https://provider.example/v1"/></label>}
-      {config.kind!=='ollama'&&<><label>API key<input aria-label="AI API key" type="password" autoComplete="off" value={key} onChange={e=>setKey(e.target.value)} placeholder={keyReady?'Paste a new key to replace the current one':'Paste your provider API key'}/></label>
+      {config.kind==='veyra'&&(account?<div className="veyra-account">
+        <div className="veyra-account-head"><span className="veyra-avatar"><UserRound size={16}/></span><span><b>{account.name||'Signed in'}</b><small>{account.email}</small></span><button type="button" title="Sign out of Veyra AI" aria-label="Sign out of Veyra AI" onClick={()=>void signOut()}><LogOut size={13}/></button></div>
+        {account.available?<><div className="veyra-usage" role="meter" aria-label="Veyra AI requests used today" aria-valuemin={0} aria-valuemax={account.limit} aria-valuenow={account.used}><i style={{width:`${Math.min(100,account.limit?account.used/account.limit*100:0)}%`}}/></div>
+        <p className="ai-fine">{account.used} of {account.limit} requests used today · resets at midnight UTC. Your code goes to Veyra AI only when you send a message.</p></>
+        :<p className="ai-fine">Veyra AI isn't switched on yet. Choose another provider for now.</p>}
+      </div>:<form className="veyra-signin" onSubmit={e=>{e.preventDefault();void signIn();}}>
+        <p>Sign in with your free Veyra account to use Veyra AI. No API key needed.</p>
+        <label>Email<input aria-label="Veyra account email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>
+        <label>Password<input aria-label="Veyra account password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
+        <button className="secondary" type="submit" disabled={signing||!email.trim()||!password}>{signing?'Signing in…':'Sign in to Veyra AI'}</button>
+        <p className="ai-fine">No account? <button type="button" className="link-button" onClick={()=>void openUrl(SITE+'/register').catch(()=>{})}>Create one free on veyraeditor.com</button></p>
+      </form>)}
+      {config.kind!=='ollama'&&config.kind!=='veyra'&&<><label>API key<input aria-label="AI API key" type="password" autoComplete="off" value={key} onChange={e=>setKey(e.target.value)} placeholder={keyReady?'Paste a new key to replace the current one':'Paste your provider API key'}/></label>
         {keyReady&&<p className="ai-key-state"><ShieldCheck size={13}/>{describe(keyStatus)}{keyStatus?.persisted&&<button type="button" title="Remove the saved key" aria-label="Remove saved API key" onClick={()=>void forget()}><Trash2 size={12}/></button>}</p>}
         <p className="ai-fine">Keys are encrypted in {vaultName} and load automatically in the background, like VS Code secrets. They are never written to your project or browser storage.{info(config.kind).env?` Veyra also picks up ${info(config.kind).env} from your environment.`:''}</p>
         <button className="secondary" disabled={busy||loading||(!key&&!keyReady)} onClick={()=>void connect()}>{loading?'Connecting…':'Connect provider'}</button></>}
       {config.kind==='ollama'&&<div className="ai-local-help"><span>Runs on this computer</span><code>ollama serve</code><code>ollama pull qwen2.5-coder:3b</code><p>Download another Ollama model, then refresh this list.</p></div>}
-      <button className="secondary" disabled={busy||loading} onClick={()=>void refresh()}><RefreshCw size={13}/>{loading?'Loading models…':'Refresh models'}</button>
+      {config.kind!=='veyra'&&<><button className="secondary" disabled={busy||loading} onClick={()=>void refresh()}><RefreshCw size={13}/>{loading?'Loading models…':'Refresh models'}</button>
       <label>Model ID<input aria-label="AI model ID" disabled={busy} value={model} onChange={e=>{reset();setModel(e.target.value);}} placeholder="Choose from the list or enter a chat model ID"/></label>
-      <p className="ai-fine">Cloud providers need your own API account and may charge per request. Compatible APIs must support text chat completions.</p>
+      <p className="ai-fine">Cloud providers need your own API account and may charge per request. Compatible APIs must support text chat completions.</p></>}
       <div className="ai-keys"><h4><KeyRound size={13}/>API keys</h4>{keyList.map(item=><button key={item.kind} className={item.kind===config.kind?'active':''} disabled={busy||loading} onClick={()=>item.kind!==config.kind&&provider(item.kind)}><span>{info(item.kind).label}</span><i className={item.source==='none'?'':'ready'}>{item.source==='none'?'Not set':item.source==='environment'?item.env:'Saved'}</i></button>)}</div>
     </section>}
     <div className="ai-messages" ref={list} aria-live="polite">

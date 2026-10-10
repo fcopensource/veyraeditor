@@ -479,3 +479,19 @@
 .tab-menu i { height: 1px; margin: 4px 6px; background: var(--border) }
 .app.light .tab { background: color-mix(in srgb, var(--sidebar) 96%, #000) }
 .app.light .tab.active { background: var(--editor) }
+
+/* ---------- Veyra AI account (AI panel) ---------- */
+.veyra-account { margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in srgb, var(--accent) 6%, var(--sidebar)) }
+.veyra-account-head { display: flex; align-items: center; gap: 10px }
+.veyra-account-head > span:nth-child(2) { display: grid; flex: 1; min-width: 0 }
+.veyra-account-head b { color: var(--bright); font-size: 12px }
+.veyra-account-head small { overflow: hidden; color: var(--muted); font-size: 10.5px; text-overflow: ellipsis; white-space: nowrap }
+.veyra-account-head button { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; color: var(--muted) }
+.veyra-account-head button:hover { background: var(--hover); color: var(--bright) }
+.veyra-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #9673ff); color: #06100d }
+.veyra-usage { height: 6px; margin: 12px 0 4px; overflow: hidden; border-radius: 6px; background: var(--hover) }
+.veyra-usage i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), #9673ff); transition: width .3s }
+.veyra-signin { margin-top: 10px }
+.veyra-signin > p:first-child { color: var(--text) !important; font-size: 11px !important }
+.veyra-signin > .secondary { margin-top: 6px; width: 100%; justify-content: center; font-size: 11px }
+.link-button { display: inline; padding: 0; background: none !important; color: var(--accent); font-size: inherit; text-decoration: underline; cursor: pointer }

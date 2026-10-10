@@ -204,6 +204,8 @@ export function registerInlineAI(mode: () => InlineMode) {
       let settings: AISettings = {};
       try { settings = JSON.parse(localStorage.getItem("veyra.ai.settings") || "{}"); } catch { /* defaults */ }
       if (!settings.model || !settings.kind || (setting === "local" && !isLocal(settings))) return empty;
+      // Veyra AI has a daily request allowance; ghost text would use it up while typing, so it stays chat-only.
+      if (settings.kind === "veyra") return empty;
       const line = model.getLineContent(position.lineNumber);
       const before = line.slice(0, position.column - 1), after = line.slice(position.column - 1);
       // Don't interrupt mid-word, and leave blank documents alone.

@@ -1,11 +1,16 @@
 import {test,expect,type Page} from '@playwright/test';
-test.beforeEach(async({page})=>{
+test.beforeEach(async({page},testInfo)=>{
+  // These tests exercise local Ollama; Veyra AI (the default for new users) has its own test below.
+  if(!testInfo.title.startsWith('Veyra AI'))await page.addInitScript(()=>{if(!localStorage.getItem('veyra.ai.settings'))localStorage.setItem('veyra.ai.settings',JSON.stringify({kind:'ollama',endpoint:'http://127.0.0.1:11434'}));});
   await page.addInitScript(()=>{
     const files:Record<string,string>={'hello.ts':'export const greeting = "hello";\n','README.md':'# Demo\n'};
     const calls:{cmd:string;args:any}[]=[];let pending:((value:string)=>void)|null=null;
     Object.assign(window,{aiCalls:calls,aiFiles:files,delayAI:false,finishAI:()=>pending?.('```typescript\nexport const greeting = "updated";\n```'),__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string,args:any={})=>{
       calls.push({cmd,args});
-      if(cmd==='ai_models')return args.config.kind==='ollama'?['qwen2.5-coder:3b','local-second:1b']:['provider/chat-model'];
+      if(cmd==='ai_models')return args.config.kind==='ollama'?['qwen2.5-coder:3b','local-second:1b']:args.config.kind==='veyra'?['veyra-ai']:['provider/chat-model'];
+      if(cmd==='veyra_account')return (window as any).veyraAccount||null;
+      if(cmd==='veyra_sign_in'){if(args.password!=='Strong#Pass1')throw 'That email and password do not match.';(window as any).veyraAccount={name:'Ada Lovelace',email:args.email,used:0,limit:100,resets_at:'',available:true};return (window as any).veyraAccount;}
+      if(cmd==='veyra_sign_out'){(window as any).veyraAccount=null;return;}
       if(cmd==='ai_chat'){if((window as any).delayAI)return new Promise<string>(resolve=>{pending=resolve;});return 'Here is the improvement.\n```typescript\nexport const greeting = "updated";\n```';}
       if(cmd==='ai_cancel'){pending?.('Stopped');return;}
       if(cmd==='ai_workspace_context')return [{path:'hello.ts',content:files['hello.ts'],score:42},{path:'README.md',content:files['README.md'],score:8}];
@@ -68,4 +73,32 @@ test('smart workspace context retrieves relevant files and discloses what is sen
   const sent=JSON.stringify(calls.find((call:any)=>call.cmd==='ai_chat').args.messages);
   expect(sent).toContain('<file path=\\"hello.ts\\">');
   expect(sent).toContain('# Demo');
+});
+
+test('Veyra AI: sign in with a Veyra account, chat without an API key, see usage, sign out',async({page})=>{
+  await page.goto('/');
+  // New users start on Veyra AI and are asked to sign in, not for an API key.
+  await expect(page.getByLabel('AI provider')).toHaveValue('veyra');
+  await page.getByRole('button',{name:'Model settings'}).click();
+  await expect(page.getByLabel('AI API key')).toHaveCount(0);
+  await page.getByLabel('Veyra account email').fill('ada@example.com');
+  await page.getByLabel('Veyra account password').fill('wrong-password');
+  await page.getByRole('button',{name:'Sign in to Veyra AI'}).click();
+  await expect(page.locator('.ai-studio [role=alert], .ai-studio .ai-error').first()).toContainText('do not match');
+  await page.getByLabel('Veyra account password').fill('Strong#Pass1');
+  await page.getByRole('button',{name:'Sign in to Veyra AI'}).click();
+  await expect(page.locator('.veyra-account')).toContainText('Ada Lovelace');
+  await expect(page.locator('.veyra-account')).toContainText('0 of 100 requests used today');
+  await expect(page.getByLabel('AI model',{exact:true})).toHaveValue('veyra-ai');
+  // Chat goes to the Veyra provider; the password never reaches local storage.
+  await page.evaluate(()=>{(window as any).veyraAccount.used=1;});
+  await page.getByPlaceholder(/Ask anything/).fill('Hello');
+  await page.keyboard.press(process.platform==='darwin'?'Meta+Enter':'Control+Enter');
+  await expect(page.locator('.ai-message.assistant')).toContainText('Here is the improvement');
+  const chat=await page.evaluate(()=>(window as any).aiCalls.find((call:any)=>call.cmd==='ai_chat'));
+  expect(chat.args.config.kind).toBe('veyra');
+  await expect(page.locator('.veyra-account')).toContainText('1 of 100 requests used today');
+  expect(await page.evaluate(()=>JSON.stringify(localStorage))).not.toContain('Strong#Pass1');
+  await page.getByRole('button',{name:'Sign out of Veyra AI'}).click();
+  await expect(page.getByRole('button',{name:'Sign in to Veyra AI'})).toBeVisible();
 });

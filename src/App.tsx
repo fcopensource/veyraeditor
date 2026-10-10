@@ -11,6 +11,8 @@ import "./explorer.css";
 import {CreateEntryDialog} from "./CreateEntryDialog";
 import {Package} from "lucide-react";
 import {ExtensionsPanel} from "./ExtensionsPanel";
+import {ExtensionPage} from "./ExtensionPage";
+import {ExtIcon,PAGE_PREFIX,targetId,type ExtensionTarget} from "./extensionUi";
 import {activateExtensions,installedExtensions,saveExtensions,themeId,type Extension} from "./extensions";
 import {AIStudio,type AISnapshot,type AIProposal} from './AIStudio';
 import {DimensionalIcon} from './DimensionalIcon';
@@ -61,6 +63,9 @@ export default function App() {
   const [creation,setCreation]=useState<{directory:boolean;parent:string}|null>(null);
   const [indexed, setIndexed] = useState<string[]>([]);
   const [tabs, setTabs] = useState<Tab[]>([]);
+  // Page tabs (extension details) live beside file tabs; while one is active it covers the editor.
+  const [pages, setPages] = useState<ExtensionTarget[]>([]);
+  const [activePage, setActivePage] = useState<string|null>(null);
   const [active, setActive] = useState("");
   const [panel, setPanel] = useState("files");
   const [aiOpen,setAiOpen]=useState(true);
@@ -233,7 +238,16 @@ export default function App() {
       await refresh(); setStatus("Opened " + baseName(selected));
     } catch(e) { report(e); } finally { setBusy(false); }
   }
+  function openExtension(target:ExtensionTarget){
+    const id=targetId(target);
+    setPages(all=>all.some(page=>targetId(page)===id)?all.map(page=>targetId(page)===id?{...page,...target,icon:target.icon||page.icon}:page):[...all,target]);
+    setActivePage(id);
+  }
+  function closePage(id:string){
+    setPages(all=>{const remaining=all.filter(page=>targetId(page)!==id);if(activePage===id)setActivePage(remaining.length&&!state.current.active?targetId(remaining.at(-1)!):null);return remaining;});
+  }
   async function openFile(path: string, line?: number, column = 1) {
+    setActivePage(null);
     setDiff(null); setPalette(null); setRecentFiles(recent=>[path,...recent.filter(item=>item!==path)].slice(0,30));
     backgroundModels.delete(monaco.Uri.file(state.current.root+"/"+path).toString());
     setSelectedPath(path);setSelectedFolder(path.includes("/")?path.slice(0,path.lastIndexOf("/")):"");
@@ -617,7 +631,7 @@ export default function App() {
       </nav>
       {sidebar&&<><aside className="sidebar" style={{width:sidebarWidth}}>
         <div className="sidebar-heading"><span>{panel==='extensions'?'EXTENSIONS':panel==="files"?"EXPLORER":panel==="search"?"SEARCH":panel==="git"?"SOURCE CONTROL":panel==="health"?"HEALTH MONITOR":"PREFERENCES"}</span><button className="icon-button" title="Open folder" onClick={chooseFolder}><FolderOpen size={15}/></button></div>
-        {panel==='extensions'&&<ExtensionsPanel items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme}/>}
+        {panel==='extensions'&&<ExtensionsPanel items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme} onOpen={openExtension} selected={activePage?.slice(PAGE_PREFIX.length)}/>}
         {panel==="files"&&<>
           <div className="workspace-section"><span><ChevronDown size={13}/>{root?projectName:"NO FOLDER OPEN"}</span><div><button title={"New file · "+keys("⌘N")} onClick={()=>create()}><FilePlus2 size={14}/></button><button title="New folder" onClick={()=>create(true)}><FolderPlus size={14}/></button><button title="Refresh files" onClick={refresh}><RefreshCw size={13}/></button></div></div>
           <div className="creation-target"><span>CREATE IN</span><strong title={selectedFolder||projectName}>{selectedFolder||"Project root"}</strong><button aria-label="Select workspace root" title="Create in project root" onClick={()=>{setSelectedFolder("");setSelectedPath("");}}><FolderOpen size={13}/></button></div><div className="tree">{root?treeItems():<div className="sidebar-empty"><PrismIcon tone="blue" size="large"><FolderOpen size={25}/></PrismIcon><p>Your files, together.</p><small>Open a folder to explore your project.</small><button className="primary" onClick={chooseFolder}>Open folder</button></div>}</div>
@@ -629,15 +643,19 @@ export default function App() {
         {panel==="settings"&&<SettingsPanel preferences={preferences} onChange={setPreferences} shortcuts={commands}/>}
       </aside><div className="resize-handle" onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);}} onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))setSidebarWidth(Math.max(190,Math.min(420,e.clientX-49)));}} onPointerUp={e=>e.currentTarget.releasePointerCapture(e.pointerId)}/></>}
       <section className="content">
-        <TabBar tabs={tabs.map(tab=>({path:tab.path,dirty:dirty(tab)}))} active={active} root={root} quickOpenTitle={"Quick open · "+keys("⌘P")}
-          onSelect={path=>void openFile(path)} onClose={path=>void closeTab(path)}
-          onCloseMany={paths=>void (async()=>{for(const path of paths)await closeTab(path);})()}
-          onReorder={(from,to)=>setTabs(all=>{const next=[...all],moving=next.findIndex(tab=>tab.path===from),target=next.findIndex(tab=>tab.path===to);if(moving<0||target<0)return all;const [item]=next.splice(moving,1);next.splice(target,0,item);return next;})}
+        <TabBar tabs={[...tabs.map(tab=>({path:tab.path,dirty:dirty(tab)})),...pages.map(page=>({path:targetId(page),dirty:false,label:"Extension: "+page.title,icon:<ExtIcon src={page.icon} name={page.title} size={16}/>}))]} active={activePage??active} root={root} quickOpenTitle={"Quick open · "+keys("⌘P")}
+          onSelect={path=>{if(path.startsWith(PAGE_PREFIX))setActivePage(path);else void openFile(path);}} onClose={path=>{if(path.startsWith(PAGE_PREFIX))closePage(path);else void closeTab(path);}}
+          onCloseMany={paths=>void (async()=>{for(const path of paths){if(path.startsWith(PAGE_PREFIX))closePage(path);else await closeTab(path);}})()}
+          onReorder={(from,to)=>{
+            if(from.startsWith(PAGE_PREFIX)!==to.startsWith(PAGE_PREFIX))return;
+            if(from.startsWith(PAGE_PREFIX)){setPages(all=>{const next=[...all],moving=next.findIndex(page=>targetId(page)===from),target=next.findIndex(page=>targetId(page)===to);if(moving<0||target<0)return all;const [item]=next.splice(moving,1);next.splice(target,0,item);return next;});return;}
+            setTabs(all=>{const next=[...all],moving=next.findIndex(tab=>tab.path===from),target=next.findIndex(tab=>tab.path===to);if(moving<0||target<0)return all;const [item]=next.splice(moving,1);next.splice(target,0,item);return next;});}}
           onQuickOpen={()=>openPalette("files")}
           onReveal={path=>{setPanel("files");setSidebar(true);setSelectedPath(path);setSelectedPaths(new Set([path]));void refresh(path.includes("/")?path.slice(0,path.lastIndexOf("/")):"");}}/>
-        {file&&<div className="breadcrumbs"><IconFile path={file.path}/><span>{file.path.split("/").join("  /  ")}</span><div/><button title={"Save · "+keys("⌘S")} onClick={()=>saveTab()} disabled={!dirty(file)}><Save size={14}/></button><button title="Rename" onClick={rename}><Pencil size={13}/></button><button title="Move to Trash" onClick={trash}><Trash2 size={13}/></button><button title="More commands" onClick={()=>openPalette("commands")}><MoreHorizontal size={16}/></button></div>}
-        {file?.external&&<div className="warning"><CircleAlert size={15}/>This file changed on disk. Your unsaved edits are preserved.<button onClick={reload}>Review / reload</button></div>}
+        {file&&!activePage&&<div className="breadcrumbs"><IconFile path={file.path}/><span>{file.path.split("/").join("  /  ")}</span><div/><button title={"Save · "+keys("⌘S")} onClick={()=>saveTab()} disabled={!dirty(file)}><Save size={14}/></button><button title="Rename" onClick={rename}><Pencil size={13}/></button><button title="Move to Trash" onClick={trash}><Trash2 size={13}/></button><button title="More commands" onClick={()=>openPalette("commands")}><MoreHorizontal size={16}/></button></div>}
+        {file?.external&&!activePage&&<div className="warning"><CircleAlert size={15}/>This file changed on disk. Your unsaved edits are preserved.<button onClick={reload}>Review / reload</button></div>}
         <div className="editing-area">
+          {activePage&&(()=>{const page=pages.find(item=>targetId(item)===activePage);return page&&<div className="page-overlay"><ExtensionPage key={activePage} target={page} items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme} onOpen={openExtension}/></div>;})()}
           {diff!==null?<div className="diff-view"><div><GitBranch size={16}/><b>{diff.path}</b><small>HEAD ↔ Working tree</small><button title={diffInline?"Show side by side":"Show inline"} aria-label="Toggle inline diff" onClick={()=>setDiffInline(v=>!v)}>{diffInline?<Columns2 size={15}/>:<Rows2 size={15}/>}</button><button title="Open file" aria-label="Open file" onClick={()=>{const path=diff.path;setDiff(null);void openFile(path);}}><ExternalLink size={14}/></button><button title="Close diff" aria-label="Close diff" onClick={()=>setDiff(null)}><X size={16}/></button></div>{diff.original===diff.modified?<pre>No changes against HEAD.</pre>:<div className="diff-editor"><DiffEditor original={diff.original} modified={diff.modified} language={languageFor(diff.path)} theme={effectiveTheme||(preferences.light?"vs":"veyra")} options={{readOnly:true,renderSideBySide:!diffInline,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false,renderOverviewRuler:true}}/></div>}</div>:file?<div className="editor-splits">{[0,...(split?[1]:[])].map(index=><div className="monaco-pane" key={index}><Editor path={modelUri} keepCurrentModel language={languageFor(file.path)} value={file.text} theme={effectiveTheme||(preferences.light?"vs":"veyra")} onMount={mounted} onValidate={()=>setProblems(openMarkers())} onChange={text=>setTabs(all=>all.map(t=>t.path===file.path?{...t,text:text??""}:t))} options={editorOptions}/></div>)}</div>:<div className="welcome">
             <div className="welcome-top"><span className="eyebrow">A LITTLE SPACE. A LOT OF POSSIBILITY.</span><span className="version">Veyra · AI Studio</span></div>
             <div className="welcome-hero"><span className="hero-mark"><img src="/veyra.png" alt="Veyra"/><i/></span><div><h1 aria-label="Room to create.">Build beyond<br/><em>the ordinary.</em></h1><p>A cinematic workspace for focused code and local intelligence.<br/>Open a project and shape the next version.</p></div></div>

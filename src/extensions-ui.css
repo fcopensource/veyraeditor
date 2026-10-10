@@ -1,0 +1,152 @@
+/* ======================================================================
+   Extensions, redesigned: VS Code-style list (sidebar) and extension pages (editor tabs)
+   ====================================================================== */
+.extensions-panel { display: flex; flex-direction: column; padding: 0; overflow: auto }
+.extensions-panel > .extension-error, .extensions-panel > .extension-notice, .extensions-panel > .extension-warning { margin: 0 12px 8px }
+
+/* Toolbar */
+.ext-toolbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 4px; padding: 10px 12px 8px; background: var(--sidebar) }
+.ext-search { display: flex; flex: 1; align-items: center; gap: 7px; min-width: 0; height: 30px; padding: 0 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--editor); color: var(--muted) }
+.ext-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent) }
+.ext-search input { flex: 1; min-width: 0; padding: 0; border: 0 !important; outline: 0; background: none !important; box-shadow: none !important; color: var(--bright); font-size: 12px }
+.ext-tool { display: grid; place-items: center; flex-shrink: 0; width: 30px; height: 30px; border-radius: 6px; color: var(--muted) }
+.ext-tool:hover, .ext-tool.active { background: var(--hover); color: var(--bright) }
+.ext-filters { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 12px 10px }
+.ext-filters button { padding: 4px 9px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 11px }
+.ext-filters button.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent) }
+
+/* Collapsible sections */
+.ext-section { border-top: 1px solid var(--border) }
+.ext-section > header { position: sticky; top: 48px; z-index: 1; display: flex; align-items: center; height: 26px; padding-right: 10px; background: var(--sidebar) }
+.ext-section > header > button { display: flex; flex: 1; align-items: center; gap: 4px; height: 100%; padding: 0 8px; color: var(--bright); font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase }
+.ext-section > header i { margin-left: 6px; padding: 0 6px; border-radius: 9px; background: var(--hover); color: var(--muted); font-size: 10px; font-style: normal; letter-spacing: 0 }
+.ext-section-spinner { color: var(--muted) }
+.ext-section-body { padding-bottom: 6px }
+.ext-section-body > .hint, .ext-section-body > .extension-warning { margin: 4px 12px 8px; font-size: 11px }
+.ext-theme-row { display: flex; align-items: center; gap: 8px; margin: 4px 12px 6px; color: var(--muted); font-size: 11px; white-space: nowrap }
+.ext-theme-row select { flex: 1; min-width: 0; margin: 0 !important; padding: 4px 6px !important; background: var(--editor) !important; color: var(--text) !important; border-color: var(--border) !important; font-size: 11px }
+
+/* Rows */
+.ext-row { display: flex; gap: 11px; padding: 9px 12px; cursor: pointer; outline: 0; border-left: 2px solid transparent }
+.ext-row:hover { background: var(--hover) }
+.ext-row:focus-visible { background: var(--hover); border-left-color: var(--accent) }
+.ext-row.selected { background: var(--selection); border-left-color: var(--accent) }
+.ext-icon { flex-shrink: 0; object-fit: contain; background: color-mix(in srgb, var(--text) 6%, transparent) }
+img.ext-icon { background: none }
+.ext-monogram { display: grid; place-items: center; color: #fff; font-weight: 800; letter-spacing: .5px; text-shadow: 0 1px 2px #0004 }
+.ext-row-main { display: grid; flex: 1; gap: 2px; min-width: 0 }
+.ext-row-top, .ext-row-bottom { display: flex; align-items: center; gap: 6px; min-width: 0 }
+.ext-row-top b { overflow: hidden; color: var(--bright); font-size: 12.5px; text-overflow: ellipsis; white-space: nowrap }
+.ext-version { flex-shrink: 0; color: var(--muted); font-size: 10.5px }
+.ext-version.big { padding: 2px 8px; border: 1px solid var(--border); border-radius: 10px; font-size: 11.5px }
+.ext-row-stats { display: flex; flex-shrink: 0; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); font-size: 10.5px }
+.ext-row-stats > span { display: inline-flex; align-items: center; gap: 3px }
+.ext-row-main > p { margin: 0; overflow: hidden; color: var(--text); font-size: 11.5px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap }
+.ext-publisher { display: inline-flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap }
+.ext-publisher.big { color: var(--accent); font-size: 13px; font-weight: 600 }
+.ext-verified { flex-shrink: 0; color: #4aa3ff }
+.ext-row-actions { display: flex; align-items: center; gap: 3px; margin-left: auto }
+.ext-action { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 9px; border-radius: 4px; font-size: 11px; font-weight: 600 }
+.ext-action.primary { background: var(--accent); color: #06100d }
+.ext-action.primary:hover:not(:disabled) { filter: brightness(1.1) }
+.ext-action.icon { width: 24px; padding: 0; justify-content: center; color: var(--muted); opacity: 0; transition: opacity .1s }
+.ext-row:hover .ext-action.icon, .ext-row:focus-within .ext-action.icon, .ext-row.selected .ext-action.icon { opacity: 1 }
+.ext-action.icon:hover { background: color-mix(in srgb, var(--text) 14%, transparent); color: var(--bright) }
+.ext-installed { color: var(--muted); font-size: 10.5px }
+.ext-badge { flex-shrink: 0; padding: 1px 7px; border-radius: 9px; background: var(--hover); color: var(--muted); font-size: 9.5px; font-style: normal; font-weight: 600; white-space: nowrap }
+.ext-badge.builtin { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent) }
+.ext-badge.warn { background: #e2c08d22; color: #e2c08d }
+.ext-status { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 10.5px; white-space: nowrap }
+.ext-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .6 }
+.ext-status.on { color: #73c991 }
+.ext-status.failed { color: #ff8d91 }
+.ext-status.off { color: var(--muted) }
+.ext-rating { display: inline-flex; align-items: center; gap: 1px; color: #e9b949 }
+.ext-rating small { margin-left: 4px; color: var(--muted); font-size: 11px }
+.ext-star { position: relative; display: inline-grid; color: color-mix(in srgb, var(--muted) 50%, transparent) }
+.ext-star > span { position: absolute; inset: 0; overflow: hidden; color: #e9b949 }
+.ext-star svg { fill: currentColor; stroke-width: 0 }
+
+/* ---------- Extension page (editor tab) ---------- */
+.page-overlay { position: absolute; inset: 0; z-index: 5; overflow: auto; background: var(--editor) }
+.ext-page { max-width: 1180px; margin: 0 auto; padding: 32px 40px 60px }
+.ext-hero { display: flex; gap: 28px; padding-bottom: 22px }
+.ext-hero > .ext-icon { box-shadow: 0 12px 30px #0003 }
+.ext-hero-main { display: grid; flex: 1; gap: 10px; align-content: start; min-width: 0 }
+.ext-hero-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px }
+.ext-hero-title h1 { margin: 0; color: var(--bright); font-size: 28px; letter-spacing: -.5px }
+.ext-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; color: var(--muted); font-size: 12.5px }
+.ext-hero-meta > span { display: inline-flex; align-items: center; gap: 5px }
+.ext-hero-description { margin: 0; color: var(--text); font-size: 14px; line-height: 1.6 }
+.ext-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px }
+.ext-hero-note { color: var(--muted); font-size: 12px }
+.ext-button { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--bright); font-size: 12.5px; font-weight: 600 }
+.ext-button:hover:not(:disabled) { background: var(--hover) }
+.ext-button.primary { border-color: transparent; background: var(--accent); color: #06100d }
+.ext-button.primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08) }
+.ext-button.danger:hover:not(:disabled) { border-color: #ff8d9166; color: #ff8d91 }
+.ext-button.small { height: 26px; padding: 0 10px; font-size: 11.5px }
+.ext-button:disabled { opacity: .5; cursor: default }
+select.ext-button { padding-right: 8px; appearance: auto; cursor: pointer }
+.ext-compat { display: flex; gap: 9px; padding: 10px 12px; border: 1px solid color-mix(in srgb, #4aa3ff 35%, var(--border)); border-radius: 8px; background: color-mix(in srgb, #4aa3ff 8%, transparent); color: var(--text); font-size: 12.5px; line-height: 1.55 }
+.ext-compat svg { flex-shrink: 0; margin-top: 2px; color: #4aa3ff }
+.ext-page .extension-error, .ext-page .extension-notice { margin: 0; font-size: 12px }
+.ext-page .tool-error { margin: 0; padding: 10px; border-radius: 6px; background: #ff8d9112; white-space: pre-wrap; font-size: 11px !important }
+.ext-page-error { display: flex; gap: 12px; padding: 18px; border: 1px solid #ff8d9155; border-radius: 10px; color: var(--text) }
+.ext-page-error svg { color: #ff8d91 }
+.ext-page-error p { margin: 4px 0 0; color: var(--muted); font-size: 12.5px }
+
+.ext-tabs { position: sticky; top: -32px; z-index: 1; display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: var(--editor) }
+.ext-tabs button { position: relative; padding: 10px 14px; color: var(--muted); font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px }
+.ext-tabs button:hover, .ext-tabs button.active { color: var(--bright) }
+.ext-tabs button.active::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent) }
+
+.ext-body { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 36px; padding-top: 22px }
+.ext-content { min-width: 0 }
+.ext-subtitle { margin: 0 0 12px; color: var(--bright); font-size: 15px }
+.ext-markdown { max-width: 900px; padding: 0 !important; color: var(--text); font-size: 13.5px; line-height: 1.7 }
+.ext-markdown img { max-width: 100%; height: auto }
+.ext-markdown pre { overflow: auto }
+.ext-loading { display: flex; align-items: center; gap: 8px; padding: 30px 0; color: var(--muted); font-size: 12.5px }
+.ext-empty { color: var(--muted); font-size: 13px }
+.ext-side { position: sticky; top: 30px; align-self: start; display: grid; gap: 8px; font-size: 12px }
+.ext-side h3 { margin: 10px 0 2px; padding-bottom: 6px; border-bottom: 1px solid var(--border); color: var(--bright); font-size: 11px; letter-spacing: .6px; text-transform: uppercase }
+.ext-side h3:first-child { margin-top: 0 }
+.ext-side dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0 }
+.ext-side dt { color: var(--muted) }
+.ext-side dd { margin: 0; overflow-wrap: anywhere; color: var(--text) }
+.ext-side code { font-size: 11px }
+.ext-chips { display: flex; flex-wrap: wrap; gap: 5px }
+.ext-chips span { padding: 2px 8px; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 11px }
+.ext-links { display: grid; gap: 4px; justify-items: start }
+.ext-links button { display: inline-flex; align-items: center; gap: 6px; padding: 2px 0; color: var(--accent); font-size: 12px }
+.ext-links button:hover { text-decoration: underline }
+.ext-features table { width: 100%; max-width: 640px; border-collapse: collapse; font-size: 12.5px }
+.ext-features th, .ext-features td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; color: var(--text) }
+.ext-features th { color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase }
+.ext-features td.ok { color: #73c991 }
+.ext-features td svg { margin-right: 5px; vertical-align: -2px }
+.ext-features h3 { margin: 22px 0 8px; color: var(--bright); font-size: 13px }
+.ext-features ul { display: grid; gap: 4px; max-width: 640px; margin: 0; padding: 0; list-style: none }
+.ext-features li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: 5px; background: color-mix(in srgb, var(--text) 4%, transparent); color: var(--text); font-size: 12.5px }
+.ext-features li small { color: var(--muted) }
+.ext-features .ext-compat { max-width: 640px; margin-bottom: 14px }
+.ext-versions { display: grid; gap: 4px; max-width: 640px }
+.ext-version-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; color: var(--text); font-size: 12.5px }
+.ext-version-row:hover { background: var(--hover) }
+.ext-version-row > span { flex: 1 }
+
+@media (max-width: 900px) {
+  .ext-page { padding: 22px 20px 40px }
+  .ext-hero { flex-direction: column; gap: 16px }
+  .ext-hero > .ext-icon { width: 72px !important; height: 72px !important }
+  .ext-body { grid-template-columns: 1fr }
+  .ext-side { position: static }
+}
+
+/* Polish: names never collapse, section titles stay on one line, README links use the accent colour. */
+.ext-row-top b { flex: 0 1 auto; min-width: 48px }
+.ext-section > header > button { justify-content: flex-start; min-width: 0; text-align: left }
+.ext-section > header > button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.ext-markdown a { color: var(--accent); text-decoration: none }
+.ext-markdown a:hover { text-decoration: underline }

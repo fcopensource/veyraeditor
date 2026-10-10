@@ -2,8 +2,10 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { parse, type ParseError } from 'jsonc-parser';
 import { monaco } from './editor';
 
-export type Extension = { id: string; name: string; publisher: string; version: string; description: string; enabled: boolean; themes: { name: string; data: monaco.editor.IStandaloneThemeData }[]; snippets: { language: string; name: string; prefix: string; body: string; description: string }[] };
-export type Listing = { namespace: string; name: string; displayName?: string; description?: string; version: string; downloadCount?: number };
+export type Extension = { id: string; name: string; publisher: string; version: string; description: string; enabled: boolean; icon?: string; themes: { name: string; data: monaco.editor.IStandaloneThemeData }[]; snippets: { language: string; name: string; prefix: string; body: string; description: string }[] };
+export type Listing = { namespace: string; name: string; displayName?: string; description?: string; version: string; downloadCount?: number;
+  files?: { icon?: string; download?: string; readme?: string; changelog?: string; manifest?: string; license?: string }; verified?: boolean;
+  averageRating?: number; reviewCount?: number; timestamp?: string; namespaceDisplayName?: string; deprecated?: boolean };
 const storageKey = 'veyra.extensions.v1';
 export const themeId = (id: string, index: number) => `ext-${Array.from(id).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('')}-${index}`;
 export function installedExtensions(): Extension[] { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { return []; } }
@@ -20,19 +22,22 @@ export async function download(url: string, limit = 16 * 1024 * 1024): Promise<U
   } finally { clearTimeout(timer); }
 }
 export async function searchExtensions(query: string, category: string): Promise<Listing[]> {
-  const params = new URLSearchParams({ query, size: '24' });
+  const params = new URLSearchParams({ query, size: '30' });
   if (category) params.set('category', category);
+  // With no search text, show what people use most, like VS Code's Popular view.
+  if (!query.trim()) { params.set('sortBy', 'downloadCount'); params.set('sortOrder', 'desc'); }
   const data = JSON.parse(strFromU8(await download(`https://open-vsx.org/api/-/search?${params}`, 1024 * 1024)));
   return data.extensions || [];
 }
-export async function fetchExtension(item: Listing) {
+export async function fetchExtension(item: Listing): Promise<Extension> {
   const endpoint = `https://open-vsx.org/api/${encodeURIComponent(item.namespace)}/${encodeURIComponent(item.name)}/${encodeURIComponent(item.version)}`;
   const metadata = JSON.parse(strFromU8(await download(endpoint, 1024 * 1024)));
   const url = new URL(metadata.files.download);
   if (url.protocol !== 'https:' || url.hostname !== 'open-vsx.org') throw new Error('Unexpected extension download address.');
   const extension = parseExtension(await download(url.href));
   if (extension.id.toLowerCase() !== `${item.namespace}.${item.name}`.toLowerCase() || extension.version !== item.version) throw new Error('The downloaded package does not match the registry listing.');
-  return extension;
+  const icon = metadata.files?.icon || item.files?.icon;
+  return typeof icon === 'string' && isRegistryUrl(icon) ? { ...extension, icon } : extension;
 }
 export function parseExtension(bytes: Uint8Array): Extension {
   if (bytes.length > 16 * 1024 * 1024) throw new Error('VSIX files must be smaller than 16 MB.');
@@ -100,4 +105,53 @@ export function activateExtensions(items: Extension[]) {
     }
   }
   return () => disposables.forEach(d => d.dispose());
+}
+
+/* ---------- Marketplace details (for the extension page) ---------- */
+const REGISTRY = 'https://open-vsx.org/api';
+const isRegistryUrl = (url: string) => { try { const parsed = new URL(url); return parsed.protocol === 'https:' && parsed.hostname === 'open-vsx.org'; } catch { return false; } };
+export type Details = Listing & {
+  license?: string; categories?: string[]; tags?: string[]; repository?: string; homepage?: string; bugs?: string;
+  publishedBy?: { loginName?: string; fullName?: string }; allVersions?: Record<string, string>; preview?: boolean; engines?: Record<string, string>;
+};
+const detailsCache = new Map<string, Promise<Details>>();
+/** Everything the registry knows about an extension (latest version), cached for this session. */
+export function fetchDetails(namespace: string, name: string): Promise<Details> {
+  const key = `${namespace}.${name}`.toLowerCase();
+  if (!detailsCache.has(key)) {
+    const request = download(`${REGISTRY}/${encodeURIComponent(namespace)}/${encodeURIComponent(name)}`, 1024 * 1024).then(bytes => JSON.parse(strFromU8(bytes)) as Details);
+    request.catch(() => detailsCache.delete(key));
+    detailsCache.set(key, request);
+  }
+  return detailsCache.get(key)!;
+}
+/** A text file published with the extension (README, CHANGELOG), only from the registry. */
+export async function fetchText(url: string) {
+  if (!isRegistryUrl(url)) throw new Error('Unexpected registry address.');
+  return strFromU8(await download(url, 2 * 1024 * 1024));
+}
+export async function fetchManifest(details: Details): Promise<any> {
+  if (!details.files?.manifest) return null;
+  const parsed = parse(await fetchText(details.files.manifest));
+  return parsed && typeof parsed === 'object' ? parsed : null;
+}
+
+/** What an extension contributes, read from its package.json, and whether Veyra can run it. */
+export type Capabilities = { themes: number; snippets: number; grammars: number; languages: number; iconThemes: number; commands: number; settings: number; keybindings: number; runsCode: boolean };
+export function capabilities(manifest: any): Capabilities {
+  const c = manifest?.contributes || {};
+  const count = (value: unknown) => Array.isArray(value) ? value.length : 0;
+  const settings = Array.isArray(c.configuration) ? c.configuration.reduce((n: number, section: any) => n + Object.keys(section?.properties || {}).length, 0) : Object.keys(c.configuration?.properties || {}).length;
+  return { themes: count(c.themes), snippets: count(c.snippets), grammars: count(c.grammars), languages: count(c.languages), iconThemes: count(c.iconThemes),
+    commands: count(c.commands), settings, keybindings: count(c.keybindings), runsCode: !!(manifest?.main || manifest?.browser) };
+}
+/** "installable": themes/snippets Veyra applies today. "host": needs the VS Code extension host. "later": grammars, icons… (roadmap). */
+export function support(caps: Capabilities): 'installable' | 'host' | 'later' {
+  if (caps.themes || caps.snippets) return 'installable';
+  return caps.runsCode ? 'host' : 'later';
+}
+
+/** 9432844 → "9.4M" */
+export function compactCount(value = 0) {
+  return value >= 1e9 ? (value / 1e9).toFixed(1).replace(/\.0$/, '') + 'B' : value >= 1e6 ? (value / 1e6).toFixed(1).replace(/\.0$/, '') + 'M' : value >= 1e3 ? (value / 1e3).toFixed(1).replace(/\.0$/, '') + 'K' : String(value);
 }
