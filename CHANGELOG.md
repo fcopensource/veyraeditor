@@ -3,6 +3,21 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.6.0
+
+**Extensions, redesigned**
+- Real icons for every extension, with verified publishers, download counts and star ratings in a VS Code-style list
+- Click any extension to open its page in a tab: README, features, changelog and every version, with Install, Uninstall, Disable, Reinstall, Update, Set Colour Theme and Install another version
+- Each page says upfront whether the extension works in Veyra today
+- The built-in web tools (TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue) have their own pages with status, restart and reinstall
+
+**Veyra AI**
+- New default AI provider: sign in with your free Veyra account and start chatting, with no API key needed
+- See how many requests you have left today; sign out at any time
+
+**Title bar**
+- A new button in the top-right corner: Sign in, your name once signed in, and a glowing Update button when a new version is ready
+
 ## 0.5.1
 
 **Fixes**
