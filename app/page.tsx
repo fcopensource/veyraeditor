@@ -10,7 +10,7 @@ import { CodeUniverse } from "@/components/CodeUniverse";
 import { LiveIDE } from "@/components/LiveIDE";
 import { DownloadCTA } from "@/components/DownloadCTA";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { latestRelease } from "@/lib/releases";
+import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
 
@@ -33,6 +33,7 @@ const providers = ["Veyra AI", "Ollama", "Claude", "OpenAI", "Gemini", "OpenRout
 export default async function Home() {
   const release = await latestRelease();
   const version = release?.version ? `v${release.version}` : "preview";
+  const sizes = installerSizes(release);
   return (
     <>
       <Nav />
@@ -65,7 +66,7 @@ export default async function Home() {
             </div>
             <div className="hero-meta">
               <span><Check size={13} /> Free & open source</span>
-              <span><Check size={13} /> 7–11 MB installers</span>
+              <span><Check size={13} /> {sizes.label}</span>
               <span><Check size={13} /> Auto-updates</span>
             </div>
           </div>
@@ -77,7 +78,7 @@ export default async function Home() {
           <h2 id="what-is-veyra">A free, open-source AI code editor that stays on your machine.</h2>
           <p>
             <strong>Veyra</strong> (Veyra Studio) is a desktop code editor for <strong>Windows, macOS and Linux</strong>. It pairs
-            the Monaco editor with a native Rust core, so it opens fast and its installers are only 7–11 MB. Git, a real
+            the Monaco editor with a native Rust core, so it opens fast and its installers are small ({sizes.min && sizes.max ? `${sizes.min}–${sizes.max} MB` : "around 10 MB"} on Windows, macOS and Linux .deb/.rpm{sizes.appImage ? `; the self-contained AppImage is about ${sizes.appImage} MB` : ""}). Git, a real
             terminal, project-wide IntelliSense and an <strong>AI assistant</strong> are built in. Use local models with Ollama,
             or bring your own key for Claude, OpenAI, Gemini and more. Every AI change is a diff you approve, and your code
             never leaves your computer unless you send it.
@@ -143,7 +144,7 @@ export default async function Home() {
           </div>
           <div className="update-demo" aria-hidden="true">
             <Sparkles size={16} />
-            <span><b>Veyra {release?.version ? bump(release.version) : "0.5.0"} is ready</b><small>Signed and verified · installs in seconds</small></span>
+            <span><b>A new version is ready</b><small>Signed update · verified before it installs</small></span>
             <i>Update & restart</i>
           </div>
         </section>
@@ -217,10 +218,4 @@ export default async function Home() {
       <Footer />
     </>
   );
-}
-
-/** The next patch version, for the illustrative update prompt. */
-function bump(version: string) {
-  const [major, minor, patch] = version.split("-")[0].split(".").map(n => parseInt(n, 10) || 0);
-  return `${major}.${minor}.${patch + 1}`;
 }

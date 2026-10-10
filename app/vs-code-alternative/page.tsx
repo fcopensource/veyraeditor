@@ -15,7 +15,7 @@ const ROWS:[string,string,string,string][]=[
   ['Price','Free','Free','Free tier, paid plans for AI'],
   ['Source code','Open source (MIT)','Open-source core, proprietary builds','Proprietary'],
   ['Built with','Rust + system web view (Tauri)','Electron','Electron (VS Code fork)'],
-  ['Installer size','About 10 MB','About 100 MB','Similar to VS Code'],
+  ['Installer size','7–11 MB (Linux AppImage ~83 MB)','About 100 MB','Similar to VS Code'],
   ['Telemetry','None','On by default, can be turned off','Collected, privacy mode available'],
   ['AI providers','Any: Ollama (local), Claude, OpenAI, Gemini and 7 more, with your own key','GitHub Copilot','Cursor\'s own service'],
   ['Fully local AI','Yes, with Ollama','Possible with extra setup','Not officially'],

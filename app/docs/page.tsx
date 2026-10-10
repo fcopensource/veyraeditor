@@ -129,7 +129,7 @@ export default function Docs(){
         </section>
 
         <section id="source"><h2>Build from source</h2>
-          <p>Veyra is open source under the MIT license. You need Node.js 18+ and Rust.</p>
+          <p>Veyra is open source under the MIT license. To build it you need <strong>Node.js 22 or newer</strong>, Rust (stable) and your platform's Tauri prerequisites. (Running Veyra's optional language tools only needs Node.js 18+.)</p>
           <pre><code>git clone {GITHUB_URL}.git{'\n'}cd veyraeditor{'\n'}npm install{'\n'}npm run tauri dev</code></pre>
           <p>Pull requests are welcome. See the repository&apos;s README for the project layout and tests.</p>
         </section>
