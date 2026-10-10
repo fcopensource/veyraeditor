@@ -3,6 +3,12 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.5.1
+
+**Fixes**
+- **macOS and Linux:** installing language tools no longer fails with "env: node: No such file or directory". Veyra now reads your login shell's PATH (like VS Code), so Node.js from Homebrew, nvm, Volta, fnm or asdf is found even when Veyra is opened from the Dock or an app menu
+- Tabs with the same file name now show just enough of the folder path to tell them apart (for example `app/src` and `lib/src`)
+
 ## 0.5.0
 
 **Web development tools, one click to install** (Extensions → Discover → Web development)
