@@ -1,9 +1,10 @@
+import {withDatabase} from '@/lib/db';
 import {NextResponse} from 'next/server';
 import {authConfigured,clientIp,createUser,findUserByEmail,normalizeEmail,rateLimit,startSession,validEmail,validPassword} from '@/lib/auth';
 
 const EXISTS='An account with this email already exists. Log in instead, or reset your password.';
 
-export async function POST(request:Request){
+export const POST=withDatabase(async(request:Request)=>{
   if(!authConfigured()) return NextResponse.json({error:'Accounts are not available yet.'},{status:503});
   if(!rateLimit('register:'+clientIp(request),10,60*60*1000)) return NextResponse.json({error:'Too many sign-ups from this network. Please try again later.'},{status:429});
   const body=await request.json().catch(()=>null) as {name?:string;email?:string;password?:string}|null;
@@ -19,4 +20,4 @@ export async function POST(request:Request){
     throw error;
   }
   return NextResponse.json({ok:true});
-}
+});

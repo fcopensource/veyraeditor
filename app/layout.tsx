@@ -5,6 +5,7 @@ import './pages.css';
 import './cinematic.css';
 import './landing.css';
 import './site.css';
+import './content.css';
 import {latestRelease} from '@/lib/releases';
 import {ALT_NAMES,DESCRIPTION,GITHUB_URL,KEYWORDS,PRODUCT_NAME,SITE_NAME,SITE_URL,TAGLINE,absolute,jsonLd} from '@/lib/site';
 

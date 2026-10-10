@@ -6,8 +6,9 @@ import {usePathname} from 'next/navigation';
 import {Download,Menu,UserRound,X} from 'lucide-react';
 
 const links=[
-  {href:'/#features',label:'Features'},
-  {href:'/#ai',label:'Intelligence'},
+  {href:'/features',label:'Features'},
+  {href:'/extensions',label:'Extensions'},
+  {href:'/docs',label:'Docs'},
   {href:'/download',label:'Download'},
   {href:'/changelog',label:'Changelog'},
   {href:'https://github.com/fcopensource/veyraeditor',label:'GitHub',external:true},
