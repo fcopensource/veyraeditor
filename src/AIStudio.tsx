@@ -3,6 +3,7 @@ import {invoke} from '@tauri-apps/api/core';
 import {ArrowUp,Check,ChevronDown,Code2,Copy,FileCode2,FolderSearch,KeyRound,LogOut,MessageSquare,Plus,RefreshCw,Settings2,ShieldCheck,Sparkles,Square,Trash2,UserRound,X} from 'lucide-react';
 import {openUrl} from '@tauri-apps/plugin-opener';
 import {accountChanged} from './AccountButton';
+import {isSensitivePath,looksLikeSecret} from './privacy';
 import {isMac,isWindows} from './platform';
 export type AISnapshot={root:string;path:string;original:string;start:number;end:number;content:string};
 export type AIProposal={snapshot:AISnapshot;replacement:string;model:string};
@@ -46,6 +47,7 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
   const [prompt,setPrompt]=useState('');const [mode,setMode]=useState<'ask'|'edit'>('ask');const [scope,setScope]=useState('none');
   const [messages,setMessages]=useState<Message[]>([]);const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [loading,setLoading]=useState(false);const [connected,setConnected]=useState(false);
   const [copied,setCopied]=useState<number|null>(null);const input=useRef<HTMLTextAreaElement>(null);const list=useRef<HTMLDivElement>(null);
+  const confirmedSensitive=useRef('');
   const request=useRef('');const generation=useRef(0);const alive=useRef(true);const loadingRef=useRef(false);
   const local=config.kind==='ollama'||(config.kind==='custom'&&/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(?=[:/]|$)/.test(config.endpoint));
   const destination=config.kind==='custom'?config.endpoint:info(config.kind).name;
@@ -118,6 +120,12 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
       catch(e){setError(String(e));return;}
     }else if(scope!=='none'){snapshot=capture(scope);if(!snapshot){setError(scope==='selection'?'Select some code in the editor first.':'Open a code file to attach it.');return;}}
     if(mode==='edit'&&!snapshot){setError('Attach the current file or selected code to request an edit.');return;}
+    // Secrets never go to a cloud provider by accident: the first Send explains, a second Send confirms.
+    if(snapshot&&!local&&(isSensitivePath(snapshot.path)||looksLikeSecret(snapshot.content))&&confirmedSensitive.current!==snapshot.path+':'+snapshot.content.length){
+      confirmedSensitive.current=snapshot.path+':'+snapshot.content.length;
+      setError(`${snapshot.path} looks like it contains secrets (keys, tokens or credentials). It would be sent to ${destination}. Press Send again to send it anyway, or attach something else.`);return;
+    }
+    confirmedSensitive.current='';
     if(snapshot&&new TextEncoder().encode(snapshot.content).length>48000){setError('This attachment is too large. Select a smaller block of code (48 KB maximum).');return;}
     const instruction=mode==='edit'?`Edit the attached ${scope==='selection'?'selection':'file'} as requested. Return its COMPLETE replacement in ONE fenced code block. Preserve unrelated code.\n\n`:'';
     const workspaceContext=contextFiles.length?`\n\nRelevant workspace context selected by Veyra:\n${contextFiles.map(file=>`<file path="${file.path}">\n${file.content}\n</file>`).join('\n')}`:'';

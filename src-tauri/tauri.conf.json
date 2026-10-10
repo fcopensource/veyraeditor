@@ -20,7 +20,21 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "img-src": "'self' data: blob: https:",
+        "font-src": "'self' data:",
+        "connect-src": "'self' ipc: http://ipc.localhost https://open-vsx.org https://openvsx.eclipsecontent.org",
+        "worker-src": "'self' blob:",
+        "media-src": "'self' data: blob:",
+        "object-src": "'none'",
+        "frame-src": "'none'",
+        "base-uri": "'none'",
+        "form-action": "'none'"
+      },
+      "dangerousDisableAssetCspModification": ["style-src"]
     }
   },
   "bundle": {

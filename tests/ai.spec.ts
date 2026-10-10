@@ -102,3 +102,22 @@ test('Veyra AI: sign in with a Veyra account, chat without an API key, see usage
   await page.getByRole('button',{name:'Sign out of Veyra AI'}).click();
   await expect(page.getByRole('button',{name:'Sign in to Veyra AI'})).toBeVisible();
 });
+test('Veyra AI: attaching a secrets file to a cloud AI needs a second, deliberate Send',async({page})=>{
+  await page.addInitScript(()=>{
+    localStorage.setItem('veyra.ai.settings',JSON.stringify({kind:'veyra',endpoint:'https://veyraeditor.com/api/ai/v1',model:'veyra-ai'}));
+    (window as any).veyraAccount={name:'Ada Lovelace',email:'ada@example.com',used:0,limit:100,resets_at:'',available:true};
+  });
+  await page.goto('/');
+  await page.evaluate(()=>{(window as any).aiFiles['.env']='OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuvwxyz0123456789ABCD\n';});
+  await page.getByRole('button',{name:/Open a project/}).click();
+  await page.locator('.tree-row[title=".env"]').click();
+  await expect(page.getByLabel('AI model',{exact:true})).toHaveValue('veyra-ai');
+  await page.getByRole('button',{name:/Understand this file/}).click();
+  await page.getByLabel('Ask Veyra AI').press(process.platform==='darwin'?'Meta+Enter':'Control+Enter');
+  await expect(page.locator('.ai-error')).toContainText('looks like it contains secrets');
+  expect(await page.evaluate(()=>(window as any).aiCalls.some((call:any)=>call.cmd==='ai_chat'))).toBe(false);
+  // A second Send is the explicit opt-in.
+  await page.getByLabel('Ask Veyra AI').press(process.platform==='darwin'?'Meta+Enter':'Control+Enter');
+  await expect(page.locator('.ai-message.assistant')).toBeVisible();
+  expect(await page.evaluate(()=>(window as any).aiCalls.some((call:any)=>call.cmd==='ai_chat'))).toBe(true);
+});

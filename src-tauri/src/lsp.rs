@@ -27,6 +27,10 @@ const SPECS: &[Spec] = &[
     // Not a language server: used by the Prettier formatter.
     Spec { key: "prettier", packages: &["prettier@3.9.9"], main: "prettier", bin: "prettier", args: &[] },
 ];
+/// package.json for each tool's folder. `overrides` force patched versions of vulnerable transitive dependencies:
+/// tar < 7.5.21 (GHSA-34x7-hfp2-rc4v and others) arrives through @olrtg/emmet-language-server's dependency tree.
+/// scripts/audit-language-tools.mjs reads this same manifest, so CI audits exactly what users install.
+const TOOL_MANIFEST: &str = r#"{"name":"veyra-language-tool","private":true,"overrides":{"tar":"^7.5.22"}}"#;
 fn spec(key: &str) -> Result<&'static Spec> { SPECS.iter().find(|s| s.key == key).ok_or_else(|| format!("Unknown language tool: {key}")) }
 
 struct Server { child: Child, stdin: ChildStdin }
@@ -165,8 +169,12 @@ pub async fn lsp_install(app: AppHandle, key: String) -> Result<String> {
     tauri::async_runtime::spawn_blocking(move || {
         let npm = npm().ok_or("npm was not found. Install Node.js 18 or newer from nodejs.org, then restart Veyra.")?;
         fs::create_dir_all(&dir).map_err(err)?;
-        if !dir.join("package.json").exists() { fs::write(dir.join("package.json"), "{\"name\":\"veyra-language-tool\",\"private\":true}").map_err(err)?; }
-        let output = tool_command(&npm).args(["install", "--no-audit", "--no-fund", "--omit=dev", "--loglevel=error", "--prefix"]).arg(&dir).args(spec.packages).current_dir(&dir).output().map_err(err)?;
+        // Rewritten on every install so security overrides also reach existing installations.
+        fs::write(dir.join("package.json"), TOOL_MANIFEST).map_err(err)?;
+        // Pinned versions, and --ignore-scripts: no package's install script runs on the user's machine.
+        // (Checked: none of these tools needs one; core-js's postinstall only prints a message.)
+        // Advisories for these exact versions are checked in CI (scripts/audit-language-tools.mjs).
+        let output = tool_command(&npm).args(["install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=dev", "--loglevel=error", "--prefix"]).arg(&dir).args(spec.packages).current_dir(&dir).output().map_err(err)?;
         if !output.status.success() {
             let log = String::from_utf8_lossy(&output.stderr);
             if log.contains("env: node") || log.contains("node: not found") {

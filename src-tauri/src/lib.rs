@@ -7,6 +7,7 @@ use tauri_plugin_dialog::DialogExt;
 mod ai;
 mod health;
 mod lsp;
+mod privacy;
 
 const MAX_FILE: u64 = 5 * 1024 * 1024;
 #[derive(Default)]
@@ -305,14 +306,18 @@ fn relevant_context(root: &Path, query: &str, active: &str) -> Vec<ContextFile> 
         .filter(|token| token.len() >= 3).take(16).map(str::to_lowercase).collect();
     if tokens.is_empty() { return Vec::new(); }
     let mut files=Vec::new();index(root,root,&mut files,0);
+    // Never pick secrets automatically: sensitive names, .gitignore'd files, or contents that look like credentials.
+    files.retain(|file|!privacy::is_sensitive_path(file));
+    files.truncate(3000);
+    let ignored=privacy::git_ignored(root,&files);
     let active_extension=Path::new(active).extension().and_then(|value|value.to_str()).unwrap_or("");
     let mut ranked=Vec::new();
-    for relative in files.into_iter().take(3000) {
+    for relative in files.into_iter().filter(|file|!ignored.contains(file)) {
         let path=root.join(&relative);
         let Ok(metadata)=fs::metadata(&path) else {continue};
         if metadata.len()>256*1024 {continue;}
         let Ok(text)=fs::read_to_string(&path) else {continue};
-        if text.contains('\0') {continue;}
+        if text.contains('\0')||privacy::looks_like_secret(&text) {continue;}
         let lower_path=relative.to_lowercase();let lower_text=text.to_lowercase();
         let mut score=tokens.iter().map(|token|{
             let path_score=if lower_path.contains(token){24}else{0};
@@ -595,6 +600,20 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test] fn ai_context_never_includes_secrets() {
+        let dir = tempfile::tempdir().unwrap(); let base = dir.path().canonicalize().unwrap();
+        fs::create_dir_all(base.join("src")).unwrap(); fs::create_dir_all(base.join(".ssh")).unwrap(); fs::create_dir_all(base.join("config")).unwrap();
+        fs::write(base.join(".env"), "PAYMENT_KEY=payment-secret-value\n").unwrap();
+        fs::write(base.join(".ssh/id_rsa"), "-----BEGIN OPENSSH PRIVATE KEY-----\npayment\n").unwrap();
+        fs::write(base.join("config/server.pem"), "payment certificate\n").unwrap();
+        fs::write(base.join("src/settings.ts"), "export const payment = 'sk-proj-abcdefghijklmnopqrstuvwxyz0123456789ABCD';\n").unwrap();
+        fs::write(base.join("src/payment.ts"), "export function payment(amount: number) { return amount * 2; }\n").unwrap();
+        let context = relevant_context(&base, "how does payment work", "");
+        let paths: Vec<&str> = context.iter().map(|file| file.path.as_str()).collect();
+        assert_eq!(paths, ["src/payment.ts"], "only ordinary source is chosen");
+        let sent: String = context.iter().map(|file| file.content.as_str()).collect();
+        for secret in ["payment-secret-value", "PRIVATE KEY", "certificate", "sk-proj-"] { assert!(!sent.contains(secret), "{secret} leaked into AI context"); }
+    }
     #[test] fn traversal_and_overwrite_are_rejected() {
         let dir = tempfile::tempdir().unwrap(); let base = dir.path().canonicalize().unwrap();
         fs::write(base.join("keep.txt"), "original").unwrap();
