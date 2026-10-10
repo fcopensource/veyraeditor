@@ -1,28 +1,64 @@
+import {existsSync} from 'node:fs';
 import mysql from 'mysql2/promise';
 
 /* MySQL connection (Hostinger database). Configure either DATABASE_URL=mysql://user:pass@host:3306/name
    or DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME. Tables are created on first use. */
 
 type Pool=mysql.Pool;
-const globalForDb=globalThis as unknown as {veyraPool?:Pool;veyraSchema?:Promise<void>};
+type Route={via:string;options:mysql.ConnectionOptions};
+type Attempt={via:string;code:string;detail:string};
+const globalForDb=globalThis as unknown as {veyraPool?:Promise<{pool:Pool;via:string}>;veyraSchema?:Promise<void>};
 
 export function databaseConfigured(){
   return !!(process.env.DATABASE_URL||(process.env.DB_HOST&&process.env.DB_USER&&process.env.DB_NAME));
 }
 
-/** Node 18+ may resolve "localhost" to IPv6 ::1 while MySQL listens only on 127.0.0.1, so connect over IPv4. */
-function dbHost(){
-  const host=(process.env.DB_HOST||'').trim();
-  return host==='localhost'?'127.0.0.1':host;
+/** Environment value without stray spaces or the quotes people sometimes paste around it. */
+function env(name:string){
+  const value=(process.env[name]||'').trim();
+  return value.length>=2&&/^(["'])[\s\S]*\1$/.test(value)?value.slice(1,-1):value;
 }
 
-function pool():Pool{
-  if(globalForDb.veyraPool) return globalForDb.veyraPool;
-  const common={waitForConnections:true,connectionLimit:5,enableKeepAlive:true,connectTimeout:10000,timezone:'Z' as const,charset:'utf8mb4'};
-  globalForDb.veyraPool=process.env.DATABASE_URL
-    ?mysql.createPool({uri:process.env.DATABASE_URL,...common})
-    :mysql.createPool({host:dbHost(),port:Number(process.env.DB_PORT)||3306,user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,...common});
-  return globalForDb.veyraPool;
+/** Ways to reach the server, most likely first. On shared hosting a "localhost" user may only be allowed
+    through one of: the name localhost, IPv4 127.0.0.1, or the local socket, so try each. */
+function routes():Route[]{
+  if(process.env.DATABASE_URL) return [{via:'DATABASE_URL',options:{uri:env('DATABASE_URL')}}];
+  const login={user:env('DB_USER'),password:env('DB_PASSWORD'),database:env('DB_NAME')};
+  const host=env('DB_HOST'),port=Number(env('DB_PORT'))||3306;
+  if(!['localhost','127.0.0.1','::1'].includes(host)) return [{via:host,options:{host,port,...login}}];
+  const sockets=['/var/run/mysqld/mysqld.sock','/var/lib/mysql/mysql.sock','/tmp/mysql.sock','/run/mysqld/mysqld.sock'].filter(path=>existsSync(path));
+  return [
+    {via:'localhost',options:{host:'localhost',port,...login}},
+    {via:'127.0.0.1',options:{host:'127.0.0.1',port,...login}},
+    ...sockets.map(socketPath=>({via:socketPath,options:{socketPath,...login}})),
+  ];
+}
+
+/** MySQL's own explanation, with the user name shortened so the health page doesn't publish it. */
+const describe=(error:unknown)=>String((error as {sqlMessage?:string;message?:string})?.sqlMessage||(error as Error)?.message||'')
+  .replace(/'([^']{0,3})[^']*'@/g,"'$1…'@").slice(0,200);
+
+class ConnectError extends Error{
+  constructor(readonly code:string,readonly attempts:Attempt[]){super('Could not connect to MySQL: '+attempts.map(a=>`${a.via} → ${a.code}`).join(', '));}
+}
+
+/** First route that accepts the login, turned into a pool. Failures are retried on the next request. */
+async function connect(){
+  const attempts:Attempt[]=[];
+  for(const route of routes()){
+    try{
+      const connection=await mysql.createConnection({...route.options,connectTimeout:8000});
+      await connection.ping();await connection.end();
+      return {pool:mysql.createPool({...route.options,waitForConnections:true,connectionLimit:5,enableKeepAlive:true,connectTimeout:10000,timezone:'Z',charset:'utf8mb4'}),via:route.via};
+    }catch(error){attempts.push({via:route.via,code:errorCode(error),detail:describe(error)});}
+  }
+  // Report the most informative failure: a rejected login beats "nothing listening on this route".
+  const best=attempts.find(a=>a.code.startsWith('ER_'))||attempts[0];
+  throw new ConnectError(best?.code||'UNKNOWN',attempts);
+}
+function pool(){
+  globalForDb.veyraPool??=connect().catch(error=>{globalForDb.veyraPool=undefined;throw error;});
+  return globalForDb.veyraPool.then(result=>result.pool);
 }
 
 const SCHEMA=[
@@ -56,14 +92,14 @@ const SCHEMA=[
 
 /** Create tables once per server process. */
 function ensureSchema(){
-  globalForDb.veyraSchema??=(async()=>{for(const statement of SCHEMA) await pool().query(statement);})()
+  globalForDb.veyraSchema??=(async()=>{const db=await pool();for(const statement of SCHEMA) await db.query(statement);})()
     .catch(error=>{globalForDb.veyraSchema=undefined;throw error;});
   return globalForDb.veyraSchema;
 }
 
 export async function query<T=mysql.RowDataPacket[]>(sql:string,params:unknown[]=[]):Promise<T>{
   await ensureSchema();
-  const [rows]=await pool().execute(sql,params as (string|number|null)[]);
+  const [rows]=await (await pool()).execute(sql,params as (string|number|null)[]);
   return rows as T;
 }
 
@@ -72,7 +108,7 @@ const HINTS:Record<string,string>={
   ECONNREFUSED:'Nothing is accepting connections at DB_HOST:DB_PORT. On Hostinger, use the MySQL host shown in hPanel → Databases (for example srv123.hstgr.io), or localhost.',
   ENOTFOUND:'DB_HOST is not a known host name. Copy it exactly from hPanel → Databases.',
   ETIMEDOUT:'The database did not answer in time. If DB_HOST is a remote host, allow this server in hPanel → Databases → Remote MySQL.',
-  ER_ACCESS_DENIED_ERROR:'MySQL rejected DB_USER / DB_PASSWORD. Check both (the user usually starts with u…_), and that the user is assigned to the database.',
+  ER_ACCESS_DENIED_ERROR:'MySQL rejected DB_USER / DB_PASSWORD. If the detail says "using password: NO", DB_PASSWORD is not reaching the app: re-add it and redeploy. Otherwise retype the password (or reset it in hPanel → Databases), and check DB_USER is the full name starting with u…_.',
   ER_DBACCESS_DENIED_ERROR:'DB_USER has no access to DB_NAME. Assign the user to the database in hPanel → Databases.',
   ER_BAD_DB_ERROR:'DB_NAME does not exist. Copy the full database name (it usually starts with u…_) from hPanel → Databases.',
   ER_HOST_NOT_PRIVILEGED:'This server is not allowed to connect. Add it in hPanel → Databases → Remote MySQL.',
@@ -96,6 +132,8 @@ export function withDatabase<A extends unknown[]>(handler:(...args:A)=>Promise<R
 /** Connection check for /api/health: whether the database is configured, reachable and has its tables. */
 export async function checkDatabase(){
   if(!databaseConfigured()) return {configured:false,connected:false,code:'NOT_CONFIGURED',hint:'Set DB_HOST, DB_PORT, DB_USER, DB_PASSWORD and DB_NAME (or DATABASE_URL) in the Node.js app settings, then redeploy.'};
-  try{await ensureSchema();await pool().query('SELECT 1');return {configured:true,connected:true,code:'OK',hint:'Connected, and the users, sessions and password_resets tables are ready.'};}
-  catch(error){const code=errorCode(error);console.error('[veyra] database check failed:',code,error);return {configured:true,connected:false,code,hint:errorHint(code)};}
+  try{await ensureSchema();await (await pool()).query('SELECT 1');const via=(await globalForDb.veyraPool)?.via;return {configured:true,connected:true,code:'OK',via,hint:'Connected, and the users, sessions and password_resets tables are ready.'};}
+  catch(error){const code=errorCode(error);console.error('[veyra] database check failed:',code,error);
+    const attempts=error instanceof ConnectError?error.attempts:[{via:'query',code,detail:describe(error)}];
+    return {configured:true,connected:false,code,hint:errorHint(code),attempts};}
 }
