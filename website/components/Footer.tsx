@@ -7,9 +7,9 @@ export function Footer(){
       <Link className="brand" href="/"><span><Image src="/veyra.png" width={30} height={30} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
       <p>A fast, local-first code editor with Git, a real terminal and AI built in.</p>
     </div>
-    <div><strong>Product</strong><Link href="/#features">Features</Link><Link href="/download">Download</Link><Link href="/changelog">Changelog</Link><a href="https://github.com/fcopensource/veyraeditor/releases">Releases</a></div>
-    <div><strong>Developers</strong><a href="https://github.com/fcopensource/veyraeditor">Source code</a><a href="https://github.com/fcopensource/veyraeditor/issues">Report an issue</a><a href="https://github.com/fcopensource/veyraeditor/blob/main/docs/STUDIO.md">Documentation</a></div>
-    <div><strong>Account</strong><Link href="/login">Log in</Link><Link href="/register">Create account</Link><Link href="/dashboard">Dashboard</Link></div>
+    <div><strong>Product</strong><Link href="/features">Features</Link><Link href="/extensions">Extensions</Link><Link href="/download">Download</Link><Link href="/changelog">Changelog</Link><Link href="/roadmap">Roadmap</Link></div>
+    <div><strong>Resources</strong><Link href="/docs">Documentation</Link><Link href="/faq">FAQ</Link><Link href="/vs-code-alternative">VS Code alternative</Link><a href="https://github.com/fcopensource/veyraeditor/issues">Report an issue</a></div>
+    <div><strong>Company</strong><Link href="/about">About</Link><Link href="/about#contact">Contact</Link><a href="https://github.com/fcopensource/veyraeditor">Source code</a><Link href="/login">Log in</Link><Link href="/register">Create account</Link></div>
     <div className="footer-legal"><small>© 2026 Veyra Studio · MIT licensed</small><span><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span></div>
   </footer>;
 }

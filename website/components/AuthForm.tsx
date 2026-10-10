@@ -30,7 +30,7 @@ export function AuthForm({mode,configured}:{mode:Mode;configured:boolean}){
     try{
       const response=await fetch('/api/auth/'+mode,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
       const result=await response.json().catch(()=>({}));
-      if(!response.ok)throw new Error(result.error||'Something went wrong. Please try again.');
+      if(!response.ok)throw new Error((result.error||'Something went wrong. Please try again.')+(result.code?` (error ${result.code})`:''));
       if(mode==='forgot'){setSent(String(body.email));return;}
       router.push(next);router.refresh();
     }catch(reason){setError(reason instanceof Error?reason.message:'Something went wrong. Please try again.');}

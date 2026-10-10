@@ -1,7 +1,8 @@
+import {withDatabase} from '@/lib/db';
 import {NextResponse} from 'next/server';
 import {authConfigured,burnPasswordCheck,clientIp,findUserByEmail,normalizeEmail,rateLimit,startSession,validEmail,verifyPassword} from '@/lib/auth';
 
-export async function POST(request:Request){
+export const POST=withDatabase(async(request:Request)=>{
   if(!authConfigured()) return NextResponse.json({error:'Accounts are not available yet.'},{status:503});
   const body=await request.json().catch(()=>null) as {email?:string;password?:string}|null;
   const email=normalizeEmail(body?.email);const password=typeof body?.password==='string'?body.password:'';
@@ -14,4 +15,4 @@ export async function POST(request:Request){
   if(!user||!valid) return NextResponse.json({error:'That email and password do not match. Check them or reset your password.'},{status:401});
   await startSession(user.id);
   return NextResponse.json({ok:true});
-}
+});
