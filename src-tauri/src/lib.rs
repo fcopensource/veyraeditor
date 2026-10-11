@@ -35,6 +35,13 @@ fn err(e: impl std::fmt::Display) -> String { e.to_string() }
 fn rel(root: &Path, path: &Path) -> Result<String> { Ok(path.strip_prefix(root).map_err(err)?.to_string_lossy().replace('\\', "/")) }
 /// Canonical paths on Windows carry a \\?\ prefix that shells and the UI should not see.
 fn plain(path: &Path) -> &Path { dunce::simplified(path) }
+/// A background command that never opens a console window. Release builds on Windows have no console of their own,
+/// so without CREATE_NO_WINDOW every git / gh / health-check call flashes a terminal window on screen.
+pub(crate) fn quiet(program: impl AsRef<std::ffi::OsStr>) -> Command {
+    let mut command = Command::new(program);
+    #[cfg(windows)] { use std::os::windows::process::CommandExt; command.creation_flags(0x0800_0000); }
+    command
+}
 fn find_in_path(name: &str) -> Option<PathBuf> {
     std::env::var_os("PATH").and_then(|paths| std::env::split_paths(&paths).map(|path| path.join(name)).find(|path| path.is_file()))
 }
@@ -460,7 +467,7 @@ async fn replace_in_files(state: State<'_, Workspace>, query: String, options: O
 async fn git_status(state: State<'_, Workspace>) -> Result<String> {
     let root = root(&state)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let output = Command::new("git").args(["--no-optional-locks", "status", "--short", "--branch"]).current_dir(plain(&root)).output().map_err(err)?;
+        let output = quiet("git").args(["--no-optional-locks", "status", "--short", "--branch"]).current_dir(plain(&root)).output().map_err(err)?;
         if output.status.success() { Ok(String::from_utf8_lossy(&output.stdout).into_owned()) } else { Err(String::from_utf8_lossy(&output.stderr).into_owned()) }
     }).await.map_err(err)?
 }
@@ -468,7 +475,7 @@ async fn git_status(state: State<'_, Workspace>) -> Result<String> {
 async fn git_diff(state: State<'_, Workspace>, path: String) -> Result<String> {
     let root = root(&state)?; checked(&root, &path)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let output = Command::new("git").args(["diff", "HEAD", "--", &path]).current_dir(plain(&root)).output().map_err(err)?;
+        let output = quiet("git").args(["diff", "HEAD", "--", &path]).current_dir(plain(&root)).output().map_err(err)?;
         if output.status.success() { Ok(String::from_utf8_lossy(&output.stdout).into_owned()) } else { Err(String::from_utf8_lossy(&output.stderr).into_owned()) }
     }).await.map_err(err)?
 }
@@ -477,7 +484,7 @@ async fn git_diff(state: State<'_, Workspace>, path: String) -> Result<String> {
 async fn git_show(state: State<'_, Workspace>, path: String) -> Result<String> {
     let root = root(&state)?; git_path(&root, &path)?;
     tauri::async_runtime::spawn_blocking(move || {
-        let output = Command::new("git").args(["--no-optional-locks", "show", &format!("HEAD:./{path}")]).current_dir(plain(&root)).output().map_err(err)?;
+        let output = quiet("git").args(["--no-optional-locks", "show", &format!("HEAD:./{path}")]).current_dir(plain(&root)).output().map_err(err)?;
         Ok(if output.status.success() { String::from_utf8_lossy(&output.stdout).into_owned() } else { String::new() })
     }).await.map_err(err)?
 }
@@ -487,14 +494,14 @@ fn git_path(root: &Path, path: &str) -> Result<()> {
     Ok(())
 }
 fn git_run(root: PathBuf, args: Vec<String>) -> Result<String> {
-    let output=Command::new("git").args(args).current_dir(plain(&root)).output().map_err(err)?;
+    let output=quiet("git").args(args).current_dir(plain(&root)).output().map_err(err)?;
     if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}
 }
 fn gh_program()->Option<PathBuf>{
     find_in_path(if cfg!(windows){"gh.exe"}else{"gh"})
         .or_else(||["/opt/homebrew/bin/gh","/usr/local/bin/gh","/usr/bin/gh","C:\\Program Files\\GitHub CLI\\gh.exe"].iter().map(PathBuf::from).find(|path|path.is_file()))
 }
-fn gh_run(root:PathBuf,args:Vec<String>)->Result<String>{let program=gh_program().ok_or("GitHub CLI is not installed. Install it from cli.github.com and restart Veyra.")?;let output=Command::new(program).args(args).current_dir(plain(&root)).output().map_err(err)?;if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}}
+fn gh_run(root:PathBuf,args:Vec<String>)->Result<String>{let program=gh_program().ok_or("GitHub CLI is not installed. Install it from cli.github.com and restart Veyra.")?;let output=quiet(program).args(args).current_dir(plain(&root)).output().map_err(err)?;if output.status.success(){Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())}else{Err(String::from_utf8_lossy(&output.stderr).trim().to_string())}}
 #[tauri::command]
 async fn git_stage(state:State<'_,Workspace>,path:String)->Result<String>{let root=root(&state)?;git_path(&root,&path)?;tauri::async_runtime::spawn_blocking(move||git_run(root,vec!["add".into(),"--".into(),path])).await.map_err(err)?}
 #[tauri::command]

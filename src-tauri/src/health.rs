@@ -1,7 +1,7 @@
 //! Native half of Veyra's health monitor: checks the tools and services the editor depends on.
 use super::{default_shell, gh_program, index, plain, Workspace};
 use serde::Serialize;
-use std::{fs, process::Command, time::{Duration, Instant}};
+use std::{fs, time::{Duration, Instant}};
 use tauri::State;
 
 #[derive(Serialize)]
@@ -14,7 +14,7 @@ fn run(id: &str, label: &str, group: &str, check: impl FnOnce() -> (&'static str
     HealthCheck { id: id.into(), label: label.into(), group: group.into(), status: status.into(), detail, hint, ms: started.elapsed().as_millis() as u64 }
 }
 fn command_output(program: &str, args: &[&str], cwd: Option<&std::path::Path>) -> Option<String> {
-    let mut command = Command::new(program);
+    let mut command = super::quiet(program);
     command.args(args);
     if let Some(cwd) = cwd { command.current_dir(plain(cwd)); }
     let output = command.output().ok()?;
