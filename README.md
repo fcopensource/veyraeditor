@@ -20,7 +20,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-[**Download**](#-download) · [Features](#-features) · [Debugging](#-debugging) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
+[**Download**](#-download) · [Features](#-features) · [Debugging](#-debugging) · [Live Server](#-live-server) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
 </div>
 
@@ -75,6 +75,7 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 | **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
 | **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
 | **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
+| **Live Server** | **Go Live** serves your folder with live reload; CSS updates without a reload. Built in, no Node.js needed. See [Live Server](#-live-server) |
 | **Customization** | Midnight and light themes, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
 | **Updates** | Signed automatic updates on every platform |
 
@@ -90,6 +91,18 @@ Open **Run and Debug** (the bug icon) and click **Install** once. Veyra installs
 - Breakpoints follow your edits and are remembered per project. Your project's `.venv` is used automatically.
 
 Requires Python 3.8 or newer. Node.js and TypeScript debugging is next.
+
+---
+
+## 📡 Live Server
+
+Click **Go Live** in the status bar (or right-click an HTML file → **Open with Live Server**, or press **Alt+L Alt+O**). Veyra serves your folder at `http://127.0.0.1:5500` and opens the page in your browser.
+
+- Saving HTML or JavaScript reloads the page; saving CSS swaps the stylesheet in place, without a reload.
+- Folders without an `index.html` show a file listing.
+- Built into Veyra in Rust: nothing to install and no Node.js needed. It listens on `127.0.0.1` only and never serves files outside the folder.
+
+**Also for VS Code.** The same Live Server is a VS Code extension in [`extensions/live-server`](extensions/live-server), sharing the browser script with Veyra. Each release includes `veyra-live-server-<version>.vsix`: in VS Code, choose **Extensions → … → Install from VSIX…**.
 
 ---
 
@@ -153,6 +166,7 @@ Shortcuts follow your platform: **Ctrl** on Windows/Linux, **⌘** on macOS.
 | `Ctrl + Alt + N` | Run active file |
 | `F5` · `Shift + F5` | Start or continue debugging · Stop |
 | `F9` · `F10` · `F11` · `Shift + F11` | Toggle breakpoint · Step over · Step into · Step out |
+| `Alt + L` `Alt + O` · `Alt + L` `Alt + C` | Open with Live Server · Stop Live Server |
 | `Ctrl/⌘ + L` · `Ctrl/⌘ + K` | Toggle AI · Edit selection with AI |
 | `Ctrl/⌘ + ,` | Settings |
 
@@ -229,7 +243,9 @@ veyraeditor/
 │       ├── lsp.rs           Language servers: install and stdio bridge
 │       ├── dap.rs           Debug adapter (debugpy): install and session bridge
 │       ├── cli.rs           Command-line tools such as Claude Code
+│       ├── live_server.rs   Live Server: static server, file watching, live reload
 │       └── health.rs        Native health checks
+├── extensions/live-server/  Veyra Live Server for VS Code (shares the live reload script)
 ├── website/                 Next.js product site, download page, update endpoint
 ├── .github/workflows/       Cross-platform release pipeline
 ├── docs/                    Studio guide, release guide
@@ -274,6 +290,7 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 - [x] Language servers: TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue, Python
 - [x] Python debugger: breakpoints, stepping, variables, watch, Debug Console
 - [x] Extension pages with icons, ratings and versions; Claude Code built in
+- [x] Live Server with live CSS reload, built in and as a VS Code extension
 - [x] Windows, macOS and Linux installers with signed auto-updates
 
 **In progress** (built, being integrated into the workbench)

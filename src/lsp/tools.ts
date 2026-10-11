@@ -1,14 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { monaco } from "../editor";
 import { LspClient, type Host, type ServerOptions } from "./client";
+import { liveServer } from "../live";
 
 /* Web language tools: what VS Code's most-installed web extensions provide, run as language servers. */
 
 export type Tool = ServerOptions & {
   description: string; publisher: string;
   /** server: a language server (Node.js); formatter: Prettier; debugger: a debug adapter (see src/debug);
-      cli: a command-line app Veyra installs and opens in its terminal (Claude Code). */
-  kind: "server" | "formatter" | "debugger" | "cli";
+      cli: a command-line app Veyra installs and opens in its terminal (Claude Code);
+      feature: built into Veyra itself, nothing to install (Live Server). */
+  kind: "server" | "formatter" | "debugger" | "cli" | "feature";
   /** Open VSX / VS Code Marketplace ids this tool stands in for. */
   replaces: string[];
   beta?: boolean;
@@ -65,6 +67,9 @@ export const TOOLS: Tool[] = [
   { key: "claude-code", name: "Claude Code", publisher: "Anthropic", kind: "cli", languages: [],
     description: "Anthropic's agentic coding assistant, running in Veyra's terminal inside your project: it reads your code, makes edits and runs commands with your approval. Needs a Claude Pro, Max, Team, Enterprise or Console account.",
     replaces: ["anthropic.claude-code"] },
+  { key: "live-server", name: "Live Server", publisher: "Veyra", kind: "feature", languages: ["html", "css", "javascript"],
+    description: "A local development server with live reload: save and the browser updates, and CSS changes apply without a reload. Click Go Live in the status bar, or right-click an HTML file. Also available for VS Code.",
+    replaces: ["ritwickdey.LiveServer", "ms-vscode.live-server", "yandeu.five-server", "veyra.live-server"] },
   { key: "debugpy", name: "Python Debugger", publisher: "Microsoft debugpy", kind: "debugger", languages: ["python"],
     description: "Breakpoints, stepping, variables, call stack and a debug console for Python, powered by debugpy, the engine inside Microsoft's Python Debugger. Uses your project's virtual environment.",
     replaces: ["ms-python.debugpy", "fabioz.vscode-pydev-python-debugger"] },
@@ -90,6 +95,7 @@ export const onToolsChange = (listener: () => void) => { listeners.add(listener)
 export const environment = () => ({ node: nodeVersion, npm: npmAvailable, python: pythonVersion, pythonPath });
 
 export function toolState(key: string): ToolState {
+  if (TOOLS.find(t => t.key === key)?.kind === "feature") return { installed: true, version: "", enabled: true, busy: false, error: "", running: liveServer() ? "running" : "off" };
   const client = clients.get(key), version = installed.get(key) || "";
   return { installed: !!version, version, enabled: enabled.has(key), busy: busy.has(key), error: client?.error || "",
     running: !client ? "off" : client.state === "running" ? "running" : client.state === "failed" ? "failed" : client.state === "starting" ? "starting" : "off" };
@@ -155,6 +161,7 @@ export async function stopAll() {
 export async function installTool(key: string) {
   const tool = TOOLS.find(t => t.key === key); if (!tool) throw new Error("Unknown tool");
   if (tool.kind === "cli") { runInTerminal("Install Claude Code", { script: "install-claude-code" }); return ""; }
+  if (tool.kind === "feature") return ""; // part of Veyra: nothing to download
   busy.add(key); changed();
   try {
     const version = await invoke<string>(tool.kind === "debugger" ? "dap_install" : "lsp_install", { key });
@@ -164,6 +171,7 @@ export async function installTool(key: string) {
   } finally { busy.delete(key); changed(); }
 }
 export async function uninstallTool(key: string) {
+  if (TOOLS.find(t => t.key === key)?.kind === "feature") return;
   busy.add(key); changed();
   try {
     if (TOOLS.find(t => t.key === key)?.kind === "debugger") {

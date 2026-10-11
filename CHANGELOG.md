@@ -3,6 +3,18 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.8.0
+
+**Live Server, built in**
+- Click **Go Live** in the status bar to serve your folder at `http://127.0.0.1:5500` and open it in your browser
+- Save a file and the browser reloads; save a stylesheet and the new CSS applies without a reload
+- Right-click an HTML file and choose **Open with Live Server**, or press Alt+L Alt+O (Alt+L Alt+C stops it)
+- Nothing to install and no Node.js needed. The server only accepts connections from your own computer and never serves files outside your folder
+- The "Live Server" and "Live Preview" VS Code extensions now point to the built-in Live Server
+
+**Veyra Live Server for VS Code**
+- The same Live Server is now a VS Code extension, so your project behaves the same in both editors. Download `veyra-live-server-1.0.0.vsix` below and choose **Install from VSIX** in VS Code
+
 ## 0.7.0
 
 **Debugger (Python)**

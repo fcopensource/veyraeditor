@@ -86,6 +86,8 @@ test.beforeEach(async ({page})=>{
         if(cmd==="git_unstage"){gitStatus="## main\n M src/App.tsx\n";return "";}
         if(cmd==="git_commit"){gitStatus="## main\n";return "[main def5678] "+args.message;}
         if(cmd==="ai_complete"){(window as any).completionRequests=((window as any).completionRequests||0)+1;return "return a + b;";}
+        if(cmd==="live_start")return {port:5500,url:"http://127.0.0.1:5500/",page:"http://127.0.0.1:5500/"+(args.path||"")};
+        if(cmd==="live_stop")return null;
         if(cmd==="plugin:event|listen")return 1;
         return null;
       }
@@ -516,4 +518,33 @@ test("title-bar button: Sign in, your name once signed in, Update when one is re
   await page.getByRole("button",{name:"Update Veyra to 0.6.0"}).click();
   await expect(button).toHaveText(/Updating 0%/);
   expect(await page.evaluate(()=>(window as any).buttonCalls.some((c:any)=>c.cmd==="plugin:updater|download_and_install"))).toBe(true);
+});
+
+test("Live Server: Go Live in the status bar, Open with Live Server on HTML files, and its extension page",async({page})=>{
+  await page.addInitScript(()=>{(window as any).testFiles["index.html"]="<h1>Hello</h1>";});
+  await page.goto("/");
+  await page.getByRole("button",{name:"Open a project",exact:false}).click();
+  await page.locator('.tree-row[title="index.html"]').click();
+  const calls=()=>page.evaluate(()=>(window as any).testCalls.filter((c:any)=>c.cmd.startsWith("live_")||c.cmd==="plugin:opener|open_url").map((c:any)=>[c.cmd,c.args.path??c.args.url??null]));
+
+  await page.getByRole("button",{name:"Go Live"}).click();
+  const stop=page.getByRole("button",{name:"Stop Live Server"});
+  await expect(stop).toHaveText("Port : 5500");
+  expect(await calls()).toEqual([["live_start","index.html"],["plugin:opener|open_url","http://127.0.0.1:5500/index.html"]]);
+  await stop.click();
+  await expect(page.getByRole("button",{name:"Go Live"})).toBeVisible();
+  expect((await calls()).at(-1)).toEqual(["live_stop",null]);
+
+  await page.locator('.tree-row[title="index.html"]').click({button:"right"});
+  await page.getByRole("menu",{name:"index.html actions"}).getByRole("menuitem",{name:/Open with Live Server/}).click();
+  await expect(page.getByRole("button",{name:"Stop Live Server"})).toBeVisible();
+  await page.locator('.tree-row[title="README.md"]').click({button:"right"});
+  await expect(page.getByRole("menu",{name:"README.md actions"}).getByRole("menuitem",{name:/Open with Live Server/})).toHaveCount(0);
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button",{name:"Extensions",exact:true}).click();
+  const row=page.locator(".ext-row").filter({hasText:"live reload"}).first();
+  await expect(row.getByText("Port 5500")).toBeVisible();
+  await row.getByRole("button",{name:"Stop Live Server"}).click();
+  await expect(row.getByRole("button",{name:"Start Live Server"})).toBeVisible();
 });

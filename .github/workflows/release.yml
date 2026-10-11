@@ -109,3 +109,32 @@ jobs:
           prerelease: false
           includeUpdaterJson: true
           args: ${{ matrix.args }}
+
+  # The Veyra Live Server extension for VS Code, attached to the same draft release.
+  vscode-extension:
+    name: VS Code extension (.vsix)
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extensions/live-server/package-lock.json
+      - name: Package
+        working-directory: extensions/live-server
+        run: |
+          npm ci
+          npm test
+          npm run package
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          extension=$(node -p "require('./extensions/live-server/package.json').version")
+          cp "extensions/live-server/dist/live-server-$extension.vsix" "veyra-live-server-$extension.vsix"
+          gh release upload "v$version" "veyra-live-server-$extension.vsix" --clobber --repo "$GITHUB_REPOSITORY"

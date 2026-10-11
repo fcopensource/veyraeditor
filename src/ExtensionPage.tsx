@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { BadgeCheck, Check, CircleAlert, CloudDownload, Download, ExternalLink, Info, LoaderCircle, Palette, Power, RefreshCw, RotateCw, Sparkles, Terminal, Trash2, Wrench } from 'lucide-react';
+import { BadgeCheck, Check, CircleAlert, CloudDownload, Download, ExternalLink, Info, LoaderCircle, Palette, Power, Radio, RefreshCw, RotateCw, Sparkles, Square, Terminal, Trash2, Wrench } from 'lucide-react';
+import { goLive, goOffline, useLiveServer } from './live';
+
+/** The Veyra Live Server extension for VS Code is attached to every Veyra release. */
+const VSCODE_LIVE_SERVER = 'https://github.com/fcopensource/veyraeditor/releases/latest';
 import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, fetchText, support, themeId, type Capabilities, type Details, type Extension } from './extensions';
 import { TOOLS, environment, installTool, onToolsChange, openClaudeCode, refreshTools, restartTool, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
@@ -179,6 +183,7 @@ function Features({ caps, manifest, local }: { caps: Capabilities | null; manife
 function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
   const tool = TOOLS.find(t => t.key === toolKey) as Tool;
   const [, setTick] = useState(0);
+  const liveInfo = useLiveServer();
   const [error, setError] = useState(''); const [notice, setNotice] = useState('');
   const [readme, setReadme] = useState<string | null>(null);
   useEffect(() => onToolsChange(() => setTick(n => n + 1)), []);
@@ -191,9 +196,10 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
     return () => { current = false; };
   }, [origin]);
   if (!tool) return <div className="ext-page"><p className="ext-empty">Unknown tool.</p></div>;
-  const state = toolState(tool.key); const env = environment();
+  const state = toolState(tool.key); const env = environment(); const live = tool.kind === 'feature' ? liveInfo : null;
   const run = (action: () => Promise<unknown>, done?: string) => { setError(''); setNotice(''); void action().then(() => { if (done) setNotice(done); }).catch(e => setError(String(e))); };
-  const status = tool.kind === 'cli' ? (state.installed ? 'Ready: opens in Veyra\'s terminal' : 'Not installed')
+  const status = tool.kind === 'feature' ? (live ? `Running at ${live.url}` : 'Ready: click Go Live or right-click an HTML file')
+    : tool.kind === 'cli' ? (state.installed ? 'Ready: opens in Veyra\'s terminal' : 'Not installed')
     : tool.kind === 'debugger' ? (state.installed ? 'Ready: open a Python file and press F5' : 'Not installed')
     : !state.installed ? 'Not installed' : !state.enabled ? 'Disabled' : tool.kind === 'formatter' ? 'Ready: Format Document or format on save'
     : state.running === 'running' ? 'Running' : state.running === 'starting' ? 'Starting…' : state.running === 'failed' ? 'Failed to start' : `Starts when you open a ${tool.languages.slice(0, 3).join(' / ')} file`;
@@ -206,7 +212,13 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
         <div className="ext-hero-meta"><span className="ext-publisher big"><Wrench size={14} />{tool.publisher}</span><span className={'ext-status ' + (state.running === 'running' ? 'on' : state.running === 'failed' ? 'failed' : '')}>{state.busy ? 'Working…' : status}</span></div>
         <p className="ext-hero-description">{tool.description}</p>
         <div className="ext-hero-actions">
-          {tool.kind === 'cli' ? (state.installed
+          {tool.kind === 'feature' ? (live
+            ? <>
+              <button className="ext-button primary" onClick={() => open(live.url)}><ExternalLink size={14} />Open in browser</button>
+              <button className="ext-button" aria-label={`Stop ${tool.name}`} onClick={() => run(goOffline, 'Live Server stopped.')}><Square size={13} />Stop</button>
+            </>
+            : <button className="ext-button primary" aria-label={`Go Live with ${tool.name}`} onClick={() => run(() => goLive(), 'Live Server is running. Save a file to see the browser update.')}><Radio size={14} />Go Live</button>)
+          : tool.kind === 'cli' ? (state.installed
             ? <button className="ext-button primary" aria-label={`Open ${tool.name}`} onClick={() => run(async () => openClaudeCode())}><Terminal size={14} />Open {tool.name}</button>
             : <>
               <button className="ext-button primary" aria-label={`Install ${tool.name}`} onClick={() => run(() => installTool(tool.key), 'Installing in the terminal below. When it finishes, click "Check again".')}><Download size={14} />Install {tool.name}</button>
@@ -221,6 +233,7 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
               <button className="ext-button danger" disabled={state.busy} onClick={() => run(() => uninstallTool(tool.key), `${tool.name} removed.`)}><Trash2 size={14} />Uninstall</button>
             </>}
         </div>
+        {tool.kind === 'feature' && <div className="ext-compat"><Info size={15} /><span>Built into Veyra: nothing to install, no Node.js needed. Serves your open folder on <b>http://127.0.0.1:5500</b> (the next free port if it&apos;s taken), only to this computer. Using VS Code too? <button className="link-button" onClick={() => open(VSCODE_LIVE_SERVER)}>Get Veyra Live Server for VS Code</button> (the <code>.vsix</code> file in each release).</span></div>}
         {tool.kind === 'cli' && <div className="ext-compat"><Info size={15} /><span>Runs Anthropic&apos;s official installer in a terminal, then opens Claude Code in your project. Needs a <b>Claude Pro, Max, Team, Enterprise or Console</b> account; Claude Code asks you to sign in the first time.</span></div>}
         {tool.kind === 'debugger' && !env.python && <div className="ext-compat"><Info size={15} /><span>Needs <b>Python 3.8 or newer</b>. Install it from python.org, then restart Veyra.</span></div>}
         {(tool.kind === 'server' || tool.kind === 'formatter') && !env.node && <div className="ext-compat"><Info size={15} /><span>Needs <b>Node.js 18 or newer</b>. Install it from nodejs.org, then restart Veyra.</span></div>}
@@ -236,9 +249,9 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
       <aside className="ext-side">
         <h3>How it runs</h3>
         <dl>
-          <dt>Runtime</dt><dd>{tool.kind === 'cli' ? (state.installed ? `Claude Code ${state.version}` : 'Not installed') : tool.kind === 'debugger' ? (env.python ? `Python ${env.python}` : 'Python not found') : env.node ? `Node.js ${env.node}` : 'Node.js not found'}</dd>
-          <dt>Kind</dt><dd>{tool.kind === 'server' ? 'Language server' : tool.kind === 'formatter' ? 'Formatter' : tool.kind === 'debugger' ? 'Debugger (Debug Adapter Protocol)' : 'Terminal app'}</dd>
-          <dt>Stored in</dt><dd>{tool.kind === 'cli' ? 'Installed by Anthropic\'s installer' : 'Veyra\'s app folder'}</dd>
+          <dt>Runtime</dt><dd>{tool.kind === 'feature' ? 'Native, built into Veyra' : tool.kind === 'cli' ? (state.installed ? `Claude Code ${state.version}` : 'Not installed') : tool.kind === 'debugger' ? (env.python ? `Python ${env.python}` : 'Python not found') : env.node ? `Node.js ${env.node}` : 'Node.js not found'}</dd>
+          <dt>Kind</dt><dd>{tool.kind === 'feature' ? 'Development server with live reload' : tool.kind === 'server' ? 'Language server' : tool.kind === 'formatter' ? 'Formatter' : tool.kind === 'debugger' ? 'Debugger (Debug Adapter Protocol)' : 'Terminal app'}</dd>
+          <dt>Stored in</dt><dd>{tool.kind === 'feature' ? 'Built into Veyra' : tool.kind === 'cli' ? 'Installed by Anthropic\'s installer' : 'Veyra\'s app folder'}</dd>
         </dl>
         <h3>Languages</h3>
         <div className="ext-chips">{tool.languages.map(l => <span key={l}>{l}</span>)}</div>

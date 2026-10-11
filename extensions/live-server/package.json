@@ -1,0 +1,130 @@
+{
+  "name": "live-server",
+  "displayName": "Veyra Live Server",
+  "description": "Launch a local development server with live reload for HTML, CSS and JavaScript. CSS changes apply without a reload. The same Live Server that is built into Veyra Studio.",
+  "version": "1.0.0",
+  "publisher": "veyra",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "homepage": "https://veyraeditor.com/extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/live-server"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "live server",
+    "live reload",
+    "html",
+    "preview",
+    "static server",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "veyraLiveServer.goLive",
+        "title": "Open with Live Server",
+        "category": "Veyra Live Server",
+        "icon": "$(broadcast)"
+      },
+      {
+        "command": "veyraLiveServer.goOffline",
+        "title": "Stop Live Server",
+        "category": "Veyra Live Server"
+      },
+      {
+        "command": "veyraLiveServer.toggle",
+        "title": "Go Live / Stop",
+        "category": "Veyra Live Server"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "veyraLiveServer.goLive",
+          "when": "resourceExtname =~ /^\\.html?$/i",
+          "group": "navigation@-10"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "veyraLiveServer.goLive",
+          "when": "resourceLangId == html",
+          "group": "navigation@-10"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraLiveServer.toggle",
+          "when": "false"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "veyraLiveServer.goLive",
+        "key": "alt+l alt+o",
+        "mac": "cmd+l cmd+o"
+      },
+      {
+        "command": "veyraLiveServer.goOffline",
+        "key": "alt+l alt+c",
+        "mac": "cmd+l cmd+c"
+      }
+    ],
+    "configuration": {
+      "title": "Veyra Live Server",
+      "properties": {
+        "veyraLiveServer.port": {
+          "type": "number",
+          "default": 5500,
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "Port to serve on. If it's busy, the next free port is used. 0 picks any free port."
+        },
+        "veyraLiveServer.root": {
+          "type": "string",
+          "default": "",
+          "description": "Subfolder of the workspace to serve, for example \"/public\" or \"/dist\". Empty serves the whole workspace folder."
+        },
+        "veyraLiveServer.openBrowser": {
+          "type": "boolean",
+          "default": true,
+          "description": "Open the page in your default browser when Live Server starts."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "tsc -p . && node --test test/server.test.mjs",
+    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/",
+    "vscode:prepublish": "tsc -p .",
+    "test:integration": "tsc -p . && node test/integration/run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "^5.9.0",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

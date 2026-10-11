@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { BadgeCheck, ChevronDown, ChevronRight, CircleAlert, CloudDownload, Download, LoaderCircle, Power, Search, SlidersHorizontal, Terminal, Trash2, Upload } from 'lucide-react';
+import { BadgeCheck, ChevronDown, ChevronRight, CircleAlert, CloudDownload, Download, LoaderCircle, Power, Radio, Search, SlidersHorizontal, Square, Terminal, Trash2, Upload } from 'lucide-react';
+import { goLive, goOffline, useLiveServer } from './live';
 import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, parseExtension, searchExtensions, support, themeId, type Extension, type Listing } from './extensions';
 import { TOOLS, environment, installTool, onToolsChange, openClaudeCode, refreshTools, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
@@ -37,7 +38,9 @@ function Row({ icon, name, version, description, publisher, verified, downloads,
 function ToolRow({ tool, onOpen, selected, run }: { tool: Tool; onOpen: (target: ExtensionTarget) => void; selected?: boolean; run: (action: () => Promise<unknown>, done?: string) => void }) {
   const state = toolState(tool.key);
   const icon = useMarketIcon(tool.replaces[0]);
-  const status = state.busy ? <span className="ext-status"><LoaderCircle size={11} className="spin" />Working…</span>
+  const live = useLiveServer();
+  const status = tool.kind === 'feature' ? (live ? <span className="ext-status on">Port {live.port}</span> : <span className="ext-status">Ready</span>)
+    : state.busy ? <span className="ext-status"><LoaderCircle size={11} className="spin" />Working…</span>
     : !state.installed ? null
     : !state.enabled ? <span className="ext-status off">Disabled</span>
     : state.running === 'running' ? <span className="ext-status on">Running</span>
@@ -46,7 +49,11 @@ function ToolRow({ tool, onOpen, selected, run }: { tool: Tool; onOpen: (target:
   return <Row icon={icon} name={tool.name} version={state.version || undefined} description={tool.description} publisher={tool.publisher} selected={selected}
     badge={<em className="ext-badge builtin">{tool.beta ? 'Beta' : 'Built in'}</em>} status={status}
     onOpen={() => onOpen({ kind: 'tool', key: tool.key, title: tool.name, icon })}
-    actions={tool.kind === 'cli'
+    actions={tool.kind === 'feature'
+      ? (live
+        ? <button className="ext-action" aria-label={`Stop ${tool.name}`} onClick={() => run(goOffline, 'Live Server stopped.')}><Square size={11} />Stop</button>
+        : <button className="ext-action primary" aria-label={`Start ${tool.name}`} onClick={() => run(() => goLive(), 'Live Server is running.')}><Radio size={12} />Go Live</button>)
+      : tool.kind === 'cli'
       ? (state.installed
         ? <button className="ext-action primary" aria-label={`Open ${tool.name}`} onClick={() => run(async () => openClaudeCode())}><Terminal size={12} />Open</button>
         : <button className="ext-action primary" aria-label={`Install ${tool.name}`} onClick={() => run(() => installTool(tool.key), `Installing ${tool.name} in the terminal…`)}><Download size={12} />Install</button>)
@@ -113,7 +120,8 @@ export function ExtensionsPanel({ items, onChange, theme, onTheme, onOpen, selec
   const change = (next: Extension[]) => { try { onChange(next); setError(''); } catch (e) { setError(String(e)); } };
   const themes = items.filter(x => x.enabled).flatMap(x => x.themes.map((t, i) => ({ id: themeId(x.id, i), name: t.name })));
   const env = environment();
-  const installedTools = TOOLS.filter(tool => toolState(tool.key).installed);
+  // Built-in features (Live Server) are part of Veyra: listed with the built-in tools, not as installed extensions.
+  const installedTools = TOOLS.filter(tool => tool.kind !== 'feature' && toolState(tool.key).installed);
   const searching = !!query.trim();
   const match = (text: string) => !searching || text.toLowerCase().includes(query.trim().toLowerCase());
   const installedCount = items.length + installedTools.length;
@@ -146,7 +154,7 @@ export function ExtensionsPanel({ items, onChange, theme, onTheme, onOpen, selec
     {!searching && <Section id="web" title="Built-in web tools" count={TOOLS.length} collapsed={collapsed.has('web')} onToggle={toggle}>
       {env.node ? <p className="hint">Runs on your Node.js {env.node}{env.npm ? '' : ' (npm not found)'}. Tools live in Veyra's app folder, never in your project.</p>
         : <p className="extension-warning">Language tools need <b>Node.js 18 or newer</b>. Install it from nodejs.org, then restart Veyra.</p>}
-      {TOOLS.filter(tool => !toolState(tool.key).installed).map(tool => <ToolRow key={tool.key} tool={tool} onOpen={onOpen} run={run} selected={isSelected({ kind: 'tool', key: tool.key, title: '' })} />)}
+      {TOOLS.filter(tool => tool.kind === 'feature' || !toolState(tool.key).installed).map(tool => <ToolRow key={tool.key} tool={tool} onOpen={onOpen} run={run} selected={isSelected({ kind: 'tool', key: tool.key, title: '' })} />)}
       {TOOLS.every(tool => toolState(tool.key).installed) && <p className="hint">All web development tools are installed.</p>}
     </Section>}
 

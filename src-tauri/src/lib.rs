@@ -8,6 +8,8 @@ mod ai;
 mod cli;
 mod dap;
 mod health;
+mod live;
+mod live_server;
 mod lsp;
 mod privacy;
 
@@ -618,13 +620,13 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default()).manage(lsp::LspState::default()).manage(dap::DapState::default())
+    tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default()).manage(lsp::LspState::default()).manage(dap::DapState::default()).manage(live::LiveState::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .setup(|app|{app.set_menu(application_menu(app)?)?;Ok(())})
         .on_menu_event(|app,event|{let _=app.emit("menu-command",event.id().as_ref());})
-        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, lsp::lsp_status, lsp::lsp_install, lsp::lsp_uninstall, lsp::lsp_start, lsp::lsp_send, lsp::lsp_stop, lsp::prettier_format, cli::claude_code_status, dap::dap_status, dap::dap_install, dap::dap_uninstall, dap::dap_start, dap::dap_send, dap::dap_stop, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_key_status, ai::ai_key_statuses, ai::ai_models, ai::ai_chat, ai::ai_complete, ai::ai_cancel, ai::veyra_sign_in, ai::veyra_account, ai::veyra_sign_out])
+        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, lsp::lsp_status, lsp::lsp_install, lsp::lsp_uninstall, lsp::lsp_start, lsp::lsp_send, lsp::lsp_stop, lsp::prettier_format, cli::claude_code_status, dap::dap_status, dap::dap_install, dap::dap_uninstall, dap::dap_start, dap::dap_send, dap::dap_stop, live::live_start, live::live_stop, live::live_status, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_set_key, ai::ai_key_status, ai::ai_key_statuses, ai::ai_models, ai::ai_chat, ai::ai_complete, ai::ai_cancel, ai::veyra_sign_in, ai::veyra_account, ai::veyra_sign_out])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });

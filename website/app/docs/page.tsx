@@ -12,7 +12,7 @@ export const metadata:Metadata={
 };
 
 const SECTIONS=[
-  ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],['debugging','Debugging'],
+  ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],['debugging','Debugging'],['live-server','Live Server'],
   ['ai','Set up AI'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
 ] as const;
 
@@ -89,6 +89,16 @@ export default function Docs(){
             <li>Inspect <strong>Variables</strong>, add <strong>Watch</strong> expressions, walk the <strong>Call stack</strong>, and evaluate code in the <strong>Debug Console</strong>.</li>
           </ul>
           <Note>The debugger needs <strong>Python 3.8 or newer</strong> (<a href="https://www.python.org">python.org</a>). Veyra uses your project&apos;s <code>.venv</code> when there is one. Node.js debugging is coming next.</Note>
+        </section>
+
+        <section id="live-server"><h2>Live Server</h2>
+          <p>Click <strong>Go Live</strong> in the status bar to serve the open folder and open it in your browser. To open a specific page, right-click an HTML file and choose <strong>Open with Live Server</strong>, or press <kbd>Alt</kbd>+<kbd>L</kbd> <kbd>Alt</kbd>+<kbd>O</kbd>.</p>
+          <ul>
+            <li>Saving HTML or JavaScript reloads the page. Saving CSS applies the new styles without a reload.</li>
+            <li>The status bar shows the port while Live Server runs. Click it, or press <kbd>Alt</kbd>+<kbd>L</kbd> <kbd>Alt</kbd>+<kbd>C</kbd>, to stop.</li>
+            <li>Folders without an <code>index.html</code> show a list of their files.</li>
+          </ul>
+          <Note>Live Server uses port <strong>5500</strong>, or the next free port. It only accepts connections from your own computer. Using VS Code too? Install <strong>Veyra Live Server</strong> from the <code>.vsix</code> file in the <a href="https://github.com/fcopensource/veyraeditor/releases/latest">latest release</a> (Extensions → … → Install from VSIX).</Note>
         </section>
 
         <section id="ai"><h2>Set up AI</h2>

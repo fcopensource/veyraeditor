@@ -1,6 +1,6 @@
 [package]
 name = "veyra"
-version = "0.7.0"
+version = "0.8.0"
 description = "Veyra desktop code editor"
 authors = ["you"]
 edition = "2021"
@@ -34,6 +34,7 @@ tokio = { version = "1", features = ["sync", "macros"] }
 regex = "1"
 base64 = "0.22"
 dunce = "1"
+notify = "8"
 
 # API keys live in the OS credential store (Windows Credential Manager, macOS Keychain, Secret Service).
 [target.'cfg(windows)'.dependencies]

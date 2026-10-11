@@ -182,6 +182,7 @@ test('Python Debugger and Claude Code from the marketplace are built into Veyra'
   await page.route('https://open-vsx.org/api/**',route=>route.fulfill({json:{extensions:[
     {namespace:'ms-python',name:'debugpy',version:'2026.6.0',displayName:'Python Debugger',description:'Python debugger (debugpy) extension for VS Code.',downloadCount:61000000},
     {namespace:'anthropic',name:'claude-code',version:'2.1.296',displayName:'Claude Code for VS Code',description:'Harness the power of Claude Code without leaving your IDE',downloadCount:57000000},
+    {namespace:'ritwickdey',name:'LiveServer',version:'5.7.9',displayName:'Live Server',description:'Launch a development local Server with live reload feature for static & dynamic pages',downloadCount:3000000},
   ]}}));
   await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
   const debugRow=page.locator('.ext-row').filter({hasText:'Python debugger (debugpy)'});
@@ -196,4 +197,12 @@ test('Python Debugger and Claude Code from the marketplace are built into Veyra'
   await page.locator('.ext-page').getByRole('button',{name:'Install Claude Code'}).click();
   await expect(page.getByRole('tab',{name:'Extension: Claude Code',exact:true})).toHaveAttribute('aria-selected','true');
   await expect(page.locator('.ext-page')).toContainText('Claude Pro, Max, Team, Enterprise or Console');
+  await page.getByRole('button',{name:'Extensions',exact:true}).click();
+  const liveRow=page.locator('.ext-row').filter({hasText:'Launch a development local Server'});
+  await expect(liveRow.getByText('Built into Veyra')).toBeVisible();
+  await expect(liveRow.getByText('Installed',{exact:true})).toBeVisible(); // nothing to install: part of Veyra
+  await liveRow.click();
+  await page.locator('.ext-page').getByRole('button',{name:/Live Server/}).first().click();
+  await expect(page.locator('[role=tab][aria-selected=true]')).toHaveAccessibleName('Extension: Live Server');
+  await expect(page.locator('.ext-page')).toContainText('Get Veyra Live Server for VS Code');
 });

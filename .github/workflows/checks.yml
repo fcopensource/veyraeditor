@@ -68,6 +68,32 @@ jobs:
       - name: cargo clippy (errors fail; warnings are reported)
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets
 
+  vscode-extension:
+    name: VS Code extension (Live Server)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: extensions/live-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extensions/live-server/package-lock.json
+      - run: npm ci
+      - name: Server tests
+        run: npm test
+      - name: Integration test in VS Code
+        run: xvfb-run -a npm run test:integration
+      - name: Package
+        run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: veyra-live-server-vsix
+          path: extensions/live-server/dist/*.vsix
+          retention-days: 14
+
   dependencies:
     name: Dependency advisories
     runs-on: ubuntu-22.04
