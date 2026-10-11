@@ -3,6 +3,14 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.6.2
+
+**Fixes**
+- **Windows:** opening a folder no longer pops up terminal windows again and again. Git, GitHub and health checks now run silently in the background
+
+**Veyra AI**
+- Veyra AI can now be answered by OpenAI, Claude or any OpenAI-compatible provider, chosen on the server; it always appears as "Veyra AI" in the app
+
 ## 0.6.1
 
 **Security & privacy** (from an independent audit)
