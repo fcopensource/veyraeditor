@@ -13,6 +13,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
+import { allPosts, formatDate } from "@/lib/blog";
 
 export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
@@ -185,6 +186,23 @@ export default async function Home() {
           <h2>Stay inside the work.</h2>
           <p>Files, terminal, source control, intelligent context and the final diff, arranged as one continuous instrument.</p>
           <div className="signal-line"><i /><i /><i /><i /><i /></div>
+        </section>
+
+        <section className="home-blog" data-reveal aria-labelledby="blog-title">
+          <header>
+            <div><span>// FROM THE BLOG</span><h2 id="blog-title">Guides and notes from the team</h2></div>
+            <Link className="secondary" href="/blog">All articles <ArrowRight size={14} /></Link>
+          </header>
+          <div className="post-grid">
+            {allPosts().slice(0, 3).map(post => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="post-card">
+                <span className="post-meta"><em>{post.category}</em>{post.readingTime} min read</span>
+                <h3>{post.title}</h3>
+                <p>{post.description}</p>
+                <span className="post-date">{formatDate(post.date)}</span>
+              </Link>
+            ))}
+          </div>
         </section>
 
         <section id="faq" className="faq" data-reveal aria-labelledby="faq-title">
