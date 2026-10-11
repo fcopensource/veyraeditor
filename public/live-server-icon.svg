@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Veyra Live Server</title>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0" stop-color="#1b2a66"/>
+      <stop offset="0.55" stop-color="#0c1436"/>
+      <stop offset="1" stop-color="#060916"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#d946ef"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.38" stop-color="#6366f1"/>
+      <stop offset="0.7" stop-color="#d946ef"/>
+      <stop offset="1" stop-color="#fb923c"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg)"/>
+  <rect x="17.5" y="17.5" width="477" height="477" rx="110.5" fill="none" stroke="url(#rim)" stroke-opacity="0.75" stroke-width="3"/>
+  <!-- Browser window: what Live Server serves -->
+  <rect x="112" y="300" width="288" height="124" rx="22" fill="#0b1230" stroke="url(#beam)" stroke-width="14" filter="url(#glow)"/>
+  <circle cx="146" cy="332" r="7" fill="#22d3ee"/>
+  <circle cx="170" cy="332" r="7" fill="#6366f1"/>
+  <circle cx="194" cy="332" r="7" fill="#d946ef"/>
+  <path d="M146 372 H318 M146 396 H262" stroke="#ffffff" stroke-opacity="0.35" stroke-width="12" stroke-linecap="round"/>
+  <!-- Live signal broadcasting from the page -->
+  <g fill="none" stroke="url(#beam)" stroke-linecap="round" filter="url(#glow)">
+    <circle cx="256" cy="200" r="30" fill="url(#beam)" stroke="none"/>
+    <path d="M196 140 A85 85 0 0 0 196 260" stroke-width="24"/>
+    <path d="M316 140 A85 85 0 0 1 316 260" stroke-width="24"/>
+    <path d="M150 94 A150 150 0 0 0 150 306" stroke-width="24" stroke-opacity="0.85"/>
+    <path d="M362 94 A150 150 0 0 1 362 306" stroke-width="24" stroke-opacity="0.85"/>
+  </g>
+</svg>
