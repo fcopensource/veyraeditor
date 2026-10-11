@@ -65,7 +65,7 @@ export default function Extensions(){
           <li><Palette/><span><strong>Colour themes</strong> apply to the whole workspace and editor</span></li>
           <li><Code2/><span><strong>Snippets</strong> appear in editor suggestions</span></li>
           <li><Package/><span><strong>Install from VSIX</strong> for extensions you already have</span></li>
-          <li><Sparkles/><span>Popular web extensions are marked <strong>Built into Veyra</strong> and install the native equivalent</span></li>
+          <li><Sparkles/><span>Popular extensions are marked <strong>Built into Veyra</strong> and install the native equivalent, including <strong>Python Debugger</strong> and <strong>Claude Code</strong></span></li>
         </ul>
         <p>Extensions that run their own JavaScript need a VS Code extension host. It&apos;s on the <Link href="/roadmap">roadmap</Link>.</p>
       </div>
@@ -83,7 +83,7 @@ export default function Extensions(){
     <section className="content-section">
       <div className="cards two">
         <Link className="card" href="/docs#language-tools"><Wrench/><h3>Set up language tools</h3><p>Step-by-step setup and troubleshooting for TypeScript, ESLint and Prettier.</p><span className="card-link">Read the guide <ArrowRight size={14}/></span></Link>
-        <Link className="card" href="/roadmap"><Sparkles/><h3>What&apos;s next</h3><p>Rust, Go and C++ language servers, more grammars and icon themes, and a full extension host.</p><span className="card-link">See the roadmap <ArrowRight size={14}/></span></Link>
+        <Link className="card" href="/roadmap"><Sparkles/><h3>What&apos;s next</h3><p>Node.js debugging, Rust, Go and C++ language servers, more grammars and icon themes, and a full extension host.</p><span className="card-link">See the roadmap <ArrowRight size={14}/></span></Link>
       </div>
     </section>
 

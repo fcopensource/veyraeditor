@@ -23,7 +23,7 @@ const ROWS:[string,string,string,string][]=[
   ['TypeScript, ESLint, Prettier, Tailwind','Built in, one click','Built in / extensions','Built in / extensions'],
   ['Git and terminal','Built in','Built in','Built in'],
   ['Extension marketplace','Open VSX themes & snippets; extension host planned','Full VS Code Marketplace','Most VS Code extensions'],
-  ['Debugger','Not yet','Yes','Yes'],
+  ['Debugger','Python built in; Node.js next','Yes','Yes'],
 ];
 
 export default function Compare(){
@@ -52,7 +52,7 @@ export default function Compare(){
         <span className="kicker">HONEST ADVICE</span>
         <h2>When to choose which</h2>
         <p><strong>Choose Veyra</strong> if you want a fast, small, private editor for web development and everyday coding, with AI from any provider (including fully local).</p>
-        <p><strong>Stay with VS Code</strong> for now if you depend on a debugger or on a specific extension that runs its own code. Both are on the Veyra <Link href="/roadmap">roadmap</Link>.</p>
+        <p><strong>Stay with VS Code</strong> for now if you need a debugger for languages other than Python, or a specific extension that runs its own code. Both are on the Veyra <Link href="/roadmap">roadmap</Link>.</p>
       </div>
       <div className="card">
         <h3 style={{marginTop:0}}>Switching from VS Code</h3>

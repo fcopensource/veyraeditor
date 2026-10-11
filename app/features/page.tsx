@@ -49,6 +49,30 @@ export default function Features(){
       </div>
     </section>
 
+    <section className="content-section split">
+      <div>
+        <span className="kicker">NEW IN 0.7</span>
+        <h2>Debug Python, the way you do in VS Code.</h2>
+        <p>Install the debugger once from <strong>Run and Debug</strong>, click beside a line to set a breakpoint and press <kbd>F5</kbd>.</p>
+        <ul>
+          <Item><strong>Breakpoints</strong> in the gutter that follow your edits</Item>
+          <Item><strong>Step</strong> over, into and out (<kbd>F10</kbd>, <kbd>F11</kbd>), continue and restart</Item>
+          <Item><strong>Variables, watch and call stack</strong>, expandable to any depth</Item>
+          <Item><strong>Debug Console</strong> to evaluate code while paused</Item>
+          <Item><strong>Python IntelliSense</strong> with Pyright, and <strong>Claude Code</strong> one click away in the terminal</Item>
+        </ul>
+      </div>
+      <div className="visual" aria-hidden="true">
+        <small>Run and Debug · Paused on breakpoint</small>
+        <i>def</i> total(items):<br/>
+        &nbsp;&nbsp;s = <b>0</b><br/>
+        <em>● </em>&nbsp;<i>for</i> x <i>in</i> items: s += x<br/><br/>
+        <small>Variables</small>
+        items = <b>[3, 4, 5]</b><br/>
+        s = <b>7</b>
+      </div>
+    </section>
+
     <section className="content-section split reverse">
       <div>
         <span className="kicker">NEW IN 0.5</span>
