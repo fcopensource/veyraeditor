@@ -1,0 +1,91 @@
+/* ---------- Editor: breakpoints and the paused line ---------- */
+.veyra-breakpoint, .veyra-breakpoint-hint, .veyra-stopped-breakpoint, .veyra-stopped-arrow { cursor: pointer }
+.veyra-breakpoint::before, .veyra-breakpoint-hint::before, .veyra-stopped-breakpoint::before {
+  content: ""; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #e51400;
+}
+.veyra-breakpoint-hint::before { background: #e5140066 }
+/* Paused: a yellow arrow (on top of the red dot when the line has a breakpoint). */
+.veyra-stopped-arrow::after, .veyra-stopped-breakpoint::after {
+  content: ""; position: absolute; top: 50%; left: 50%; margin: -6px 0 0 -4px; border: 6px solid transparent; border-left: 9px solid #ffcc00; filter: drop-shadow(0 0 1px #000a);
+}
+.veyra-stopped-line { background: rgba(255, 204, 0, .16); box-shadow: inset 3px 0 0 #ffcc00 }
+
+/* ---------- Run and Debug panel ---------- */
+.debug-panel { display: flex; flex-direction: column; overflow: auto; flex: 1; min-height: 0 }
+.dbg-setup { display: grid; gap: 10px; justify-items: start; margin: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text) }
+.dbg-setup > svg { color: var(--accent) }
+.dbg-setup b { color: var(--bright); font-size: 13px }
+.dbg-setup p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.55 }
+.dbg-setup small { color: var(--muted); font-size: 10.5px; overflow-wrap: anywhere }
+.dbg-primary { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; height: 30px; border-radius: 6px; background: var(--accent); color: #06100d; font-size: 12px; font-weight: 700 }
+.dbg-primary:disabled { opacity: .5 }
+.dbg-launch { display: grid; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--border) }
+.dbg-toolbar { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 7px; background: var(--card) }
+.dbg-toolbar button { display: grid; place-items: center; flex: 1; height: 28px; border-radius: 5px; color: #75beff }
+.dbg-toolbar button:hover:not(:disabled) { background: var(--hover) }
+.dbg-toolbar button:disabled { opacity: .35 }
+.dbg-toolbar button[aria-label="Continue"] { color: #89d185 }
+.dbg-toolbar .dbg-stop { color: #f48771 }
+.dbg-status { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5 }
+.dbg-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50% }
+.dbg-dot.running { background: #89d185; box-shadow: 0 0 6px #89d185 }
+.dbg-dot.paused { background: #ffcc00; box-shadow: 0 0 6px #ffcc00 }
+.dbg-dot.breakpoint { background: #e51400 }
+.debug-panel .extension-error { display: flex; align-items: center; gap: 5px; margin: 0; font-size: 11px }
+
+.dbg-section { border-bottom: 1px solid var(--border) }
+.dbg-section > header { display: flex; align-items: center; height: 24px; padding-right: 8px }
+.dbg-section > header > button:first-child { display: flex; flex: 1; align-items: center; gap: 4px; height: 100%; padding: 0 8px; color: var(--bright); font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; justify-content: flex-start }
+.dbg-section > header i { margin-left: 6px; padding: 0 6px; border-radius: 9px; background: var(--hover); color: var(--muted); font-size: 10px; font-style: normal }
+.dbg-section-body { padding: 2px 0 8px }
+.dbg-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 4px; color: var(--muted) }
+.dbg-icon:hover { background: var(--hover); color: var(--bright) }
+.dbg-empty, .dbg-loading { padding: 4px 22px; color: var(--muted); font-size: 11.5px }
+.dbg-scope { display: flex; align-items: center; gap: 4px; width: 100%; padding: 3px 8px; color: var(--bright); font-size: 12px; font-weight: 600; justify-content: flex-start }
+.dbg-var, .dbg-watch { display: flex; align-items: center; gap: 4px; width: 100%; min-width: 0; padding-top: 2px; padding-bottom: 2px; padding-right: 8px; font: 12px/1.6 Menlo, Consolas, monospace; text-align: left; justify-content: flex-start }
+.dbg-var:hover, .dbg-watch:hover { background: var(--hover) }
+.dbg-var svg { flex-shrink: 0; color: var(--muted) }
+.dbg-leaf { flex-shrink: 0; width: 12px }
+.dbg-name { flex-shrink: 0; color: #c586c0 }
+.dbg-name::after { content: ":"; color: var(--muted); margin-right: 6px }
+.dbg-value { overflow: hidden; color: #ce9178; text-overflow: ellipsis; white-space: nowrap }
+.app.light .dbg-name { color: #a626a4 }
+.app.light .dbg-value { color: #a31515 }
+.dbg-watch { padding-left: 22px }
+.dbg-watch button { margin-left: auto; display: grid; place-items: center; width: 18px; height: 18px; flex-shrink: 0; color: var(--muted); opacity: 0 }
+.dbg-watch:hover button { opacity: 1 }
+.dbg-watch-add { display: flex; align-items: center; gap: 6px; padding: 2px 8px 2px 22px; color: var(--muted) }
+.dbg-watch-add input { flex: 1; min-width: 0; height: 22px; padding: 0 6px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text); font: 12px Menlo, Consolas, monospace; outline: 0 }
+.dbg-watch-add input:focus { border-color: var(--accent); background: var(--editor) }
+.dbg-frame { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 3px 12px 3px 22px; font-size: 12px; text-align: left; justify-content: flex-start }
+.dbg-frame:hover { background: var(--hover) }
+.dbg-frame.current { background: var(--selection) }
+.dbg-frame span { overflow: hidden; color: var(--bright); text-overflow: ellipsis; white-space: nowrap }
+.dbg-frame small { margin-left: auto; flex-shrink: 0; color: var(--muted); font-size: 11px }
+.dbg-frame.external span, .dbg-frame.external small { opacity: .55 }
+.dbg-breakpoint { display: flex; align-items: center; gap: 8px; padding: 1px 8px 1px 22px }
+.dbg-breakpoint:hover { background: var(--hover) }
+.dbg-breakpoint > button:nth-child(2) { display: flex; flex: 1; align-items: baseline; gap: 8px; min-width: 0; padding: 3px 0; font-size: 12px; justify-content: flex-start }
+.dbg-breakpoint span { color: var(--bright) }
+.dbg-breakpoint small { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap }
+.dbg-breakpoint .dbg-icon { opacity: 0 }
+.dbg-breakpoint:hover .dbg-icon { opacity: 1 }
+
+/* ---------- Debug Console (bottom panel) ---------- */
+.debug-console { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--editor) }
+.dbg-output { flex: 1; min-height: 0; overflow: auto; padding: 8px 14px; font: 12.5px/1.55 Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere }
+.dbg-out { color: var(--text) }
+.dbg-out.stderr, .dbg-out.error { color: #f48771 }
+.dbg-out.important { color: #75beff }
+.dbg-out.console { color: var(--muted) }
+.dbg-out.input { color: var(--muted) }
+.dbg-out.result { color: #89d185 }
+.dbg-repl { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-top: 1px solid var(--border); color: var(--accent) }
+.dbg-repl input { flex: 1; height: 26px; border: 0 !important; outline: 0; background: transparent !important; box-shadow: none !important; color: var(--bright); font: 12.5px Menlo, Consolas, monospace }
+.dbg-repl input:disabled { opacity: .6 }
+.dbg-repl button { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 4px; color: var(--muted) }
+.dbg-repl button:hover { background: var(--hover); color: var(--bright) }
+
+/* Status bar while debugging (VS Code turns it orange). */
+.statusbar.debugging { background: #cc6633 !important; color: #fff !important }
+.statusbar.debugging button, .statusbar.debugging span, .statusbar.debugging small { color: #fff !important }
