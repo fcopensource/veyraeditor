@@ -68,7 +68,10 @@ img.ext-icon { background: none }
 .ext-star svg { fill: currentColor; stroke-width: 0 }
 
 /* ---------- Extension page (editor tab) ---------- */
-.page-overlay { position: absolute; inset: 0; z-index: 5; overflow: auto; background: var(--editor) }
+/* Above Monaco's own layers (minimap, scrollbars, widgets use up to ~50), and the editor underneath is hidden
+   while a page is open so nothing of it can show through. */
+.page-overlay { position: absolute; inset: 0; z-index: 60; isolation: isolate; overflow: auto; background: var(--editor) }
+.editing-area:has(> .page-overlay) > :not(.page-overlay) { visibility: hidden }
 .ext-page { max-width: 1180px; margin: 0 auto; padding: 32px 40px 60px }
 .ext-hero { display: flex; gap: 28px; padding-bottom: 22px }
 .ext-hero > .ext-icon { box-shadow: 0 12px 30px #0003 }
