@@ -1,0 +1,41 @@
+{
+  "name": "veyra-launch",
+  "displayName": "Veyra Launch",
+  "description": "From cloned repo to running project. Local project checks and guided Node.js tasks.",
+  "version": "0.1.0",
+  "publisher": "veyra-local",
+  "license": "MIT",
+  "engines": { "vscode": "^1.95.0" },
+  "categories": ["Other"],
+  "keywords": ["node", "nextjs", "vite", "setup", "project"],
+  "main": "./dist/extension.js",
+  "extensionKind": ["workspace"],
+  "capabilities": { "untrustedWorkspaces": { "supported": false }, "virtualWorkspaces": false },
+  "contributes": {
+    "commands": [
+      { "command": "veyraLaunch.scan", "title": "Scan Projects", "category": "Veyra Launch", "icon": "$(refresh)" },
+      { "command": "veyraLaunch.run", "title": "Run Project Script", "category": "Veyra Launch", "icon": "$(play)" },
+      { "command": "veyraLaunch.install", "title": "Install Dependencies", "category": "Veyra Launch" },
+      { "command": "veyraLaunch.port", "title": "Check Local Port", "category": "Veyra Launch" },
+      { "command": "veyraLaunch.explain", "title": "Explain a Setup Error", "category": "Veyra Launch" },
+      { "command": "veyraLaunch.report", "title": "Open Readiness Report", "category": "Veyra Launch", "icon": "$(output)" }
+    ],
+    "viewsContainers": { "activitybar": [{ "id": "veyraLaunch", "title": "Veyra Launch", "icon": "media/launch.svg" }] },
+    "views": { "veyraLaunch": [{ "id": "veyraLaunch.projects", "name": "Project Readiness" }] },
+    "viewsWelcome": [{ "view": "veyraLaunch.projects", "contents": "From cloned repo to running project.\nOpen a trusted Node.js project, then scan it.\n[Scan projects](command:veyraLaunch.scan)" }],
+    "menus": { "view/title": [
+      { "command": "veyraLaunch.scan", "when": "view == veyraLaunch.projects", "group": "navigation" },
+      { "command": "veyraLaunch.run", "when": "view == veyraLaunch.projects", "group": "navigation" },
+      { "command": "veyraLaunch.report", "when": "view == veyraLaunch.projects", "group": "navigation" }
+    ] }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p .",
+    "test": "npm run compile && node --test test/*.test.cjs",
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package --allow-missing-repository"
+  },
+  "dependencies": { "semver": "^7.7.0" },
+  "devDependencies": { "@types/node": "^22.0.0", "@types/vscode": "~1.95.0", "@types/semver": "^7.7.0", "typescript": "^5.7.0", "@vscode/vsce": "^3.0.0" }
+}
