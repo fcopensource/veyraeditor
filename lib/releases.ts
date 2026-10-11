@@ -6,11 +6,16 @@ type Asset = { name: string; browser_download_url: string; size: number; digest?
 export type Release = { version: string; publishedAt: string; assets: Asset[] };
 export type Manifest = { version: string; notes?: string; pub_date?: string; platforms: Record<string, { signature: string; url: string }> };
 
+// Release data enhances the page, but a blocked GitHub request must never hold
+// the website open. Hostinger occasionally restricts this outbound request.
+const releaseSignal = () => AbortSignal.timeout(Number(process.env.RELEASE_FETCH_TIMEOUT_MS) || 3500);
+
 export async function latestRelease(): Promise<Release | null> {
   try {
     const response = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
       headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
       next: { revalidate: 300 },
+      signal: releaseSignal(),
     });
     if (!response.ok) return null;
     const data = await response.json();
@@ -22,7 +27,7 @@ export async function latestRelease(): Promise<Release | null> {
 export async function updateManifest(): Promise<Manifest | null> {
   const url = process.env.UPDATE_MANIFEST_URL || `https://github.com/${REPO}/releases/latest/download/latest.json`;
   try {
-    const response = await fetch(url, { next: { revalidate: 300 } });
+    const response = await fetch(url, { next: { revalidate: 300 }, signal: releaseSignal() });
     return response.ok ? await response.json() : null;
   } catch { return null; }
 }
@@ -57,6 +62,7 @@ export async function releaseNotes(limit = 20): Promise<ReleaseNote[]> {
     const response = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=${limit}`, {
       headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
       next: { revalidate: 300 },
+      signal: releaseSignal(),
     });
     if (!response.ok) return [];
     const data: { tag_name: string; name: string; published_at: string; body: string | null; html_url: string; draft: boolean; assets: unknown[] }[] = await response.json();
