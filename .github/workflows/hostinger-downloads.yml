@@ -1,0 +1,132 @@
+# Mirrors a published, non-prerelease GitHub Release to a NEW immutable
+# version folder on Hostinger. No existing Microsoft Store installer is replaced.
+# See docs/HOSTINGER_DOWNLOADS.md before enabling.
+name: Mirror releases to Hostinger downloads
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Already-published release tag to transfer (e.g. v0.8.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hostinger-release-downloads
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate release and download every asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][a-zA-Z0-9.-]+)?$ ]]; then
+            echo "::error::Unexpected release tag: $RELEASE_TAG"
+            exit 1
+          fi
+          if [[ "$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq '(.isDraft == false) and (.isPrerelease == false)')" != "true" ]]; then
+            echo "::error::Only published, stable releases can be mirrored."
+            exit 1
+          fi
+          mkdir -p release-assets
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir release-assets
+          shopt -s nullglob
+          assets=(release-assets/*)
+          if (( ${#assets[@]} == 0 )); then
+            echo "::error::No downloadable release assets found."
+            exit 1
+          fi
+          for asset in "${assets[@]}"; do
+            filename="${asset##*/}"
+            if [[ ! "$filename" =~ ^[a-zA-Z0-9._+-]+$ ]]; then
+              echo "::error::Unsafe asset name: $filename"
+              exit 1
+            fi
+          done
+          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
+
+      - name: Securely upload to a new Hostinger release directory
+        env:
+          HOSTINGER_SFTP_HOST: ${{ secrets.HOSTINGER_SFTP_HOST }}
+          HOSTINGER_SFTP_USER: ${{ secrets.HOSTINGER_SFTP_USER }}
+          HOSTINGER_SFTP_PRIVATE_KEY: ${{ secrets.HOSTINGER_SFTP_PRIVATE_KEY }}
+          HOSTINGER_SFTP_KNOWN_HOSTS: ${{ secrets.HOSTINGER_SFTP_KNOWN_HOSTS }}
+          HOSTINGER_DOWNLOADS_DIR: ${{ secrets.HOSTINGER_DOWNLOADS_DIR }}
+          HOSTINGER_SFTP_PORT: ${{ vars.HOSTINGER_SFTP_PORT || '65002' }}
+        run: |
+          set -euo pipefail
+          for name in HOSTINGER_SFTP_HOST HOSTINGER_SFTP_USER HOSTINGER_SFTP_PRIVATE_KEY HOSTINGER_SFTP_KNOWN_HOSTS HOSTINGER_DOWNLOADS_DIR; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Set GitHub Actions secret $name (see docs/HOSTINGER_DOWNLOADS.md)."
+              exit 1
+            fi
+          done
+          if [[ ! "$HOSTINGER_SFTP_HOST" =~ ^[a-zA-Z0-9.-]+$ ]] || [[ ! "$HOSTINGER_SFTP_USER" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo "::error::Invalid SFTP host or username."
+            exit 1
+          fi
+          if [[ ! "$HOSTINGER_SFTP_PORT" =~ ^[0-9]{1,5}$ ]] || (( HOSTINGER_SFTP_PORT < 1 || HOSTINGER_SFTP_PORT > 65535 )); then
+            echo "::error::Invalid SFTP port."
+            exit 1
+          fi
+          if [[ ! "$HOSTINGER_DOWNLOADS_DIR" =~ ^/?[a-zA-Z0-9._/-]+$ ]] || [[ "$HOSTINGER_DOWNLOADS_DIR" == *..* ]]; then
+            echo "::error::HOSTINGER_DOWNLOADS_DIR must be a safe existing SFTP directory path."
+            exit 1
+          fi
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$HOSTINGER_SFTP_PRIVATE_KEY" > "$HOME/.ssh/hostinger_deploy"
+          printf '%s\n' "$HOSTINGER_SFTP_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/hostinger_deploy" "$HOME/.ssh/known_hosts"
+
+          # A staging directory is renamed only AFTER all transfers complete.
+          # Uploads never modify v0.6.1, v0.6.2, or another existing release.
+          staging=".${RELEASE_TAG}.upload-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          {
+            printf 'cd "%s"\n' "$HOSTINGER_DOWNLOADS_DIR"
+            printf 'mkdir "%s"\n' "$staging"
+            printf 'cd "%s"\n' "$staging"
+            for asset in release-assets/*; do
+              printf 'put "%s"\n' "$asset"
+            done
+            printf 'cd ..\n'
+            printf 'rename "%s" "%s"\n' "$staging" "$RELEASE_TAG"
+          } > upload.sftp
+
+          sftp -b upload.sftp -P "$HOSTINGER_SFTP_PORT" \
+            -i "$HOME/.ssh/hostinger_deploy" \
+            -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=25 \
+            "$HOSTINGER_SFTP_USER@$HOSTINGER_SFTP_HOST"
+
+      - name: List release URLs and check one installer over HTTPS
+        run: |
+          set -euo pipefail
+          echo "## Hostinger mirror: $RELEASE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          for asset in release-assets/*; do
+            file="${asset##*/}"
+            printf -- '- https://downloads.veyraeditor.com/%s/%s\n' "$RELEASE_TAG" "$file" >> "$GITHUB_STEP_SUMMARY"
+          done
+          probe=""
+          for asset in release-assets/*; do
+            case "$asset" in
+              *.exe|*.msi|*.dmg|*.AppImage|*.deb|*.rpm) probe="${asset##*/}"; break ;;
+            esac
+          done
+          if [[ -n "$probe" ]]; then
+            curl --fail --silent --show-error --location --head \
+              --retry 5 --retry-delay 5 \
+              "https://downloads.veyraeditor.com/$RELEASE_TAG/$probe" > /dev/null
+          fi
