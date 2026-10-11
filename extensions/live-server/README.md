@@ -1,4 +1,8 @@
+<p align="center"><img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/live-server/media/icon.png" width="112" alt="Veyra Live Server"></p>
+
 # Veyra Live Server
+
+**Save. See it. Instantly.**
 
 A local development server with live reload, for VS Code and [Veyra Studio](https://veyraeditor.com).
 
@@ -33,7 +37,7 @@ Pages are served at `http://127.0.0.1:5500`, or the next free port if 5500 is bu
 Download `veyra-live-server-<version>.vsix` from the [latest Veyra release](https://github.com/fcopensource/veyraeditor/releases/latest). Then in VS Code, open **Extensions → … → Install from VSIX…**, or run:
 
 ```bash
-code --install-extension veyra-live-server-1.0.0.vsix
+code --install-extension veyra-live-server-1.1.0.vsix
 ```
 
 In Veyra Studio there's nothing to install: click **Go Live** in the status bar.

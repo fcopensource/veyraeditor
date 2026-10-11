@@ -188,8 +188,10 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
   const [readme, setReadme] = useState<string | null>(null);
   useEffect(() => onToolsChange(() => setTick(n => n + 1)), []);
   const origin = tool?.replaces.find(id => id.includes('.')) || '';
-  const icon = useMarketIcon(origin);
+  const marketIcon = useMarketIcon(origin);
+  const icon = tool?.icon || marketIcon;
   useEffect(() => {
+    if (tool?.readme) { setReadme(tool.readme); return; }
     if (!origin) { setReadme(''); return; }
     let current = true; const dot = origin.indexOf('.');
     fetchDetails(origin.slice(0, dot), origin.slice(dot + 1)).then(d => d.files?.readme ? fetchText(d.files.readme) : '').then(text => { if (current) setReadme(text); }).catch(() => { if (current) setReadme(''); });
@@ -243,7 +245,7 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
     </header>
     <div className="ext-body">
       <div className="ext-content">
-        <h2 className="ext-subtitle">About the original extension</h2>
+        <h2 className="ext-subtitle">{tool.readme ? `About ${tool.name}` : 'About the original extension'}</h2>
         <Markdown source={readme} empty="No README available." />
       </div>
       <aside className="ext-side">

@@ -545,6 +545,8 @@ test("Live Server: Go Live in the status bar, Open with Live Server on HTML file
   await page.getByRole("button",{name:"Extensions",exact:true}).click();
   const row=page.locator(".ext-row").filter({hasText:"live reload"}).first();
   await expect(row.getByText("Port 5500")).toBeVisible();
-  await row.getByRole("button",{name:"Stop Live Server"}).click();
-  await expect(row.getByRole("button",{name:"Start Live Server"})).toBeVisible();
+  await expect(row.getByText("Veyra Live Server",{exact:true})).toBeVisible();
+  expect(await row.locator("img.ext-icon").getAttribute("src")).toMatch(/live-server|^data:image\/svg/); // our own icon, not the marketplace one
+  await row.getByRole("button",{name:"Stop Veyra Live Server"}).click();
+  await expect(row.getByRole("button",{name:"Start Veyra Live Server"})).toBeVisible();
 });

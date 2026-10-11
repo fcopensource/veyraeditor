@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {ArrowRight,Brush,Code2,FileCode2,Package,Palette,ScanSearch,Sparkles,Wind,Wrench} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
@@ -33,6 +34,14 @@ export default function Extensions(){
           <ul><li><Wrench/>{tool.for}</li><li><Package/>Stands in for <code>{tool.replaces}</code></li></ul>
         </article>)}
       </div>
+    </section>
+
+    <section className="content-section">
+      <Link href="/live-server" className="live-promo">
+        <Image src="/live-server-icon.png" width={84} height={84} alt=""/>
+        <span><small>VEYRA EDITION · NEW IN 0.8</small><b>Veyra Live Server</b><em>Save. See it. Instantly. Live reload built into Veyra, and free for VS Code.</em></span>
+        <i>Explore <ArrowRight size={14}/></i>
+      </Link>
     </section>
 
     <section className="content-section split reverse">

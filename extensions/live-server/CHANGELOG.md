@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+- New Veyra Live Server icon
+- Product page: https://veyraeditor.com/live-server
+
 ## 1.0.0
 
 - Live Server for VS Code, matching the one built into Veyra Studio

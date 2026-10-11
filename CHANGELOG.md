@@ -3,6 +3,16 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.8.1
+
+**Veyra Live Server**
+- Live Server is now **Veyra Live Server**, with its own icon in Extensions and its own page at veyraeditor.com/live-server
+- Its extension page shows Veyra Live Server's own guide
+- The VS Code edition is updated to 1.1.0 with the new icon: download `veyra-live-server-1.1.0.vsix` below
+
+**Fixes**
+- Extension action buttons no longer wrap onto two lines in a narrow sidebar
+
 ## 0.8.0
 
 **Live Server, built in**

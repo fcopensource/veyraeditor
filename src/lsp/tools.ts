@@ -2,6 +2,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { monaco } from "../editor";
 import { LspClient, type Host, type ServerOptions } from "./client";
 import { liveServer } from "../live";
+import liveServerIcon from "../assets/live-server.svg";
+import liveServerReadme from "../../extensions/live-server/README.md?raw";
 
 /* Web language tools: what VS Code's most-installed web extensions provide, run as language servers. */
 
@@ -13,6 +15,8 @@ export type Tool = ServerOptions & {
   kind: "server" | "formatter" | "debugger" | "cli" | "feature";
   /** Open VSX / VS Code Marketplace ids this tool stands in for. */
   replaces: string[];
+  /** Veyra's own products: their icon and README, instead of the marketplace extension's. */
+  icon?: string; readme?: string;
   beta?: boolean;
   /** Monaco's built-in TypeScript features are switched off while this server runs, to avoid duplicates. */
   replacesBuiltinTypeScript?: boolean;
@@ -67,7 +71,7 @@ export const TOOLS: Tool[] = [
   { key: "claude-code", name: "Claude Code", publisher: "Anthropic", kind: "cli", languages: [],
     description: "Anthropic's agentic coding assistant, running in Veyra's terminal inside your project: it reads your code, makes edits and runs commands with your approval. Needs a Claude Pro, Max, Team, Enterprise or Console account.",
     replaces: ["anthropic.claude-code"] },
-  { key: "live-server", name: "Live Server", publisher: "Veyra", kind: "feature", languages: ["html", "css", "javascript"],
+  { key: "live-server", name: "Veyra Live Server", publisher: "Veyra", kind: "feature", languages: ["html", "css", "javascript"], icon: liveServerIcon, readme: liveServerReadme,
     description: "A local development server with live reload: save and the browser updates, and CSS changes apply without a reload. Click Go Live in the status bar, or right-click an HTML file. Also available for VS Code.",
     replaces: ["ritwickdey.LiveServer", "ms-vscode.live-server", "yandeu.five-server", "veyra.live-server"] },
   { key: "debugpy", name: "Python Debugger", publisher: "Microsoft debugpy", kind: "debugger", languages: ["python"],

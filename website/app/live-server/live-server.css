@@ -1,0 +1,72 @@
+/* Veyra Live Server product page */
+.live-page{overflow-x:clip}
+.live-hero{position:relative;padding:12px 0 56px;text-align:center}
+.live-hero-glow{position:absolute;z-index:-1;inset:-40px 10% auto;height:360px;border-radius:50%;background:radial-gradient(closest-side,#6366f133,#d946ef14,transparent);filter:blur(30px)}
+.live-icon{display:grid;place-items:center;width:fit-content;margin:0 auto;filter:drop-shadow(0 18px 50px #6366f155) drop-shadow(0 0 30px #22d3ee22);animation:live-float 6s ease-in-out infinite}
+.live-icon img{border-radius:32px}
+@keyframes live-float{50%{transform:translateY(-8px)}}
+.live-kicker{display:flex;width:fit-content;margin-inline:auto;align-items:center;gap:8px;margin-top:26px;padding:7px 12px;border:1px solid #68f4d12b;border-radius:20px;background:#68f4d10a;color:var(--mint);font:500 10px var(--font-mono);letter-spacing:2px}
+.live-kicker i{width:7px;height:7px;border-radius:50%;background:#ff5d6c;box-shadow:0 0 0 0 #ff5d6c88;animation:live-dot 1.8s infinite}
+@keyframes live-dot{70%{box-shadow:0 0 0 8px #ff5d6c00}}
+.live-hero h1{margin:18px 0 6px;font-size:clamp(44px,7vw,84px);line-height:1;letter-spacing:-3px}
+.live-hero h1 em{font-style:normal;color:transparent;background:linear-gradient(100deg,#22d3ee,#6366f1 40%,#d946ef 72%,#fb923c);background-clip:text;-webkit-background-clip:text}
+.live-tagline{margin:10px 0 0;color:#dfe7ee;font-size:clamp(18px,2.4vw,24px);font-weight:600;letter-spacing:-.4px}
+.live-intro{max-width:640px;margin:14px auto 0;color:var(--muted);font-size:16px;line-height:1.7}
+.live-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:28px}
+.live-micro{margin:14px 0 0;color:#64717e;font:10px var(--font-mono)}
+
+.live-demo{max-width:1040px;margin-inline:auto !important;display:grid;grid-template-columns:1fr auto 1.15fr;align-items:center;gap:22px;margin:10px 0 100px}
+.live-editor,.live-browser{border:1px solid #ffffff14;border-radius:16px;background:#080b11;box-shadow:0 30px 70px #0009;overflow:hidden}
+.live-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;border-bottom:1px solid #ffffff0d;background:#0d121a}
+.live-bar span{width:8px;height:8px;border-radius:50%;background:#2a3442}
+.live-bar b{margin-left:8px;color:#8b98a5;font:500 11px var(--font-mono)}
+.live-editor pre{margin:0;padding:22px 20px;color:#c9d4de;font:13.5px/1.9 var(--font-mono)}
+.live-editor .k{color:#c1adff}.live-editor .v{color:var(--mint)}
+.live-editor .swatch{display:inline-block;width:11px;height:11px;margin-right:6px;border-radius:3px;vertical-align:-1px;animation:live-swatch 6s infinite}
+.live-status{display:flex;justify-content:space-between;padding:7px 12px;border-top:1px solid #ffffff0d;background:#0b2a4a;color:#b9c9d8;font:11px var(--font-mono)}
+.live-status span{display:inline-flex;align-items:center;gap:6px}.live-status .on{color:#7ee2b8;font-weight:600}
+.live-arrow{display:flex;gap:6px}
+.live-arrow i{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#22d3ee,#d946ef);opacity:.25;animation:live-beam 1.4s infinite}
+.live-arrow i:nth-child(2){animation-delay:.2s}.live-arrow i:nth-child(3){animation-delay:.4s}
+@keyframes live-beam{30%{opacity:1;transform:scale(1.35)}}
+.live-page-preview{display:grid;place-items:center;min-height:190px;padding:20px;text-align:center;animation:live-bg 6s infinite}
+.live-page-preview small{color:#8a94a0;font:500 10px var(--font-mono);letter-spacing:3px}
+.live-page-preview h2{margin:10px 0 8px;font-size:clamp(22px,3vw,32px);letter-spacing:-1px;animation:live-heading 6s infinite}
+.live-page-preview p{margin:0;color:#6b7785;font-size:12.5px}
+@keyframes live-heading{0%,45%{color:#dd2222}55%,100%{color:#2255dd}}
+@keyframes live-swatch{0%,45%{background:#dd2222}55%,100%{background:#2255dd}}
+@keyframes live-bg{0%,45%{background:#fff4f4}55%,100%{background:#eef4ff}}
+
+.live-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0;padding:0;list-style:none}
+.live-steps li{padding:24px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#111722,#0a0e15)}
+.live-steps b{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#22d3ee,#6366f1,#d946ef);color:#fff;font-size:15px}
+.live-steps h3{margin:18px 0 8px;font-size:17px}
+.live-steps p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.7}
+
+.live-table{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0e15}
+.live-table>div{display:grid;grid-template-columns:150px 1fr 1fr;border-top:1px solid #ffffff0b}
+.live-table>div:first-child{border-top:0}
+.live-table span{padding:14px 18px;color:#b8c4ce;font-size:13.5px;line-height:1.55}
+.live-table [role=rowheader]{color:var(--muted);font:500 11px var(--font-mono);letter-spacing:1px;text-transform:uppercase}
+.live-table .head span{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:700;background:#0f141d}
+.live-table .head img{border-radius:5px}
+
+.live-install{display:grid;gap:12px;margin:18px 0;padding-left:20px;color:#b8c4ce;line-height:1.6}
+.live-install a{color:var(--mint);font-weight:600}
+.live-note{color:var(--muted);font-size:13px;line-height:1.7}
+.live-page code{padding:2px 6px;border-radius:6px;background:#ffffff0d;font:12px var(--font-mono);word-break:break-all}
+
+.live-faq{display:grid;gap:10px}
+.live-faq details{padding:18px 20px;border:1px solid var(--line);border-radius:14px;background:#0a0e15}
+.live-faq summary{cursor:pointer;font-weight:700;color:var(--text)}
+.live-faq p{margin:12px 0 0;color:var(--muted);line-height:1.7}
+.live-more{display:flex;align-items:center;gap:8px;margin-top:18px;color:var(--muted);font-size:13px}
+.live-more a{color:var(--mint)}
+
+@media(max-width:900px){
+  .live-demo{grid-template-columns:1fr;gap:14px}.live-arrow{justify-content:center;transform:rotate(90deg)}
+  .live-steps{grid-template-columns:1fr}
+  .live-table>div{grid-template-columns:1fr 1fr}.live-table [role=rowheader]{grid-column:1/-1;padding-bottom:0}
+  .live-table .head [role=columnheader]:first-child{display:none}
+}
+@media(prefers-reduced-motion:reduce){.live-icon,.live-kicker i,.live-arrow i,.live-page-preview,.live-page-preview h2,.live-editor .swatch{animation:none}}

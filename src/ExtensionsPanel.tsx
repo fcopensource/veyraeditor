@@ -37,7 +37,8 @@ function Row({ icon, name, version, description, publisher, verified, downloads,
 
 function ToolRow({ tool, onOpen, selected, run }: { tool: Tool; onOpen: (target: ExtensionTarget) => void; selected?: boolean; run: (action: () => Promise<unknown>, done?: string) => void }) {
   const state = toolState(tool.key);
-  const icon = useMarketIcon(tool.replaces[0]);
+  const marketIcon = useMarketIcon(tool.replaces[0]);
+  const icon = tool.icon || marketIcon;
   const live = useLiveServer();
   const status = tool.kind === 'feature' ? (live ? <span className="ext-status on">Port {live.port}</span> : <span className="ext-status">Ready</span>)
     : state.busy ? <span className="ext-status"><LoaderCircle size={11} className="spin" />Working…</span>

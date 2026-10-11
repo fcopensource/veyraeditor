@@ -75,7 +75,7 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 | **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
 | **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
 | **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
-| **Live Server** | **Go Live** serves your folder with live reload; CSS updates without a reload. Built in, no Node.js needed. See [Live Server](#-live-server) |
+| **Veyra Live Server** | **Go Live** serves your folder with live reload; CSS updates without a reload. Built in, no Node.js needed. See [Live Server](#-live-server) |
 | **Customization** | Midnight and light themes, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
 | **Updates** | Signed automatic updates on every platform |
 
@@ -95,6 +95,10 @@ Requires Python 3.8 or newer. Node.js and TypeScript debugging is next.
 ---
 
 ## 📡 Live Server
+
+<img src="extensions/live-server/media/icon.png" width="72" align="right" alt="Veyra Live Server">
+
+**Veyra Live Server: save, see it, instantly.** More at [veyraeditor.com/live-server](https://veyraeditor.com/live-server).
 
 Click **Go Live** in the status bar (or right-click an HTML file → **Open with Live Server**, or press **Alt+L Alt+O**). Veyra serves your folder at `http://127.0.0.1:5500` and opens the page in your browser.
 

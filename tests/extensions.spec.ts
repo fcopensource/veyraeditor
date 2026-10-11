@@ -203,6 +203,7 @@ test('Python Debugger and Claude Code from the marketplace are built into Veyra'
   await expect(liveRow.getByText('Installed',{exact:true})).toBeVisible(); // nothing to install: part of Veyra
   await liveRow.click();
   await page.locator('.ext-page').getByRole('button',{name:/Live Server/}).first().click();
-  await expect(page.locator('[role=tab][aria-selected=true]')).toHaveAccessibleName('Extension: Live Server');
+  await expect(page.locator('[role=tab][aria-selected=true]')).toHaveAccessibleName('Extension: Veyra Live Server');
+  await expect(page.locator('.ext-page')).toContainText('About Veyra Live Server');
   await expect(page.locator('.ext-page')).toContainText('Get Veyra Live Server for VS Code');
 });
