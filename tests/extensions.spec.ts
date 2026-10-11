@@ -77,7 +77,7 @@ test('web development tools install in one click and stand in for their VS Code 
     const installed:Record<string,string>={};const calls:string[]=[];
     Object.assign(window,{toolCalls:calls,__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string,args:any={})=>{
       calls.push(cmd+(args.key?':'+args.key:''));
-      if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:['typescript','eslint','prettier','tailwind','emmet','svelte','vue'].map(key=>({key,installed:!!installed[key],version:installed[key]||''}))};
+      if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:['typescript','eslint','prettier','tailwind','emmet','svelte','vue','python'].map(key=>({key,installed:!!installed[key],version:installed[key]||''}))};
       if(cmd==='lsp_install'){installed[args.key]='1.0.0';return '1.0.0';}
       if(cmd==='plugin:event|listen')return 1;return null;
     }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}});
@@ -143,4 +143,30 @@ test('extension pages open as editor tabs with details, features, versions and r
   await page.getByRole('tab',{name:'Extension: Studio Tools'}).click({button:'middle'});
   await expect(page.getByRole('tab',{name:'Extension: Studio Tools'})).toHaveCount(0);
   await page.screenshot({path:'test-results/extension-page.png'});
+});
+
+test('an extension that runs its own code explains itself and offers the built-in alternative instead of failing',async({page})=>{
+  await page.addInitScript(()=>Object.assign(window,{__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string)=>{
+    if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:[]};
+    if(cmd==='plugin:event|listen')return 1;return null;
+  }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}}));
+  let vsixRequested=false;
+  await page.route('https://open-vsx.org/api/**',async route=>{
+    const url=route.request().url();
+    if(url.includes('/-/search'))return route.fulfill({json:{extensions:[{namespace:'ms-python',name:'debugpy',version:'2026.1.0',displayName:'Python Debugger',description:'Python debugger (debugpy) extension for VS Code.',downloadCount:9000000}]}});
+    if(url.endsWith('/package.json'))return route.fulfill({json:{publisher:'ms-python',name:'debugpy',main:'./dist/extension.js',contributes:{debuggers:[{type:'debugpy'}]}}});
+    if(url.endsWith('.vsix')){vsixRequested=true;return route.abort();}
+    return route.fulfill({json:{namespace:'ms-python',name:'debugpy',version:'2026.1.0',displayName:'Python Debugger',description:'Python debugger',files:{manifest:'https://open-vsx.org/api/ms-python/debugpy/2026.1.0/file/package.json',download:'https://open-vsx.org/api/ms-python/debugpy/x.vsix'}}});
+  });
+  await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
+  await page.getByRole('button',{name:'Install Python Debugger',exact:true}).click();
+  // A friendly explanation (not an error), with the Python alternative, and the extension's page opens.
+  await expect(page.locator('.extensions-panel .extension-notice')).toContainText("can't be installed yet");
+  await expect(page.locator('.extensions-panel .extension-notice')).toContainText('Python (Pyright)');
+  await expect(page.locator('.extensions-panel [role=alert]')).toHaveCount(0);
+  await expect(page.getByRole('tab',{name:'Extension: Python Debugger'})).toBeVisible();
+  expect(vsixRequested,'nothing was downloaded').toBe(false);
+  // The page offers the built-in Python tool, which opens its own page.
+  await page.locator('.ext-page').getByRole('button',{name:/built-in Python \(Pyright\) tool/}).click();
+  await expect(page.getByRole('tab',{name:'Extension: Python (Pyright)'})).toBeVisible();
 });

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { BadgeCheck, ChevronDown, ChevronRight, CircleAlert, CloudDownload, Download, LoaderCircle, Power, Search, SlidersHorizontal, Trash2, Upload } from 'lucide-react';
-import { compactCount, fetchExtension, parseExtension, searchExtensions, themeId, type Extension, type Listing } from './extensions';
+import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, parseExtension, searchExtensions, support, themeId, type Extension, type Listing } from './extensions';
 import { TOOLS, environment, installTool, onToolsChange, refreshTools, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
 import './extensions.css';
@@ -8,6 +8,13 @@ import './extensions-ui.css';
 
 const CATEGORIES = [['', 'All categories'], ['Themes', 'Themes'], ['Snippets', 'Snippets'], ['Programming Languages', 'Languages'], ['Linters', 'Linters'], ['Formatters', 'Formatters'], ['Other', 'Other']];
 type Props = { items: Extension[]; onChange: (items: Extension[]) => void; theme: string; onTheme: (theme: string) => void; onOpen: (target: ExtensionTarget) => void; selected?: string };
+
+/** For well-known extensions that can't run yet, the built-in tool that covers the same need. */
+function alternative(id: string) {
+  if (/python|pylance|debugpy|jupyter/i.test(id)) return ' For Python, install the built-in Python (Pyright) tool for errors, completions and go to definition.';
+  if (/typescript|javascript|node/i.test(id)) return ' For TypeScript and JavaScript, install the built-in TypeScript & JavaScript tool.';
+  return '';
+}
 
 /** One VS Code-style list row. The whole row opens the extension's page; buttons inside act directly. */
 function Row({ icon, name, version, description, publisher, verified, downloads, rating, badge, status, actions, onOpen, selected }: {
@@ -77,6 +84,17 @@ export function ExtensionsPanel({ items, onChange, theme, onTheme, onOpen, selec
     const tool = toolFor(id);
     try {
       if (tool) { await installTool(tool.key); setNotice(`${listing.displayName || listing.name} is built into Veyra: installed ${tool.name}.`); return; }
+      // Check what the extension contains before downloading it, and explain instead of failing.
+      const details = await fetchDetails(listing.namespace, listing.name).catch(() => null);
+      const manifest = details ? await fetchManifest(details).catch(() => null) : null;
+      // Unknown contents (no manifest published): fall through and let the package itself decide.
+      const caps = manifest ? capabilities(manifest) : null;
+      if (caps && support(caps) !== 'installable') {
+        const name = listing.displayName || listing.name;
+        setNotice(`${name} ${caps.runsCode ? 'runs its own program code, which needs a VS Code extension host (on the roadmap)' : 'adds grammars or icon themes, which arrive in an upcoming release'}, so it can't be installed yet.${alternative(id)}`);
+        onOpen(marketTarget(id, name, listing.files?.icon));
+        return;
+      }
       const ext = await fetchExtension(listing); onChange([...items.filter(x => x.id.toLowerCase() !== ext.id.toLowerCase()), ext]);
       setNotice(`${ext.name} installed. ${ext.themes.length ? 'Choose its colour theme below.' : 'Its snippets are ready in editor suggestions.'}`);
     } catch (e) { setError(String(e)); } finally { setBusy(''); }

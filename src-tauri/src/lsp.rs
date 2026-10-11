@@ -24,6 +24,7 @@ const SPECS: &[Spec] = &[
     Spec { key: "emmet", packages: &["@olrtg/emmet-language-server@2.8.0"], main: "@olrtg/emmet-language-server", bin: "emmet-language-server", args: &["--stdio"] },
     Spec { key: "svelte", packages: &["svelte-language-server@0.18.4", "typescript@5.9.3"], main: "svelte-language-server", bin: "svelteserver", args: &["--stdio"] },
     Spec { key: "vue", packages: &["@vue/language-server@2.2.12", "typescript@5.9.3"], main: "@vue/language-server", bin: "vue-language-server", args: &["--stdio"] },
+    Spec { key: "python", packages: &["pyright@1.1.414"], main: "pyright", bin: "pyright-langserver", args: &["--stdio"] },
     // Not a language server: used by the Prettier formatter.
     Spec { key: "prettier", packages: &["prettier@3.9.9"], main: "prettier", bin: "prettier", args: &[] },
 ];

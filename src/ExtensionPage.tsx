@@ -113,8 +113,9 @@ function MarketPage({ namespace, name, target, items, onChange, theme, onTheme, 
           {!tool && versions.length > 1 && level === 'installable' && <select className="ext-button" aria-label="Install another version" value="" disabled={!!busy} onChange={e => e.target.value && void install(e.target.value)}><option value="">Install another version…</option>{versions.slice(0, 30).map(v => <option key={v} value={v}>v{v}{v === details?.version ? ' (latest)' : ''}{v === local?.version ? ' (installed)' : ''}</option>)}</select>}
         </div>
         {!tool && level && level !== 'installable' && <div className="ext-compat"><Info size={15} /><span>{level === 'host'
-          ? <>This extension runs its own code, which needs a VS Code extension host. That's on Veyra's roadmap. Themes, snippets and the built-in web tools work today.</>
-          : <>It contributes language grammars or icon themes. Veyra will support these in an upcoming release.</>}</span></div>}
+          ? <>This extension runs its own code, which needs a VS Code extension host. That's on Veyra's roadmap. Themes, snippets and the built-in language tools work today.</>
+          : <>It contributes language grammars or icon themes. Veyra will support these in an upcoming release.</>}
+          {/python|pylance|debugpy|jupyter/i.test(id) && <> <button className="link-button" onClick={() => onOpen({ kind: 'tool', key: 'python', title: 'Python (Pyright)' })}>Use the built-in Python (Pyright) tool instead</button> for errors, completions and go to definition.</>}</span></div>}
         {error && <p className="extension-error" role="alert">{error}</p>}{notice && <p className="extension-notice" role="status">{notice}</p>}
       </div>
     </header>

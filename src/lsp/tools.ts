@@ -31,6 +31,9 @@ const tailwindSettings = {
   experimental: { classRegex: [], configFile: null }, files: { exclude: ["**/.git/**", "**/node_modules/**", "**/.hg/**", "**/.svn/**"] },
 };
 
+/** Pyright's analysis settings: find the project's packages (venv, site-packages) and check open files as you type. */
+const pythonAnalysis = { autoSearchPaths: true, useLibraryCodeForTypes: true, diagnosticMode: "openFilesOnly", typeCheckingMode: "standard", autoImportCompletions: true };
+
 export const TOOLS: Tool[] = [
   { key: "typescript", name: "TypeScript & JavaScript (Node.js)", publisher: "typescript-language-server", kind: "server", languages: JS,
     description: "Full IntelliSense using your project's tsconfig and node_modules types: errors, auto-imports, refactors, organize imports, Node.js and React types.",
@@ -52,6 +55,10 @@ export const TOOLS: Tool[] = [
   { key: "svelte", name: "Svelte", publisher: "Svelte", kind: "server", languages: ["svelte"],
     description: "Syntax, diagnostics, completions and go-to-definition for .svelte components.",
     replaces: ["svelte.svelte-vscode"], settings: () => ({}) },
+  { key: "python", name: "Python (Pyright)", publisher: "Microsoft Pyright", kind: "server", languages: ["python"],
+    description: "Type checking, errors as you type, completions, hover docs and go to definition for Python, from the engine behind Pylance. Uses your project's virtual environment.",
+    replaces: ["ms-pyright.pyright", "ms-python.vscode-pylance", "ms-python.python", "detachhead.basedpyright"],
+    settings: section => section === "python" ? { analysis: pythonAnalysis, venvPath: "", pythonPath: "" } : section === "python.analysis" ? pythonAnalysis : section.startsWith("python") || section.startsWith("pyright") ? {} : null },
   { key: "vue", name: "Vue (Volar)", publisher: "Vue", kind: "server", languages: ["vue"], beta: true,
     description: "Language support for .vue single-file components: template, script and style.",
     replaces: ["vue.volar", "Vue.volar", "octref.vetur"],
