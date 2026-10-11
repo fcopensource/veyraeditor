@@ -9,6 +9,7 @@ const links=[
   {href:'/features',label:'Features'},
   {href:'/extensions',label:'Extensions'},
   {href:'/docs',label:'Docs'},
+  {href:'/blog',label:'Blog'},
   {href:'/download',label:'Download'},
   {href:'/changelog',label:'Changelog'},
   {href:'https://github.com/fcopensource/veyraeditor',label:'GitHub',external:true},
