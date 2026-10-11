@@ -60,7 +60,7 @@ fn no_window(command: &mut Command) -> &mut Command {
    add the usual install folders as a fallback, and run every tool with that PATH. */
 
 /// Directories to search for tools, in order. Resolved once; may take a moment on first use (call off the UI thread).
-fn search_path() -> &'static [PathBuf] {
+pub(crate) fn search_path() -> &'static [PathBuf] {
     static PATH: OnceLock<Vec<PathBuf>> = OnceLock::new();
     PATH.get_or_init(|| {
         let mut dirs: Vec<PathBuf> = Vec::new();
@@ -137,7 +137,7 @@ fn tool_command(program: &Path) -> Command {
     no_window(&mut command);
     command
 }
-fn tools_dir(app: &AppHandle) -> Result<PathBuf> { Ok(app.path().app_data_dir().map_err(err)?.join("language-tools")) }
+pub(crate) fn tools_dir(app: &AppHandle) -> Result<PathBuf> { Ok(app.path().app_data_dir().map_err(err)?.join("language-tools")) }
 
 /// The JavaScript entry point of a package's executable, read from its package.json `bin` field.
 fn entry(dir: &Path, main: &str, bin: &str) -> Option<PathBuf> {
@@ -196,7 +196,7 @@ pub async fn lsp_uninstall(app: AppHandle, state: State<'_, LspState>, key: Stri
 }
 
 /// Read one LSP frame (`Content-Length` headers, blank line, JSON body). `Ok(None)` at end of stream.
-fn read_frame(reader: &mut impl BufRead) -> std::io::Result<Option<String>> {
+pub(crate) fn read_frame(reader: &mut impl BufRead) -> std::io::Result<Option<String>> {
     let mut length: Option<usize> = None;
     loop {
         let mut line = String::new();
@@ -211,7 +211,7 @@ fn read_frame(reader: &mut impl BufRead) -> std::io::Result<Option<String>> {
     reader.read_exact(&mut body)?;
     Ok(Some(String::from_utf8_lossy(&body).into_owned()))
 }
-fn frame(message: &str) -> Vec<u8> { let mut out = format!("Content-Length: {}\r\n\r\n", message.len()).into_bytes(); out.extend_from_slice(message.as_bytes()); out }
+pub(crate) fn frame(message: &str) -> Vec<u8> { let mut out = format!("Content-Length: {}\r\n\r\n", message.len()).into_bytes(); out.extend_from_slice(message.as_bytes()); out }
 
 #[tauri::command]
 pub async fn lsp_start(app: AppHandle, workspace: State<'_, Workspace>, state: State<'_, LspState>, id: u32, key: String) -> Result<()> {

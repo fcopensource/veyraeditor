@@ -5,7 +5,10 @@ import { LspClient, type Host, type ServerOptions } from "./client";
 /* Web language tools: what VS Code's most-installed web extensions provide, run as language servers. */
 
 export type Tool = ServerOptions & {
-  description: string; publisher: string; kind: "server" | "formatter";
+  description: string; publisher: string;
+  /** server: a language server (Node.js); formatter: Prettier; debugger: a debug adapter (see src/debug);
+      cli: a command-line app Veyra installs and opens in its terminal (Claude Code). */
+  kind: "server" | "formatter" | "debugger" | "cli";
   /** Open VSX / VS Code Marketplace ids this tool stands in for. */
   replaces: string[];
   beta?: boolean;
@@ -59,6 +62,12 @@ export const TOOLS: Tool[] = [
     description: "Type checking, errors as you type, completions, hover docs and go to definition for Python, from the engine behind Pylance. Uses your project's virtual environment.",
     replaces: ["ms-pyright.pyright", "ms-python.vscode-pylance", "ms-python.python", "detachhead.basedpyright"],
     settings: section => section === "python" ? { analysis: pythonAnalysis, venvPath: "", pythonPath: "" } : section === "python.analysis" ? pythonAnalysis : section.startsWith("python") || section.startsWith("pyright") ? {} : null },
+  { key: "claude-code", name: "Claude Code", publisher: "Anthropic", kind: "cli", languages: [],
+    description: "Anthropic's agentic coding assistant, running in Veyra's terminal inside your project: it reads your code, makes edits and runs commands with your approval. Needs a Claude Pro, Max, Team, Enterprise or Console account.",
+    replaces: ["anthropic.claude-code"] },
+  { key: "debugpy", name: "Python Debugger", publisher: "Microsoft debugpy", kind: "debugger", languages: ["python"],
+    description: "Breakpoints, stepping, variables, call stack and a debug console for Python, powered by debugpy, the engine inside Microsoft's Python Debugger. Uses your project's virtual environment.",
+    replaces: ["ms-python.debugpy", "fabioz.vscode-pydev-python-debugger"] },
   { key: "vue", name: "Vue (Volar)", publisher: "Vue", kind: "server", languages: ["vue"], beta: true,
     description: "Language support for .vue single-file components: template, script and style.",
     replaces: ["vue.volar", "Vue.volar", "octref.vetur"],
@@ -74,11 +83,11 @@ const installed = new Map<string, string>(); // key -> version
 const clients = new Map<string, LspClient>();
 const busy = new Set<string>();
 let host: Host | null = null;
-let nodeVersion = "", npmAvailable = false;
+let nodeVersion = "", npmAvailable = false, pythonVersion = "", pythonPath = "", claudePath = "";
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach(listener => listener());
 export const onToolsChange = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
-export const environment = () => ({ node: nodeVersion, npm: npmAvailable });
+export const environment = () => ({ node: nodeVersion, npm: npmAvailable, python: pythonVersion, pythonPath });
 
 export function toolState(key: string): ToolState {
   const client = clients.get(key), version = installed.get(key) || "";
@@ -93,6 +102,18 @@ export async function refreshTools() {
       nodeVersion = status.node; npmAvailable = status.npm; toolsDir = (status.dir || "").replace(/\\/g, "/");
       installed.clear(); for (const tool of status.tools) if (tool.installed) installed.set(tool.key, tool.version);
     }
+  } catch { /* browser preview or backend unavailable */ }
+  try {
+    // Debuggers have their own runtime (Python) and installer (pip).
+    const debug = await invoke<{ python: { path: string; version: string } | null; debugpy: string } | null>("dap_status");
+    if (debug) {
+      pythonVersion = debug.python?.version || ""; pythonPath = debug.python?.path || "";
+      if (debug.debugpy) installed.set("debugpy", debug.debugpy); else installed.delete("debugpy");
+    }
+  } catch { /* browser preview or backend unavailable */ }
+  try {
+    const claude = await invoke<{ installed: boolean; version: string; path: string } | null>("claude_code_status");
+    if (claude) { claudePath = claude.path; if (claude.installed) installed.set("claude-code", claude.version); else installed.delete("claude-code"); }
   } catch { /* browser preview or backend unavailable */ }
   changed();
 }
@@ -133,9 +154,10 @@ export async function stopAll() {
 
 export async function installTool(key: string) {
   const tool = TOOLS.find(t => t.key === key); if (!tool) throw new Error("Unknown tool");
+  if (tool.kind === "cli") { runInTerminal("Install Claude Code", { script: "install-claude-code" }); return ""; }
   busy.add(key); changed();
   try {
-    const version = await invoke<string>("lsp_install", { key });
+    const version = await invoke<string>(tool.kind === "debugger" ? "dap_install" : "lsp_install", { key });
     installed.set(key, version); enabled.add(key); saveEnabled();
     ensureServers();
     return version;
@@ -144,6 +166,11 @@ export async function installTool(key: string) {
 export async function uninstallTool(key: string) {
   busy.add(key); changed();
   try {
+    if (TOOLS.find(t => t.key === key)?.kind === "debugger") {
+      await invoke("dap_uninstall");
+      installed.delete(key); enabled.delete(key); saveEnabled();
+      return;
+    }
     await clients.get(key)?.stop();
     await stopAll(); // the backend stops servers while files are removed
     await invoke("lsp_uninstall", { key });
@@ -194,4 +221,16 @@ export function initLanguageTools(nextHost: Host) {
       return true;
     },
   });
+}
+
+/* ---------- Terminal tools (Claude Code) ---------- */
+export type TerminalRequest = { name: string; program?: string; args?: string[]; script?: "install-claude-code" };
+/** Ask the workbench to open a new terminal tab and run something in it (handled in App). */
+export function runInTerminal(name: string, request: Omit<TerminalRequest, "name">) {
+  window.dispatchEvent(new CustomEvent<TerminalRequest>("veyra-run-in-terminal", { detail: { name, ...request } }));
+}
+/** Start Claude Code in a new terminal tab, in the open project. */
+export function openClaudeCode() {
+  if (!claudePath) throw new Error("Claude Code isn't installed yet.");
+  runInTerminal("Claude Code", { program: claudePath });
 }

@@ -153,20 +153,47 @@ test('an extension that runs its own code explains itself and offers the built-i
   let vsixRequested=false;
   await page.route('https://open-vsx.org/api/**',async route=>{
     const url=route.request().url();
-    if(url.includes('/-/search'))return route.fulfill({json:{extensions:[{namespace:'ms-python',name:'debugpy',version:'2026.1.0',displayName:'Python Debugger',description:'Python debugger (debugpy) extension for VS Code.',downloadCount:9000000}]}});
-    if(url.endsWith('/package.json'))return route.fulfill({json:{publisher:'ms-python',name:'debugpy',main:'./dist/extension.js',contributes:{debuggers:[{type:'debugpy'}]}}});
+    if(url.includes('/-/search'))return route.fulfill({json:{extensions:[{namespace:'ms-toolsai',name:'jupyter',version:'2026.1.0',displayName:'Jupyter',description:'Jupyter notebook support for VS Code.',downloadCount:9000000}]}});
+    if(url.endsWith('/package.json'))return route.fulfill({json:{publisher:'ms-toolsai',name:'jupyter',main:'./dist/extension.node.js',contributes:{notebooks:[{type:'jupyter-notebook'}]}}});
     if(url.endsWith('.vsix')){vsixRequested=true;return route.abort();}
-    return route.fulfill({json:{namespace:'ms-python',name:'debugpy',version:'2026.1.0',displayName:'Python Debugger',description:'Python debugger',files:{manifest:'https://open-vsx.org/api/ms-python/debugpy/2026.1.0/file/package.json',download:'https://open-vsx.org/api/ms-python/debugpy/x.vsix'}}});
+    return route.fulfill({json:{namespace:'ms-toolsai',name:'jupyter',version:'2026.1.0',displayName:'Jupyter',description:'Jupyter notebooks',files:{manifest:'https://open-vsx.org/api/ms-toolsai/jupyter/2026.1.0/file/package.json',download:'https://open-vsx.org/api/ms-toolsai/jupyter/x.vsix'}}});
   });
   await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
-  await page.getByRole('button',{name:'Install Python Debugger',exact:true}).click();
+  await page.getByRole('button',{name:'Install Jupyter',exact:true}).click();
   // A friendly explanation (not an error), with the Python alternative, and the extension's page opens.
   await expect(page.locator('.extensions-panel .extension-notice')).toContainText("can't be installed yet");
   await expect(page.locator('.extensions-panel .extension-notice')).toContainText('Python (Pyright)');
   await expect(page.locator('.extensions-panel [role=alert]')).toHaveCount(0);
-  await expect(page.getByRole('tab',{name:'Extension: Python Debugger'})).toBeVisible();
+  await expect(page.getByRole('tab',{name:'Extension: Jupyter'})).toBeVisible();
   expect(vsixRequested,'nothing was downloaded').toBe(false);
   // The page offers the built-in Python tool, which opens its own page.
   await page.locator('.ext-page').getByRole('button',{name:/built-in Python \(Pyright\) tool/}).click();
   await expect(page.getByRole('tab',{name:'Extension: Python (Pyright)'})).toBeVisible();
+});
+
+test('Python Debugger and Claude Code from the marketplace are built into Veyra',async({page})=>{
+  await page.addInitScript(()=>Object.assign(window,{dapInstalls:0,__TAURI_INTERNALS__:{transformCallback:()=>1,unregisterCallback:()=>{},invoke:async(cmd:string)=>{
+    if(cmd==='lsp_status')return {node:'v22.16.0',npm:true,dir:'C:/tools',tools:[]};
+    if(cmd==='dap_status')return {python:{path:'C:/Python312/python.exe',version:'3.12.10'},debugpy:(window as any).dapInstalls?'1.8.22':''};
+    if(cmd==='dap_install'){(window as any).dapInstalls++;return '1.8.22';}
+    if(cmd==='claude_code_status')return {installed:false,version:'',path:''};
+    if(cmd==='plugin:event|listen')return 1;return null;
+  }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}}));
+  await page.route('https://open-vsx.org/api/**',route=>route.fulfill({json:{extensions:[
+    {namespace:'ms-python',name:'debugpy',version:'2026.6.0',displayName:'Python Debugger',description:'Python debugger (debugpy) extension for VS Code.',downloadCount:61000000},
+    {namespace:'anthropic',name:'claude-code',version:'2.1.296',displayName:'Claude Code for VS Code',description:'Harness the power of Claude Code without leaving your IDE',downloadCount:57000000},
+  ]}}));
+  await page.goto('/');await page.getByRole('button',{name:'Extensions',exact:true}).click();
+  const debugRow=page.locator('.ext-row').filter({hasText:'Python debugger (debugpy)'});
+  await expect(debugRow.getByText('Built into Veyra')).toBeVisible();
+  await debugRow.getByRole('button',{name:'Install Python Debugger',exact:true}).click();
+  await expect(page.locator('.extension-notice')).toContainText('Python Debugger is built into Veyra');
+  expect(await page.evaluate(()=>(window as any).dapInstalls)).toBe(1);
+  const claudeRow=page.locator('.ext-row').filter({hasText:'Harness the power of Claude Code'});
+  await expect(claudeRow.getByText('Built into Veyra')).toBeVisible();
+  await claudeRow.click();
+  await expect(page.getByRole('tab',{name:'Extension: Claude Code for VS Code'})).toBeVisible();
+  await page.locator('.ext-page').getByRole('button',{name:'Install Claude Code'}).click();
+  await expect(page.getByRole('tab',{name:'Extension: Claude Code',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(page.locator('.ext-page')).toContainText('Claude Pro, Max, Team, Enterprise or Console');
 });

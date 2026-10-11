@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { BadgeCheck, ChevronDown, ChevronRight, CircleAlert, CloudDownload, Download, LoaderCircle, Power, Search, SlidersHorizontal, Trash2, Upload } from 'lucide-react';
+import { BadgeCheck, ChevronDown, ChevronRight, CircleAlert, CloudDownload, Download, LoaderCircle, Power, Search, SlidersHorizontal, Terminal, Trash2, Upload } from 'lucide-react';
 import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, parseExtension, searchExtensions, support, themeId, type Extension, type Listing } from './extensions';
-import { TOOLS, environment, installTool, onToolsChange, refreshTools, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
+import { TOOLS, environment, installTool, onToolsChange, openClaudeCode, refreshTools, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
 import './extensions.css';
 import './extensions-ui.css';
@@ -42,11 +42,15 @@ function ToolRow({ tool, onOpen, selected, run }: { tool: Tool; onOpen: (target:
     : !state.enabled ? <span className="ext-status off">Disabled</span>
     : state.running === 'running' ? <span className="ext-status on">Running</span>
     : state.running === 'failed' ? <span className="ext-status failed"><CircleAlert size={11} />Failed</span>
-    : <span className="ext-status">{tool.kind === 'formatter' ? 'Ready' : 'Idle'}</span>;
+    : <span className="ext-status">{tool.kind === 'formatter' || tool.kind === 'debugger' || tool.kind === 'cli' ? 'Ready' : 'Idle'}</span>;
   return <Row icon={icon} name={tool.name} version={state.version || undefined} description={tool.description} publisher={tool.publisher} selected={selected}
     badge={<em className="ext-badge builtin">{tool.beta ? 'Beta' : 'Built in'}</em>} status={status}
     onOpen={() => onOpen({ kind: 'tool', key: tool.key, title: tool.name, icon })}
-    actions={!state.installed
+    actions={tool.kind === 'cli'
+      ? (state.installed
+        ? <button className="ext-action primary" aria-label={`Open ${tool.name}`} onClick={() => run(async () => openClaudeCode())}><Terminal size={12} />Open</button>
+        : <button className="ext-action primary" aria-label={`Install ${tool.name}`} onClick={() => run(() => installTool(tool.key), `Installing ${tool.name} in the terminal…`)}><Download size={12} />Install</button>)
+      : !state.installed
       ? <button className="ext-action primary" aria-label={`Install ${tool.name}`} disabled={state.busy} onClick={() => run(() => installTool(tool.key), `${tool.name} installed.`)}><Download size={12} />Install</button>
       : <>
         <button className="ext-action icon" title={state.enabled ? 'Disable' : 'Enable'} aria-label={`${state.enabled ? 'Disable' : 'Enable'} ${tool.name}`} disabled={state.busy} onClick={() => run(() => setToolEnabled(tool.key, !state.enabled))}><Power size={13} /></button>

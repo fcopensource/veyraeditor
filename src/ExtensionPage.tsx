@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { BadgeCheck, Check, CircleAlert, CloudDownload, Download, ExternalLink, Info, LoaderCircle, Palette, Power, RefreshCw, RotateCw, Sparkles, Trash2, Wrench } from 'lucide-react';
+import { BadgeCheck, Check, CircleAlert, CloudDownload, Download, ExternalLink, Info, LoaderCircle, Palette, Power, RefreshCw, RotateCw, Sparkles, Terminal, Trash2, Wrench } from 'lucide-react';
 import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, fetchText, support, themeId, type Capabilities, type Details, type Extension } from './extensions';
-import { TOOLS, environment, installTool, onToolsChange, restartTool, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
+import { TOOLS, environment, installTool, onToolsChange, openClaudeCode, refreshTools, restartTool, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
 import './extensions.css';
 import './extensions-ui.css';
@@ -193,7 +193,9 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
   if (!tool) return <div className="ext-page"><p className="ext-empty">Unknown tool.</p></div>;
   const state = toolState(tool.key); const env = environment();
   const run = (action: () => Promise<unknown>, done?: string) => { setError(''); setNotice(''); void action().then(() => { if (done) setNotice(done); }).catch(e => setError(String(e))); };
-  const status = !state.installed ? 'Not installed' : !state.enabled ? 'Disabled' : tool.kind === 'formatter' ? 'Ready: Format Document or format on save'
+  const status = tool.kind === 'cli' ? (state.installed ? 'Ready: opens in Veyra\'s terminal' : 'Not installed')
+    : tool.kind === 'debugger' ? (state.installed ? 'Ready: open a Python file and press F5' : 'Not installed')
+    : !state.installed ? 'Not installed' : !state.enabled ? 'Disabled' : tool.kind === 'formatter' ? 'Ready: Format Document or format on save'
     : state.running === 'running' ? 'Running' : state.running === 'starting' ? 'Starting…' : state.running === 'failed' ? 'Failed to start' : `Starts when you open a ${tool.languages.slice(0, 3).join(' / ')} file`;
 
   return <div className="ext-page" aria-label={`Extension: ${tool.name}`}>
@@ -204,16 +206,24 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
         <div className="ext-hero-meta"><span className="ext-publisher big"><Wrench size={14} />{tool.publisher}</span><span className={'ext-status ' + (state.running === 'running' ? 'on' : state.running === 'failed' ? 'failed' : '')}>{state.busy ? 'Working…' : status}</span></div>
         <p className="ext-hero-description">{tool.description}</p>
         <div className="ext-hero-actions">
-          {!state.installed
-            ? <button className="ext-button primary" aria-label={`Install ${tool.name}`} disabled={state.busy || !env.node} onClick={() => run(() => installTool(tool.key), `${tool.name} installed.`)}>{state.busy ? <LoaderCircle size={14} className="spin" /> : <Download size={14} />}{state.busy ? 'Installing…' : 'Install'}</button>
+          {tool.kind === 'cli' ? (state.installed
+            ? <button className="ext-button primary" aria-label={`Open ${tool.name}`} onClick={() => run(async () => openClaudeCode())}><Terminal size={14} />Open {tool.name}</button>
             : <>
-              <button className="ext-button" disabled={state.busy} onClick={() => run(() => setToolEnabled(tool.key, !state.enabled))}><Power size={14} />{state.enabled ? 'Disable' : 'Enable'}</button>
+              <button className="ext-button primary" aria-label={`Install ${tool.name}`} onClick={() => run(() => installTool(tool.key), 'Installing in the terminal below. When it finishes, click "Check again".')}><Download size={14} />Install {tool.name}</button>
+              <button className="ext-button" onClick={() => run(async () => { await refreshTools(); if (!toolState(tool.key).installed) throw new Error(`${tool.name} wasn't found yet. Wait for the installer to finish, then check again.`); }, `${tool.name} is ready.`)}><RefreshCw size={14} />Check again</button>
+            </>)
+          : !state.installed
+            ? <button className="ext-button primary" aria-label={`Install ${tool.name}`} disabled={state.busy || (tool.kind === 'debugger' ? !env.python : !env.node)} onClick={() => run(() => installTool(tool.key), `${tool.name} installed.`)}>{state.busy ? <LoaderCircle size={14} className="spin" /> : <Download size={14} />}{state.busy ? 'Installing…' : 'Install'}</button>
+            : <>
+              {tool.kind !== 'debugger' && <button className="ext-button" disabled={state.busy} onClick={() => run(() => setToolEnabled(tool.key, !state.enabled))}><Power size={14} />{state.enabled ? 'Disable' : 'Enable'}</button>}
               {tool.kind === 'server' && state.enabled && <button className="ext-button" disabled={state.busy} onClick={() => run(() => restartTool(tool.key), 'Restarted.')}><RotateCw size={14} />Restart</button>}
               <button className="ext-button" disabled={state.busy} title="Download and install again" onClick={() => run(async () => { await uninstallTool(tool.key); await installTool(tool.key); }, `${tool.name} reinstalled.`)}><RefreshCw size={14} />Reinstall</button>
               <button className="ext-button danger" disabled={state.busy} onClick={() => run(() => uninstallTool(tool.key), `${tool.name} removed.`)}><Trash2 size={14} />Uninstall</button>
             </>}
         </div>
-        {!env.node && <div className="ext-compat"><Info size={15} /><span>Needs <b>Node.js 18 or newer</b>. Install it from nodejs.org, then restart Veyra.</span></div>}
+        {tool.kind === 'cli' && <div className="ext-compat"><Info size={15} /><span>Runs Anthropic&apos;s official installer in a terminal, then opens Claude Code in your project. Needs a <b>Claude Pro, Max, Team, Enterprise or Console</b> account; Claude Code asks you to sign in the first time.</span></div>}
+        {tool.kind === 'debugger' && !env.python && <div className="ext-compat"><Info size={15} /><span>Needs <b>Python 3.8 or newer</b>. Install it from python.org, then restart Veyra.</span></div>}
+        {(tool.kind === 'server' || tool.kind === 'formatter') && !env.node && <div className="ext-compat"><Info size={15} /><span>Needs <b>Node.js 18 or newer</b>. Install it from nodejs.org, then restart Veyra.</span></div>}
         {state.running === 'failed' && state.error && <pre className="tool-error">{state.error}</pre>}
         {error && <p className="extension-error" role="alert">{error}</p>}{notice && <p className="extension-notice" role="status">{notice}</p>}
       </div>
@@ -225,7 +235,11 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
       </div>
       <aside className="ext-side">
         <h3>How it runs</h3>
-        <dl><dt>Runtime</dt><dd>{env.node ? `Node.js ${env.node}` : 'Node.js not found'}</dd><dt>Kind</dt><dd>{tool.kind === 'server' ? 'Language server' : 'Formatter'}</dd><dt>Stored in</dt><dd>Veyra's app folder</dd></dl>
+        <dl>
+          <dt>Runtime</dt><dd>{tool.kind === 'cli' ? (state.installed ? `Claude Code ${state.version}` : 'Not installed') : tool.kind === 'debugger' ? (env.python ? `Python ${env.python}` : 'Python not found') : env.node ? `Node.js ${env.node}` : 'Node.js not found'}</dd>
+          <dt>Kind</dt><dd>{tool.kind === 'server' ? 'Language server' : tool.kind === 'formatter' ? 'Formatter' : tool.kind === 'debugger' ? 'Debugger (Debug Adapter Protocol)' : 'Terminal app'}</dd>
+          <dt>Stored in</dt><dd>{tool.kind === 'cli' ? 'Installed by Anthropic\'s installer' : 'Veyra\'s app folder'}</dd>
+        </dl>
         <h3>Languages</h3>
         <div className="ext-chips">{tool.languages.map(l => <span key={l}>{l}</span>)}</div>
         <h3>Stands in for</h3>
