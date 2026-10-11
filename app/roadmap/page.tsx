@@ -20,6 +20,8 @@ const MILESTONES:Milestone[]=[
     items:['Extension pages in tabs','Real icons & ratings','Install any version','Veyra AI (sign in, no key)','Title-bar Update button']},
   {title:'Python, debugging & Claude Code',status:'done',label:'SHIPPED · 0.7',copy:'Debug Python like in VS Code, real Python IntelliSense, and Anthropic\'s Claude Code one click away.',
     items:['Python debugger (breakpoints, stepping, variables)','Debug console & watch expressions','Python IntelliSense (Pyright)','Claude Code in the terminal','Extension pages beside the minimap fixed']},
+  {title:'Live Server',status:'done',label:'SHIPPED · 0.8',copy:'Go Live serves your folder with live reload, built into Veyra and available as a VS Code extension.',
+    items:['Go Live in the status bar','CSS updates without a reload','Open with Live Server on HTML files','Veyra Live Server for VS Code']},
   {title:'Node.js debugging',status:'next',label:'UP NEXT',copy:'The same debugger for JavaScript and TypeScript, built on the foundation that powers Python debugging.',
     items:['Node.js & TypeScript debugging','launch.json support','Conditional breakpoints & logpoints']},
   {title:'Systems languages',status:'next',label:'UP NEXT',copy:'The same real IntelliSense for compiled languages: errors as you type, type-aware completion, go to definition, rename and formatting.',

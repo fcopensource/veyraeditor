@@ -65,7 +65,7 @@ export default function Extensions(){
           <li><Palette/><span><strong>Colour themes</strong> apply to the whole workspace and editor</span></li>
           <li><Code2/><span><strong>Snippets</strong> appear in editor suggestions</span></li>
           <li><Package/><span><strong>Install from VSIX</strong> for extensions you already have</span></li>
-          <li><Sparkles/><span>Popular extensions are marked <strong>Built into Veyra</strong> and install the native equivalent, including <strong>Python Debugger</strong> and <strong>Claude Code</strong></span></li>
+          <li><Sparkles/><span>Popular extensions are marked <strong>Built into Veyra</strong> and install the native equivalent, including <strong>Live Server</strong>, <strong>Python Debugger</strong> and <strong>Claude Code</strong></span></li>
         </ul>
         <p>Extensions that run their own JavaScript need a VS Code extension host. It&apos;s on the <Link href="/roadmap">roadmap</Link>.</p>
       </div>
