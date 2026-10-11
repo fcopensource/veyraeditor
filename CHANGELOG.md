@@ -3,6 +3,24 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.7.0
+
+**Debugger (Python)**
+- Run and Debug, like VS Code: click beside a line number (or press F9) to set a breakpoint and press F5
+- Step over, into and out (F10, F11, Shift+F11), continue, restart and stop
+- Variables, watch expressions and the call stack, plus a Debug Console to evaluate code while paused
+- Breakpoints follow your edits and are remembered per project; your project's `.venv` is used automatically
+
+**Python IntelliSense**
+- Install **Python (Pyright)** from Extensions for errors as you type, completions, hover and go to definition
+
+**Claude Code**
+- Anthropic's Claude Code installs with its official installer and opens in your project's terminal with one click (Extensions → Claude Code)
+- The "Python Debugger" and "Claude Code" VS Code extensions now install Veyra's built-in versions instead of showing an error
+
+**Fixes**
+- Extension pages are no longer partly covered by the editor's minimap
+
 ## 0.6.2
 
 **Fixes**

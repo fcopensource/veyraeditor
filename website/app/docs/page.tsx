@@ -12,7 +12,7 @@ export const metadata:Metadata={
 };
 
 const SECTIONS=[
-  ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],
+  ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],['debugging','Debugging'],
   ['ai','Set up AI'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
 ] as const;
 
@@ -75,8 +75,20 @@ export default function Docs(){
             <li><strong>ESLint:</strong> your project&apos;s lint rules as you type, with quick fixes.</li>
             <li><strong>Prettier:</strong> <em>Format Document</em> (<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd>) or format on save, with your project&apos;s Prettier version and config.</li>
             <li><strong>Tailwind CSS</strong>, <strong>Emmet</strong>, <strong>Svelte</strong> and <strong>Vue</strong>.</li>
+            <li><strong>Python (Pyright):</strong> errors, completions, hover and go to definition, using your project&apos;s virtual environment.</li>
           </ul>
           <Note>Language tools need <strong>Node.js 18 or newer</strong> (<a href="https://nodejs.org">nodejs.org</a>). They&apos;re stored in Veyra&apos;s own app folder, never in your project, and start automatically when you open a matching file. See <Link href="/extensions">all language tools</Link>.</Note>
+        </section>
+
+        <section id="debugging"><h2>Debugging (Python)</h2>
+          <p>Open <strong>Run and Debug</strong> (the bug icon) and click <strong>Install</strong> once. Then:</p>
+          <ul>
+            <li>Click beside a line number, or press <kbd>F9</kbd>, to set a breakpoint.</li>
+            <li>Press <kbd>F5</kbd> to debug the open Python file. Veyra stops at your breakpoints and highlights the line.</li>
+            <li>Step over with <kbd>F10</kbd>, into with <kbd>F11</kbd>, out with <kbd>Shift</kbd>+<kbd>F11</kbd>; continue with <kbd>F5</kbd> and stop with <kbd>Shift</kbd>+<kbd>F5</kbd>.</li>
+            <li>Inspect <strong>Variables</strong>, add <strong>Watch</strong> expressions, walk the <strong>Call stack</strong>, and evaluate code in the <strong>Debug Console</strong>.</li>
+          </ul>
+          <Note>The debugger needs <strong>Python 3.8 or newer</strong> (<a href="https://www.python.org">python.org</a>). Veyra uses your project&apos;s <code>.venv</code> when there is one. Node.js debugging is coming next.</Note>
         </section>
 
         <section id="ai"><h2>Set up AI</h2>
@@ -109,7 +121,7 @@ export default function Docs(){
         </section>
 
         <section id="extensions"><h2>Extensions &amp; themes</h2>
-          <p>In <strong>Extensions</strong>, search the Open VSX marketplace. Themes and snippets install directly. Popular VS Code web extensions such as ESLint, Prettier, Tailwind CSS, Volar and Svelte are marked <strong>Built into Veyra</strong> and install Veyra&apos;s equivalent. You can also <strong>Install from VSIX</strong>.</p>
+          <p>In <strong>Extensions</strong>, search the Open VSX marketplace. Themes and snippets install directly. Popular VS Code extensions such as ESLint, Prettier, Tailwind CSS, Volar, Svelte, Python Debugger and Claude Code are marked <strong>Built into Veyra</strong> and install Veyra&apos;s equivalent. <strong>Claude Code</strong> installs with Anthropic&apos;s official installer in the terminal and opens in your project with one click. You can also <strong>Install from VSIX</strong>.</p>
           <p>Extensions that run their own code need a VS Code extension host, which is on the <Link href="/roadmap">roadmap</Link>.</p>
         </section>
 

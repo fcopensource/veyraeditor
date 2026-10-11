@@ -5,7 +5,7 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Roadmap: What\'s Next for Veyra',
-  description:'The Veyra roadmap: shipped web development language tools, and what comes next: Rust, Go and C++ language servers, Python and Java, TextMate grammars, icon themes and a VS Code extension host.',
+  description:'The Veyra roadmap: shipped web development tools, Python with a built-in debugger and Claude Code, and what comes next: Node.js debugging, Rust, Go and C++ language servers, TextMate grammars, icon themes and a VS Code extension host.',
   alternates:{canonical:'/roadmap'},
   openGraph:{url:'/roadmap',title:'Veyra roadmap'},
 };
@@ -18,10 +18,14 @@ const MILESTONES:Milestone[]=[
     items:['TypeScript & JavaScript (Node.js)','ESLint','Prettier & format on save','Tailwind CSS','Emmet','Svelte','Vue (beta)','VS Code-style tabs']},
   {title:'Extensions & Veyra AI',status:'done',label:'SHIPPED · 0.6',copy:'A full extension experience and AI that works without an API key.',
     items:['Extension pages in tabs','Real icons & ratings','Install any version','Veyra AI (sign in, no key)','Title-bar Update button']},
+  {title:'Python, debugging & Claude Code',status:'done',label:'SHIPPED · 0.7',copy:'Debug Python like in VS Code, real Python IntelliSense, and Anthropic\'s Claude Code one click away.',
+    items:['Python debugger (breakpoints, stepping, variables)','Debug console & watch expressions','Python IntelliSense (Pyright)','Claude Code in the terminal','Extension pages beside the minimap fixed']},
+  {title:'Node.js debugging',status:'next',label:'UP NEXT',copy:'The same debugger for JavaScript and TypeScript, built on the foundation that powers Python debugging.',
+    items:['Node.js & TypeScript debugging','launch.json support','Conditional breakpoints & logpoints']},
   {title:'Systems languages',status:'next',label:'UP NEXT',copy:'The same real IntelliSense for compiled languages: errors as you type, type-aware completion, go to definition, rename and formatting.',
     items:['Rust (rust-analyzer)','Go (gopls)','C / C++ (clangd)','Server detection & install help','Inlay type hints']},
   {title:'More languages',status:'planned',label:'PLANNED',copy:'Each additional language becomes a small addition on the same foundation.',
-    items:['Python (Pyright)','Java','PHP','YAML & JSON schemas','Dockerfile','Bash','TOML']},
+    items:['Java','PHP','YAML & JSON schemas','Dockerfile','Bash','TOML']},
   {title:'Declarative extensions',status:'planned',label:'PLANNED',copy:'Thousands of Open VSX extensions that contain no code, applied exactly as VS Code applies them.',
     items:['TextMate grammars (exact VS Code colours)','File icon themes','Language packs','Language configuration']},
   {title:'Extension host',status:'planned',label:'PLANNED',copy:'Run extensions that ship their own code, starting with the most popular and growing through a compatibility layer.',

@@ -6,7 +6,7 @@
 
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=72E0C4&center=true&vCenter=true&width=820&lines=AI-native+desktop+code+editor.;Local-first.+Fast.+Focused.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.;Your+code.+Your+machine.+Your+AI.)](https://github.com/fcopensource/veyraeditor)
 
-### A fast, local-first code editor with Git, a real terminal and AI from 11 providers built in.
+### A fast, local-first code editor with Git, a real terminal, a Python debugger and AI from 11 providers built in.
 
 [![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=72E0C4)](https://github.com/fcopensource/veyraeditor/releases/latest)
 [![Release build](https://img.shields.io/github/actions/workflow/status/fcopensource/veyraeditor/release.yml?label=build)](https://github.com/fcopensource/veyraeditor/actions/workflows/release.yml)
@@ -20,7 +20,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-[**Download**](#-download) · [Features](#-features) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
+[**Download**](#-download) · [Features](#-features) · [Debugging](#-debugging) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
 
 </div>
 
@@ -37,7 +37,7 @@ Most developers spend hours every day inside an editor. Veyra is built on the id
 - **Native and light.** A Rust backend and the system webview instead of a bundled browser, so installers are 7–11 MB.
 - **Your files stay yours.** Veyra works directly on your local folders, saves atomically and never overwrites a file that changed on disk behind your back.
 - **AI where you need it, under your control.** Pick from local models or 10 cloud providers. Every AI edit is shown as a diff and is undoable. Nothing is applied or saved without you.
-- **Everything included.** Git, a real terminal, workspace search, themes and a self-diagnosing health monitor work out of the box.
+- **Everything included.** Git, a real terminal, a debugger, workspace search, themes and a self-diagnosing health monitor work out of the box.
 
 ---
 
@@ -63,7 +63,9 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 
 | Area | What you get |
 | --- | --- |
-| **Editor** | Monaco (the editor behind VS Code): syntax highlighting for 80+ languages, IntelliSense and diagnostics for JS/TS/JSON/CSS/HTML, multi-cursor, find & replace, formatting, sticky scroll, minimap |
+| **Editor** | Monaco (the editor behind VS Code): syntax highlighting for 80+ languages, multi-cursor, find & replace, formatting, sticky scroll, minimap |
+| **Language tools** | One-click IntelliSense from the same language servers VS Code uses: TypeScript/JavaScript, ESLint, Prettier, Tailwind CSS, Emmet, Svelte, Vue and **Python (Pyright)** |
+| **Debugger** | Python debugging like VS Code: gutter breakpoints, step over/into/out, variables, watch, call stack and a Debug Console. See [Debugging](#-debugging) |
 | **Explorer** | Real local folders, nested create, rename, copy/cut/paste, duplicate, drag-and-drop, multi-select, move to Trash/Recycle Bin, reveal in Finder/File Explorer |
 | **Tabs & navigation** | Multiple tabs with preserved unsaved buffers, Quick Open, command palette, workspace text search, symbol outline, Problems panel |
 | **Terminal** | Real shells via a native PTY: PowerShell on Windows, your login shell on macOS/Linux. Multiple named sessions, plus "Run active file" |
@@ -71,8 +73,23 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 | **AI Studio** | Chat, explain, and reviewed edits with 11 providers. Keys saved in your OS keychain. See [AI Studio](#-ai-studio) |
 | **Health monitor** | A live 0–100 score in the status bar, plus a panel checking the backend, UI responsiveness, memory, errors, Git, shell, credential store and Ollama, with a fix hint for each problem |
 | **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
+| **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
+| **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
 | **Customization** | Midnight and light themes, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
 | **Updates** | Signed automatic updates on every platform |
+
+---
+
+## 🐞 Debugging
+
+Open **Run and Debug** (the bug icon) and click **Install** once. Veyra installs Microsoft's `debugpy` into its own app folder, never into your project.
+
+- Click beside a line number (or press **F9**) to set a breakpoint, then press **F5** to debug the open Python file.
+- Step over (**F10**), into (**F11**) and out (**Shift + F11**); continue (**F5**), restart, or stop (**Shift + F5**).
+- Inspect **Variables** to any depth, add **Watch** expressions, switch frames in the **Call stack**, and evaluate code in the **Debug Console**.
+- Breakpoints follow your edits and are remembered per project. Your project's `.venv` is used automatically.
+
+Requires Python 3.8 or newer. Node.js and TypeScript debugging is next.
 
 ---
 
@@ -134,6 +151,8 @@ Shortcuts follow your platform: **Ctrl** on Windows/Linux, **⌘** on macOS.
 | `Ctrl/⌘ + B` | Toggle sidebar |
 | ``Ctrl + ` `` · ``Ctrl + Shift + ` `` | Terminal · New terminal |
 | `Ctrl + Alt + N` | Run active file |
+| `F5` · `Shift + F5` | Start or continue debugging · Stop |
+| `F9` · `F10` · `F11` · `Shift + F11` | Toggle breakpoint · Step over · Step into · Step out |
 | `Ctrl/⌘ + L` · `Ctrl/⌘ + K` | Toggle AI · Edit selection with AI |
 | `Ctrl/⌘ + ,` | Settings |
 
@@ -185,6 +204,7 @@ flowchart LR
     Rust --> PTY[Native PTY<br/>PowerShell · zsh · bash]
     Rust --> Keys[OS credential store]
     Rust --> Models[Ollama · Claude · OpenAI · Gemini · …]
+    Rust --> Tools[Language servers<br/>debugpy · Claude Code]
     Rust --> Updater[Signed updater]
     Updater --> Releases[(GitHub Releases<br/>or your server)]
 ```
@@ -196,6 +216,8 @@ veyraeditor/
 ├── src/                     React UI
 │   ├── App.tsx              Workbench: explorer, tabs, editor, panels, status bar
 │   ├── AIStudio.tsx         AI chat, providers, reviewed edits
+│   ├── DebugPanel.tsx       Run and Debug view   (debug/: DAP client, breakpoints)
+│   ├── ExtensionsPanel.tsx  Marketplace, built-in tools   (lsp/: language clients)
 │   ├── SourceControl.tsx    Git panel
 │   ├── HealthPanel.tsx      Health monitor UI   (health.ts: scoring)
 │   ├── UpdateBanner.tsx     Auto-update prompt
@@ -204,6 +226,9 @@ veyraeditor/
 │   └── src/
 │       ├── lib.rs           Filesystem, search, Git, terminal, menus
 │       ├── ai.rs            AI providers and key storage
+│       ├── lsp.rs           Language servers: install and stdio bridge
+│       ├── dap.rs           Debug adapter (debugpy): install and session bridge
+│       ├── cli.rs           Command-line tools such as Claude Code
 │       └── health.rs        Native health checks
 ├── website/                 Next.js product site, download page, update endpoint
 ├── .github/workflows/       Cross-platform release pipeline
@@ -246,6 +271,9 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 - [x] AI Studio with 11 providers, keychain-stored keys and reviewed edits
 - [x] Open VSX themes & snippets, VSIX import
 - [x] Health monitor
+- [x] Language servers: TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue, Python
+- [x] Python debugger: breakpoints, stepping, variables, watch, Debug Console
+- [x] Extension pages with icons, ratings and versions; Claude Code built in
 - [x] Windows, macOS and Linux installers with signed auto-updates
 
 **In progress** (built, being integrated into the workbench)
@@ -255,9 +283,9 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 - [ ] Markdown preview, independent split-editor groups, session restore
 
 **Next**
-- [ ] Language Server Protocol for rich Python/Rust/Go intelligence
+- [ ] Node.js / TypeScript debugging
+- [ ] Rust, Go and C/C++ language servers
 - [ ] Inline AI completions and multi-file AI plans
-- [ ] Debugger and breakpoints
 - [ ] Code-signed Windows and notarized macOS builds
 
 ---

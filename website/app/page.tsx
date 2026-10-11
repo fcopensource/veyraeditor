@@ -19,11 +19,11 @@ export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
 
 const features = [
-  { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, diagnostics, formatting and 80+ languages, wrapped in a native, lightweight shell." },
+  { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, a built-in Python debugger and 80+ languages, wrapped in a native, lightweight shell." },
   { icon: FolderGit2, title: "Git you can see", copy: "Live gutter markers, file-tree badges and side-by-side diffs. Stage, commit, amend, switch branches, stash and sync in a click." },
   { icon: TerminalSquare, title: "A real terminal", copy: "PowerShell, zsh or bash on a native PTY, with multiple sessions and one-key \"run this file\", right beside your code." },
   { icon: Sparkles, title: "AI with boundaries", copy: "Local Ollama or 10 cloud providers. You choose the context, and every edit is a diff you approve and can undo." },
-  { icon: Wrench, title: "Real IntelliSense", copy: "One-click TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte and Vue: the language servers behind VS Code's favourite web extensions." },
+  { icon: Wrench, title: "Real IntelliSense", copy: "One-click TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue and Python: the language servers behind VS Code's favourite extensions." },
   { icon: KeyRound, title: "Secrets done right", copy: "API keys are encrypted in your OS keychain and load in the background, exactly like VS Code secrets." },
   { icon: HeartPulse, title: "Self-diagnosing", copy: "A live health score watches responsiveness, memory, errors, Git and your toolchain, with a fix for every warning." },
   { icon: RefreshCw, title: "Always current", copy: "Signed automatic updates on every platform. A new version is one click away and never interrupts unsaved work." },
