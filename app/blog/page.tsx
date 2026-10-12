@@ -6,7 +6,7 @@ import {allPosts,formatDate} from '@/lib/blog';
 
 export const metadata:Metadata={
   title:'Blog: Guides, AI Coding and Engineering',
-  description:'Guides, product news and engineering notes from the Veyra team: switching from VS Code, local AI with Ollama, TypeScript setup, privacy and how Veyra is built.',
+  description:'Guides, product news and engineering notes from the Veyra team: switching from VS Code, TypeScript setup, privacy and how Veyra is built.',
   alternates:{canonical:'/blog',types:{'application/rss+xml':'/blog/rss.xml'}},
   openGraph:{url:'/blog',title:'The Veyra blog'},
 };

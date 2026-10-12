@@ -1,16 +1,17 @@
-import {UpstreamError,addTokens,aiError,complete,readChat,takeRequest,tokenUser} from '@/lib/ai';
+import {UpstreamError,addTokens,aiError,complete,freeRequests,readChat,refundRequest,takeRequest,tokenUser} from '@/lib/ai';
 import {withDatabase} from '@/lib/db';
 
 export const dynamic='force-dynamic';
 export const maxDuration=180;
 
-/** OpenAI-compatible chat completions for signed-in Veyra users, answered with the server's provider key. */
+/** OpenAI-compatible chat completions for signed-in Veyra users, answered with the server's provider key.
+    Each account has a fixed number of free requests; a request Veyra AI fails to answer is given back. */
 export const POST=withDatabase(async(request:Request)=>{
   const user=await tokenUser(request);
   if(!user) return aiError('Sign in to Veyra AI again.',401,'authentication_error');
   const chat=readChat(await request.json().catch(()=>null));
   if(typeof chat==='string') return aiError(chat,chat.includes('not set up')?503:400);
-  if(!await takeRequest(user.id)) return aiError('You have used today\'s Veyra AI requests. They reset at midnight UTC.',429,'rate_limit_error');
+  if(!await takeRequest(user.id)) return aiError(`You have used all ${freeRequests()} free Veyra AI requests for your account.`,429,'rate_limit_error');
   try{
     const data=await complete(chat.model,chat.messages,chat.maxTokens);
     await addTokens(user.id,data.usage?.total_tokens||0);
@@ -20,6 +21,7 @@ export const POST=withDatabase(async(request:Request)=>{
       usage:data.usage,
     },{headers:{'Cache-Control':'no-store'}});
   }catch(error){
+    await refundRequest(user.id).catch(()=>{});
     if(error instanceof UpstreamError) return aiError(error.message,error.status,'api_error');
     throw error;
   }

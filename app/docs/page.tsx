@@ -6,14 +6,14 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Documentation: Getting Started with Veyra',
-  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the keyboard shortcuts, set up TypeScript, ESLint and Prettier, connect AI with Ollama or your own API key, and fix common problems.',
+  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the keyboard shortcuts, set up TypeScript, ESLint and Prettier, sign in to Veyra AI, and fix common problems.',
   alternates:{canonical:'/docs'},
   openGraph:{url:'/docs',title:'Veyra documentation: getting started'},
 };
 
 const SECTIONS=[
   ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],['debugging','Debugging'],['live-server','Live Server'],
-  ['ai','Set up AI'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
+  ['ai','Set up Veyra AI'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
 ] as const;
 
 const SHORTCUTS:[string,string,string][]=[
@@ -101,28 +101,20 @@ export default function Docs(){
           <Note>Live Server uses port <strong>5500</strong>, or the next free port. It only accepts connections from your own computer. Using VS Code too? Install <strong>Veyra Live Server</strong> from the <code>.vsix</code> file in the <a href="https://github.com/fcopensource/veyraeditor/releases/latest">latest release</a> (Extensions → … → Install from VSIX). More on the <Link href="/live-server">Veyra Live Server page</Link>.</Note>
         </section>
 
-        <section id="ai"><h2>Set up AI</h2>
-          <p>AI is optional. Open the assistant with <kbd>Ctrl</kbd>+<kbd>L</kbd> and pick a provider.</p>
-          <h3>Easiest: Veyra AI</h3>
+        <section id="ai"><h2>Set up Veyra AI</h2>
+          <p>AI is optional. Veyra&apos;s assistant uses <strong>Veyra AI</strong>, and all you need is a free Veyra account. There&apos;s no API key to paste.</p>
           <ol>
             <li><Link href="/register">Create a free Veyra account</Link> (or use the one you have).</li>
-            <li>In Veyra, open the AI panel, choose <strong>Veyra AI</strong>, open its settings and sign in with your email and password.</li>
-            <li>Start asking. There's no API key, and the panel shows how many requests you have left today.</li>
+            <li>In Veyra, open the AI panel with <kbd>Ctrl</kbd>+<kbd>L</kbd> (<kbd>⌘L</kbd> on macOS) and sign in with your email and password.</li>
+            <li>Start asking. Every account gets <strong>10 free Veyra AI requests in total</strong>, and the panel shows how many you have left. A request that fails isn&apos;t counted.</li>
           </ol>
-          <h3>Private and free: Ollama</h3>
-          <ol>
-            <li>Install Ollama from <a href="https://ollama.com">ollama.com</a>.</li>
-            <li>Download a coding model, for example: <code>ollama pull qwen2.5-coder</code></li>
-            <li>In Veyra&apos;s AI panel, choose <strong>Ollama · local</strong>. Nothing leaves your computer.</li>
-          </ol>
-          <h3>Cloud models: Claude, OpenAI, Gemini and more</h3>
-          <p>Choose the provider in the AI panel and paste your API key. Keys are stored in your operating system&apos;s keychain. The provider bills you directly; Veyra adds nothing.</p>
           <h3>What you can do</h3>
           <ul>
-            <li><strong>Ask</strong> about your code. Veyra shows exactly which files are included.</li>
-            <li><strong>Edit with AI</strong> (<kbd>Ctrl</kbd>+<kbd>K</kbd>): describe a change and review it as a diff before it&apos;s applied.</li>
-            <li><strong>Inline completions:</strong> ghost-text suggestions as you type. Press <kbd>Tab</kbd> to accept. Turn them off in Settings.</li>
+            <li><strong>Ask</strong> about your code. Attach the current file, a selection or smart workspace context, and Veyra shows exactly which files are included.</li>
+            <li><strong>Edit with AI</strong> (<kbd>Ctrl</kbd>+<kbd>K</kbd>): describe a change and review it as a diff before it&apos;s applied. Applied edits can be undone.</li>
+            <li><strong>Explain</strong> the selected code in plain language.</li>
           </ul>
+          <Note>Your code is sent to Veyra AI only when you send a message, and only what you attach. Veyra warns before sending files that look like secrets, and smart context never includes <code>.env</code> files, keys or gitignored files. Sign out anytime from the AI panel.</Note>
         </section>
 
         <section id="git"><h2>Git</h2>

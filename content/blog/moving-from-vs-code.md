@@ -47,9 +47,9 @@ Search the marketplace in the Extensions panel for your favourite theme: One Dar
 
 Open **Source control** with **Ctrl+Shift+G**. Stage, write a message and commit with **Ctrl+Enter**. Changed lines appear in the editor gutter, and the file tree shows status badges. Veyra uses the Git already installed on your computer, so your credentials, hooks and config all apply.
 
-## 6. Set up AI, your way
+## 6. Set up Veyra AI
 
-Open the assistant with **Ctrl+L**. The easiest start is **Veyra AI**: sign in with your free Veyra account and start asking, with no API key. If you prefer, run models privately with Ollama (see [Local AI coding with Ollama](/blog/local-ai-with-ollama)) or paste your own key for Claude, OpenAI, Gemini or another provider.
+Open the assistant with **Ctrl+L** and sign in with your free Veyra account. There's no API key to paste: each account gets **10 free Veyra AI requests**, and a request that fails isn't counted.
 
 **Edit with AI** (**Ctrl+K**) shows every proposed change as a diff you approve, like a pull request from a colleague.
 

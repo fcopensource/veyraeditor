@@ -6,7 +6,7 @@ category: Security
 readingTime: 7
 ---
 
-A helpful AI assistant needs context: the code around your question. Many assistants find that context by searching your project. That raises an uncomfortable question: what stops the search from picking up your `.env` file, your SSH key or the API token in a config file, and sending it to a cloud provider?
+A helpful AI assistant needs context: the code around your question. Many assistants find that context by searching your project. That raises an uncomfortable question: what stops the search from picking up your `.env` file, your SSH key or the API token in a config file, and sending it to an AI service?
 
 In October 2026 an independent audit of Veyra raised exactly this question. It found no evidence of leaks, but no explicit protection either. Here's what we built in response.
 
@@ -41,7 +41,7 @@ These patterns are deliberately specific. They catch real credentials without fl
 
 ## When you attach a file yourself
 
-Sometimes you really do want help with a configuration file. You can always attach the current file or a selection explicitly. If it looks sensitive and you're about to send it to a cloud provider, Veyra stops at the first **Send** and tells you exactly which file and which destination are involved. A second **Send** confirms it. With local Ollama, there's no prompt, because nothing leaves your machine.
+Sometimes you really do want help with a configuration file. You can always attach the current file or a selection explicitly. If it looks sensitive, Veyra stops at the first **Send** and tells you exactly which file is involved and that it would go to Veyra AI. A second **Send** confirms it.
 
 ## Tested like it matters
 

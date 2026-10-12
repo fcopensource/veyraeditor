@@ -36,7 +36,7 @@ export default function About(){
       <header><span>PRINCIPLES</span><h2>What we won&apos;t compromise on</h2></header>
       <div className="cards">
         <article className="card"><LockKeyhole/><h3>Privacy first</h3><p>No telemetry, no tracking, no account required. Your projects never touch our servers.</p></article>
-        <article className="card"><Eye/><h3>Transparent AI</h3><p>You pick the provider, you see the context, and every AI edit is a diff you approve.</p></article>
+        <article className="card"><Eye/><h3>Transparent AI</h3><p>You choose the context, you see exactly what&apos;s sent, and every AI edit is a diff you approve.</p></article>
         <article className="card"><Feather/><h3>Lightweight</h3><p>A Rust core and your system&apos;s web view keep Veyra around a tenth of the size of typical editors.</p></article>
       </div>
     </section>

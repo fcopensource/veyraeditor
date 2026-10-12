@@ -98,7 +98,7 @@ const SCHEMA=[
     KEY tokens_user (user_id),
     CONSTRAINT tokens_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-  // Veyra AI requests and tokens per user per day (UTC), for daily limits.
+  // Veyra AI requests and tokens per user per day (UTC), for statistics.
   `CREATE TABLE IF NOT EXISTS ai_usage (
     user_id BIGINT UNSIGNED NOT NULL,
     day DATE NOT NULL,
@@ -106,6 +106,13 @@ const SCHEMA=[
     tokens INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id,day),
     CONSTRAINT usage_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  // Veyra AI free requests used per account, in total (VEYRA_AI_FREE_REQUESTS, default 10).
+  `CREATE TABLE IF NOT EXISTS ai_allowance (
+    user_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    used INT UNSIGNED NOT NULL DEFAULT 0,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT allowance_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
 ];
 

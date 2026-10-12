@@ -30,7 +30,7 @@ export default function Security(){
       <div className="cards">
         <article className="card"><LockKeyhole/><h3>No telemetry</h3><p>Veyra doesn&apos;t collect usage data. Your projects never touch our servers, and you can use the editor without an account.</p></article>
         <article className="card"><FileKey2/><h3>Secret-safe AI</h3><p>The assistant never picks <code>.env</code> files, keys, credentials, gitignored files or files containing tokens. Attaching one yourself needs a deliberate second Send.</p></article>
-        <article className="card"><KeyRound/><h3>Keys in your keychain</h3><p>AI provider keys are stored in Windows Credential Manager, the macOS Keychain or the Linux secret service, never in plain-text files.</p></article>
+        <article className="card"><KeyRound/><h3>No API keys in the app</h3><p>The AI provider key stays on the veyraeditor.com server and never reaches the app. Veyra keeps only a revocable sign-in token in a private file in its app data folder.</p></article>
         <article className="card"><ShieldCheck/><h3>Strict Content Security Policy</h3><p>The interface can only run Veyra&apos;s own code and only talk to the extension marketplace. Injected or remote scripts are blocked.</p></article>
         <article className="card"><PackageCheck/><h3>Signed updates</h3><p>Every update is signed, and installed copies verify the signature before installing anything.</p></article>
         <article className="card"><GitBranch/><h3>Gated, public releases</h3><p>Releases are built by GitHub Actions from the open-source code, and only after tests and dependency audits pass.</p></article>
