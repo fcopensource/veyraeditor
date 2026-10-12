@@ -1,5 +1,5 @@
 {
-  "name": "live-server",
+  "name": "veyra-live-server",
   "displayName": "Veyra Live Server",
   "description": "Save. See it. Instantly. A local development server with live reload for HTML, CSS and JavaScript; CSS changes apply without a reload. The same Live Server that is built into Veyra Studio.",
   "version": "1.1.1",
