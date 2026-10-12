@@ -63,7 +63,7 @@ export default async function LiveServerPage(){
   return <><Nav/><Breadcrumbs items={[{name:'Extensions',path:'/extensions'},{name:'Veyra Live Server',path:'/live-server'}]}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(app)}}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(faq)}}/>
-    <main className="page-shell live-page">
+    <main className="page-shell"><div className="content live-page">
       <section className="live-hero">
         <div className="live-hero-glow" aria-hidden="true"/>
         <div className="live-icon"><Image src="/live-server-icon.png" width={148} height={148} alt="Veyra Live Server icon" priority/></div>
@@ -161,5 +161,5 @@ export default async function LiveServerPage(){
       </section>
 
       <ClosingCTA title="Go live with Veyra." copy="Veyra Live Server is built into Veyra Studio: free and open source for Windows, macOS and Linux."/>
-    </main><Footer/></>;
+    </div></main><Footer/></>;
 }

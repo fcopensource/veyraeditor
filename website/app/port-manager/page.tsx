@@ -55,7 +55,7 @@ export default async function PortManagerPage(){
   return <><Nav/><Breadcrumbs items={[{name:'Extensions',path:'/extensions'},{name:'Veyra Port Manager',path:'/port-manager'}]}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(app)}}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(faq)}}/>
-    <main className="page-shell live-page">
+    <main className="page-shell"><div className="content live-page">
       <section className="live-hero">
         <div className="live-hero-glow" aria-hidden="true"/>
         <div className="live-icon"><Image src="/port-manager-icon.png" width={148} height={148} alt="Veyra Port Manager icon" priority/></div>
@@ -145,5 +145,5 @@ export default async function PortManagerPage(){
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
-    </main><Footer/></>;
+    </div></main><Footer/></>;
 }

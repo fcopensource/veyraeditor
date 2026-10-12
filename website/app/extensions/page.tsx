@@ -33,7 +33,7 @@ const MAPPED:[string,string,string,'built'|'partial'|'market'][]=[
 
 export default function Extensions(){
   return <><Nav/><Breadcrumbs items={[{name:'Extensions',path:'/extensions'}]}/>
-    <main className="page-shell ext-page-site">
+    <main className="page-shell"><div className="content ext-page-site">
       {/* Hero: the pitch, and Veyra's Extensions view as it looks in the app */}
       <section className="ext-hero-site">
         <div className="ext-hero-copy">
@@ -140,5 +140,5 @@ export default function Extensions(){
       </section>
 
       <ClosingCTA/>
-    </main><Footer/></>;
+    </div></main><Footer/></>;
 }
