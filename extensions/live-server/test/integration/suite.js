@@ -14,7 +14,7 @@ const nextEvent = url => new Promise((done, fail) => {
 });
 
 exports.run = async function run() {
-  const extension = vscode.extensions.getExtension("flightcoders.live-server");
+  const extension = vscode.extensions.getExtension("flightcoders.veyra-live-server");
   assert.ok(extension, "extension is loaded");
   await extension.activate();
   const settings = vscode.workspace.getConfiguration("veyraLiveServer");
