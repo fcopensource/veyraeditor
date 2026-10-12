@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {ArrowRight,Bug,Eye,Feather,GitPullRequest,Github,HandHeart,LockKeyhole,MessageSquare} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
@@ -8,7 +9,7 @@ export const metadata:Metadata={
   title:'About Veyra: an Open-Source, Local-First Code Editor',
   description:'Why Veyra exists: a fast, private, open-source code editor with AI you control. Our principles, how Veyra is built, and how to get in touch or contribute.',
   alternates:{canonical:'/about'},
-  openGraph:{url:'/about',title:'About Veyra'},
+  openGraph:{images:[OG_IMAGE],url:'/about',title:'About Veyra'},
 };
 
 export default function About(){

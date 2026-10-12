@@ -1,12 +1,13 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 import {FAQ_GROUPS,GITHUB_URL,absolute,jsonLd} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'FAQ: Veyra Code Editor Questions Answered',
-  description:'Answers about Veyra: is it free, which languages it supports, Veyra AI, ESLint and Prettier, VS Code extensions, privacy, updates and installing on Windows, macOS and Linux.',
+  description:'Answers about Veyra: price, languages, Veyra AI, ESLint and Prettier, VS Code extensions, privacy, updates, and installing on Windows, macOS and Linux.',
   alternates:{canonical:'/faq'},
-  openGraph:{url:'/faq',title:'Veyra FAQ'},
+  openGraph:{images:[OG_IMAGE],url:'/faq',title:'Veyra FAQ'},
 };
 
 export default function Faq(){

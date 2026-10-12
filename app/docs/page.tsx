@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {Info,TriangleAlert} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
@@ -6,9 +7,9 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Documentation: Getting Started with Veyra',
-  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the keyboard shortcuts, set up TypeScript, ESLint and Prettier, sign in to Veyra AI, and fix common problems.',
+  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the shortcuts, set up language tools and Veyra AI, and fix common problems.',
   alternates:{canonical:'/docs'},
-  openGraph:{url:'/docs',title:'Veyra documentation: getting started'},
+  openGraph:{images:[OG_IMAGE],url:'/docs',title:'Veyra documentation: getting started'},
 };
 
 const SECTIONS=[

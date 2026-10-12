@@ -15,7 +15,7 @@ import './live-server.css';
 
 export const metadata:Metadata={
   title:'Veyra Live Server: Live Reload for Veyra and VS Code',
-  description:'Veyra Live Server serves your HTML, CSS and JavaScript at 127.0.0.1:5500 and updates the browser on every save. CSS changes apply without a reload. Built into Veyra Studio and free for VS Code.',
+  description:'Veyra Live Server serves your site at 127.0.0.1:5500 and updates the browser on every save, with CSS applied without a reload. In Veyra and VS Code.',
   alternates:{canonical:'/live-server'},
   openGraph:{url:'/live-server',title:'Veyra Live Server',description:'Save. See it. Instantly. Live reload built into Veyra, and free for VS Code.',images:[{url:'/live-server-icon.png',width:512,height:512,alt:'Veyra Live Server icon'}]},
 };

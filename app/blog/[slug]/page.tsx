@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import {ArrowLeft,ArrowRight,Download} from 'lucide-react';
@@ -18,7 +19,7 @@ export async function generateMetadata({params}:Params):Promise<Metadata>{
   return {
     title:post.title,description:post.description,
     alternates:{canonical:`/blog/${post.slug}`},
-    openGraph:{type:'article',url:`/blog/${post.slug}`,title:post.title,description:post.description,publishedTime:post.date,section:post.category},
+    openGraph:{images:[OG_IMAGE],type:'article',url:`/blog/${post.slug}`,title:post.title,description:post.description,publishedTime:post.date,section:post.category},
   };
 }
 

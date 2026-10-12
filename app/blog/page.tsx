@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {ArrowRight,Rss} from 'lucide-react';
 import {ContentPage} from '@/components/ContentPage';
@@ -8,7 +9,7 @@ export const metadata:Metadata={
   title:'Blog: Guides, AI Coding and Engineering',
   description:'Guides, product news and engineering notes from the Veyra team: switching from VS Code, TypeScript setup, privacy and how Veyra is built.',
   alternates:{canonical:'/blog',types:{'application/rss+xml':'/blog/rss.xml'}},
-  openGraph:{url:'/blog',title:'The Veyra blog'},
+  openGraph:{images:[OG_IMAGE],url:'/blog',title:'The Veyra blog'},
 };
 
 export default function Blog(){

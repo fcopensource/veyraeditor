@@ -1,6 +1,6 @@
 ---
 title: How Veyra keeps your secrets out of AI prompts
-description: AI assistants that read your workspace can accidentally pick up .env files, private keys and tokens. Here's how Veyra prevents that, and what we learned from an independent security audit.
+description: AI assistants that read your workspace can pick up .env files, keys and tokens by accident. Here's how Veyra prevents it.
 date: 2026-10-08
 category: Security
 readingTime: 7

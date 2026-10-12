@@ -213,3 +213,11 @@ a.card:hover{transform:translateY(-3px)}
 .live-promo em{color:var(--muted);font-style:normal;line-height:1.6}
 .live-promo i{display:inline-flex;align-items:center;gap:6px;margin-left:auto;color:var(--mint);font-style:normal;font-weight:700;white-space:nowrap}
 @media(max-width:700px){.live-promo{flex-direction:column;align-items:flex-start}.live-promo i{margin-left:0}}
+
+/* ---------- Responsive polish (all pages) ---------- */
+/* In-page links (#gallery, #install…) land below the fixed navigation bar. */
+html{scroll-padding-top:104px}
+/* Long links and addresses wrap instead of pushing the page sideways on small phones. */
+main p,main li,main dd,main td{overflow-wrap:anywhere}
+/* The home page's floating cards stay inside the screen on tablets and small laptops. */
+@media(min-width:801px) and (max-width:1240px){.float-card.left{left:12px}.float-card.right{right:12px}}

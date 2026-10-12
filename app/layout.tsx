@@ -8,7 +8,7 @@ import './site.css';
 import './content.css';
 import './account.css';
 import {latestRelease} from '@/lib/releases';
-import {ALT_NAMES,DESCRIPTION,GITHUB_URL,KEYWORDS,PRODUCT_NAME,SITE_NAME,SITE_URL,TAGLINE,absolute,jsonLd} from '@/lib/site';
+import {ALT_NAMES,DESCRIPTION,KEYWORDS,PRODUCT_NAME,SAME_AS,SITE_NAME,SITE_URL,TAGLINE,absolute,jsonLd} from '@/lib/site';
 
 // Self-hosted fonts: no render-blocking request to Google Fonts, and no layout shift while they load.
 const sans=Manrope({subsets:['latin'],variable:'--font-sans',display:'swap'});
@@ -16,7 +16,7 @@ const mono=DM_Mono({subsets:['latin'],weight:['400','500'],variable:'--font-mono
 
 export const metadata:Metadata={
   metadataBase:new URL(SITE_URL),
-  title:{default:`Veyra: Free AI Code Editor for Windows, Mac & Linux`,template:'%s | Veyra Code Editor'},
+  title:{default:`Veyra: Free AI Code Editor for Windows, Mac & Linux`,template:'%s | Veyra'},
   description:DESCRIPTION,
   applicationName:PRODUCT_NAME,
   keywords:KEYWORDS,
@@ -40,7 +40,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
   const graph={
     '@context':'https://schema.org',
     '@graph':[
-      {'@type':'Organization','@id':absolute('/#organization'),name:SITE_NAME,alternateName:ALT_NAMES,url:SITE_URL,logo:{'@type':'ImageObject',url:absolute('/logo-512.png'),width:512,height:512},sameAs:[GITHUB_URL]},
+      {'@type':'Organization','@id':absolute('/#organization'),name:SITE_NAME,alternateName:ALT_NAMES,url:SITE_URL,logo:{'@type':'ImageObject',url:absolute('/logo-512.png'),width:512,height:512},sameAs:SAME_AS},
       {'@type':'WebSite','@id':absolute('/#website'),name:SITE_NAME,alternateName:ALT_NAMES,url:SITE_URL,description:DESCRIPTION,publisher:{'@id':absolute('/#organization')},inLanguage:'en'},
       {'@type':'SoftwareApplication','@id':absolute('/#software'),name:PRODUCT_NAME,alternateName:ALT_NAMES,url:SITE_URL,description:DESCRIPTION,
         applicationCategory:'DeveloperApplication',applicationSubCategory:'Code editor',operatingSystem:'Windows 10, Windows 11, macOS 11+, Linux',

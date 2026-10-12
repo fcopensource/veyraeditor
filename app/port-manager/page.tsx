@@ -16,7 +16,7 @@ const MARKETPLACE='https://marketplace.visualstudio.com/items?itemName=flightcod
 
 export const metadata:Metadata={
   title:'Veyra Port Manager: Free a Busy Port in VS Code',
-  description:'“Port 3000 is already in use”? Veyra Port Manager shows every port in use and the app behind it (Vite, Next.js, Django, Postgres…), and lets you open, copy or stop it in one click. Free for VS Code.',
+  description:'“Port 3000 is already in use”? Veyra Port Manager shows every port in use and the app behind it, and frees it in one click. Free for VS Code.',
   alternates:{canonical:'/port-manager'},
   openGraph:{url:'/port-manager',title:'Veyra Port Manager',description:'Every port in use. One click to free it.',images:[{url:'/port-manager-icon.png',width:512,height:512,alt:'Veyra Port Manager icon'}]},
 };
