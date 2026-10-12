@@ -134,7 +134,7 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
     <div className="account-grid">
       {/* Veyra AI */}
       <section className="account-card ai-card">
-        <header><span className="account-card-icon violet"><Sparkles size={17}/></span><div><h2>Veyra AI</h2><p>Chat about your code in Veyra, no API key needed.</p></div></header>
+        <header><span className="account-card-icon violet"><img src="/veyra-ai.svg" width={22} height={22} alt=""/></span><div><h2>Veyra AI</h2><p>Chat about your code in Veyra, no API key needed.</p></div></header>
         {ai.available?<>
           <div className="usage-ring" style={{['--p' as string]:aiPercent}}><div><b>{Math.max(0,ai.limit-ai.used)}</b><span>free left</span></div></div>
           <p className="account-fine">{ai.used} of {ai.limit} free requests used{ai.tokens?` · ${ai.tokens.toLocaleString()} tokens`:''}</p>

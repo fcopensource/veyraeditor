@@ -112,7 +112,7 @@ export default function Features(){
     </section>
 
     <section className="content-section">
-      <header><span>AI</span><h2>AI that works the moment you sign in.</h2><p><strong>Veyra AI</strong> is built in: sign in with your free Veyra account and start asking, with no API key. Every account gets 10 free Veyra AI requests, and a request that fails isn&apos;t counted.</p></header>
+      <header><img src="/veyra-ai.svg" width={56} height={56} alt="Veyra AI" style={{display:'block',marginBottom:14,filter:'drop-shadow(0 10px 22px #6d28d966)'}}/><span>AI</span><h2>AI that works the moment you sign in.</h2><p><strong>Veyra AI</strong> is built in: sign in with your free Veyra account and start asking, with no API key. Every account gets 10 free Veyra AI requests, and a request that fails isn&apos;t counted.</p></header>
       <div className="cards two">
         <article className="card"><Command/><h3>Review every change</h3><ul><li><Check/>AI edits arrive as a diff you accept or reject</li><li><Check/>Stale proposals can never overwrite newer edits</li><li><Check/>Undo works exactly as you expect</li></ul></article>
         <article className="card"><Braces/><h3>Context you can see</h3><ul><li><Check/>Smart workspace context finds relevant files</li><li><Check/>Veyra shows exactly what will be sent</li><li><Check/>Code is sent only when you send a message, and only what you attach</li></ul></article>
