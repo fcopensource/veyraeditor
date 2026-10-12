@@ -14,6 +14,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/features'),lastModified:updated,changeFrequency:'monthly',priority:0.9},
     {url:absolute('/extensions'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/live-server'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/port-manager'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/docs'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/vs-code-alternative'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/faq'),lastModified:updated,changeFrequency:'monthly',priority:0.7},

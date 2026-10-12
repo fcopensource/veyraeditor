@@ -73,6 +73,10 @@ export default function Extensions(){
             <Image src="/veyra-ai.svg" width={96} height={96} alt=""/>
             <div><small>AI ASSISTANT · BUILT IN</small><h3>Veyra AI</h3><p>Ask about your code, explain it, or edit with AI and review every change as a diff. Sign in with a free account: 10 free requests, no API key.</p><span className="ext-link">Set up Veyra AI <ArrowRight size={14}/></span></div>
           </Link>
+          <Link href="/port-manager" className="ext-original ports">
+            <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
         </div>
       </section>
 
