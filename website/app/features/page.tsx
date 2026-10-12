@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {
   ArrowRight, Braces, Check, Command, FolderGit2, HeartPulse, KeyRound, LayoutPanelLeft, LockKeyhole,
@@ -8,9 +9,9 @@ import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
   title:'Features: Editor, IntelliSense, Git, Terminal & AI',
-  description:'Everything in Veyra, the free AI code editor: Monaco editing, TypeScript and Node.js IntelliSense, ESLint, Prettier, Tailwind, built-in Git, a real terminal, built-in Veyra AI, extensions and signed updates.',
+  description:'Everything in Veyra, the free AI code editor: Monaco editing, IntelliSense, ESLint, Prettier, built-in Git, a real terminal, Veyra AI and Live Server.',
   alternates:{canonical:'/features'},
-  openGraph:{url:'/features',title:'Veyra features: a complete, local-first AI code editor'},
+  openGraph:{images:[OG_IMAGE],url:'/features',title:'Veyra features: a complete, local-first AI code editor'},
 };
 
 const Item=({children}:{children:React.ReactNode})=><li><Check/><span>{children}</span></li>;

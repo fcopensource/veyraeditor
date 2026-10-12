@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {Bug,CheckCircle2,FileKey2,GitBranch,KeyRound,LockKeyhole,PackageCheck,ShieldCheck,ShieldEllipsis} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
@@ -6,9 +7,9 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Security & Privacy at Veyra',
-  description:'How Veyra protects your code and secrets: no telemetry, a strict Content Security Policy, secret-safe AI context, signed updates, release gates and an independent security audit.',
+  description:'How Veyra protects your code and secrets: no telemetry, a strict Content Security Policy, secret-safe AI context, signed updates and an independent audit.',
   alternates:{canonical:'/security'},
-  openGraph:{url:'/security',title:'Security & privacy at Veyra'},
+  openGraph:{images:[OG_IMAGE],url:'/security',title:'Security & privacy at Veyra'},
 };
 
 const AUDIT:[string,string,string][]=[

@@ -1,13 +1,14 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Roadmap: What\'s Next for Veyra',
-  description:'The Veyra roadmap: shipped web development tools, Python with a built-in debugger and Claude Code, and what comes next: Node.js debugging, Rust, Go and C++ language servers, TextMate grammars, icon themes and a VS Code extension host.',
+  description:'Where Veyra is going: what has shipped, and what\'s next. Node.js debugging, Rust, Go and C++ language servers, TextMate grammars and an extension host.',
   alternates:{canonical:'/roadmap'},
-  openGraph:{url:'/roadmap',title:'Veyra roadmap'},
+  openGraph:{images:[OG_IMAGE],url:'/roadmap',title:'Veyra roadmap'},
 };
 
 type Milestone={title:string;status:'done'|'next'|'planned';label:string;copy:string;items:string[]};

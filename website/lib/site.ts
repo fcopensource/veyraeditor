@@ -4,6 +4,15 @@ export const SITE_NAME = "Veyra";
 export const PRODUCT_NAME = "Veyra Studio";
 export const ALT_NAMES = ["Veyra Studio", "Veyra Editor", "Veyra Code Editor", "veyraeditor"];
 export const GITHUB_URL = "https://github.com/fcopensource/veyraeditor";
+/** Other official places Veyra lives: they tell search engines these all belong to one brand. */
+export const SAME_AS = [
+  GITHUB_URL,
+  "https://marketplace.visualstudio.com/publishers/flightcoders",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
+];
+/** The site-wide social preview image (app/opengraph-image.tsx), for pages that set their own openGraph. */
+export const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "Veyra: the fast, local-first AI code editor" };
 export const TAGLINE = "The fast, local-first AI code editor";
 export const DESCRIPTION =
   "Veyra is a free, open-source AI code editor for Windows, macOS and Linux. Fast and local-first, with Git, a real terminal, IntelliSense and Veyra AI built in.";

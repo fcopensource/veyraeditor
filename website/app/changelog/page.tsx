@@ -1,11 +1,12 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {ArrowUpRight,Download} from 'lucide-react';
 import {Nav} from '@/components/Nav';import {Footer} from '@/components/Footer';import {Markdown} from '@/components/Markdown';
 import {releaseNotes,RELEASES_URL} from '@/lib/releases';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 
-export const metadata:Metadata={title:'Changelog: What\'s New in Veyra',description:'Release notes for every Veyra Studio version: new AI, Git, editor and platform features, fixes and improvements.',alternates:{canonical:'/changelog'},openGraph:{url:'/changelog',title:'Veyra changelog'}};
+export const metadata:Metadata={title:'Changelog: What\'s New in Veyra',description:'Release notes for every Veyra Studio version: new AI, Git, editor and platform features, fixes and improvements.',alternates:{canonical:'/changelog'},openGraph:{images:[OG_IMAGE],url:'/changelog',title:'Veyra changelog'}};
 export const revalidate=300;
 
 /** The notes part of a release body, without the download instructions appended by the release workflow. */

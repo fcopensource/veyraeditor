@@ -129,3 +129,25 @@
   .ext-hero-stats{gap:18px}
 }
 @media(prefers-reduced-motion:reduce){.ext-tile{animation:none}.ext-original:hover>img,.ext-tile:hover,.ext-original:hover{transform:none}}
+
+/* ---------- Phones: compact, app-like ---------- */
+@media(max-width:640px){
+  .ext-hero-site{padding-bottom:64px}
+  .ext-hero-actions{flex-direction:column}
+  .ext-hero-actions>a{justify-content:center}
+  /* Veyra originals: icon beside the text, so each card fits on screen */
+  .ext-original{flex-direction:row;gap:16px;padding:20px}
+  .ext-original>img{width:64px;height:64px;border-radius:16px}
+  .ext-original h3{font-size:20px}
+  /* Filters: one swipeable row instead of three wrapped lines */
+  .ext-gallery-filters{flex-wrap:nowrap;width:100%;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x proximity;scrollbar-width:none;mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .ext-gallery-filters::-webkit-scrollbar{display:none}
+  .ext-gallery-filters button{flex-shrink:0;scroll-snap-align:start}
+  .ext-gallery-search{max-width:none}
+  .ext-tile{padding:18px}
+  .ext-tile header{flex-wrap:wrap}
+  .ext-tile header em{margin-left:56px}
+  .ext-mock{padding:12px}
+  .ext-mock-row small{display:none}
+  .ext-section{margin-bottom:72px}
+}

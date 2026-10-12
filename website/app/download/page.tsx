@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Image from 'next/image';
 import {Apple,Check,Download,Github,Laptop,Monitor,ShieldCheck,Terminal} from 'lucide-react';
 import {Nav} from '@/components/Nav';
@@ -6,7 +7,7 @@ import {Footer} from '@/components/Footer';
 import {checksums,installers,latestRelease,RELEASES_URL} from '@/lib/releases';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 
-export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free AI code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux (AppImage, .deb, .rpm). Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{url:'/download',title:'Download Veyra: free AI code editor'}};
+export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free AI code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux. Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{images:[OG_IMAGE],url:'/download',title:'Download Veyra: free AI code editor'}};
 export const revalidate=300;
 
 type Link={label:string;href?:string;size?:number};

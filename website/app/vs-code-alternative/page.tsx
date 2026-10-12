@@ -1,13 +1,14 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {Check,Feather,Keyboard,LockKeyhole,Sparkles} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
   title:'VS Code Alternative: Veyra vs VS Code vs Cursor',
-  description:'Looking for a fast, free VS Code or Cursor alternative? Compare Veyra with VS Code and Cursor: download size, built-in AI, privacy, extensions, Git and language support.',
+  description:'A fast, free VS Code or Cursor alternative? Compare Veyra with VS Code and Cursor: download size, built-in AI, privacy, extensions and languages.',
   alternates:{canonical:'/vs-code-alternative'},
-  openGraph:{url:'/vs-code-alternative',title:'Veyra: a lightweight VS Code and Cursor alternative'},
+  openGraph:{images:[OG_IMAGE],url:'/vs-code-alternative',title:'Veyra: a lightweight VS Code and Cursor alternative'},
   keywords:['VS Code alternative','Cursor alternative','lightweight code editor','free AI code editor','open source code editor'],
 };
 

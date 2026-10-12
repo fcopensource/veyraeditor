@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {OG_IMAGE} from '@/lib/site';
 import Image from 'next/image';
 import Link from 'next/link';
 import {ArrowRight,BadgeCheck,Check,Code2,Download,LayoutPanelLeft,Package,Palette,Puzzle,Search,ShieldCheck,Sparkles,Wrench} from 'lucide-react';
@@ -10,10 +11,10 @@ import {ExtensionGallery} from '@/components/ExtensionGallery';
 import './extensions.css';
 
 export const metadata:Metadata={
-  title:'Extensions: Live Server, TypeScript, ESLint, Prettier, Python & more',
-  description:'Veyra gives you the tools behind VS Code’s most popular extensions in one click: Veyra Live Server, TypeScript, ESLint, Prettier, Tailwind CSS, Python with a debugger, Claude Code, plus themes and snippets from Open VSX.',
+  title:'Extensions: Live Server, ESLint, Prettier & More',
+  description:'Live Server, TypeScript, ESLint, Prettier, Tailwind, Python and Claude Code in one click, plus themes and snippets from Open VSX. Veyra\'s extensions.',
   alternates:{canonical:'/extensions'},
-  openGraph:{url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
+  openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
 
 /** What installing a popular VS Code extension gives you in Veyra. Kept honest: partial support says so. */
