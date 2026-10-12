@@ -98,7 +98,7 @@ export default function Docs(){
             <li>The status bar shows the port while Live Server runs. Click it, or press <kbd>Alt</kbd>+<kbd>L</kbd> <kbd>Alt</kbd>+<kbd>C</kbd>, to stop.</li>
             <li>Folders without an <code>index.html</code> show a list of their files.</li>
           </ul>
-          <Note>Live Server uses port <strong>5500</strong>, or the next free port. It only accepts connections from your own computer. Using VS Code too? Install <strong>Veyra Live Server</strong> from the <code>.vsix</code> file in the <a href="https://github.com/fcopensource/veyraeditor/releases/latest">latest release</a> (Extensions → … → Install from VSIX). More on the <Link href="/live-server">Veyra Live Server page</Link>.</Note>
+          <Note>Live Server uses port <strong>5500</strong>, or the next free port. It only accepts connections from your own computer. Using VS Code too? Install <strong>Veyra Live Server</strong> from the <a href="https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server">Visual Studio Marketplace</a>, or search for it in VS Code&apos;s Extensions view. More on the <Link href="/live-server">Veyra Live Server page</Link>.</Note>
         </section>
 
         <section id="ai"><h2>Set up Veyra AI</h2>
