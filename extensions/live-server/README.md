@@ -48,7 +48,7 @@ In Veyra Studio there's nothing to install: click **Go Live** in the status bar.
 cd extensions/live-server
 npm ci
 npm test          # compiles and runs the server tests
-npm run package   # builds dist/live-server-<version>.vsix
+npm run package   # builds dist/veyra-live-server-<version>.vsix
 ```
 
 Press <kbd>F5</kbd> in VS Code with this folder open to try it in an Extension Development Host.
