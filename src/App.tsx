@@ -602,7 +602,11 @@ export default function App() {
       if(creation)return;
       if(/^F(5|9|10|11)$/.test(e.key)&&!e.altKey){e.preventDefault();e.stopPropagation();void debugKey(e);return;}
       if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);setExplorerMenu(null);return;}
-      const explorerFocused=(e.target as Element|null)?.closest?.('.sidebar')&&selectedEntry;
+      // File shortcuts (Delete, Ctrl/Cmd+A/C/X/V/D) apply only in the file tree, never while typing in a text field:
+      // otherwise Backspace in the Extensions search or a commit message moved the selected file to the Trash (#2).
+      const target=e.target as HTMLElement|null;
+      const typing=!!target&&(target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      const explorerFocused=!typing&&!!target?.closest?.('.tree')&&selectedEntry;
       if(explorerFocused&&(e.key==="Backspace"||e.key==="Delete")){e.preventDefault();void trashEntries(selectedEntries.length?selectedEntries:[selectedEntry]);return;}
       if(!(e.metaKey||e.ctrlKey))return;
       const k=e.key.toLowerCase();

@@ -3,6 +3,14 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.9.3
+
+**Important fix** ([#2](https://github.com/fcopensource/veyraeditor/issues/2))
+- Typing in a sidebar text box (Extensions search, Search, the commit message, Settings) no longer acts on the file selected in the Explorer. Before, **Backspace or Delete could move that file to the Trash / Recycle Bin**, and Ctrl/⌘+A, C, X, V or D selected, copied, pasted or duplicated files instead of editing your text. File shortcuts now work only in the file tree
+- macOS: moving files to the Trash no longer asks for permission to control Finder (it showed "Not authorised to send Apple events to Finder")
+
+If a file went missing while you were typing in Veyra, look in your Trash / Recycle Bin. You can restore it from there.
+
 ## 0.9.2
 
 **Fixes**

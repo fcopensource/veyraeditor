@@ -278,7 +278,20 @@ fn rename_file(state: State<Workspace>, path: String, next: String) -> Result<()
 fn trash_file(state: State<Workspace>, path: String) -> Result<()> {
     let file = checked(&root(&state)?, &path)?;
     if !file.is_file() && !file.is_dir() { return Err("Only files and folders can be moved to Trash".into()); }
-    trash::delete(file).map_err(err)
+    move_to_trash(&file).map_err(err)
+}
+/// Moves a file or folder to the Trash / Recycle Bin. On macOS this uses NSFileManager rather than asking Finder
+/// through AppleScript, which needs permission to control Finder and failed with "not authorised to send Apple events".
+fn move_to_trash(path: &Path) -> std::result::Result<(), trash::Error> {
+    #[cfg(target_os = "macos")]
+    {
+        use trash::macos::{DeleteMethod, TrashContextExtMacos};
+        let mut context = trash::TrashContext::default();
+        context.set_delete_method(DeleteMethod::NsFileManager);
+        context.delete(path)
+    }
+    #[cfg(not(target_os = "macos"))]
+    { trash::delete(path) }
 }
 #[tauri::command]
 fn copy_entry(state:State<Workspace>,path:String,next:String)->Result<()>{copy_checked(&root(&state)?,&path,&next)}

@@ -548,3 +548,29 @@ test("Live Server: Go Live in the status bar, Open with Live Server on HTML file
   await row.getByRole("button",{name:"Stop Veyra Live Server"}).click();
   await expect(row.getByRole("button",{name:"Start Veyra Live Server"})).toBeVisible();
 });
+
+test("typing in sidebar text boxes never triggers file shortcuts like Delete or Ctrl/Cmd+A (#2)",async({page})=>{
+  await page.route('https://open-vsx.org/api/**',route=>route.fulfill({json:{extensions:[]}}));
+  await page.goto("/");await page.getByRole("button",{name:"Open a project",exact:false}).click();
+  await page.locator('.tree-row[title="README.md"]').click(); // a file is selected in the Explorer
+  const fileActions=()=>page.evaluate(()=>(window as any).testCalls.filter((c:any)=>["trash_file","copy_entry","duplicate_entry","rename_file"].includes(c.cmd)).length);
+  // Extensions search: Backspace, Delete and select-all edit the text, not the selected file.
+  await page.getByRole("button",{name:"Extensions",exact:true}).click();
+  const search=page.getByLabel("Search extensions");
+  await search.fill("prettier");await search.press("Backspace");
+  await expect(search).toHaveValue("prettie");
+  await search.press("ControlOrMeta+a");await search.press("Delete");
+  await expect(search).toHaveValue("");
+  // Commit message: same.
+  await page.getByRole("button",{name:"Source control",exact:true}).click();
+  const message=page.getByLabel("Commit message");
+  await message.fill("Fix typo");await message.press("Backspace");await message.press("ControlOrMeta+d");
+  await expect(message).toHaveValue("Fix typ");
+  await expect(page.getByRole("heading",{name:/to Trash\?/})).toHaveCount(0);
+  expect(await fileActions()).toBe(0);
+  expect(await page.evaluate(()=>(window as any).testFiles["README.md"])).toBeDefined();
+  // In the file tree itself, Delete still offers to move the selected file to the Trash.
+  await page.getByRole("button",{name:"Explorer",exact:true}).click();
+  await page.locator('.tree-row[title="README.md"]').click();await page.keyboard.press("Delete");
+  await expect(page.getByRole("heading",{name:/to Trash\?/})).toBeVisible();
+});
