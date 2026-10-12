@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0
+
+- **Quick menu:** click the port in the status bar for Open in Browser, Copy Address, Restart or Stop, so one click no longer stops the server by accident
+- New commands: **Open in Browser**, **Copy Address** and **Restart Live Server** (shown in the Command Palette while Live Server runs)
+- Changing the **port** or **root** setting restarts Live Server automatically
+- **Videos and audio seek smoothly:** byte-range requests are supported, and large files stream instead of loading into memory
+- Sturdier: a malformed request or a browser closing mid-download can no longer disturb the server
+- A clear message, with a shortcut to Settings, when the folder to serve doesn't exist
+
 ## 1.2.0
 
 - New Marketplace ID: **`flightcoders.veyra-live-server`** (the name `live-server` is already used on the Marketplace)

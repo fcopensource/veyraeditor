@@ -2,7 +2,7 @@
   "name": "veyra-live-server",
   "displayName": "Veyra Live Server",
   "description": "Save. See it. Instantly. A local development server with live reload for HTML, CSS and JavaScript: CSS updates without a page reload, works over Remote SSH, WSL and Codespaces, no dependencies.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
@@ -86,6 +86,28 @@
         "command": "veyraLiveServer.toggle",
         "title": "Go Live / Stop",
         "category": "Veyra Live Server"
+      },
+      {
+        "command": "veyraLiveServer.openBrowser",
+        "title": "Open in Browser",
+        "category": "Veyra Live Server",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "veyraLiveServer.copyUrl",
+        "title": "Copy Address",
+        "category": "Veyra Live Server"
+      },
+      {
+        "command": "veyraLiveServer.restart",
+        "title": "Restart Live Server",
+        "category": "Veyra Live Server",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "veyraLiveServer.menu",
+        "title": "Live Server Menu",
+        "category": "Veyra Live Server"
       }
     ],
     "menus": {
@@ -107,6 +129,26 @@
         {
           "command": "veyraLiveServer.toggle",
           "when": "false"
+        },
+        {
+          "command": "veyraLiveServer.menu",
+          "when": "false"
+        },
+        {
+          "command": "veyraLiveServer.openBrowser",
+          "when": "veyraLiveServer.running"
+        },
+        {
+          "command": "veyraLiveServer.copyUrl",
+          "when": "veyraLiveServer.running"
+        },
+        {
+          "command": "veyraLiveServer.restart",
+          "when": "veyraLiveServer.running"
+        },
+        {
+          "command": "veyraLiveServer.goOffline",
+          "when": "veyraLiveServer.running"
         }
       ],
       "editor/title": [

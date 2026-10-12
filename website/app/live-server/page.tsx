@@ -8,6 +8,9 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {latestRelease,RELEASES_URL} from '@/lib/releases';
 import {absolute,jsonLd} from '@/lib/site';
+
+/** The VS Code edition on the Visual Studio Marketplace. */
+const MARKETPLACE='https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server';
 import './live-server.css';
 
 export const metadata:Metadata={
@@ -22,13 +25,13 @@ const FEATURES=[
   {icon:RefreshCw,title:'Live reload',copy:'Save an HTML or JavaScript file and every open tab reloads on its own. No refresh key, no browser extension.'},
   {icon:Paintbrush,title:'CSS without a reload',copy:'Save a stylesheet and the new CSS is swapped in place. Scroll position, open menus and typed text stay exactly where they were.'},
   {icon:MousePointerClick,title:'Go Live in one click',copy:'Click Go Live in the status bar, or right-click any HTML file and choose Open with Live Server. The page opens in your browser.'},
-  {icon:FolderTree,title:'Folders just work',copy:'Every folder is served. index.html opens automatically, and folders without one show a clean list of their files.'},
+  {icon:FolderTree,title:'Folders and media just work',copy:'index.html opens automatically, folders without one show a clean list of their files, and videos and audio stream and seek smoothly.'},
   {icon:LockKeyhole,title:'Private by design',copy:'Listens on 127.0.0.1 only, so other devices on your network can\'t see your work. Nothing outside your folder is ever served.'},
   {icon:Zap,title:'Tiny and native',copy:'Built into Veyra in Rust, with no Node.js and nothing to install. The VS Code edition has zero runtime dependencies and is under 100 KB.'},
 ];
 
 const COMPARE:[string,string,string][]=[
-  ['Install','Nothing: it\'s built in','One .vsix file, then Install from VSIX'],
+  ['Install','Nothing: it\'s built in','Search “Veyra Live Server” in Extensions and click Install'],
   ['Start','Go Live in the status bar','Go Live in the status bar'],
   ['Open a page','Right-click an HTML file → Open with Live Server','Right-click an HTML file → Open with Live Server'],
   ['Shortcuts','Alt+L Alt+O to open, Alt+L Alt+C to stop','Alt+L Alt+O to open, Alt+L Alt+C to stop (⌘L ⌘O on macOS)'],
@@ -70,9 +73,9 @@ export default async function LiveServerPage(){
         <p className="live-intro">A local development server with live reload. Every save updates your browser, and CSS changes apply without a reload. Built into Veyra Studio, and free for VS Code.</p>
         <div className="live-actions">
           <Link className="primary" href="/download"><Download size={16}/>Get Veyra: it&apos;s built in</Link>
-          <a className="secondary" href={vsixUrl}><Code2 size={16}/>Download for VS Code</a>
+          <a className="secondary" href={MARKETPLACE}><Code2 size={16}/>Get it for VS Code</a>
         </div>
-        <p className="live-micro">{vsixVersion?`VS Code edition v${vsixVersion} · .vsix · ${Math.max(1,Math.round((vsix?.size||0)/1024))} KB · MIT`:'VS Code edition: the .vsix file in every Veyra release · MIT'}</p>
+        <p className="live-micro">VS Code edition on the Visual Studio Marketplace · flightcoders.veyra-live-server · Free · MIT</p>
       </section>
 
       <section className="live-demo" aria-label="How a CSS change looks">
@@ -115,11 +118,11 @@ export default async function LiveServerPage(){
           <span className="kicker">VS CODE EDITION</span>
           <h2>Install in VS Code</h2>
           <ol className="live-install">
-            <li><a href={vsixUrl}>Download <code>{vsix?.name||'veyra-live-server-<version>.vsix'}</code></a></li>
-            <li>In VS Code, open <strong>Extensions</strong>, click <strong>…</strong> and choose <strong>Install from VSIX…</strong></li>
-            <li>Click <strong>Go Live</strong> in the status bar.</li>
+            <li>In VS Code, open <strong>Extensions</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd>) and search for <strong>Veyra Live Server</strong>, or open it on the <a href={MARKETPLACE}>Visual Studio Marketplace</a>.</li>
+            <li>Click <strong>Install</strong>.</li>
+            <li>Click <strong>Go Live</strong> in the status bar. Click the port to open, copy, restart or stop.</li>
           </ol>
-          <p className="live-note">Or from a terminal: <code>code --install-extension {vsix?.name||'veyra-live-server-<version>.vsix'}</code></p>
+          <p className="live-note">Or from a terminal: <code>code --install-extension flightcoders.veyra-live-server</code>. Working offline? <a href={vsixUrl}>Download the <code>.vsix</code></a> and choose <strong>Install from VSIX…</strong>.</p>
         </div>
         <div className="visual" aria-label="VS Code settings">
           <small>settings.json · optional</small>

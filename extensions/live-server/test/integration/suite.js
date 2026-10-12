@@ -36,7 +36,32 @@ exports.run = async function run() {
   fs.writeFileSync(path.join(folder, "style.css"), "h1 { color: blue }");
   assert.equal(await event, "css");
 
+  // Copy Address puts the page's address on the clipboard (whatever was there is put back afterwards).
+  const previousClipboard = await vscode.env.clipboard.readText();
+  try {
+    await vscode.commands.executeCommand("veyraLiveServer.copyUrl");
+    assert.match(await vscode.env.clipboard.readText(), /^http:\/\/127\.0\.0\.1:\d+\/$/);
+  } finally {
+    await vscode.env.clipboard.writeText(previousClipboard);
+  }
+
+  // Changing the served folder in Settings restarts the server on that folder.
+  await settings.update("root", "/pages", vscode.ConfigurationTarget.Global);
+  let restarted;
+  for (let i = 0; i < 40 && !restarted; i++) {
+    await new Promise(r => setTimeout(r, 150));
+    const address = await vscode.commands.executeCommand("veyraLiveServer.goLive");
+    const listing = address && await get(new URL("/", address).href).catch(() => null);
+    if (listing?.body.includes("about me.html")) restarted = listing;
+  }
+  assert.ok(restarted, "the server restarted on the new root folder");
+  await settings.update("root", undefined, vscode.ConfigurationTarget.Global);
+
+  // Restart keeps serving; Stop shuts it down.
+  await vscode.commands.executeCommand("veyraLiveServer.restart");
+  const after = await vscode.commands.executeCommand("veyraLiveServer.goLive");
+  assert.equal((await get(after)).status, 200);
   await vscode.commands.executeCommand("veyraLiveServer.goOffline");
-  await assert.rejects(get(base), "server stopped");
+  await assert.rejects(get(new URL("/", after).href), "server stopped");
   console.log("Veyra Live Server integration test passed");
 };

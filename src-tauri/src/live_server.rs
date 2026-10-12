@@ -5,7 +5,7 @@
 use notify::event::ModifyKind;
 use notify::{EventKind, RecursiveMode, Watcher};
 use std::collections::HashMap;
-use std::io::{Read, Write};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -212,6 +212,8 @@ fn handle(mut stream: TcpStream, root: &Path, clients: &Clients) -> std::io::Res
     let mut parts = line.split(' ');
     let (method, target) = (parts.next().unwrap_or(""), parts.next().unwrap_or("/"));
     let head_only = method == "HEAD";
+    let head_text = String::from_utf8_lossy(&request).into_owned();
+    let range = head_text.lines().find_map(|line| line.split_once(':').filter(|(name, _)| name.trim().eq_ignore_ascii_case("range")).map(|(_, value)| value.trim().to_string()));
     if method != "GET" && !head_only { return respond(&mut stream, "405 Method Not Allowed", &[("Allow", "GET, HEAD".into())], b"", false); }
     let url_path = target.split(['?', '#']).next().unwrap_or("/");
 
@@ -230,7 +232,7 @@ fn handle(mut stream: TcpStream, root: &Path, clients: &Clients) -> std::io::Res
     if path.is_dir() {
         if !url_path.ends_with('/') { return respond(&mut stream, "301 Moved Permanently", &[("Location", format!("{url_path}/"))], b"", head_only); }
         let index = ["index.html", "index.htm"].iter().map(|name| path.join(name)).find(|p| p.is_file());
-        if let Some(index) = index { return send_file(&mut stream, &index, head_only); }
+        if let Some(index) = index { return send_file(&mut stream, &index, head_only, None); }
         let mut entries: Vec<(bool, String)> = std::fs::read_dir(&path)?.flatten()
             .filter_map(|e| { let name = e.file_name().to_string_lossy().into_owned(); (!name.starts_with('.')).then(|| (e.path().is_dir(), name)) }).collect();
         entries.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.to_lowercase().cmp(&b.1.to_lowercase())));
@@ -243,13 +245,48 @@ fn handle(mut stream: TcpStream, root: &Path, clients: &Clients) -> std::io::Res
         let body = page(&format!("Index of {}", escape(&shown)), &format!("<h1>Index of {}</h1><ul>{list}</ul><small>Veyra Live Server</small>", escape(&shown)));
         return respond(&mut stream, "200 OK", &[("Content-Type", "text/html; charset=utf-8".into())], &body, head_only);
     }
-    send_file(&mut stream, &path, head_only)
+    send_file(&mut stream, &path, head_only, range.as_deref())
 }
 
-fn send_file(stream: &mut TcpStream, path: &Path, head_only: bool) -> std::io::Result<()> {
-    let data = std::fs::read(path)?;
-    let body = if is_html(path) { inject(&data) } else { data };
-    respond(stream, "200 OK", &[("Content-Type", mime(path).into())], &body, head_only)
+/// A single byte range from a Range header ("bytes=0-99", "bytes=100-", "bytes=-50"), so audio and video can seek.
+/// None: no range, or several ranges (the whole file is sent). Some(None): the range is outside the file.
+pub fn parse_range(header: Option<&str>, size: u64) -> Option<Option<(u64, u64)>> {
+    let spec = header?.trim().strip_prefix("bytes=")?;
+    let (first, last) = spec.split_once('-')?;
+    if spec.contains(',') || (first.is_empty() && last.is_empty()) { return None; }
+    let number = |text: &str| text.parse::<u64>().ok();
+    let (start, end) = if first.is_empty() {
+        let suffix = number(last)?;
+        if suffix == 0 { return Some(None); }
+        (size.saturating_sub(suffix), size.saturating_sub(1))
+    } else {
+        let start = number(first)?;
+        (start, if last.is_empty() { size.saturating_sub(1) } else { number(last)?.min(size.saturating_sub(1)) })
+    };
+    Some(if size == 0 || start > end || start >= size { None } else { Some((start, end)) })
+}
+
+/// HTML gets the live reload script; everything else streams from disk (large videos never sit in memory),
+/// honouring Range requests.
+fn send_file(stream: &mut TcpStream, path: &Path, head_only: bool, range: Option<&str>) -> std::io::Result<()> {
+    if is_html(path) { return respond(stream, "200 OK", &[("Content-Type", mime(path).into())], &inject(&std::fs::read(path)?), head_only); }
+    let mut file = std::fs::File::open(path)?;
+    let size = file.metadata()?.len();
+    let (status, start, end) = match parse_range(range, size) {
+        Some(None) => return respond(stream, "416 Range Not Satisfiable", &[("Content-Range", format!("bytes */{size}"))], b"", head_only),
+        Some(Some((start, end))) => ("206 Partial Content", start, end),
+        None => ("200 OK", 0, size.saturating_sub(1)),
+    };
+    let length = if size == 0 { 0 } else { end - start + 1 };
+    let mut head = format!("HTTP/1.1 {status}\r\nContent-Type: {}\r\nContent-Length: {length}\r\nAccept-Ranges: bytes\r\nCache-Control: no-store\r\nConnection: close\r\n", mime(path));
+    if status.starts_with("206") { head.push_str(&format!("Content-Range: bytes {start}-{end}/{size}\r\n")); }
+    head.push_str("\r\n");
+    stream.write_all(head.as_bytes())?;
+    if !head_only && length > 0 {
+        file.seek(SeekFrom::Start(start))?;
+        std::io::copy(&mut file.take(length), stream)?;
+    }
+    stream.flush()
 }
 
 /// Normal components only: used to turn a workspace-relative file into a URL path.
@@ -301,6 +338,39 @@ mod tests {
         assert_eq!(resolve(&site, "/a%20b.html?v=1"), Some(site.join("a b.html")));
         assert_eq!(resolve(&site, "/"), Some(site.clone()));
         for bad in ["/../secret.txt", "/%2e%2e/secret.txt", "/..%2fsecret.txt", "/..\\secret.txt", "/C:/Windows/win.ini", "/missing.html"] { assert_eq!(resolve(&site, bad), None, "{bad}"); }
+    }
+
+    #[test] fn byte_ranges_let_media_seek() {
+        assert_eq!(parse_range(Some("bytes=0-99"), 1000), Some(Some((0, 99))));
+        assert_eq!(parse_range(Some("bytes=900-"), 1000), Some(Some((900, 999))));
+        assert_eq!(parse_range(Some("bytes=-100"), 1000), Some(Some((900, 999))));
+        assert_eq!(parse_range(Some("bytes=500-5000"), 1000), Some(Some((500, 999))));
+        assert_eq!(parse_range(Some("bytes=1000-"), 1000), Some(None));
+        assert_eq!(parse_range(None, 1000), None);
+        assert_eq!(parse_range(Some("bytes=0-1,5-9"), 1000), None, "several ranges: send the whole file");
+    }
+
+    #[test] fn streams_files_with_ranges() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut media = vec![7u8; 3 * 1024 * 1024];
+        media[..5].copy_from_slice(b"VEYRA");
+        std::fs::write(dir.path().join("clip.mp4"), &media).unwrap();
+        let server = LiveServer::start(dir.path(), 0).unwrap();
+        let request = |extra: &str| {
+            let mut stream = TcpStream::connect(("127.0.0.1", server.port)).unwrap();
+            stream.write_all(format!("GET /clip.mp4 HTTP/1.1\r\nHost: localhost\r\n{extra}\r\n").as_bytes()).unwrap();
+            let mut response = Vec::new();
+            stream.read_to_end(&mut response).unwrap();
+            let split = response.windows(4).position(|w| w == b"\r\n\r\n").unwrap();
+            (String::from_utf8_lossy(&response[..split]).into_owned(), response[split + 4..].to_vec())
+        };
+        let (head, body) = request("");
+        assert!(head.starts_with("HTTP/1.1 200") && head.contains("Accept-Ranges: bytes"), "{head}");
+        assert_eq!(body.len(), media.len());
+        let (head, body) = request("Range: bytes=0-4\r\n");
+        assert!(head.starts_with("HTTP/1.1 206") && head.contains(&format!("Content-Range: bytes 0-4/{}", media.len())), "{head}");
+        assert_eq!(body, b"VEYRA");
+        assert!(request(&format!("range: bytes={}-\r\n", media.len())).0.starts_with("HTTP/1.1 416"));
     }
 
     #[test] fn content_types_and_urls() {

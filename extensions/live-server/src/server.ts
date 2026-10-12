@@ -59,6 +59,17 @@ const page = (title: string, body: string) => inject(Buffer.from(`<!doctype html
   + `<style>body{font:15px system-ui,sans-serif;margin:32px;color:#1f2933}a{color:#0b6bcb;text-decoration:none}a:hover{text-decoration:underline}li{margin:6px 0;list-style:none}small{color:#6b7785}</style>`
   + `</head><body>${body}</body></html>`));
 
+/** A single byte range from a Range header ("bytes=0-99", "bytes=100-", "bytes=-50"), so media can seek.
+    Undefined: no range, or several ranges (the whole file is sent). "invalid": the range is outside the file. */
+export function parseRange(header: string | undefined, size: number): [number, number] | "invalid" | undefined {
+  const match = /^bytes=(\d*)-(\d*)$/.exec((header || "").trim());
+  if (!match || (!match[1] && !match[2])) return undefined;
+  let start: number, end: number;
+  if (!match[1]) { const suffix = Number(match[2]); if (!suffix) return "invalid"; start = Math.max(0, size - suffix); end = size - 1; }
+  else { start = Number(match[1]); end = match[2] ? Math.min(Number(match[2]), size - 1) : size - 1; }
+  return start > end || start >= size ? "invalid" : [start, end];
+}
+
 /** A workspace-relative file as a URL path: "pages/about me.html" → "/pages/about%20me.html". */
 export const urlFor = (relative: string) => "/" + relative.split(/[\\/]/).filter(p => p && p !== "." && p !== "..").map(encodeURIComponent).join("/");
 
@@ -80,6 +91,8 @@ export class LiveServer {
     if (!fs.statSync(real).isDirectory()) throw new Error(`${root} is not a folder`);
     let live: LiveServer | undefined;
     const server = http.createServer((req, res) => live?.handle(req, res));
+    // A malformed request or a dropped connection must never take the server down.
+    server.on("clientError", (_error, socket) => { if (socket.writable) socket.end("HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n"); else socket.destroy(); });
     const listen = (p: number) => new Promise<boolean>(done => {
       const fail = () => { server.off("listening", ok); done(false); };
       const ok = () => { server.off("error", fail); done(true); };
@@ -117,6 +130,15 @@ export class LiveServer {
   private send(message: string) { for (const client of this.clients) client.write(message); }
 
   private handle(req: http.IncomingMessage, res: http.ServerResponse) {
+    res.on("error", () => { /* the browser went away mid-response */ });
+    try { this.route(req, res); }
+    catch (error) {
+      if (!res.headersSent) { res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }); res.end(`Live Server error: ${String(error)}`); }
+      else res.destroy();
+    }
+  }
+
+  private route(req: http.IncomingMessage, res: http.ServerResponse) {
     const headOnly = req.method === "HEAD";
     const reply = (status: number, headers: Record<string, string>, body: Buffer | string = "") => {
       const data = typeof body === "string" ? Buffer.from(body) : body;
@@ -154,10 +176,28 @@ export class LiveServer {
           + entries.map(e => `<li><a href="${encodeURIComponent(e.name)}${e.dir ? "/" : ""}">${escape(e.name)}${e.dir ? "/" : ""}</a></li>`).join("");
         return reply(200, html, page(`Index of ${escape(shown)}`, `<h1>Index of ${escape(shown)}</h1><ul>${list}</ul><small>Veyra Live Server</small>`));
       }
-      const data = fs.readFileSync(file);
-      return reply(200, { "Content-Type": mime(file) }, isHtml(file) ? inject(data) : data);
+      if (isHtml(file)) return reply(200, { "Content-Type": mime(file) }, inject(fs.readFileSync(file)));
+      return this.stream(req, res, file, headOnly);
     } catch (error) {
       return reply(500, html, page("Error", `<h1>500</h1><p>${escape(String(error))}</p>`));
     }
+  }
+
+  /** Other files stream from disk (large videos never sit in memory), honouring Range requests so media can seek. */
+  private stream(req: http.IncomingMessage, res: http.ServerResponse, file: string, headOnly: boolean) {
+    const size = fs.statSync(file).size;
+    const range = parseRange(req.headers.range, size);
+    if (range === "invalid") { res.writeHead(416, { "Content-Range": `bytes */${size}`, "Cache-Control": "no-store" }); res.end(); return; }
+    const [start, end] = range ?? [0, Math.max(0, size - 1)];
+    const length = size === 0 ? 0 : end - start + 1;
+    res.writeHead(range ? 206 : 200, {
+      "Content-Type": mime(file), "Content-Length": String(length), "Accept-Ranges": "bytes", "Cache-Control": "no-store",
+      ...(range ? { "Content-Range": `bytes ${start}-${end}/${size}` } : {}),
+    });
+    if (headOnly || length === 0) { res.end(); return; }
+    const reader = fs.createReadStream(file, { start, end });
+    reader.on("error", () => res.destroy());
+    res.on("close", () => reader.destroy());
+    reader.pipe(res);
   }
 }

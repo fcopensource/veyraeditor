@@ -106,7 +106,7 @@ Click **Go Live** in the status bar (or right-click an HTML file → **Open with
 - Folders without an `index.html` show a file listing.
 - Built into Veyra in Rust: nothing to install and no Node.js needed. It listens on `127.0.0.1` only and never serves files outside the folder.
 
-**Also for VS Code.** The same Live Server is a VS Code extension in [`extensions/live-server`](extensions/live-server), sharing the browser script with Veyra. Each release includes `veyra-live-server-<version>.vsix`: in VS Code, choose **Extensions → … → Install from VSIX…**.
+**Also for VS Code.** The same Live Server is a VS Code extension in [`extensions/live-server`](extensions/live-server), sharing the browser script with Veyra. Install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server) or search for **Veyra Live Server** in VS Code's Extensions view (ID `flightcoders.veyra-live-server`). Each Veyra release also attaches `veyra-live-server-<version>.vsix` for offline installs.
 
 ---
 

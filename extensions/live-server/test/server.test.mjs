@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import http from "node:http";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -96,4 +97,56 @@ test("uses the next free port when the preferred one is busy", async () => {
   const first = await LiveServer.start(dir, 0, script);
   const second = await LiveServer.start(dir, first.port, script);
   try { assert.notEqual(second.port, first.port); } finally { await second.close(); await first.close(); }
+});
+
+test("byte ranges let audio and video seek", () => {
+  const { parseRange } = require("../out/server.js");
+  assert.deepEqual(parseRange("bytes=0-99", 1000), [0, 99]);
+  assert.deepEqual(parseRange("bytes=900-", 1000), [900, 999]);
+  assert.deepEqual(parseRange("bytes=-100", 1000), [900, 999]);
+  assert.deepEqual(parseRange("bytes=500-5000", 1000), [500, 999]);
+  assert.equal(parseRange("bytes=1000-", 1000), "invalid");
+  assert.equal(parseRange(undefined, 1000), undefined);
+  assert.equal(parseRange("bytes=0-1,5-9", 1000), undefined, "several ranges: send the whole file");
+});
+
+test("streams files with Range support, and survives malformed requests", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "veyra-live-"));
+  const media = Buffer.alloc(3 * 1024 * 1024, 7); media.write("VEYRA", 0); // a 3 MB "video"
+  fs.writeFileSync(path.join(dir, "clip.mp4"), media);
+  fs.writeFileSync(path.join(dir, "empty.txt"), "");
+  const server = await LiveServer.start(dir, 0, script);
+  const raw = (headers, method = "GET", urlPath = "/clip.mp4") => new Promise((done, fail) => {
+    const req = http.request({ host: "127.0.0.1", port: server.port, path: urlPath, method, headers }, res => {
+      const chunks = []; res.on("data", c => chunks.push(c)); res.on("end", () => done({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+    });
+    req.on("error", fail); req.end();
+  });
+  try {
+    const full = await raw({});
+    assert.equal(full.status, 200);
+    assert.equal(full.headers["accept-ranges"], "bytes");
+    assert.equal(full.body.length, media.length);
+    const part = await raw({ Range: "bytes=0-4" });
+    assert.equal(part.status, 206);
+    assert.equal(part.headers["content-range"], `bytes 0-4/${media.length}`);
+    assert.equal(part.body.toString(), "VEYRA");
+    assert.equal((await raw({ Range: `bytes=${media.length}-` })).status, 416);
+    const head = await raw({}, "HEAD");
+    assert.equal(head.status, 200);
+    assert.equal(head.headers["content-length"], String(media.length));
+    assert.equal(head.body.length, 0);
+    assert.equal((await raw({}, "GET", "/empty.txt")).status, 200);
+    // A garbage request gets a 400 and the server keeps working.
+    await new Promise(done => { const socket = net.connect(server.port, "127.0.0.1", () => socket.end("NOT HTTP AT ALL\r\n\r\n")); socket.on("data", () => {}); socket.on("close", done); socket.on("error", done); });
+    // A browser that disconnects mid-download doesn't break anything either.
+    await new Promise(done => { const req = http.get({ host: "127.0.0.1", port: server.port, path: "/clip.mp4" }, res => { res.once("data", () => { req.destroy(); done(); }); }); req.on("error", () => {}); });
+    assert.equal((await raw({ Range: "bytes=0-4" })).body.toString(), "VEYRA");
+  } finally {
+    await server.close();
+  }
+});
+
+test("explains a missing folder instead of failing obscurely", async () => {
+  await assert.rejects(LiveServer.start(path.join(os.tmpdir(), "veyra-does-not-exist-" + Date.now()), 0, script), /ENOENT|does not exist|no such file/i);
 });

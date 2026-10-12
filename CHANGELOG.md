@@ -3,6 +3,12 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.9.4
+
+**Live Server**
+- Videos and audio on your pages now seek smoothly: Live Server supports byte-range requests and streams large files instead of loading them into memory
+- Veyra Live Server for VS Code is on the Visual Studio Marketplace: search for **Veyra Live Server** in VS Code, or open it from its page in Veyra's Extensions view. Version 1.3.0 adds a quick menu (Open in Browser, Copy Address, Restart, Stop), restarts when you change its settings, and seeks media smoothly
+
 ## 0.9.3
 
 **Important fix** ([#2](https://github.com/fcopensource/veyraeditor/issues/2))

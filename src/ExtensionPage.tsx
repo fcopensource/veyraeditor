@@ -6,7 +6,7 @@ import { BadgeCheck, Check, CircleAlert, CloudDownload, Download, ExternalLink, 
 import { goLive, goOffline, useLiveServer } from './live';
 
 /** The Veyra Live Server extension for VS Code is attached to every Veyra release. */
-const VSCODE_LIVE_SERVER = 'https://github.com/fcopensource/veyraeditor/releases/latest';
+const VSCODE_LIVE_SERVER = 'https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server';
 import { capabilities, compactCount, fetchDetails, fetchExtension, fetchManifest, fetchText, support, themeId, type Capabilities, type Details, type Extension } from './extensions';
 import { TOOLS, environment, installTool, onToolsChange, openClaudeCode, refreshTools, restartTool, setToolEnabled, toolFor, toolState, uninstallTool, type Tool } from './lsp/tools';
 import { ExtIcon, Rating, marketTarget, useMarketIcon, type ExtensionTarget } from './extensionUi';
@@ -235,7 +235,7 @@ function ToolPage({ toolKey, onOpen }: Props & { toolKey: string }) {
               <button className="ext-button danger" disabled={state.busy} onClick={() => run(() => uninstallTool(tool.key), `${tool.name} removed.`)}><Trash2 size={14} />Uninstall</button>
             </>}
         </div>
-        {tool.kind === 'feature' && <div className="ext-compat"><Info size={15} /><span>Built into Veyra: nothing to install, no Node.js needed. Serves your open folder on <b>http://127.0.0.1:5500</b> (the next free port if it&apos;s taken), only to this computer. Using VS Code too? <button className="link-button" onClick={() => open(VSCODE_LIVE_SERVER)}>Get Veyra Live Server for VS Code</button> (the <code>.vsix</code> file in each release).</span></div>}
+        {tool.kind === 'feature' && <div className="ext-compat"><Info size={15} /><span>Built into Veyra: nothing to install, no Node.js needed. Serves your open folder on <b>http://127.0.0.1:5500</b> (the next free port if it&apos;s taken), only to this computer. Using VS Code too? <button className="link-button" onClick={() => open(VSCODE_LIVE_SERVER)}>Get Veyra Live Server for VS Code</button> on the Visual Studio Marketplace.</span></div>}
         {tool.kind === 'cli' && <div className="ext-compat"><Info size={15} /><span>Runs Anthropic&apos;s official installer in a terminal, then opens Claude Code in your project. Needs a <b>Claude Pro, Max, Team, Enterprise or Console</b> account; Claude Code asks you to sign in the first time.</span></div>}
         {tool.kind === 'debugger' && !env.python && <div className="ext-compat"><Info size={15} /><span>Needs <b>Python 3.8 or newer</b>. Install it from python.org, then restart Veyra.</span></div>}
         {(tool.kind === 'server' || tool.kind === 'formatter') && !env.node && <div className="ext-compat"><Info size={15} /><span>Needs <b>Node.js 18 or newer</b>. Install it from nodejs.org, then restart Veyra.</span></div>}
