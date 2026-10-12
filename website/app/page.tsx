@@ -22,14 +22,14 @@ const features = [
   { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, a built-in Python debugger and 80+ languages, wrapped in a native, lightweight shell." },
   { icon: FolderGit2, title: "Git you can see", copy: "Live gutter markers, file-tree badges and side-by-side diffs. Stage, commit, amend, switch branches, stash and sync in a click." },
   { icon: TerminalSquare, title: "A real terminal", copy: "PowerShell, zsh or bash on a native PTY, with multiple sessions and one-key \"run this file\", right beside your code." },
-  { icon: Sparkles, title: "AI with boundaries", copy: "Local Ollama or 10 cloud providers. You choose the context, and every edit is a diff you approve and can undo." },
+  { icon: Sparkles, title: "AI with boundaries", copy: "Veyra AI is built in: sign in with a free account. You choose the context, and every edit is a diff you approve and can undo." },
   { icon: Wrench, title: "Real IntelliSense", copy: "One-click TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue and Python: the language servers behind VS Code's favourite extensions." },
-  { icon: KeyRound, title: "Secrets done right", copy: "API keys are encrypted in your OS keychain and load in the background, exactly like VS Code secrets." },
+  { icon: KeyRound, title: "Secrets stay out of AI", copy: "Veyra warns before sending files that look like secrets, and smart context never includes .env files, keys or gitignored files." },
   { icon: HeartPulse, title: "Self-diagnosing", copy: "A live health score watches responsiveness, memory, errors, Git and your toolchain, with a fix for every warning." },
   { icon: RefreshCw, title: "Always current", copy: "Signed automatic updates on every platform. A new version is one click away and never interrupts unsaved work." },
   { icon: LockKeyhole, title: "Local by default", copy: "Your projects never leave your machine unless you send them. Atomic saves guard every file you touch." },
 ];
-const providers = ["Veyra AI", "Ollama", "Claude", "OpenAI", "Gemini", "OpenRouter", "Groq", "Mistral", "DeepSeek", "Grok", "Together", "Any OpenAI API"];
+const aiHighlights = ["Veyra AI", "Free account", "10 free requests", "No API key", "Ask · Edit · Explain"];
 
 export default async function Home() {
   const release = await latestRelease();
@@ -55,8 +55,8 @@ export default async function Home() {
               <em>speed of thought.</em>
             </h1>
             <p>
-              Veyra is a fast, local-first code editor with Git, a real terminal and AI from
-              11 providers built in, so you can go from idea to shipped without leaving the window.
+              Veyra is a fast, local-first code editor with Git, a real terminal and Veyra AI
+              built in, so you can go from idea to shipped without leaving the window.
             </p>
             <div className="hero-actions">
               <DownloadCTA />
@@ -80,8 +80,8 @@ export default async function Home() {
           <p>
             <strong>Veyra</strong> (Veyra Studio) is a desktop code editor for <strong>Windows, macOS and Linux</strong>. It pairs
             the Monaco editor with a native Rust core, so it opens fast and its installers are small ({sizes.min && sizes.max ? `${sizes.min}–${sizes.max} MB` : "around 10 MB"} on Windows, macOS and Linux .deb/.rpm{sizes.appImage ? `; the self-contained AppImage is about ${sizes.appImage} MB` : ""}). Git, a real
-            terminal, project-wide IntelliSense and an <strong>AI assistant</strong> are built in. Use local models with Ollama,
-            or bring your own key for Claude, OpenAI, Gemini and more. Every AI change is a diff you approve, and your code
+            terminal, project-wide IntelliSense and an <strong>AI assistant</strong> are built in. Sign in with a free Veyra account to use
+            Veyra AI, with no API key needed. Every AI change is a diff you approve, and your code
             never leaves your computer unless you send it.
           </p>
           <div className="what-is-links">
@@ -106,7 +106,7 @@ export default async function Home() {
             <div className="screen">
               <Image src="/editor.png" fill sizes="(max-width: 900px) 96vw, 1100px" alt="The Veyra editor with explorer, code and terminal" />
             </div>
-            <div className="float-card left"><Zap size={16} /><span><b>Local intelligence</b><small>Your model, your machine</small></span></div>
+            <div className="float-card left"><Zap size={16} /><span><b>Veyra AI built in</b><small>10 free requests, no API key</small></span></div>
             <div className="float-card right"><Check size={16} /><span><b>All changes reviewed</b><small>You stay in control</small></span></div>
             <div className="float-card bottom"><HeartPulse size={16} /><span><b>Health 98 / 100</b><small>Everything running smoothly</small></span></div>
           </div>
@@ -156,17 +156,17 @@ export default async function Home() {
             <h2>AI that works<br /><em>at your pace.</em></h2>
             <p>
               Ask questions across your workspace, understand unfamiliar code and turn intent into a
-              reviewable edit. Keep it private with local models, or bring your own key for the cloud.
+              reviewable edit. Sign in with a free Veyra account and get 10 free requests, with no API key.
             </p>
             <ul>
               <li><Check />Smart workspace context, and you see exactly what's sent</li>
               <li><Check />Every edit is a diff you apply and can undo</li>
-              <li><Check />Keys stored in your OS keychain, never in your project</li>
+              <li><Check />No API keys in the app, and secret-looking files are flagged before sending</li>
             </ul>
-            <div className="provider-cloud">{providers.map(name => <span key={name}>{name}</span>)}</div>
+            <div className="provider-cloud">{aiHighlights.map(name => <span key={name}>{name}</span>)}</div>
           </div>
           <div className="ai-demo">
-            <header><Sparkles size={15} />VEYRA AI <b>LOCAL</b></header>
+            <header><Sparkles size={15} />VEYRA AI <b>FREE</b></header>
             <div className="bubble user">Make this parser handle empty input safely.</div>
             <div className="bubble ai"><i /><p>I found the parsing boundary in <code>src/parser.ts</code>. I can add an early return and a focused test.</p><span>2 files in context</span></div>
             <div className="diff">

@@ -48,7 +48,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
         downloadUrl:absolute('/download'),installUrl:absolute('/download'),releaseNotes:absolute('/changelog'),
         image:absolute('/opengraph-image'),screenshot:absolute('/editor.png'),license:'https://opensource.org/licenses/MIT',isAccessibleForFree:true,
         offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@id':absolute('/#organization')},
-        featureList:['AI assistant with Claude, OpenAI, Gemini and Ollama','AI inline code completions','Project-wide IntelliSense','Built-in Git with diffs and branches','Integrated terminal','Signed automatic updates']},
+        featureList:['Veyra AI assistant with reviewable AI edits','Project-wide IntelliSense','Built-in Git with diffs and branches','Integrated terminal','Signed automatic updates']},
     ],
   };
   return <html lang="en" className={`${sans.variable} ${mono.variable}`}>

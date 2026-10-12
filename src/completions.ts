@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { monaco, languageFor } from "./editor";
 
 /* Autocomplete for Veyra, in three layers:
@@ -179,65 +178,3 @@ export function resetProjectModels() { syncGeneration++; backgroundModels.clear(
 
 monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
 monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true);
-
-/* ---------- AI inline completions ---------- */
-
-export type InlineMode = "off" | "local" | "always";
-type AISettings = { kind?: string; endpoint?: string; model?: string };
-const isLocal = (settings: AISettings) => settings.kind === "ollama" || (settings.kind === "custom" && /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(?=[:/]|$)/.test(settings.endpoint || ""));
-let inlineRegistered = false;
-let pausedUntil = 0;
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-/** Status for the UI: "idle", "thinking" or an error message. */
-export const inlineStatus = { value: "idle", listeners: new Set<(value: string) => void>() };
-const setStatus = (value: string) => { inlineStatus.value = value; inlineStatus.listeners.forEach(listener => listener(value)); };
-
-export function registerInlineAI(mode: () => InlineMode) {
-  if (inlineRegistered) return;
-  inlineRegistered = true;
-  monaco.languages.registerInlineCompletionsProvider("*", {
-    async provideInlineCompletions(model, position, context, token) {
-      const empty = { items: [] };
-      const setting = mode();
-      if (setting === "off" || Date.now() < pausedUntil) return empty;
-      let settings: AISettings = {};
-      try { settings = JSON.parse(localStorage.getItem("veyra.ai.settings") || "{}"); } catch { /* defaults */ }
-      if (!settings.model || !settings.kind || (setting === "local" && !isLocal(settings))) return empty;
-      // Veyra AI has a daily request allowance; ghost text would use it up while typing, so it stays chat-only.
-      if (settings.kind === "veyra") return empty;
-      const line = model.getLineContent(position.lineNumber);
-      const before = line.slice(0, position.column - 1), after = line.slice(position.column - 1);
-      // Don't interrupt mid-word, and leave blank documents alone.
-      if (/^\w/.test(after) || model.getValueLength() < 2) return empty;
-      if (context.triggerKind === monaco.languages.InlineCompletionTriggerKind.Automatic) {
-        await sleep(450); // wait for a pause in typing
-        if (token.isCancellationRequested) return empty;
-      }
-      const offset = model.getOffsetAt(position), value = model.getValue();
-      const prefix = value.slice(Math.max(0, offset - 6000), offset), suffix = value.slice(offset, offset + 1500);
-      setStatus("thinking");
-      try {
-        let text = await invoke<string>("ai_complete", {
-          config: { kind: settings.kind, endpoint: settings.endpoint || "" }, model: settings.model,
-          path: model.uri.path.split("/").slice(-3).join("/"), language: model.getLanguageId(), prefix, suffix,
-        });
-        setStatus("idle");
-        if (token.isCancellationRequested || !text?.trim()) return empty;
-        // Drop text the model repeated from the current line, cap the length, and avoid duplicating what follows.
-        const typed = before.trimStart();
-        if (typed && text.startsWith(typed)) text = text.slice(typed.length);
-        text = text.split("\n").slice(0, 12).join("\n");
-        if (after.trim() && text.endsWith(after.trim())) text = text.slice(0, -after.trim().length);
-        if (!text.trim()) return empty;
-        return { items: [{ insertText: text, range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column) }] };
-      } catch (error) {
-        // Model offline or misconfigured: back off for a minute instead of failing on every keystroke.
-        pausedUntil = Date.now() + 60_000;
-        setStatus("AI completions paused: " + String(error).slice(0, 120));
-        return empty;
-      }
-    },
-    freeInlineCompletions() { /* nothing to release */ },
-  });
-}

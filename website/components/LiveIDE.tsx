@@ -2,21 +2,18 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, FileCode2, GitBranch, HeartPulse, Play, Sparkles, TerminalSquare } from "lucide-react";
 
-/* A scripted, three-act tour of Veyra: write with autocomplete and AI ghost text,
+/* A scripted, three-act tour of Veyra: write with autocomplete,
    review an AI edit as a diff, then run the tests in the terminal. */
 
 type Step =
   | { kind: "type"; text: string }
   | { kind: "popup"; items: string[]; pick: number; insert: string }
-  | { kind: "ghost"; text: string }
   | { kind: "pause"; ms: number };
 
 const WRITE: Step[] = [
   { kind: "type", text: 'import { scan } from "./lexer";\n\nexport function parse(input: string) {\n  const source = input.' },
   { kind: "popup", items: ["trim()", "trimEnd()", "trimStart()", "toLowerCase()"], pick: 0, insert: "trim();" },
-  { kind: "type", text: "\n  " },
-  { kind: "ghost", text: "if (!source) return [];" },
-  { kind: "type", text: "\n  return scan(source).map(toNode);\n}" },
+  { kind: "type", text: "\n  if (!source) return [];\n  return scan(source).map(toNode);\n}" },
   { kind: "pause", ms: 1800 },
 ];
 const DIFF = [
@@ -41,7 +38,7 @@ const TERMINAL = [
   { tone: "dim", text: "   Duration  412ms" },
 ];
 const ACTS = [
-  { id: "write", label: "Write", icon: FileCode2, blurb: "Autocomplete and AI suggestions as you type" },
+  { id: "write", label: "Write", icon: FileCode2, blurb: "Autocomplete and IntelliSense as you type" },
   { id: "review", label: "Review", icon: Sparkles, blurb: "Every AI edit arrives as a diff you approve" },
   { id: "run", label: "Run", icon: TerminalSquare, blurb: "A real terminal, right beside your code" },
 ] as const;
@@ -67,7 +64,6 @@ export function LiveIDE() {
   const [progress, setProgress] = useState(0);
   const [doc, setDoc] = useState("");
   const [popup, setPopup] = useState<{ items: string[]; active: number } | null>(null);
-  const [ghost, setGhost] = useState("");
   const [diffShown, setDiffShown] = useState(0);
   const [applied, setApplied] = useState(false);
   const [terminal, setTerminal] = useState(0);
@@ -84,9 +80,9 @@ export function LiveIDE() {
   useEffect(() => {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const signal = { stop: false };
-    const reset = () => { setDoc(""); setPopup(null); setGhost(""); setDiffShown(0); setApplied(false); setTerminal(0); setProgress(0); };
+    const reset = () => { setDoc(""); setPopup(null); setDiffShown(0); setApplied(false); setTerminal(0); setProgress(0); };
     const finalState = () => {
-      if (act === 0) setDoc(WRITE.reduce((text, step) => text + (step.kind === "type" ? step.text : step.kind === "popup" ? step.insert : step.kind === "ghost" ? step.text : ""), ""));
+      if (act === 0) setDoc(WRITE.reduce((text, step) => text + (step.kind === "type" ? step.text : step.kind === "popup" ? step.insert : ""), ""));
       if (act === 1) { setDiffShown(DIFF.length); setApplied(true); }
       if (act === 2) setTerminal(TERMINAL.length);
       setProgress(1);
@@ -105,8 +101,6 @@ export function LiveIDE() {
               setPopup({ items: step.items, active: 0 }); await sleep(650, signal);
               setPopup({ items: step.items, active: step.pick }); await sleep(450, signal);
               setPopup(null); text += step.insert; setDoc(text); await sleep(250, signal);
-            } else if (step.kind === "ghost") {
-              setGhost(step.text); await sleep(1500, signal); setGhost(""); text += step.text; setDoc(text); await sleep(300, signal);
             } else await sleep(step.ms, signal);
             setProgress(++steps / WRITE.length);
           }
@@ -160,7 +154,7 @@ export function LiveIDE() {
                 {lines.map((line, i) => (
                   <div key={i}>
                     {highlight(line)}
-                    {i === lines.length - 1 && <>{ghost && <span className="ghost">{ghost}<kbd>Tab</kbd></span>}<i className="caret" /></>}
+                    {i === lines.length - 1 && <i className="caret" />}
                     {i === lines.length - 1 && popup && (
                       <ul className="completions">
                         {popup.items.map((item, k) => <li key={item} className={k === popup.active ? "active" : ""}><span className="tok-f">ƒ</span>{item}<small>string</small></li>)}
@@ -191,7 +185,7 @@ export function LiveIDE() {
         </div>
         <div className="ide-status">
           <span><GitBranch size={12} /> main {act === 0 ? "· 1 modified" : act === 1 ? "· AI edit pending" : "↑1"}</span>
-          <span>{act === 2 && terminal === TERMINAL.length ? <><Check size={12} /> 42 tests passed</> : act === 0 ? <><Sparkles size={12} /> Veyra AI · local</> : <><Play size={12} /> Ready</>}</span>
+          <span>{act === 2 && terminal === TERMINAL.length ? <><Check size={12} /> 42 tests passed</> : act === 0 ? <><Sparkles size={12} /> IntelliSense</> : <><Play size={12} /> Ready</>}</span>
           <span>TypeScript · UTF-8</span>
         </div>
         <div className="ide-sheen" />

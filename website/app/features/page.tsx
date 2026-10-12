@@ -8,7 +8,7 @@ import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
   title:'Features: Editor, IntelliSense, Git, Terminal & AI',
-  description:'Everything in Veyra, the free AI code editor: Monaco editing, TypeScript and Node.js IntelliSense, ESLint, Prettier, Tailwind, built-in Git, a real terminal, AI from Claude, OpenAI, Gemini or Ollama, extensions and signed updates.',
+  description:'Everything in Veyra, the free AI code editor: Monaco editing, TypeScript and Node.js IntelliSense, ESLint, Prettier, Tailwind, built-in Git, a real terminal, built-in Veyra AI, extensions and signed updates.',
   alternates:{canonical:'/features'},
   openGraph:{url:'/features',title:'Veyra features: a complete, local-first AI code editor'},
 };
@@ -22,7 +22,7 @@ export default function Features(){
     <div className="stats">
       <div><b>7–11 MB</b><span>Windows, macOS, .deb/.rpm installers</span></div>
       <div><b>80+</b><span>languages highlighted</span></div>
-      <div><b>11</b><span>AI providers, including local</span></div>
+      <div><b>10</b><span>free Veyra AI requests with a free account</span></div>
       <div><b>0</b><span>telemetry or tracking</span></div>
     </div>
 
@@ -100,22 +100,22 @@ export default function Features(){
       <div className="cards">
         <article className="card"><FolderGit2/><h3>Git you can see</h3><p>Gutter markers, file badges and side-by-side diffs. Stage, commit, amend, switch branches, stash, pull and push in a click, with history at hand.</p></article>
         <article className="card"><TerminalSquare/><h3>A real terminal</h3><p>PowerShell, zsh or bash on a native PTY. Multiple sessions and one-key &quot;run this file&quot;, right beside your code.</p></article>
-        <article className="card"><Sparkles/><h3>AI with boundaries</h3><p>Ask, edit with <kbd>Ctrl</kbd>+<kbd>K</kbd>, and inline ghost-text completions. You choose the context, and every change is a diff you approve.</p></article>
+        <article className="card"><Sparkles/><h3>AI with boundaries</h3><p>Ask, explain, and edit with <kbd>Ctrl</kbd>+<kbd>K</kbd> using Veyra AI. You choose the context, and every change is a diff you approve.</p></article>
         <article className="card"><RefreshCw/><h3>Live Server</h3><p>Go Live serves your folder and reloads the browser on save, with CSS applied instantly. Built in, and available for VS Code too.</p></article>
         <article className="card"><Search/><h3>Find anything</h3><p>Fuzzy file search, project-wide text search and a command palette that reaches every action and setting.</p></article>
         <article className="card"><Puzzle/><h3>Extensions</h3><p>Browse Open VSX with real icons and ratings. Every extension opens in its own tab with README, features, changelog and versions.</p></article>
         <article className="card"><HeartPulse/><h3>Self-diagnosing</h3><p>A live health score watches responsiveness, memory, errors, Git and your toolchain, and tells you how to fix each warning.</p></article>
-        <article className="card"><KeyRound/><h3>Secrets done right</h3><p>API keys live in your operating system&apos;s keychain, never in plain text, and load in the background.</p></article>
+        <article className="card"><KeyRound/><h3>Secrets stay out of AI</h3><p>Veyra warns before sending files that look like secrets, and smart context never includes .env files, keys or gitignored files.</p></article>
         <article className="card"><RefreshCw/><h3>Always current</h3><p>Signed automatic updates. When one is ready, the button in the top-right corner lights up: one click, and you're on the new version.</p></article>
-        <article className="card"><LockKeyhole/><h3>Local by default</h3><p>Your projects never leave your machine unless you send them to an AI provider you chose. No telemetry, ever.</p></article>
+        <article className="card"><LockKeyhole/><h3>Local by default</h3><p>Your projects never leave your machine unless you send them to Veyra AI. No telemetry, ever.</p></article>
       </div>
     </section>
 
     <section className="content-section">
-      <header><span>AI</span><h2>AI that works the moment you sign in.</h2><p><strong>Veyra AI</strong> is built in: sign in with your free Veyra account and start asking, with no API key. Prefer your own? Run models privately with Ollama, or connect Claude, OpenAI, Gemini, OpenRouter, Groq, Mistral, DeepSeek, Grok, Together or any OpenAI-compatible API.</p></header>
+      <header><span>AI</span><h2>AI that works the moment you sign in.</h2><p><strong>Veyra AI</strong> is built in: sign in with your free Veyra account and start asking, with no API key. Every account gets 10 free Veyra AI requests, and a request that fails isn&apos;t counted.</p></header>
       <div className="cards two">
         <article className="card"><Command/><h3>Review every change</h3><ul><li><Check/>AI edits arrive as a diff you accept or reject</li><li><Check/>Stale proposals can never overwrite newer edits</li><li><Check/>Undo works exactly as you expect</li></ul></article>
-        <article className="card"><Braces/><h3>Context you can see</h3><ul><li><Check/>Smart workspace context finds relevant files</li><li><Check/>Veyra shows exactly what will be sent</li><li><Check/>Local models keep everything on your machine</li></ul></article>
+        <article className="card"><Braces/><h3>Context you can see</h3><ul><li><Check/>Smart workspace context finds relevant files</li><li><Check/>Veyra shows exactly what will be sent</li><li><Check/>Code is sent only when you send a message, and only what you attach</li></ul></article>
       </div>
     </section>
 

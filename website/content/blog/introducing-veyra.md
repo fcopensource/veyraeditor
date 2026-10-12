@@ -20,7 +20,7 @@ Around the editor, Veyra builds in the tools you reach for every day:
 - **A real terminal**: PowerShell, zsh or bash on a native pseudo-terminal, with several sessions side by side.
 - **Real language intelligence**: one-click TypeScript, ESLint, Prettier, Tailwind CSS, Emmet, Svelte and Vue tools, running the same language servers behind VS Code's most popular extensions.
 - **Extensions**: browse the open Open VSX marketplace with real icons and ratings, and install colour themes and snippets.
-- **AI on your terms**: Veyra AI, local models through Ollama, or your own key for Claude, OpenAI, Gemini and more.
+- **AI on your terms**: Veyra AI is built in. Sign in with a free Veyra account, with no API key, and get 10 free requests.
 
 ## Small on purpose
 
@@ -32,7 +32,7 @@ That choice shows up every day: Veyra downloads in seconds, opens quickly and us
 
 AI is useful. It is also a new place your code can go. Veyra's assistant follows three rules:
 
-1. **You choose the provider.** Use Veyra AI by signing in, run models completely on your computer with Ollama, or connect your own key for a cloud provider.
+1. **You decide what is sent.** Code goes to Veyra AI only when you send a message, and only what you attach: the current file, a selection or smart workspace context.
 2. **You see the context.** When the assistant searches your workspace, Veyra shows which files it picked, and it never picks secrets such as `.env` files or private keys. More in [How Veyra keeps your secrets out of AI prompts](/blog/keeping-secrets-out-of-ai).
 3. **You approve every change.** Edits arrive as a diff you accept or reject. Nothing is written to disk behind your back.
 

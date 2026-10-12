@@ -4,7 +4,7 @@ import {FAQ_GROUPS,GITHUB_URL,absolute,jsonLd} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'FAQ: Veyra Code Editor Questions Answered',
-  description:'Answers about Veyra: is it free, which languages and AI providers it supports, ESLint and Prettier, VS Code extensions, privacy, API keys, updates and installing on Windows, macOS and Linux.',
+  description:'Answers about Veyra: is it free, which languages it supports, Veyra AI, ESLint and Prettier, VS Code extensions, privacy, updates and installing on Windows, macOS and Linux.',
   alternates:{canonical:'/faq'},
   openGraph:{url:'/faq',title:'Veyra FAQ'},
 };

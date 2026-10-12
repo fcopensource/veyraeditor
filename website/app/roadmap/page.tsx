@@ -13,7 +13,7 @@ export const metadata:Metadata={
 type Milestone={title:string;status:'done'|'next'|'planned';label:string;copy:string;items:string[]};
 const MILESTONES:Milestone[]=[
   {title:'Foundations',status:'done',label:'SHIPPED · 0.1–0.4',copy:'A fast native editor with everything needed for daily work.',
-    items:['Monaco editor & tabs','Explorer with drag and drop','Built-in Git','Native terminal','AI assistant with 11 providers','AI inline completions','Health monitor','Signed auto-updates']},
+    items:['Monaco editor & tabs','Explorer with drag and drop','Built-in Git','Native terminal','AI assistant','Health monitor','Signed auto-updates']},
   {title:'Web development language tools',status:'done',label:'SHIPPED · 0.5',copy:'The language servers behind VS Code\'s most popular web extensions, installed with one click.',
     items:['TypeScript & JavaScript (Node.js)','ESLint','Prettier & format on save','Tailwind CSS','Emmet','Svelte','Vue (beta)','VS Code-style tabs']},
   {title:'Extensions & Veyra AI',status:'done',label:'SHIPPED · 0.6',copy:'A full extension experience and AI that works without an API key.',

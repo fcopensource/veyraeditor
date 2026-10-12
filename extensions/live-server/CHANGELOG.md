@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Published on the Visual Studio Marketplace under the flightcoders publisher (extension ID `flightcoders.live-server`)
+
 ## 1.1.0
 
 - New Veyra Live Server icon

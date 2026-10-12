@@ -3,6 +3,20 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.9.0
+
+**Veyra AI only**
+- Veyra AI is now the only AI in Veyra: no providers, models or API keys to set up. Sign in with your free Veyra account and start asking
+- Every account includes **10 free Veyra AI requests**. The AI panel shows how many you have left; a request that fails doesn't count
+- Ask, Explain and Edit with AI (Ctrl/⌘+K, always shown as a diff you review) work as before
+- AI suggestions while typing are removed, so free requests are only used when you send a message. Regular autocomplete and IntelliSense are unchanged
+
+**macOS: no more Keychain popups**
+- Veyra no longer uses the Keychain, so "Veyra Studio wants to use your confidential information stored in Veyra Studio AI" doesn't appear any more. Your Veyra sign-in is kept in a private file in Veyra's app folder. After updating, sign in to Veyra AI once more
+
+**Veyra Live Server for VS Code**
+- Now published on the Visual Studio Marketplace as `flightcoders.live-server` (version 1.1.1)
+
 ## 0.8.1
 
 **Veyra Live Server**

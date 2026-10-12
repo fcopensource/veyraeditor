@@ -6,7 +6,7 @@
 
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=72E0C4&center=true&vCenter=true&width=820&lines=AI-native+desktop+code+editor.;Local-first.+Fast.+Focused.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.;Your+code.+Your+machine.+Your+AI.)](https://github.com/fcopensource/veyraeditor)
 
-### A fast, local-first code editor with Git, a real terminal, a Python debugger and AI from 11 providers built in.
+### A fast, local-first code editor with Git, a real terminal, a Python debugger and Veyra AI built in.
 
 [![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=72E0C4)](https://github.com/fcopensource/veyraeditor/releases/latest)
 [![Release build](https://img.shields.io/github/actions/workflow/status/fcopensource/veyraeditor/release.yml?label=build)](https://github.com/fcopensource/veyraeditor/actions/workflows/release.yml)
@@ -36,7 +36,7 @@ Most developers spend hours every day inside an editor. Veyra is built on the id
 
 - **Native and light.** A Rust backend and the system webview instead of a bundled browser, so installers are 7–11 MB.
 - **Your files stay yours.** Veyra works directly on your local folders, saves atomically and never overwrites a file that changed on disk behind your back.
-- **AI where you need it, under your control.** Pick from local models or 10 cloud providers. Every AI edit is shown as a diff and is undoable. Nothing is applied or saved without you.
+- **AI where you need it, under your control.** Veyra AI is built in: sign in with a free Veyra account, no API key needed. Every AI edit is shown as a diff and is undoable. Nothing is applied or saved without you.
 - **Everything included.** Git, a real terminal, a debugger, workspace search, themes and a self-diagnosing health monitor work out of the box.
 
 ---
@@ -70,8 +70,8 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 | **Tabs & navigation** | Multiple tabs with preserved unsaved buffers, Quick Open, command palette, workspace text search, symbol outline, Problems panel |
 | **Terminal** | Real shells via a native PTY: PowerShell on Windows, your login shell on macOS/Linux. Multiple named sessions, plus "Run active file" |
 | **Git** | Change markers in the gutter, file-tree badges, side-by-side diffs, branches, sync, stash, amend, history. See [Git, built in](#-git-built-in) |
-| **AI Studio** | Chat, explain, and reviewed edits with 11 providers. Keys saved in your OS keychain. See [AI Studio](#-ai-studio) |
-| **Health monitor** | A live 0–100 score in the status bar, plus a panel checking the backend, UI responsiveness, memory, errors, Git, shell, credential store and Ollama, with a fix hint for each problem |
+| **AI Studio** | Chat, explain, and reviewed edits with Veyra AI. Sign in with a free Veyra account: 10 free requests, no API key. See [AI Studio](#-ai-studio) |
+| **Health monitor** | A live 0–100 score in the status bar, plus a panel checking the backend, UI responsiveness, memory, errors, Git and shell, with a fix hint for each problem |
 | **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
 | **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
 | **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
@@ -114,24 +114,17 @@ Click **Go Live** in the status bar (or right-click an HTML file → **Open with
 
 Open it with **Ctrl/⌘ + L**, or select code and press **Ctrl/⌘ + K** to edit the selection with AI.
 
-**Providers**
-
-| Local | Cloud |
-| --- | --- |
-| **Ollama**: private, runs on your machine | **Anthropic Claude** · **OpenAI** · **Google Gemini** · **OpenRouter** · **Groq** · **Mistral** · **DeepSeek** · **xAI Grok** · **Together AI** · any **OpenAI-compatible** endpoint |
-
-**API keys, handled like VS Code secrets**
-- Paste a key once. It is encrypted in **Windows Credential Manager**, the **macOS Keychain** or your Linux **Secret Service**, and loads automatically in the background on every launch.
-- Keys already set as environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `GROQ_API_KEY`, `MISTRAL_API_KEY`, `DEEPSEEK_API_KEY`, `XAI_API_KEY`, `TOGETHER_API_KEY`) are picked up with no setup.
-- The **API keys** list in AI settings shows where each provider's key comes from, and lets you remove saved keys.
-- Keys never touch your project files or browser storage.
+**Veyra AI, no API key**
+- AI Studio uses **Veyra AI** only. Open the AI panel and sign in with your free [Veyra account](https://veyraeditor.com/register).
+- Every account gets **10 free Veyra AI requests in total**. A request that fails isn't counted.
+- Requests go to veyraeditor.com, which forwards them to the AI provider. The provider key lives only on that server and never reaches the app.
+- The app keeps only a revocable sign-in token, in a private file in Veyra's app data folder. Sign out anytime from the AI panel.
 
 **You stay in control**
 - AI only sees the conversation plus what you explicitly attach: the current file, a selection, or *Smart workspace context*. Veyra picks the relevant files and shows you which ones were sent.
 - Proposed edits open in a side-by-side diff. Applying updates the editor buffer only. Undo with **Ctrl/⌘ + Z**; nothing is saved until you save.
+- Files that look like secrets trigger a warning before they are sent, and smart context never includes `.env` files, keys or gitignored files.
 - AI never runs commands or writes files on its own.
-
-> Cloud providers use your own account and may bill per request. For fully offline AI, install [Ollama](https://ollama.com) and run `ollama pull qwen2.5-coder:3b`.
 
 ---
 
@@ -220,20 +213,19 @@ flowchart LR
     Rust --> FS[Scoped filesystem<br/>atomic saves]
     Rust --> Git[git / gh CLI]
     Rust --> PTY[Native PTY<br/>PowerShell · zsh · bash]
-    Rust --> Keys[OS credential store]
-    Rust --> Models[Ollama · Claude · OpenAI · Gemini · …]
+    Rust --> VeyraAI[Veyra AI<br/>veyraeditor.com]
     Rust --> Tools[Language servers<br/>debugpy · Claude Code]
     Rust --> Updater[Signed updater]
     Updater --> Releases[(GitHub Releases<br/>or your server)]
 ```
 
-**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco · xterm.js · portable-pty · keyring · Vite 7 · Playwright
+**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco · xterm.js · portable-pty · Vite 7 · Playwright
 
 ```text
 veyraeditor/
 ├── src/                     React UI
 │   ├── App.tsx              Workbench: explorer, tabs, editor, panels, status bar
-│   ├── AIStudio.tsx         AI chat, providers, reviewed edits
+│   ├── AIStudio.tsx         Veyra AI chat, sign-in, reviewed edits
 │   ├── DebugPanel.tsx       Run and Debug view   (debug/: DAP client, breakpoints)
 │   ├── ExtensionsPanel.tsx  Marketplace, built-in tools   (lsp/: language clients)
 │   ├── SourceControl.tsx    Git panel
@@ -243,7 +235,7 @@ veyraeditor/
 ├── src-tauri/               Rust backend
 │   └── src/
 │       ├── lib.rs           Filesystem, search, Git, terminal, menus
-│       ├── ai.rs            AI providers and key storage
+│       ├── ai.rs            Veyra AI client and sign-in
 │       ├── lsp.rs           Language servers: install and stdio bridge
 │       ├── dap.rs           Debug adapter (debugpy): install and session bridge
 │       ├── cli.rs           Command-line tools such as Claude Code
@@ -267,7 +259,7 @@ npx playwright test                 # UI regression suite
 cd src-tauri && cargo test --lib    # native unit tests
 ```
 
-The Playwright suite drives the real UI against mocked native IPC: editing, saving, explorer operations, search, Git staging and committing, AI review flows, extensions and the health monitor. Rust tests cover path-traversal and symlink protection, save conflicts, search/replace and glob rules, AI provider handling and Git safety.
+The Playwright suite drives the real UI against mocked native IPC: editing, saving, explorer operations, search, Git staging and committing, AI review flows, extensions and the health monitor. Rust tests cover path-traversal and symlink protection, save conflicts, search/replace and glob rules, Veyra AI request handling and Git safety.
 
 ---
 
@@ -275,8 +267,8 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 
 - **Local-first:** native file operations are scoped to the folder you open, and symbolic links that escape the workspace are rejected.
 - **Safe writes:** atomic saves; Veyra refuses to overwrite a file that changed on disk and keeps your edits in the editor.
-- **Secrets:** API keys live in the OS credential store, never in project files or browser storage.
-- **AI boundaries:** only the conversation and what you explicitly attach is sent, and only to the provider you chose. Local Ollama mode excludes cloud aliases.
+- **No API keys in the app:** the AI provider key stays on the veyraeditor.com server. The app keeps only a revocable Veyra sign-in token in a private file in its app data folder, never in project files or browser storage.
+- **AI boundaries:** only the conversation and what you explicitly attach is sent, and only when you send a message. Files that look like secrets trigger a warning first, and smart context never includes `.env` files, keys or gitignored files.
 - **Signed updates:** every update is verified against the public key built into the app before it is installed.
 - **Terminal:** shells run with your normal user permissions. Only run commands you trust.
 
@@ -288,7 +280,7 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 - [x] Monaco editor, explorer, tabs, workspace search, command palette
 - [x] Real multi-session terminal (PowerShell / zsh / bash)
 - [x] Full Git workflow: gutter markers, diffs, staging, commits, branches, sync, stash
-- [x] AI Studio with 11 providers, keychain-stored keys and reviewed edits
+- [x] AI Studio with Veyra AI (free account, 10 free requests) and reviewed edits
 - [x] Open VSX themes & snippets, VSIX import
 - [x] Health monitor
 - [x] Language servers: TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue, Python
@@ -306,7 +298,7 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 **Next**
 - [ ] Node.js / TypeScript debugging
 - [ ] Rust, Go and C/C++ language servers
-- [ ] Inline AI completions and multi-file AI plans
+- [ ] Multi-file AI plans
 - [ ] Code-signed Windows and notarized macOS builds
 
 ---

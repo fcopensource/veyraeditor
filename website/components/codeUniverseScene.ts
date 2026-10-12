@@ -9,12 +9,12 @@ const TOKENS:[string,string][]=[
   ['=>',CORAL],['{ }',CORAL],['===',CORAL],['&&',CORAL],['</>',CORAL],['::',CORAL],
   ['"local-first"',MINT],['"✓ passed"',MINT],["'feat: ship'",MINT],
   ['useEffect()',CYAN],['.then()',CYAN],['map()',CYAN],['commit()',CYAN],['review()',CYAN],['Result<T>',CYAN],['Option<T>',CYAN],['<Veyra/>',CYAN],
-  ['git push',GOLD],['npm run dev',GOLD],['cargo build',GOLD],['ollama run',GOLD],['42',GOLD],['0x2A',GOLD],
+  ['git push',GOLD],['npm run dev',GOLD],['cargo build',GOLD],['npm test',GOLD],['42',GOLD],['0x2A',GOLD],
   ['// TODO: ship it',MUTED],['// reviewed ✓',MUTED],
 ];
 
 type Seg=[string,string];
-// The program the holographic editor types. Line 4's tail is an AI suggestion accepted with Tab.
+// The program the holographic editor types. Line 5's tail is an IntelliSense completion accepted with Tab.
 const PROGRAM:Seg[][]=[
   [['import ',VIOLET],['{ veyra } ',TEXT],['from ',VIOLET],['"@veyra/studio"',MINT],[';',TEXT]],
   [],
@@ -25,7 +25,7 @@ const PROGRAM:Seg[][]=[
   [['  return ',VIOLET],['deploy',CYAN],['(patch);',TEXT],['  // ✓ 42 tests passed',MUTED]],
   [['}',TEXT]],
 ];
-const GHOST_LINE=4,GHOST_AT=13; // characters typed by hand on line 5 before the AI completes it
+const GHOST_LINE=4,GHOST_AT=13; // characters typed by hand on line 5 before autocomplete finishes it
 
 function rounded(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 const lineText=(line:Seg[])=>line.map(s=>s[0]).join('');
@@ -56,7 +56,7 @@ function drawEditor(ctx:CanvasRenderingContext2D,typed:number,phase:'typing'|'gh
       if(left2<=0)break;
       const part=text.slice(0,left2);ctx.fillStyle=color;ctx.fillText(part,x,y);x+=ctx.measureText(part).width;left2-=part.length;
     }
-    if(i===GHOST_LINE&&phase==='ghost'){ // ghost suggestion, then accepted with Tab
+    if(i===GHOST_LINE&&phase==='ghost'){ // completion preview, then accepted with Tab
       const rest=lineText(line).slice(GHOST_AT);ctx.fillStyle='rgba(183,155,255,0.45)';ctx.fillText(rest,x,y);
       const w=ctx.measureText(rest).width;rounded(ctx,x+w+16,y-26,92,34,8);ctx.fillStyle='rgba(183,155,255,0.18)';ctx.fill();ctx.fillStyle=VIOLET;ctx.font=`600 18px ${mono}`;ctx.fillText('Tab ↹',x+w+28,y-3);ctx.font=`500 25px ${mono}`;
     }
@@ -67,7 +67,7 @@ function drawEditor(ctx:CanvasRenderingContext2D,typed:number,phase:'typing'|'gh
   const sy=H-58;ctx.fillStyle=phase==='done'?'rgba(104,244,209,0.16)':'rgba(255,255,255,0.04)';ctx.fillRect(8,sy,W-16,50);
   ctx.font=`500 19px ${mono}`;ctx.fillStyle='#9aa7b4';ctx.fillText('⎇ main ↑1',34,sy+32);
   ctx.fillStyle=phase==='done'?MINT:'#9aa7b4';
-  ctx.fillText(phase==='done'?'✓ 42 tests passed · ready to ship':phase==='ghost'?'✦ Veyra AI suggestion':'● typing…',220,sy+32);
+  ctx.fillText(phase==='done'?'✓ 42 tests passed · ready to ship':phase==='ghost'?'✦ IntelliSense':'● typing…',220,sy+32);
   ctx.fillStyle='#6d7c8c';ctx.textAlign='right';ctx.fillText('TypeScript  ♥ 98',W-34,sy+32);ctx.textAlign='left';
 }
 

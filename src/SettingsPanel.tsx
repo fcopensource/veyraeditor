@@ -24,7 +24,6 @@ const settings: Setting[] = [
   { section: "Editor", key: "smoothCaret", label: "Smooth caret animation" },
   { section: "Editor", key: "bracketGuides", label: "Bracket pair guides" },
   { section: "Editor", key: "stickyScroll", label: "Sticky scroll", detail: "Keep enclosing scopes pinned while scrolling" },
-  { section: "Editor", key: "aiInlineCompletions", label: "AI inline completions", detail: "Ghost-text suggestions from your AI Studio model, Tab to accept. \"local\" = only Ollama/localhost models (no cloud cost)", options: ["local", "always", "off"] },
   { section: "Editor", key: "gitGutter", label: "Git change markers", detail: "Show added, modified and deleted lines in the gutter" },
   { section: "Files", key: "autoSave", label: "Auto save", options: ["off", "afterDelay", "onFocusChange"] },
   { section: "Files", key: "formatOnSave", label: "Format on save", detail: "Uses Prettier or the language server when installed (Extensions → Web development)" },

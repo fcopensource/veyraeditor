@@ -1,6 +1,6 @@
 [package]
 name = "veyra"
-version = "0.8.1"
+version = "0.9.0"
 description = "Veyra desktop code editor"
 authors = ["you"]
 edition = "2021"
@@ -35,14 +35,6 @@ regex = "1"
 base64 = "0.22"
 dunce = "1"
 notify = "8"
-
-# API keys live in the OS credential store (Windows Credential Manager, macOS Keychain, Secret Service).
-[target.'cfg(windows)'.dependencies]
-keyring = { version = "3", features = ["windows-native"] }
-[target.'cfg(target_os = "macos")'.dependencies]
-keyring = { version = "3", features = ["apple-native"] }
-[target.'cfg(target_os = "linux")'.dependencies]
-keyring = { version = "3", features = ["sync-secret-service", "crypto-rust"] }
 
 # Dependencies (tauri, windows, etc.) build without debug info: far less memory and disk,
 # while Veyra's own code keeps it for debugging.

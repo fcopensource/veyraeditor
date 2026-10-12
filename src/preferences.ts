@@ -6,7 +6,6 @@ export type Preferences = {
   bracketGuides: boolean; stickyScroll: boolean; rulers: string;
   autoSave: "off" | "afterDelay" | "onFocusChange"; autoSaveDelay: number; formatOnSave: boolean;
   terminalFontSize: number; gitGutter: boolean;
-  aiInlineCompletions: "off" | "local" | "always";
 };
 
 export const defaultPreferences: Preferences = {
@@ -16,7 +15,6 @@ export const defaultPreferences: Preferences = {
   bracketGuides: true, stickyScroll: true, rulers: "",
   autoSave: "off", autoSaveDelay: 1000, formatOnSave: false,
   terminalFontSize: 13, gitGutter: true,
-  aiInlineCompletions: "local",
 };
 
 export function readPreferences(): Preferences {

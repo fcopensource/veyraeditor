@@ -66,12 +66,6 @@ pub(crate) async fn health_check(state: State<'_, Workspace>) -> Result<Vec<Heal
             if shell.is_file() || command_output(&shell.to_string_lossy(), &["-c", "exit"], None).is_some() { ("ok", shell.display().to_string(), String::new()) }
             else { ("fail", format!("{} was not found", shell.display()), "Install PowerShell or set your default shell, then restart Veyra.".into()) }
         }));
-        checks.push(run("credentials", "Credential store", "Native", || {
-            match keyring::Entry::new("Veyra Studio AI", "__veyra_health__").and_then(|entry| entry.get_password()) {
-                Ok(_) | Err(keyring::Error::NoEntry) => ("ok", "Available for saving API keys".into(), String::new()),
-                Err(e) => ("warn", format!("Unavailable: {e}"), "API keys will only last for the current session.".into()),
-            }
-        }));
         checks.push(run("storage", "Temporary storage", "Native", || match tempfile::tempfile() {
             Ok(_) => ("ok", "Writable".into(), String::new()),
             Err(e) => ("fail", format!("Cannot write temporary files: {e}"), "Free disk space; safe saves depend on temporary files.".into()),

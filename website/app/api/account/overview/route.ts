@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {currentUser} from '@/lib/auth';
-import {listDevices,models,usageToday} from '@/lib/ai';
+import {listDevices,models,usage} from '@/lib/ai';
 import {withDatabase} from '@/lib/db';
 
 export const dynamic='force-dynamic';
@@ -9,6 +9,6 @@ export const dynamic='force-dynamic';
 export const GET=withDatabase(async()=>{
   const user=await currentUser();
   if(!user) return NextResponse.json({error:'Not signed in.'},{status:401});
-  const [usage,devices]=await Promise.all([usageToday(user.id),listDevices(user.id)]);
-  return NextResponse.json({user,ai:{...usage,available:models().length>0},devices},{headers:{'Cache-Control':'no-store'}});
+  const [ai,devices]=await Promise.all([usage(user.id),listDevices(user.id)]);
+  return NextResponse.json({user,ai:{...ai,available:models().length>0},devices},{headers:{'Cache-Control':'no-store'}});
 });

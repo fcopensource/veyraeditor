@@ -410,8 +410,7 @@ test("command palette 2.0, search options and searchable settings",async({page})
   await expect(page.getByRole('checkbox',{name:'Minimap'})).toHaveCount(0);
 });
 
-test("autocomplete: language snippets, cross-file TypeScript and AI ghost text",async({page})=>{
-  await page.addInitScript(()=>localStorage.setItem('veyra.ai.settings',JSON.stringify({kind:'ollama',endpoint:'http://127.0.0.1:11434',model:'qwen2.5-coder:3b'})));
+test("autocomplete: language snippets and cross-file TypeScript, without AI requests while typing",async({page})=>{
   await page.goto('/');await page.getByRole('button',{name:'Open a project',exact:false}).click();
   const editor=page.locator('.monaco-editor textarea').first();
   // 1. Python gets keyword and snippet suggestions.
@@ -430,13 +429,12 @@ test("autocomplete: language snippets, cross-file TypeScript and AI ghost text",
   await page.keyboard.press('Control+Space');
   await expect(page.getByRole('option',{name:/toUpperCase/}).first()).toBeVisible({timeout:15000});
   await page.keyboard.press('Escape');
-  // 3. AI ghost text appears after a pause and Tab accepts it.
+  // 3. No AI ghost text: Veyra AI's free requests are only spent when you send a message.
   await page.keyboard.press('Meta+End');
   await page.keyboard.type('\nfunction add(a: number, b: number) {\n');
-  await expect(page.locator('.ghost-text-decoration, .ghost-text').first()).toBeVisible({timeout:10000});
-  await page.keyboard.press('Tab');
-  await expect(page.locator('.view-lines').first()).toContainText('return a + b;');
-  expect(await page.evaluate(()=>(window as any).completionRequests)).toBeGreaterThan(0);
+  await page.waitForTimeout(1500);
+  await expect(page.locator('.ghost-text-decoration, .ghost-text')).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as any).completionRequests||0)).toBe(0);
 });
 test("VS Code-style tabs: overflow scrolling, middle-click close and context menu",async({page})=>{
   const errors:string[]=[];page.on("pageerror",e=>{if(e.message!=="Canceled")errors.push(e.message);});

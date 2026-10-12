@@ -10,7 +10,7 @@ import {Markdown} from '@/components/Markdown';
 
 type User={email:string;name:string;createdAt?:string;lastLoginAt?:string|null};
 type Device={id:string;device:string;createdAt:string;lastUsedAt:string|null};
-type Overview={user:User;ai:{used:number;limit:number;tokens:number;available:boolean;resetsAt:string};devices:Device[]};
+type Overview={user:User;ai:{used:number;limit:number;tokens:number;available:boolean};devices:Device[]};
 type DownloadLink={os:string;label:string;detail:string;href:string};
 
 const date=(value?:string|null)=>value?new Date(value).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):'—';
@@ -54,7 +54,7 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
     else{
       // Older servers (or a database hiccup): fall back to the basic profile.
       const me=await fetch('/api/auth/me').then(r=>r.ok?r.json():null).catch(()=>null);
-      if(me?.user)setData({user:me.user,ai:{used:0,limit:0,tokens:0,available:false,resetsAt:''},devices:[]});else location.replace('/login?next=/dashboard');
+      if(me?.user)setData({user:me.user,ai:{used:0,limit:0,tokens:0,available:false},devices:[]});else location.replace('/login?next=/dashboard');
     }
   }
   useEffect(()=>{void load();setOs(detectOs());},[]);
@@ -125,7 +125,7 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
 
     {/* At a glance */}
     <section className="account-stats" aria-label="At a glance">
-      <div><Sparkles size={16}/><b>{ai.available?`${ai.used}/${ai.limit}`:'—'}</b><span>Veyra AI today</span></div>
+      <div><Sparkles size={16}/><b>{ai.available?`${ai.used}/${ai.limit}`:'—'}</b><span>Veyra AI requests used</span></div>
       <div><Laptop size={16}/><b>{devices.length}</b><span>Device{devices.length===1?'':'s'} signed in</span></div>
       <div><UserRound size={16}/><b>{days}</b><span>Day{days===1?'':'s'} with Veyra</span></div>
       <div><Monitor size={16}/><b>{version?`v${version}`:'—'}</b><span>Latest{publishedAt?` · ${date(publishedAt)}`:''}</span></div>
@@ -136,10 +136,10 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
       <section className="account-card ai-card">
         <header><span className="account-card-icon violet"><Sparkles size={17}/></span><div><h2>Veyra AI</h2><p>Chat about your code in Veyra, no API key needed.</p></div></header>
         {ai.available?<>
-          <div className="usage-ring" style={{['--p' as string]:aiPercent}}><div><b>{ai.limit-ai.used}</b><span>left today</span></div></div>
-          <p className="account-fine">{ai.used} of {ai.limit} requests used · resets at midnight UTC{ai.tokens?` · ${ai.tokens.toLocaleString()} tokens`:''}</p>
-        </>:<p className="account-fine">Veyra AI is being switched on. You'll see your daily allowance here.</p>}
-        <ol className="account-howto"><li>Open Veyra and click <b>Veyra AI</b> (top right)</li><li>Choose <b>Veyra AI</b> as the provider</li><li>Sign in with <b>{user.email}</b></li></ol>
+          <div className="usage-ring" style={{['--p' as string]:aiPercent}}><div><b>{Math.max(0,ai.limit-ai.used)}</b><span>free left</span></div></div>
+          <p className="account-fine">{ai.used} of {ai.limit} free requests used{ai.tokens?` · ${ai.tokens.toLocaleString()} tokens`:''}</p>
+        </>:<p className="account-fine">Veyra AI is being switched on. You'll see your free requests here.</p>}
+        <ol className="account-howto"><li>Open Veyra and click <b>Veyra AI</b> (top right)</li><li>Sign in with <b>{user.email}</b></li><li>Ask anything about your code</li></ol>
       </section>
 
       {/* Get started */}

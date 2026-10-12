@@ -36,7 +36,7 @@ That alone removes most of the weight. The rest of the savings come from Rust: t
 - **Fast downloads and updates.** Updates are small, so they install in seconds.
 - **Quick start-up.** There's no bundled browser to boot.
 - **Lower memory use** for the editor itself.
-- **A smaller attack surface.** Less bundled code means less to patch. The Rust core also handles anything sensitive (file access, processes, network calls to AI providers) behind a narrow, explicit set of commands, and the interface runs under a strict Content Security Policy.
+- **A smaller attack surface.** Less bundled code means less to patch. The Rust core also handles anything sensitive (file access, processes, network calls to Veyra AI) behind a narrow, explicit set of commands, and the interface runs under a strict Content Security Policy.
 
 ## The trade-offs we accepted
 
@@ -49,7 +49,7 @@ Every architecture has costs. These are ours:
 
 ## Doing more in Rust
 
-Moving work into the Rust core has a nice side effect: it's where we can be most careful. Path checks stop the interface from reading files outside your workspace. Saves are atomic, so a crash mid-save can't corrupt a file. Background processes like Git and the language servers start without console windows and are cleaned up when you close a project. And AI provider keys live in your operating system's credential store, handled by Rust and never exposed to the interface.
+Moving work into the Rust core has a nice side effect: it's where we can be most careful. Path checks stop the interface from reading files outside your workspace. Saves are atomic, so a crash mid-save can't corrupt a file. Background processes like Git and the language servers start without console windows and are cleaned up when you close a project. And there are no AI provider keys in the app at all: Veyra AI's provider key stays on our server, and the app keeps only a revocable sign-in token.
 
 ## Small is a feature
 

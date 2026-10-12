@@ -13,8 +13,8 @@ import {query} from './db';
                                          effort: VEYRA_CLAUDE_EFFORT (low | medium | high; default medium)
      Any other     VEYRA_AI_API_KEY + VEYRA_AI_BASE_URL + VEYRA_AI_MODEL
                    (any OpenAI-compatible API: Gemini, Groq, OpenRouter, DeepSeek, Mistral, xAI, Together…)
-   VEYRA_AI_PROVIDER     optional: openai | anthropic | compatible
-   VEYRA_AI_DAILY_LIMIT  requests per user per day (default 100) */
+   VEYRA_AI_PROVIDER        optional: openai | anthropic | compatible
+   VEYRA_AI_FREE_REQUESTS   requests each account can make, in total (default 10) */
 
 type Provider='openai'|'anthropic'|'compatible';
 export type Model={id:string;label:string;provider:Provider;endpoint:string;key:string;upstream:string};
@@ -40,7 +40,8 @@ export function models():Model[]{
 }
 /** For /api/health: which provider and upstream model are answering (never the key). */
 export const aiStatus=()=>{const model=models()[0];return model?{enabled:true,provider:model.provider,model:model.upstream}:{enabled:false,provider:null,model:null};};
-export const dailyLimit=()=>Math.max(1,Number(process.env.VEYRA_AI_DAILY_LIMIT)||100);
+/** Free requests per account, in total. Unset or not a number = 10; 0 switches Veyra AI off for everyone. */
+export const freeRequests=()=>{const value=Number.parseInt(env('VEYRA_AI_FREE_REQUESTS'),10);return Number.isFinite(value)&&value>=0?value:10;};
 export const MAX_OUTPUT_TOKENS=4096;
 
 /* ---------- App sign-in tokens ---------- */
@@ -71,20 +72,31 @@ export async function revokeAppToken(request:Request){
   if(token) await query('DELETE FROM api_tokens WHERE token_hash=?',[tokenHash(token)]);
 }
 
-/* ---------- Daily usage ---------- */
-export async function usageToday(userId:number){
-  const rows=await query<(RowDataPacket&{requests:number;tokens:number})[]>('SELECT requests,tokens FROM ai_usage WHERE user_id=? AND day=UTC_DATE()',[userId]);
-  const tomorrow=new Date();tomorrow.setUTCHours(24,0,0,0);
-  return {used:rows[0]?.requests||0,tokens:rows[0]?.tokens||0,limit:dailyLimit(),resetsAt:tomorrow.toISOString()};
+/* ---------- Free requests (per account, in total) ---------- */
+/** How many of the account's free Veyra AI requests are used, and how many tokens they took. */
+export async function usage(userId:number){
+  const [allowance,totals]=await Promise.all([
+    query<(RowDataPacket&{used:number})[]>('SELECT used FROM ai_allowance WHERE user_id=?',[userId]),
+    query<(RowDataPacket&{tokens:number|null})[]>('SELECT SUM(tokens) AS tokens FROM ai_usage WHERE user_id=?',[userId]),
+  ]);
+  const limit=freeRequests();
+  return {used:Math.min(allowance[0]?.used||0,limit),limit,tokens:Number(totals[0]?.tokens||0)};
 }
-/** Count one request; false when the daily limit is already reached. */
+/** Use one free request; false when they are all used. Safe when several requests arrive at once. */
 export async function takeRequest(userId:number){
-  // Today's row matches only while under the limit, so this counts the request or does nothing.
-  const updated=await query<ResultSetHeader>('UPDATE ai_usage SET requests=requests+1 WHERE user_id=? AND day=UTC_DATE() AND requests<?',[userId,dailyLimit()]);
-  if(updated.affectedRows>0) return true;
-  // No row yet today: start one. If a row exists, the limit has been reached.
-  const inserted=await query<ResultSetHeader>('INSERT IGNORE INTO ai_usage (user_id,day,requests) VALUES (?,UTC_DATE(),1)',[userId]);
-  return inserted.affectedRows>0;
+  const limit=freeRequests();
+  if(limit<1) return false;
+  // The row matches only while under the limit, so this counts the request or does nothing.
+  const updated=await query<ResultSetHeader>('UPDATE ai_allowance SET used=used+1 WHERE user_id=? AND used<?',[userId,limit]);
+  let taken=updated.affectedRows>0;
+  // No row yet: this is the account's first request. If a row exists, the requests are used up.
+  if(!taken) taken=(await query<ResultSetHeader>('INSERT IGNORE INTO ai_allowance (user_id,used) VALUES (?,1)',[userId])).affectedRows>0;
+  if(taken) await query('INSERT INTO ai_usage (user_id,day,requests) VALUES (?,UTC_DATE(),1) ON DUPLICATE KEY UPDATE requests=requests+1',[userId]);
+  return taken;
+}
+/** Give a request back when Veyra AI could not answer it, so a failure never costs a free request. */
+export async function refundRequest(userId:number){
+  await query('UPDATE ai_allowance SET used=used-1 WHERE user_id=? AND used>0',[userId]);
 }
 export async function addTokens(userId:number,tokens:number){
   if(tokens>0) await query('UPDATE ai_usage SET tokens=tokens+? WHERE user_id=? AND day=UTC_DATE()',[Math.min(tokens,1_000_000),userId]);
