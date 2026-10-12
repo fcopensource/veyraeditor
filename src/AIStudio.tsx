@@ -1,6 +1,8 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
-import {ArrowUp,Check,Code2,Copy,FileCode2,FolderSearch,LogOut,MessageSquare,Plus,Sparkles,Square,UserRound,X} from 'lucide-react';
+import {ArrowUp,Check,Code2,Copy,FileCode2,FolderSearch,LogOut,MessageSquare,Plus,Square,UserRound,X} from 'lucide-react';
+import {VeyraAIMark} from './VeyraAIMark';
+import {animatePanel} from './motion';
 import {openUrl} from '@tauri-apps/plugin-opener';
 import {accountChanged} from './AccountButton';
 import {isSensitivePath,looksLikeSecret} from './privacy';
@@ -20,6 +22,15 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
   const [copied,setCopied]=useState<number|null>(null);const input=useRef<HTMLTextAreaElement>(null);const list=useRef<HTMLDivElement>(null);
   const confirmedSensitive=useRef('');
   const request=useRef('');const generation=useRef(0);const alive=useRef(true);
+  // The panel slides in and out; it stays mounted (hidden) so conversations survive closing it.
+  const panelRef=useRef<HTMLElement>(null);const [shown,setShown]=useState(visible);const visibleRef=useRef(visible);const started=useRef(false);
+  useLayoutEffect(()=>{if(started.current&&shown&&visibleRef.current)void animatePanel(panelRef.current,true,'right');},[shown]);
+  useLayoutEffect(()=>{
+    visibleRef.current=visible;
+    if(!started.current){started.current=true;return;}
+    if(visible){if(shown)void animatePanel(panelRef.current,true,'right');else setShown(true);return;}
+    void animatePanel(panelRef.current,false,'right').then(()=>{if(!visibleRef.current)setShown(false);});
+  },[visible]);
   const left=account?Math.max(0,account.limit-account.used):0;
   const outOfRequests=!!account&&account.available&&left===0;
   function reset(){generation.current++;if(request.current)void invoke('ai_cancel',{id:request.current}).catch(()=>{});request.current='';setBusy(false);setMessages([]);setError('');}
@@ -28,7 +39,7 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
   useEffect(()=>setScope('none'),[active]);
   useEffect(()=>{if(intent){setMode('edit');setScope('selection');input.current?.focus();}},[intent]);
   useEffect(()=>{if(visible)input.current?.focus();},[visible]);
-  useEffect(()=>{list.current?.scrollTo({top:list.current.scrollHeight,behavior:'smooth'});},[messages,busy]);
+  useEffect(()=>{if(messages.length||busy)list.current?.scrollTo({top:list.current.scrollHeight,behavior:'smooth'});},[messages,busy]);
   useEffect(()=>{void loadAccount();},[]);
   /** The signed-in account and its free requests (null when signed out). */
   async function loadAccount(){
@@ -87,10 +98,10 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
         <div className="veyra-usage" role="meter" aria-label="Free Veyra AI requests used" aria-valuemin={0} aria-valuemax={account.limit} aria-valuenow={account.used}><i style={{width:`${Math.min(100,account.limit?account.used/account.limit*100:0)}%`}}/></div>
         <p className="ai-fine">{left} of {account.limit} free requests left. Your code goes to Veyra AI only when you send a message.</p>
       </div>:null;
-  return <aside className={'ai-studio '+(!visible?'ai-hidden':'')} aria-label="AI assistant">
-    <header className="ai-header"><span className="ai-brand"><Sparkles size={16}/><b>Veyra AI</b><small>BETA</small></span><div><button title="New AI chat" aria-label="New AI chat" onClick={reset}><Plus size={16}/></button><button title="Close AI" aria-label="Close AI" onClick={onClose}><X size={15}/></button></div></header>
+  return <aside ref={panelRef} className={'ai-studio '+(!shown?'ai-hidden':'')} aria-label="AI assistant">
+    <header className="ai-header"><span className="ai-brand"><VeyraAIMark size={20}/><b>Veyra AI</b><small>BETA</small></span><div><button title="New AI chat" aria-label="New AI chat" onClick={reset}><Plus size={16}/></button><button title="Close AI" aria-label="Close AI" onClick={onClose}><X size={15}/></button></div></header>
     {checked&&!account&&<section className="ai-settings"><form className="veyra-signin" onSubmit={e=>{e.preventDefault();void signIn();}}>
-        <h3>Sign in to Veyra AI</h3>
+        <h3><VeyraAIMark size={24}/>Sign in to Veyra AI</h3>
         <p>Use your free Veyra account. Every account includes free Veyra AI requests, with no API key needed.</p>
         <label>Email<input aria-label="Veyra account email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>
         <label>Password<input aria-label="Veyra account password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label>
@@ -100,16 +111,16 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
     {account&&!account.available&&<p className="ai-fine ai-notice">Veyra AI isn&apos;t switched on yet. Please check back soon.</p>}
     {usage}
     <div className="ai-messages" ref={list} aria-live="polite">
-      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><Sparkles size={28}/></div><span className="ai-eyebrow">A SECOND PAIR OF EYES</span><h2>Think it.<br/>Build it.</h2><p>Talk through an idea, understand your code, or review a suggested change.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
-      {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':'Veyra AI'}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div><pre>{message.display||message.content}</pre>{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
-      {busy&&<div className="ai-thinking" role="status"><i/><span>Veyra AI is thinking…</span></div>}
+      {!messages.length&&<div className="ai-welcome"><div className="ai-orb gem"><VeyraAIMark size={68}/></div><span className="ai-eyebrow">A SECOND PAIR OF EYES</span><h2>Think it.<br/>Build it.</h2><p>Talk through an idea, understand your code, or review a suggested change.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
+      {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':<span className="ai-author"><VeyraAIMark size={14}/>Veyra AI</span>}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div><pre>{message.display||message.content}</pre>{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
+      {busy&&<div className="ai-thinking" role="status"><VeyraAIMark size={18} className="thinking"/><span>Veyra AI is thinking…</span></div>}
     </div>
     {error&&<div className="ai-error" role="alert">{error}<button aria-label="Dismiss AI error" onClick={()=>setError('')}><X size={12}/></button></div>}
     <form className="ai-composer" onSubmit={e=>{e.preventDefault();void send();}}>
       <div className="ai-compose-tabs"><button type="button" className={mode==='ask'?'active':''} disabled={busy} onClick={()=>setMode('ask')}><MessageSquare size={12}/>Ask</button><button type="button" className={mode==='edit'?'active':''} disabled={busy} onClick={()=>setMode('edit')}><Code2 size={12}/>Edit</button><kbd>⌘↵</kbd></div>
       <label className="ai-context"><FileCode2 size={13}/><select aria-label="AI attachment" value={scope} disabled={busy} onChange={e=>setScope(e.target.value)}><option value="none">No file attached</option><option value="workspace">Smart workspace context</option><option value="file" disabled={!active}>Current file{active?' · '+active.split('/').pop():''}</option><option value="selection" disabled={!active}>Selected code</option></select></label>
       <textarea ref={input} aria-label="Ask Veyra AI" value={prompt} maxLength={8000} onChange={e=>setPrompt(e.target.value)} placeholder={mode==='edit'?'Describe the change you want…':'Ask anything about your code…'} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();void send();}}}/>
-      <div className="ai-compose-footer"><span className="ai-model-name"><Sparkles size={12}/>Veyra AI{account&&account.available?` · ${left} left`:''}</span>{busy?<button type="button" className="ai-send" aria-label="Stop AI request" onClick={()=>void stop()}><Square size={14}/></button>:<button className="ai-send" aria-label="Send to AI" disabled={!prompt.trim()||!account||!account.available||outOfRequests}><ArrowUp size={17}/></button>}</div>
+      <div className="ai-compose-footer"><span className="ai-model-name"><VeyraAIMark size={15}/>Veyra AI{account&&account.available?` · ${left} left`:''}</span>{busy?<button type="button" className="ai-send" aria-label="Stop AI request" onClick={()=>void stop()}><Square size={14}/></button>:<button className="ai-send" aria-label="Send to AI" disabled={!prompt.trim()||!account||!account.available||outOfRequests}><ArrowUp size={17}/></button>}</div>
       <p className="ai-transmission">{outOfRequests?`You've used all ${account!.limit} free Veyra AI requests.`:`Sends this chat${scope==='none'?'':` + ${scope}`} to Veyra AI. Edits require review.`}</p>
     </form>
   </aside>;

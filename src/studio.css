@@ -1385,3 +1385,46 @@ button:active .prism-icon {
 .ai-model-name svg { color: #b79bff }
 .ai-account-bar { margin: 10px 12px 0 }
 .ai-notice { margin: 10px 14px 0 }
+
+/* ---------- Motion: smooth activity bar, sidebar and panels ---------- */
+.panel-animating { overflow: hidden !important }
+.activity>button { transition: background .2s ease, border-color .2s ease, box-shadow .25s ease, transform .14s ease }
+.activity>button:active { transform: scale(.93) }
+.activity>button .prism-icon { transition: transform .28s cubic-bezier(.2,.8,.2,1), filter .2s ease }
+.activity>button:hover .prism-icon { transform: translateY(-1px) scale(1.05) }
+.activity>button.selected:before { animation: activity-indicator .3s cubic-bezier(.2,.8,.2,1) }
+@keyframes activity-indicator { from { transform: scaleY(0); opacity: 0 } }
+.sidebar-heading>span { animation: heading-in .22s cubic-bezier(.2,.8,.2,1) }
+@keyframes heading-in { from { opacity: 0; transform: translateY(-3px) } }
+.icon-button, .toolbar-actions>button { transition: background .18s ease, color .18s ease, transform .12s ease }
+.icon-button:active, .toolbar-actions>button:active { transform: scale(.94) }
+
+/* ---------- Veyra AI 3D logo ---------- */
+.veyra-ai-mark { display: inline-block; flex-shrink: 0; object-fit: contain; filter: drop-shadow(0 2px 3px #4c1d9566); transition: transform .45s cubic-bezier(.2,.8,.2,1), filter .3s ease; transform: perspective(80px) rotateY(0deg) }
+.ai-toggle .veyra-ai-mark { margin-right: 1px }
+.ai-toggle:hover .veyra-ai-mark, .ai-brand:hover .veyra-ai-mark { transform: perspective(80px) rotateY(24deg) rotateX(-8deg) scale(1.12); filter: drop-shadow(0 3px 6px #8b5cf699) }
+.ai-toggle.selected .veyra-ai-mark { filter: drop-shadow(0 0 6px #a78bfaaa) }
+.ai-brand>.veyra-ai-mark { color: inherit }
+.ai-author { display: inline-flex; align-items: center; gap: 6px }
+.veyra-signin h3 { display: flex; align-items: center; gap: 9px }
+
+/* Welcome: the gem floats and slowly turns in 3D, with a breathing glow. */
+.ai-orb.gem { width: 84px; height: 84px; background: radial-gradient(circle at 50% 55%, #8b5cf633, transparent 68%); border: 0; box-shadow: none; transform: none; perspective: 360px }
+.ai-orb.gem .veyra-ai-mark { animation: ai-gem-float 7s ease-in-out infinite, ai-gem-glow 3.5s ease-in-out infinite; transform-style: preserve-3d }
+@keyframes ai-gem-float {
+  0%, 100% { transform: perspective(360px) translateY(0) rotateY(-18deg) rotateX(8deg) }
+  50% { transform: perspective(360px) translateY(-6px) rotateY(18deg) rotateX(-6deg) }
+}
+@keyframes ai-gem-glow {
+  0%, 100% { filter: drop-shadow(0 8px 14px #4c1d9577) drop-shadow(0 0 0 #22d3ee00) }
+  50% { filter: drop-shadow(0 12px 20px #6d28d988) drop-shadow(0 0 12px #22d3ee55) }
+}
+/* Thinking: the gem turns around in 3D. */
+.veyra-ai-mark.thinking { animation: ai-gem-spin 1.8s cubic-bezier(.45,.05,.55,.95) infinite }
+@keyframes ai-gem-spin { from { transform: perspective(80px) rotateY(0) } to { transform: perspective(80px) rotateY(360deg) } }
+.ai-thinking { gap: 9px }
+
+@media (prefers-reduced-motion: reduce) {
+  .activity>button.selected:before, .sidebar-heading>span, .ai-orb.gem .veyra-ai-mark, .veyra-ai-mark.thinking { animation: none }
+  .veyra-ai-mark, .activity>button, .activity>button .prism-icon { transition: none }
+}

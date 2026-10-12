@@ -3,6 +3,21 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.9.1
+
+**Smoother workbench**
+- The sidebar slides open and closed instead of popping in and out (Ctrl/⌘+B or the sidebar button)
+- Switching between Explorer, Search, Source Control, Run and Debug and the other side panels eases the new panel in
+- The Veyra AI panel slides in and out, and keeps your conversation while closed
+- Gentler hover and press feedback on the left icons and toolbar buttons
+- If your system is set to reduce motion, Veyra stays still
+
+**A new look for Veyra AI**
+- Veyra AI has its own 3D logo: a faceted gem in Veyra's colours. It floats in the AI panel, turns while Veyra AI is thinking, and tilts when you hover the Veyra AI button
+
+**Fixes**
+- The AI panel's welcome screen no longer opens scrolled down, hiding its top
+
 ## 0.9.0
 
 **Veyra AI only**

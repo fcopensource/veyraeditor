@@ -1,8 +1,8 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Editor, { DiffEditor, type OnMount } from "@monaco-editor/react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { Files, Search, GitBranch, Settings2, FolderOpen, ChevronRight, ChevronDown, Folder, Plus, X, RefreshCw, PanelLeft, PanelBottom, Columns2, TerminalSquare, Check, CircleAlert, CircleX, Save, ArrowUpRight, Command, MoreHorizontal, Braces, Trash2, Pencil, WrapText, FilePlus2, FolderPlus, CheckCheck, Sparkles, Copy, Scissors, ClipboardPaste, ExternalLink } from "lucide-react";
+import { Files, Search, GitBranch, Settings2, FolderOpen, ChevronRight, ChevronDown, Folder, Plus, X, RefreshCw, PanelLeft, PanelBottom, Columns2, TerminalSquare, Check, CircleAlert, CircleX, Save, ArrowUpRight, Command, MoreHorizontal, Braces, Trash2, Pencil, WrapText, FilePlus2, FolderPlus, CheckCheck, Copy, Scissors, ClipboardPaste, ExternalLink } from "lucide-react";
 import { monaco, languageFor } from "./editor";
 // xterm loads on first terminal use instead of at startup.
 const Terminal = lazy(() => import("./Terminal").then(module => ({ default: module.Terminal })));
@@ -14,6 +14,8 @@ import {ExtensionsPanel} from "./ExtensionsPanel";
 import {ExtensionPage} from "./ExtensionPage";
 import {AccountButton} from "./AccountButton";
 import {Bug,Radio} from "lucide-react";
+import {VeyraAIMark} from "./VeyraAIMark";
+import {animatePanel,revealChildren} from "./motion";
 import {goLive,goOffline,isHtml,setLiveActive,stopLiveServer,useLiveServer} from "./live";
 import {DebugPanel,debugKeys,useDebugState} from "./DebugPanel";
 import {DebugConsole} from "./DebugConsole";
@@ -107,6 +109,10 @@ export default function App() {
   function changeExtensions(next:Extension[]){saveExtensions(next);setExtensions(next);}
   function changeExtensionTheme(theme:string){localStorage.setItem('veyra.extensionTheme',theme);setExtensionTheme(theme);}
   const [sidebar, setSidebar] = useState(true);
+  // The sidebar stays mounted while it slides closed, so it can animate out.
+  const [sidebarMounted, setSidebarMounted] = useState(true);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const sidebarOpen = useRef(true), sidebarStarted = useRef(false), panelStarted = useRef(false);
   const [sidebarWidth, setSidebarWidth] = useState(258);
   const [bottom, setBottom] = useState<"terminal"|"problems"|"debug"|null>(null);
   const [terminals, setTerminals] = useState<Array<{id:number;name:string}>>([]);
@@ -466,6 +472,15 @@ export default function App() {
   async function closeFolder(){if(!root||!await allowDiscard("Close workspace?"))return;terminals.forEach(item=>void invoke("terminal_stop",{sessionId:item.id}));stopLiveServer();setRoot("");state.current.root="";setTabs([]);setActive("");setTree({});setIndexed([]);setSelectedPath("");setSelectedPaths(new Set());setSelectedFolder("");setGit("");setDiff(null);setTerminals([]);setActiveTerminal(null);setBottom(null);void stopLanguageServers();resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());setStatus("Workspace closed");}
   function editorAction(id:string){void editor.current?.getAction(id)?.run();editor.current?.focus();}
   function runActiveFile(){if(!file){setStatus("Open a file to run it");return;}let sessionId=activeTerminal;if(sessionId===null){sessionId=terminalSequence.current++;setTerminals([{id:sessionId,name:`${shellName} 1`}]);setActiveTerminal(sessionId);}setBottom("terminal");const quoted=quoteForShell(shellName,file.path);const extension=file.path.split('.').pop()?.toLowerCase();const command=extension==='py'?`${isWindows?"python":"python3"} ${quoted}`:extension==='js'||extension==='mjs'||extension==='cjs'?`node ${quoted}`:extension==='ts'||extension==='tsx'?`npx tsx ${quoted}`:extension==='rs'?'cargo run':extension==='sh'?`bash ${quoted}`:extension==='ps1'?`& ${quoted}`:extension==='go'?`go run ${quoted}`:'';if(!command){setStatus("No runner configured for ."+(extension||"file"));return;}window.setTimeout(()=>void invoke("terminal_write",{sessionId,data:command+"\r"}).catch(report),450);setStatus("Running "+file.path);}
+  // Smooth sidebar: it slides open and closed, and switching panels eases the new content in.
+  useLayoutEffect(()=>{if(sidebarStarted.current&&sidebarMounted&&sidebarRef.current)void animatePanel(sidebarRef.current,true,"left");},[sidebarMounted]);
+  useLayoutEffect(()=>{
+    sidebarOpen.current=sidebar;
+    if(!sidebarStarted.current){sidebarStarted.current=true;return;}
+    if(sidebar){if(sidebarMounted&&sidebarRef.current)void animatePanel(sidebarRef.current,true,"left");else setSidebarMounted(true);return;}
+    void animatePanel(sidebarRef.current,false,"left").then(()=>{if(!sidebarOpen.current)setSidebarMounted(false);});
+  },[sidebar]);
+  useEffect(()=>{if(!panelStarted.current){panelStarted.current=true;return;}revealChildren(sidebarRef.current,":scope > :not(.sidebar-heading)");},[panel]);
   /** Live Server: serve the folder and open `path` (an HTML file) or the folder's index in the browser. */
   function openLive(path:string){if(!state.current.root){setStatus("Open a folder to use Live Server");return;}void goLive(path).then(info=>setStatus(`Live Server: ${info.page}`)).catch(report);}
   function stopLive(){void goOffline().then(()=>setStatus("Live Server stopped")).catch(report);}
@@ -682,7 +697,7 @@ export default function App() {
     <header className="toolbar">
       <div className="identity"><span className="brand-gem"><img src="/veyra.png" alt="Veyra"/></span><span className="brand-copy"><strong>Veyra</strong><small>STUDIO</small></span><span className="separator">/</span><span className="workspace-name">{root?projectName:"Workspace"}</span></div>
       <button className="command-launch" onClick={()=>openPalette("commands")}><Search size={14}/><span>Search files and commands</span><kbd>{keys("⇧⌘P")}</kbd></button>
-      <div className="toolbar-actions"><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className={'ai-toggle '+(aiOpen?'selected':'')} title={"Toggle AI assistant · "+keys("⌘L")} aria-label="Toggle AI assistant" onClick={()=>setAiOpen(!aiOpen)}><Sparkles size={14}/>Veyra AI</button><AccountButton notify={setStatus} beforeInstall={()=>allowDiscard("Install update and restart?")}/></div>
+      <div className="toolbar-actions"><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className={'ai-toggle '+(aiOpen?'selected':'')} title={"Toggle AI assistant · "+keys("⌘L")} aria-label="Toggle AI assistant" onClick={()=>setAiOpen(!aiOpen)}><VeyraAIMark size={17}/>Veyra AI</button><AccountButton notify={setStatus} beforeInstall={()=>allowDiscard("Install update and restart?")}/></div>
     </header>
     <div className="workbench">
       <nav className="activity" aria-label="Workspace panels">
@@ -692,7 +707,7 @@ export default function App() {
         <button title="Extensions" aria-label="Extensions" className={panel==='extensions'&&sidebar?'selected':''} onClick={()=>{setPanel('extensions');setSidebar(true);}}><PrismIcon tone="violet"><Package size={17}/></PrismIcon></button>
         <div className="nav-spacer"/><button title="Open terminal" onClick={showTerminal}><PrismIcon tone="mint"><TerminalSquare size={17}/></PrismIcon></button><button title={"Settings · "+keys("⌘,")} className={panel==="settings"&&sidebar?"selected":""} onClick={()=>{setPanel("settings");setSidebar(true);}}><PrismIcon tone="gold"><Settings2 size={17}/></PrismIcon></button><span className="nav-avatar"><img src="/veyra.png" alt=""/></span>
       </nav>
-      {sidebar&&<><aside className="sidebar" style={{width:sidebarWidth}}>
+      {sidebarMounted&&<><aside ref={sidebarRef} className="sidebar" style={{width:sidebarWidth}}>
         <div className="sidebar-heading"><span>{panel==='extensions'?'EXTENSIONS':panel==="files"?"EXPLORER":panel==="search"?"SEARCH":panel==="git"?"SOURCE CONTROL":panel==="health"?"HEALTH MONITOR":panel==="debug"?"RUN AND DEBUG":"PREFERENCES"}</span><button className="icon-button" title="Open folder" onClick={chooseFolder}><FolderOpen size={15}/></button></div>
         {panel==='extensions'&&<ExtensionsPanel items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme} onOpen={openExtension} selected={activePage?.slice(PAGE_PREFIX.length)}/>}
         {panel==="files"&&<>
