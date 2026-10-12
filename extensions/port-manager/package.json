@@ -1,0 +1,276 @@
+{
+  "name": "veyra-port-manager",
+  "displayName": "Veyra Port Manager",
+  "description": "See every port in use and the app behind it: Vite, Next.js, Django, Postgres and more. Open, copy or stop it in one click, and free a busy port in seconds. Safe by design: system services are never touched.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/port-manager",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/port-manager"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "port",
+    "ports",
+    "port in use",
+    "EADDRINUSE",
+    "address already in use",
+    "kill port",
+    "free port",
+    "localhost",
+    "dev server",
+    "process",
+    "task manager",
+    "vite",
+    "next.js",
+    "react",
+    "node",
+    "django",
+    "network",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true,
+      "description": "Port Manager only reads which programs listen on ports; stopping one always asks first."
+    },
+    "virtualWorkspaces": true
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraPorts",
+          "title": "Veyra Ports",
+          "icon": "media/ports.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraPorts": [
+        {
+          "id": "veyraPorts.list",
+          "name": "Ports in Use",
+          "icon": "media/ports.svg",
+          "contextualTitle": "Veyra Ports"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraPorts.list",
+        "contents": "No ports in use right now.\nStart a dev server (for example npm run dev) and it appears here within seconds.\n[$(search) Free a Port…](command:veyraPorts.freePort)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "veyraPorts.refresh",
+        "title": "Refresh",
+        "category": "Veyra Ports",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "veyraPorts.freePort",
+        "title": "Free a Port…",
+        "category": "Veyra Ports",
+        "icon": "$(search)"
+      },
+      {
+        "command": "veyraPorts.openInBrowser",
+        "title": "Open in Browser",
+        "category": "Veyra Ports",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "veyraPorts.copyAddress",
+        "title": "Copy Address",
+        "category": "Veyra Ports",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "veyraPorts.stop",
+        "title": "Stop",
+        "category": "Veyra Ports",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "veyraPorts.revealFolder",
+        "title": "Reveal Working Folder",
+        "category": "Veyra Ports",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "veyraPorts.show",
+        "title": "Show Ports in Use",
+        "category": "Veyra Ports",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "veyraPorts.toggleSystem",
+        "title": "Show or Hide System Ports",
+        "category": "Veyra Ports",
+        "icon": "$(eye)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "veyraPorts.freePort",
+          "when": "view == veyraPorts.list",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraPorts.refresh",
+          "when": "view == veyraPorts.list",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraPorts.toggleSystem",
+          "when": "view == veyraPorts.list",
+          "group": "more@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "veyraPorts.openInBrowser",
+          "when": "view == veyraPorts.list && viewItem =~ /browsable/",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraPorts.copyAddress",
+          "when": "view == veyraPorts.list && viewItem =~ /port/",
+          "group": "inline@2"
+        },
+        {
+          "command": "veyraPorts.stop",
+          "when": "view == veyraPorts.list && viewItem =~ /stoppable/",
+          "group": "inline@3"
+        },
+        {
+          "command": "veyraPorts.openInBrowser",
+          "when": "view == veyraPorts.list && viewItem =~ /browsable/",
+          "group": "1_open@1"
+        },
+        {
+          "command": "veyraPorts.copyAddress",
+          "when": "view == veyraPorts.list && viewItem =~ /port/",
+          "group": "1_open@2"
+        },
+        {
+          "command": "veyraPorts.revealFolder",
+          "when": "view == veyraPorts.list && viewItem =~ /hasFolder/",
+          "group": "1_open@3"
+        },
+        {
+          "command": "veyraPorts.stop",
+          "when": "view == veyraPorts.list && viewItem =~ /stoppable/",
+          "group": "2_stop@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraPorts.openInBrowser",
+          "when": "false"
+        },
+        {
+          "command": "veyraPorts.copyAddress",
+          "when": "false"
+        },
+        {
+          "command": "veyraPorts.stop",
+          "when": "false"
+        },
+        {
+          "command": "veyraPorts.revealFolder",
+          "when": "false"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "veyraPorts.freePort",
+        "key": "alt+p alt+f",
+        "mac": "cmd+alt+p"
+      }
+    ],
+    "configuration": {
+      "title": "Veyra Port Manager",
+      "properties": {
+        "veyraPorts.refreshInterval": {
+          "type": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 60,
+          "markdownDescription": "How often the **Ports in Use** view refreshes while it's visible, in seconds. In the background the status bar refreshes every 20 seconds, and never while VS Code is in the background."
+        },
+        "veyraPorts.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show how many ports your programs use in the status bar."
+        },
+        "veyraPorts.notifyNewServers": {
+          "type": "boolean",
+          "default": true,
+          "description": "When a web dev server starts in this workspace, offer to open it in the browser."
+        },
+        "veyraPorts.showSystemPorts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Also list ports held by system services and other users. They're shown read-only: they can never be stopped from here."
+        },
+        "veyraPorts.hiddenPorts": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "default": [],
+          "description": "Ports never listed, for example [5037] for adb."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "tsc -p . && node --test test/model.test.mjs test/system.test.mjs",
+    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/",
+    "vscode:prepublish": "tsc -p .",
+    "test:integration": "tsc -p . && node test/integration/run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "^5.9.0"
+  }
+}

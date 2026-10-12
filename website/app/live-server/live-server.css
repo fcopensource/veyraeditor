@@ -52,6 +52,7 @@
 .live-table .head img{border-radius:5px}
 
 .live-install{display:grid;gap:12px;margin:18px 0;padding-left:20px;color:#b8c4ce;line-height:1.6}
+.split .live-install li{display:list-item} /* not the flex rows .split gives other lists */
 .live-install a{color:var(--mint);font-weight:600}
 .live-note{color:var(--muted);font-size:13px;line-height:1.7}
 .live-page code{padding:2px 6px;border-radius:6px;background:#ffffff0d;font:12px var(--font-mono);word-break:break-all}

@@ -69,20 +69,26 @@ jobs:
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets
 
   vscode-extension:
-    name: VS Code extension (Live Server)
+    name: VS Code extension (${{ matrix.name }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dir: live-server, name: Live Server }
+          - { dir: port-manager, name: Port Manager }
     defaults:
       run:
-        working-directory: extensions/live-server
+        working-directory: extensions/${{ matrix.dir }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: extensions/live-server/package-lock.json
+          cache-dependency-path: extensions/${{ matrix.dir }}/package-lock.json
       - run: npm ci
-      - name: Server tests
+      - name: Tests
         run: npm test
       - name: Integration test in VS Code
         run: xvfb-run -a npm run test:integration
@@ -90,9 +96,31 @@ jobs:
         run: npm run package
       - uses: actions/upload-artifact@v4
         with:
-          name: veyra-live-server-vsix
-          path: extensions/live-server/dist/*.vsix
+          name: veyra-${{ matrix.dir }}-vsix
+          path: extensions/${{ matrix.dir }}/dist/*.vsix
           retention-days: 14
+
+  # Port Manager reads ports differently on each system (PowerShell/netstat, lsof, ss): test it on all of them.
+  port-manager-platforms:
+    name: Port Manager on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: extensions/port-manager
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extensions/port-manager/package-lock.json
+      - run: npm ci
+      - name: Tests (including a real server found, stopped and freed)
+        run: npm test
 
   dependencies:
     name: Dependency advisories

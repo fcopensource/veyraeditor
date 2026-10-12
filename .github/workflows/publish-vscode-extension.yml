@@ -1,4 +1,4 @@
-# Publishes Veyra Live Server (extensions/live-server) to the Visual Studio Marketplace and/or Open VSX.
+# Publishes a Veyra VS Code extension (extensions/<name>) to the Visual Studio Marketplace and/or Open VSX.
 # Run it from Actions → "Publish VS Code extension" → Run workflow. Setup: docs/PUBLISHING-VSCODE-EXTENSION.md
 #
 # Secrets (repository → Settings → Secrets and variables → Actions):
@@ -9,6 +9,11 @@ name: Publish VS Code extension
 on:
   workflow_dispatch:
     inputs:
+      extension:
+        description: Which extension
+        type: choice
+        options: [live-server, port-manager]
+        default: live-server
       target:
         description: Where to publish
         type: choice
@@ -23,14 +28,14 @@ jobs:
     runs-on: ubuntu-22.04
     defaults:
       run:
-        working-directory: extensions/live-server
+        working-directory: extensions/${{ inputs.extension }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: extensions/live-server/package-lock.json
+          cache-dependency-path: extensions/${{ inputs.extension }}/package-lock.json
       - run: npm ci
       - name: Server tests
         run: npm test
@@ -40,11 +45,11 @@ jobs:
         id: package
         run: |
           npm run package
-          echo "vsix=dist/veyra-live-server-$(node -p "require('./package.json').version").vsix" >> "$GITHUB_OUTPUT"
+          echo "vsix=dist/$(node -p "require('./package.json').name")-$(node -p "require('./package.json').version").vsix" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
-          name: veyra-live-server-vsix
-          path: extensions/live-server/dist/*.vsix
+          name: veyra-${{ inputs.extension }}-vsix
+          path: extensions/${{ inputs.extension }}/dist/*.vsix
 
       - name: Publish to the Visual Studio Marketplace
         if: inputs.target == 'marketplace' || inputs.target == 'both'

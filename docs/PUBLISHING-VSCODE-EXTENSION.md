@@ -1,8 +1,13 @@
-# Publishing Veyra Live Server
+# Publishing Veyra's VS Code extensions
 
-Veyra Live Server lives in [`extensions/live-server`](../extensions/live-server). Its Marketplace ID is **`flightcoders.veyra-live-server`** (publisher `flightcoders`, name `veyra-live-server`; the name `live-server` is taken on the Marketplace).
+| Extension | Folder | Marketplace ID |
+| --- | --- | --- |
+| Veyra Live Server | [`extensions/live-server`](../extensions/live-server) | **`flightcoders.veyra-live-server`** (the name `live-server` is taken on the Marketplace) |
+| Veyra Port Manager | [`extensions/port-manager`](../extensions/port-manager) | **`flightcoders.veyra-port-manager`** |
 
-Every Veyra release attaches the packaged extension (`veyra-live-server-<version>.vsix`) to its GitHub release, and the CI checks run its tests inside a real VS Code. Publishing to the stores is a separate, manual step, described below.
+The steps below use Live Server as the example; for Port Manager, use `extensions/port-manager` and `veyra-port-manager`.
+
+Every Veyra release attaches the packaged extensions (`veyra-live-server-<version>.vsix`, `veyra-port-manager-<version>.vsix`) to its GitHub release, and the CI checks run its tests inside a real VS Code. Publishing to the stores is a separate, manual step, described below.
 
 ## Before you publish
 
@@ -30,7 +35,7 @@ Every Veyra release attaches the packaged extension (`veyra-live-server-<version
 
 ### Publish
 
-**Actions → Publish VS Code extension → Run workflow → target: marketplace.** It runs the tests (including inside VS Code), packages the extension and publishes it.
+**Actions → Publish VS Code extension → Run workflow**, choose the **extension** and **target: marketplace**. It runs the tests (including inside VS Code), packages the extension and publishes it.
 
 ## Open VSX (VSCodium, Cursor, Gitpod, Veyra's marketplace)
 
