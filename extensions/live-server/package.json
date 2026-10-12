@@ -1,11 +1,15 @@
 {
   "name": "veyra-live-server",
   "displayName": "Veyra Live Server",
-  "description": "Save. See it. Instantly. A local development server with live reload for HTML, CSS and JavaScript; CSS changes apply without a reload. The same Live Server that is built into Veyra Studio.",
-  "version": "1.1.1",
+  "description": "Save. See it. Instantly. A local development server with live reload for HTML, CSS and JavaScript: CSS updates without a page reload, works over Remote SSH, WSL and Codespaces, no dependencies.",
+  "version": "1.2.0",
   "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
   "license": "MIT",
   "icon": "media/icon.png",
+  "pricing": "Free",
   "homepage": "https://veyraeditor.com/live-server",
   "repository": {
     "type": "git",
@@ -15,23 +19,50 @@
   "bugs": {
     "url": "https://github.com/fcopensource/veyraeditor/issues"
   },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
   ],
   "keywords": [
     "live server",
     "live reload",
+    "live preview",
+    "hot reload",
+    "css hot reload",
     "html",
-    "preview",
+    "css",
+    "javascript",
     "static server",
+    "web server",
+    "localhost",
+    "browser",
+    "preview",
+    "auto refresh",
+    "go live",
+    "frontend",
+    "web development",
     "veyra"
   ],
   "galleryBanner": {
     "color": "#0d1117",
     "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true,
+      "description": "Live Server only reads and serves files; it never runs code from the workspace."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "Live Server serves files from disk, so it needs a local or remote file system."
+    }
   },
   "main": "./out/extension.js",
   "activationEvents": [
@@ -48,7 +79,8 @@
       {
         "command": "veyraLiveServer.goOffline",
         "title": "Stop Live Server",
-        "category": "Veyra Live Server"
+        "category": "Veyra Live Server",
+        "icon": "$(circle-slash)"
       },
       {
         "command": "veyraLiveServer.toggle",
@@ -76,6 +108,13 @@
           "command": "veyraLiveServer.toggle",
           "when": "false"
         }
+      ],
+      "editor/title": [
+        {
+          "command": "veyraLiveServer.goLive",
+          "when": "resourceLangId == html",
+          "group": "navigation"
+        }
       ]
     },
     "keybindings": [
@@ -98,7 +137,8 @@
           "default": 5500,
           "minimum": 0,
           "maximum": 65535,
-          "description": "Port to serve on. If it's busy, the next free port is used. 0 picks any free port."
+          "description": "Port to serve on. If it's busy, the next free port is used. 0 picks any free port.",
+          "markdownDescription": "Port to serve on. If it is busy, the next free port is used. `0` picks any free port."
         },
         "veyraLiveServer.root": {
           "type": "string",

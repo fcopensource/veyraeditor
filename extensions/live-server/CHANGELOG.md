@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- New Marketplace ID: **`flightcoders.veyra-live-server`** (the name `live-server` is already used on the Marketplace)
+- **Remote development:** with Remote SSH, WSL, Dev Containers or GitHub Codespaces, Go Live opens the page in your local browser through VS Code's port forwarding
+- **Go Live button** on HTML editor tabs
+- The status bar shows "Starting…" while the server starts
+- Works in Restricted Mode (untrusted workspaces): Live Server only reads and serves files
+- New Marketplace page with screenshots
+
 ## 1.1.1
 
 - Published on the Visual Studio Marketplace under the flightcoders publisher (extension ID `flightcoders.live-server`)

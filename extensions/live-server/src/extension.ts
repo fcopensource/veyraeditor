@@ -61,8 +61,9 @@ async function goLive(uri?: vscode.Uri): Promise<string | undefined> {
     if (server && path.relative(server.root, fs.realpathSync(folder)) !== "") { await server.close(); server = undefined; }
     if (!server) {
       const port = vscode.workspace.getConfiguration("veyraLiveServer").get<number>("port", DEFAULT_PORT);
+      status.text = "$(loading~spin) Starting…";
       starting ??= LiveServer.start(folder, port, clientScript);
-      try { server = await starting; } finally { starting = undefined; }
+      try { server = await starting; } finally { starting = undefined; updateStatus(); }
       if (port && server.port !== port) void vscode.window.showInformationMessage(`Port ${port} is busy, so Live Server is using port ${server.port}.`);
     }
     updateStatus();
@@ -72,9 +73,12 @@ async function goLive(uri?: vscode.Uri): Promise<string | undefined> {
       if (!relative.startsWith("..") && !path.isAbsolute(relative)) page = `http://127.0.0.1:${server.port}${urlFor(relative)}`;
     }
     vscode.window.setStatusBarMessage(`Live Server: ${page}`, 4000);
-    if (vscode.workspace.getConfiguration("veyraLiveServer").get<boolean>("openBrowser", true)) await vscode.env.openExternal(vscode.Uri.parse(page));
+    // In Remote SSH, WSL, Codespaces and Dev Containers the server runs on the remote machine:
+    // asExternalUri forwards the port so the page opens in the local browser.
+    if (vscode.workspace.getConfiguration("veyraLiveServer").get<boolean>("openBrowser", true)) await vscode.env.openExternal(await vscode.env.asExternalUri(vscode.Uri.parse(page)));
     return page;
   } catch (error) {
+    updateStatus();
     void vscode.window.showErrorMessage(`Live Server couldn't start: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

@@ -73,7 +73,7 @@ export const TOOLS: Tool[] = [
     replaces: ["anthropic.claude-code"] },
   { key: "live-server", name: "Veyra Live Server", publisher: "Veyra", kind: "feature", languages: ["html", "css", "javascript"], icon: liveServerIcon, readme: liveServerReadme,
     description: "A local development server with live reload: save and the browser updates, and CSS changes apply without a reload. Click Go Live in the status bar, or right-click an HTML file. Also available for VS Code.",
-    replaces: ["ritwickdey.LiveServer", "ms-vscode.live-server", "yandeu.five-server", "flightcoders.live-server", "veyra.live-server"] },
+    replaces: ["ritwickdey.LiveServer", "ms-vscode.live-server", "yandeu.five-server", "flightcoders.veyra-live-server", "flightcoders.live-server", "veyra.live-server"] },
   { key: "debugpy", name: "Python Debugger", publisher: "Microsoft debugpy", kind: "debugger", languages: ["python"],
     description: "Breakpoints, stepping, variables, call stack and a debug console for Python, powered by debugpy, the engine inside Microsoft's Python Debugger. Uses your project's virtual environment.",
     replaces: ["ms-python.debugpy", "fabioz.vscode-pydev-python-debugger"] },

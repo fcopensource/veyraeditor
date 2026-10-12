@@ -1,0 +1,63 @@
+# Publishes Veyra Live Server (extensions/live-server) to the Visual Studio Marketplace and/or Open VSX.
+# Run it from Actions → "Publish VS Code extension" → Run workflow. Setup: docs/PUBLISHING-VSCODE-EXTENSION.md
+#
+# Secrets (repository → Settings → Secrets and variables → Actions):
+#   VSCE_PAT   Azure DevOps personal access token with the "Marketplace → Manage" scope
+#   OVSX_PAT   Open VSX access token (only for Open VSX)
+name: Publish VS Code extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to publish
+        type: choice
+        options: [marketplace, openvsx, both]
+        default: marketplace
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: extensions/live-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extensions/live-server/package-lock.json
+      - run: npm ci
+      - name: Server tests
+        run: npm test
+      - name: Integration test in VS Code
+        run: xvfb-run -a npm run test:integration
+      - name: Package
+        id: package
+        run: |
+          npm run package
+          echo "vsix=dist/veyra-live-server-$(node -p "require('./package.json').version").vsix" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: veyra-live-server-vsix
+          path: extensions/live-server/dist/*.vsix
+
+      - name: Publish to the Visual Studio Marketplace
+        if: inputs.target == 'marketplace' || inputs.target == 'both'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then echo "::error::Add the VSCE_PAT secret first (docs/PUBLISHING-VSCODE-EXTENSION.md)."; exit 1; fi
+          npx @vscode/vsce publish --packagePath "${{ steps.package.outputs.vsix }}"
+
+      - name: Publish to Open VSX
+        if: inputs.target == 'openvsx' || inputs.target == 'both'
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then echo "::error::Add the OVSX_PAT secret first (docs/PUBLISHING-VSCODE-EXTENSION.md)."; exit 1; fi
+          npx --yes ovsx@1.2.0 publish "${{ steps.package.outputs.vsix }}" -p "$OVSX_PAT"
