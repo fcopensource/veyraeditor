@@ -145,8 +145,8 @@ export default async function Home() {
           </div>
           <div className="update-demo" aria-hidden="true">
             <Sparkles size={16} />
-            <span><b>A new version is ready</b><small>Signed update · verified before it installs</small></span>
-            <i>Update & restart</i>
+            <span><b>A new version is ready</b><small>One click in the top-right corner · signed and verified</small></span>
+            <i>↓ Update</i>
           </div>
         </section>
 

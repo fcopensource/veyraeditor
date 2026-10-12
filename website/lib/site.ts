@@ -45,7 +45,7 @@ export const FAQ_GROUPS: { title: string; items: QA[] }[] = [
     { q: "Where is my Veyra sign-in stored?", a: "In a private file in Veyra's app data folder on your computer, never in your project. There are no API keys in the app. You can sign out anytime from the AI panel." },
   ]},
   { title: "Install & updates", items: [
-    { q: "How do updates work?", a: "Veyra checks for new versions automatically and shows a banner when one is ready. Updates are cryptographically signed and verified before installing, and never interrupt unsaved work." },
+    { q: "How do updates work?", a: "Veyra checks for new versions automatically. When one is ready, the Sign in button in the top-right corner turns into Update: click it, and Veyra installs the update and restarts. Updates are cryptographically signed and verified before installing, and Veyra asks before closing unsaved work. Help → Check for Updates checks right away." },
     { q: "Windows says \"Windows protected your PC\". Is Veyra safe?", a: "Preview builds are not yet signed with a Microsoft certificate, so SmartScreen shows this warning for new apps. Choose More info → Run anyway. Every release is built publicly on GitHub Actions from the open-source code." },
     { q: "macOS says the app is damaged. What do I do?", a: "Run xattr -cr \"/Applications/Veyra Studio.app\" once in Terminal, then open Veyra again. On newer versions, right-click the app and choose Open the first time." },
   ]},

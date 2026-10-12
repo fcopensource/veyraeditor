@@ -22,6 +22,8 @@ const MILESTONES:Milestone[]=[
     items:['Python debugger (breakpoints, stepping, variables)','Debug console & watch expressions','Python IntelliSense (Pyright)','Claude Code in the terminal','Extension pages beside the minimap fixed']},
   {title:'Live Server',status:'done',label:'SHIPPED · 0.8',copy:'Go Live serves your folder with live reload, built into Veyra and available as a VS Code extension.',
     items:['Go Live in the status bar','CSS updates without a reload','Open with Live Server on HTML files','Veyra Live Server for VS Code']},
+  {title:'Veyra AI & a smoother workbench',status:'done',label:'SHIPPED · 0.9',copy:'One AI that just works when you sign in, a calmer, smoother interface, and fixes from your reports.',
+    items:['Veyra AI only: 10 free requests, no API key','3D Veyra AI logo','Smooth sidebar and panels','Updates in the title bar','No more macOS Keychain prompts','Safer file shortcuts']},
   {title:'Node.js debugging',status:'next',label:'UP NEXT',copy:'The same debugger for JavaScript and TypeScript, built on the foundation that powers Python debugging.',
     items:['Node.js & TypeScript debugging','launch.json support','Conditional breakpoints & logpoints']},
   {title:'Systems languages',status:'next',label:'UP NEXT',copy:'The same real IntelliSense for compiled languages: errors as you type, type-aware completion, go to definition, rename and formatting.',

@@ -139,7 +139,7 @@ export default function Docs(){
           <h3>Something feels slow or broken</h3>
           <p>Open the <strong>Health monitor</strong> from the command palette. It checks responsiveness, memory, errors, Git and your toolchain, and suggests a fix for each warning.</p>
           <h3>Still stuck?</h3>
-          <p><a href={GITHUB_URL+'/issues'}>Open an issue on GitHub</a> with your operating system, Veyra version (shown in the update banner and on the release you downloaded) and what you expected to happen.</p>
+          <p><a href={GITHUB_URL+'/issues'}>Open an issue on GitHub</a> with your operating system, Veyra version (from the release you downloaded, or the changelog entry of your last update) and what you expected to happen.</p>
         </section>
 
         <section id="source"><h2>Build from source</h2>

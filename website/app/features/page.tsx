@@ -102,6 +102,7 @@ export default function Features(){
         <article className="card"><TerminalSquare/><h3>A real terminal</h3><p>PowerShell, zsh or bash on a native PTY. Multiple sessions and one-key &quot;run this file&quot;, right beside your code.</p></article>
         <article className="card"><Sparkles/><h3>AI with boundaries</h3><p>Ask, explain, and edit with <kbd>Ctrl</kbd>+<kbd>K</kbd> using Veyra AI. You choose the context, and every change is a diff you approve.</p></article>
         <article className="card"><RefreshCw/><h3>Live Server</h3><p>Go Live serves your folder and reloads the browser on save, with CSS applied instantly. Built in, and available for VS Code too.</p></article>
+        <article className="card"><LayoutPanelLeft/><h3>Calm and smooth</h3><p>The sidebar and panels slide open and closed, and switching views eases in. If your system asks to reduce motion, Veyra stays still.</p></article>
         <article className="card"><Search/><h3>Find anything</h3><p>Fuzzy file search, project-wide text search and a command palette that reaches every action and setting.</p></article>
         <article className="card"><Puzzle/><h3>Extensions</h3><p>Browse Open VSX with real icons and ratings. Every extension opens in its own tab with README, features, changelog and versions.</p></article>
         <article className="card"><HeartPulse/><h3>Self-diagnosing</h3><p>A live health score watches responsiveness, memory, errors, Git and your toolchain, and tells you how to fix each warning.</p></article>
