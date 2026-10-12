@@ -9,11 +9,13 @@ import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import { buildSnapshot, parseLsof, parseLsofCwd, parseNetstat, parsePs, parseSs, parseTasklistCsv, parseWindowsJson, type BuildOptions, type Listener, type ProcessInfo, type Snapshot } from "./model";
 
-const run = (file: string, args: string[], timeout = 8000) => new Promise<string>((resolve, reject) => {
+/** Runs a program and resolves with its output. `noMatchIsEmpty`: for lsof and ps, exit code 1 means
+    "nothing matched" (for example, no port in use at all): an empty answer, not a failure. */
+const run = (file: string, args: string[], timeout = 8000, noMatchIsEmpty = false) => new Promise<string>((resolve, reject) => {
   execFile(file, args, { timeout, windowsHide: true, maxBuffer: 16 * 1024 * 1024, encoding: "utf8" }, (error, stdout) => {
-    // lsof exits with 1 when nothing matches: that's an empty answer, not a failure.
-    if (error && !(stdout && "code" in error && error.code === 1)) reject(error);
-    else resolve(stdout);
+    const noMatch = noMatchIsEmpty && error && "code" in error && error.code === 1;
+    if (error && !noMatch) reject(error);
+    else resolve(stdout ?? "");
   });
 });
 
@@ -30,7 +32,7 @@ async function windowsListeners(): Promise<Listener[]> {
 /** macOS/Linux: lsof (process name and owner included), or ss on Linux without lsof. */
 async function unixListeners(): Promise<{ listeners: Listener[]; processes: Map<number, ProcessInfo> }> {
   try {
-    return parseLsof(await run("lsof", ["-nP", "-iTCP", "-sTCP:LISTEN", "-F", "pcLn"]), os.userInfo().username);
+    return parseLsof(await run("lsof", ["-nP", "-iTCP", "-sTCP:LISTEN", "-F", "pcLn"], 8000, true), os.userInfo().username);
   } catch (error) {
     if (process.platform !== "linux") throw error;
     return parseSs(await run("ss", ["-ltnpH"]));
@@ -57,10 +59,10 @@ async function windowsProcesses(pids: number[]): Promise<Map<number, ProcessInfo
 async function unixDetails(pids: number[]): Promise<Map<number, { command?: string; cwd?: string }>> {
   const list = pids.join(",");
   const [commands, cwds] = await Promise.all([
-    run("ps", ["-o", "pid=,args=", "-p", list]).then(parsePs).catch(() => new Map<number, string>()),
+    run("ps", ["-o", "pid=,args=", "-p", list], 8000, true).then(parsePs).catch(() => new Map<number, string>()),
     process.platform === "linux"
       ? Promise.all(pids.map(async pid => [pid, await fs.readlink(`/proc/${pid}/cwd`).catch(() => "")] as const)).then(pairs => new Map(pairs))
-      : run("lsof", ["-a", "-d", "cwd", "-Fn", "-p", list]).then(parseLsofCwd).catch(() => new Map<number, string>()),
+      : run("lsof", ["-a", "-d", "cwd", "-Fn", "-p", list], 8000, true).then(parseLsofCwd).catch(() => new Map<number, string>()),
   ]);
   return new Map(pids.map(pid => [pid, { command: commands.get(pid), cwd: cwds.get(pid) || undefined }]));
 }
