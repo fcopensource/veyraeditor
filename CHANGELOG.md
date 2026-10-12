@@ -3,6 +3,12 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.9.2
+
+**Fixes**
+- **Sign in** in the top-right corner opens veyraeditor.com in your browser again. Links that open your browser (Live Server pages, extension homepages, "Create an account") work again too
+- Updates appear in one place only: the top-right button turns into **Update** when a new version is ready. The separate update pop-up is gone. Help → Check for Updates still tells you whether you're up to date
+
 ## 0.9.1
 
 **Smoother workbench**

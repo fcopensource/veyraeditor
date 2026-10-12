@@ -621,6 +621,8 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default()).manage(lsp::LspState::default()).manage(dap::DapState::default()).manage(live::LiveState::default())
+        // Opens links (sign in, Live Server pages, extension homepages) in the default browser.
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
@@ -635,6 +637,16 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    /// Every Tauri plugin the interface imports must be registered, or its calls fail at runtime
+    /// ("plugin opener not found"): the Sign in button silently did nothing because of this.
+    #[test] fn every_frontend_plugin_is_registered() {
+        let package: serde_json::Value = serde_json::from_str(include_str!("../../package.json")).unwrap();
+        let source = include_str!("lib.rs");
+        for name in package["dependencies"].as_object().unwrap().keys().filter_map(|n| n.strip_prefix("@tauri-apps/plugin-")) {
+            let crate_name = format!("tauri_plugin_{}", name.replace('-', "_"));
+            assert!(source.contains(&format!(".plugin({crate_name}::")), "{crate_name} is used by the interface but not registered in run()");
+        }
+    }
     #[test] fn ai_context_never_includes_secrets() {
         let dir = tempfile::tempdir().unwrap(); let base = dir.path().canonicalize().unwrap();
         fs::create_dir_all(base.join("src")).unwrap(); fs::create_dir_all(base.join(".ssh")).unwrap(); fs::create_dir_all(base.join("config")).unwrap();

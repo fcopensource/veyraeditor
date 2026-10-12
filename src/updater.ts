@@ -23,7 +23,7 @@ export async function lookForUpdate(manual: boolean, notify: (message: string) =
   if (manual) notify("Checking for updates…");
   try {
     const found = await check();
-    if (found) { set({ update: found }); if (manual) notify(`Veyra ${found.version} is available`); }
+    if (found) { set({ update: found }); if (manual) notify(`Veyra ${found.version} is ready: click Update in the top-right corner`); }
     else if (manual) notify("Veyra is up to date");
   } catch (error) {
     if (manual) notify("Could not check for updates: " + String(error));
