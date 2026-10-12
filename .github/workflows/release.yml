@@ -136,5 +136,5 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           extension=$(node -p "require('./extensions/live-server/package.json').version")
-          cp "extensions/live-server/dist/live-server-$extension.vsix" "veyra-live-server-$extension.vsix"
+          cp "extensions/live-server/dist/veyra-live-server-$extension.vsix" "veyra-live-server-$extension.vsix"
           gh release upload "v$version" "veyra-live-server-$extension.vsix" --clobber --repo "$GITHUB_REPOSITORY"
