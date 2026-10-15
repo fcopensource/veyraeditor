@@ -76,7 +76,11 @@ export default function Extensions(){
           </Link>
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+            <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/salesforce-studio" className="ext-original salesforce">
+            <Image src="/salesforce-studio-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR CHROME &amp; EDGE</small><h3>Salesforce Studio</h3><p>Your org’s code, open in seconds. Edit LWC, Aura, Apex and Visualforce from any Salesforce tab, and validate and deploy safely.</p><span className="ext-link">Explore Salesforce Studio <ArrowRight size={14}/></span></div>
           </Link>
         </div>
       </section>

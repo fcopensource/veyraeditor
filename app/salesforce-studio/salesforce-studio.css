@@ -1,0 +1,4 @@
+/* Salesforce Studio page (builds on live-server.css and port-manager.css) */
+.sfs-shot img{display:block;width:100%;height:auto;border:1px solid #ffffff14;border-radius:14px;box-shadow:0 30px 70px #0009}
+.content-section.split .pm-stack{margin-top:18px}
+.sfs-legal{margin-top:28px;color:#6b7785;font-size:12.5px;line-height:1.6}
