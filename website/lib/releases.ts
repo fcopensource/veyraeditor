@@ -10,9 +10,10 @@ export type Manifest = { version: string; notes?: string; pub_date?: string; pla
 // the website open. Hostinger occasionally restricts this outbound request.
 const releaseSignal = () => AbortSignal.timeout(Number(process.env.RELEASE_FETCH_TIMEOUT_MS) || 3500);
 
-export async function latestRelease(): Promise<Release | null> {
+/** The latest release of Veyra, or of another repository such as fcopensource/salesforce-studio. */
+export async function latestRelease(repo = REPO): Promise<Release | null> {
   try {
-    const response = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+    const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
       headers: { Accept: "application/vnd.github+json", ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}) },
       next: { revalidate: 300 },
       signal: releaseSignal(),
