@@ -133,7 +133,7 @@ export default async function SalesforceStudioPage(){
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
         <p className="live-more"><Globe size={14}/>More from Veyra: <Link href="/live-server">Veyra Live Server</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/extensions">all extensions</Link>.</p>
-        <p className="sfs-legal">Salesforce Studio is a product of Veyra / Flightcoders, free to use under its <a href={`${GITHUB}/blob/main/LICENSE`}>License Agreement</a>. It is not affiliated with or endorsed by Salesforce, Inc. Salesforce, Lightning and Visualforce are trademarks of Salesforce, Inc.</p>
+        <p className="sfs-legal">Salesforce Studio is a product of Veyra / Flightcoders, free to use under its <a href={`${GITHUB}/blob/main/LICENSE`}>License Agreement</a> and <Link href="/salesforce-studio/privacy">Privacy Policy</Link>. It is not affiliated with or endorsed by Salesforce, Inc. Salesforce, Lightning and Visualforce are trademarks of Salesforce, Inc.</p>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
