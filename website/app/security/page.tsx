@@ -58,7 +58,8 @@ export default function Security(){
         <tbody>
           <tr><td>Update signing</td><td className="yes">In place</td><td>Updates are verified by Veyra before they install.</td></tr>
           <tr><td>SHA-256 checksums</td><td className="yes">Published</td><td>Compare your download with the checksums on the <Link href="/download">download page</Link>.</td></tr>
-          <tr><td>Windows publisher signing</td><td className="no">Coming</td><td>SmartScreen may warn on first run: choose More info → Run anyway.</td></tr>
+          <tr><td>Microsoft Store</td><td className="yes">Yes</td><td>The Store version is verified by Microsoft and installs without a warning.</td></tr>
+          <tr><td>Windows publisher signing (direct download)</td><td className="no">Coming</td><td>The installer from this site may get a SmartScreen warning on first run: choose More info → Run anyway, or use the Microsoft Store.</td></tr>
           <tr><td>Apple notarization</td><td className="no">Coming</td><td>Right-click → Open the first time on macOS.</td></tr>
         </tbody>
       </table></div>

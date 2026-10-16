@@ -43,7 +43,7 @@ export default function Docs(){
         <section id="install"><h2>Install</h2>
           <p>Get the installer for your system from the <Link href="/download">download page</Link>. Veyra is free, and installs in under a minute.</p>
           <h3>Windows 10 and 11</h3>
-          <p>Run the <code>.exe</code> installer (or the <code>.msi</code> for managed installs). Preview builds aren&apos;t signed by Microsoft yet, so SmartScreen may say <em>&quot;Windows protected your PC&quot;</em>: choose <strong>More info → Run anyway</strong>.</p>
+          <p>The easiest way is the <a href="https://apps.microsoft.com/detail/XP8LKHC447THM1">Microsoft Store</a>: click <strong>Get</strong> and Veyra installs and opens, verified by Microsoft. You can also run the <code>.exe</code> installer from the download page (or the <code>.msi</code> for managed installs). The direct installer isn&apos;t signed with a Microsoft certificate yet, so SmartScreen may say <em>&quot;Windows protected your PC&quot;</em>: choose <strong>More info → Run anyway</strong>.</p>
           <h3>macOS 11 or newer</h3>
           <p>Choose the <code>.dmg</code> for <strong>Apple silicon</strong> (M1 and later) or <strong>Intel</strong>, then drag <strong>Veyra Studio</strong> into Applications. The first time, <strong>right-click → Open</strong>, or allow it in <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>.</p>
           <Note warn>If macOS says the app &quot;is damaged and can&apos;t be opened&quot;, run this once in Terminal, then open it again: <code>xattr -cr &quot;/Applications/Veyra Studio.app&quot;</code></Note>

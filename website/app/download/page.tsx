@@ -5,6 +5,7 @@ import {Apple,Check,Download,Github,Laptop,Monitor,ShieldCheck,Terminal} from 'l
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {checksums,installers,latestRelease,RELEASES_URL} from '@/lib/releases';
+import {MS_STORE_URL} from '@/lib/site';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 
 export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free AI code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux. Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{images:[OG_IMAGE],url:'/download',title:'Download Veyra: free AI code editor'}};
@@ -13,10 +14,15 @@ export const revalidate=300;
 type Link={label:string;href?:string;size?:number};
 const mb=(bytes?:number)=>bytes?` · ${(bytes/1048576).toFixed(0)} MB`:'';
 
-function Platform({icon,name,detail,primary,others,requirements}:{icon:React.ReactNode;name:string;detail:string;primary:Link;others:Link[];requirements:string[]}){
+/** The four-square Windows mark, drawn inline. */
+const WindowsMark=()=><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M0 0h7.5v7.5H0zM8.5 0H16v7.5H8.5zM0 8.5h7.5V16H0zM8.5 8.5H16V16H8.5z"/></svg>;
+
+function Platform({icon,name,detail,store,primary,others,requirements}:{icon:React.ReactNode;name:string;detail:string;store?:string;primary:Link;others:Link[];requirements:string[]}){
   return <article className="download-card platform-card">
     {icon}<h2>{name}</h2><p>{detail}</p>
-    <a className="primary" href={primary.href||RELEASES_URL}><Download/>{primary.href?primary.label+mb(primary.size):'See all downloads'}</a>
+    {store?<a className="primary store-button" href={store}><WindowsMark/><span><small>Get it from</small>Microsoft Store</span></a>
+      :<a className="primary" href={primary.href||RELEASES_URL}><Download/>{primary.href?primary.label+mb(primary.size):'See all downloads'}</a>}
+    {store&&<a className="alt-primary" href={primary.href||RELEASES_URL}><Download size={14}/>{primary.href?primary.label+mb(primary.size):'Direct download'}</a>}
     <div className="alt-downloads">{others.filter(link=>link.href).map(link=><a key={link.label} href={link.href}>{link.label}{mb(link.size)}</a>)}</div>
     <div className="requirements">{requirements.map(item=><span key={item}><Check/>{item}</span>)}</div>
   </article>;
@@ -30,7 +36,7 @@ export default async function DownloadPage(){
   return <><Nav/><Breadcrumbs items={[{name:'Download',path:'/download'}]}/><main className="page-shell">
     <div className="page-head"><span>{release?`VERSION ${release.version}`:'PUBLIC PREVIEW'}</span><h1>Meet your new workspace.</h1><p>Veyra runs natively on Windows, macOS and Linux, and keeps itself up to date automatically.</p></div>
     <div className="download-grid platforms">
-      <Platform icon={<Monitor className="platform"/>} name="Windows" detail="Windows 10 and 11 · 64-bit" primary={{label:'Download installer (.exe)',...asset(files.windows)}} others={[{label:'MSI package',...asset(files.windowsMsi)}]} requirements={['Windows 10 or newer','WebView2 (installed automatically)']}/>
+      <Platform icon={<Monitor className="platform"/>} name="Windows" detail="Windows 10 and 11 · 64-bit" store={MS_STORE_URL} primary={{label:'Download installer (.exe)',...asset(files.windows)}} others={[{label:'MSI package',...asset(files.windowsMsi)}]} requirements={['Windows 10 or newer','WebView2 (installed automatically)']}/>
       <Platform icon={<Apple className="platform"/>} name="macOS" detail="Apple silicon and Intel" primary={{label:'Apple silicon (.dmg)',...asset(files.macArm)}} others={[{label:'Intel Mac (.dmg)',...asset(files.macIntel)}]} requirements={['macOS 11 or newer']}/>
       <Platform icon={<Terminal className="platform"/>} name="Linux" detail="64-bit distributions" primary={{label:'AppImage',...asset(files.appImage)}} others={[{label:'Debian / Ubuntu (.deb)',...asset(files.deb)},{label:'Fedora (.rpm)',...asset(files.rpm)}]} requirements={['WebKitGTK 4.1','glibc 2.35 or newer']}/>
     </div>
@@ -42,7 +48,8 @@ export default async function DownloadPage(){
       <h2 id="trust-title"><ShieldCheck/>Trust & verification</h2>
       <div className="trust-rows">
         <div><b>Automatic updates</b><span className="trust-ok">Cryptographically signed</span><p>Every update is signed with Veyra's update key, and installed copies verify the signature before installing anything.</p></div>
-        <div><b>Windows publisher signing</b><span className="trust-warn">Not yet (preview)</span><p>Installers aren't signed with a Microsoft code-signing certificate yet, so SmartScreen may warn on first run: choose More info → Run anyway.</p></div>
+        <div><b>Microsoft Store</b><span className="trust-ok">Verified by Microsoft</span><p>Install from the <a href={MS_STORE_URL}>Microsoft Store</a> for a one-click install with no SmartScreen warning.</p></div>
+        <div><b>Windows direct download</b><span className="trust-warn">Not signed yet</span><p>The .exe and .msi on this page aren't signed with a Microsoft code-signing certificate yet, so SmartScreen may warn on first run: choose More info → Run anyway.</p></div>
         <div><b>Apple notarization</b><span className="trust-warn">Not yet (preview)</span><p>The app isn't notarized by Apple yet. The first time, right-click Veyra Studio → Open (see the <a href="/docs#install">install guide</a>).</p></div>
         <div><b>Built in public</b><span className="trust-ok">GitHub Actions</span><p>Every release is built from the open-source code by GitHub Actions. Compare the SHA-256 checksums below with your download.</p></div>
       </div>
