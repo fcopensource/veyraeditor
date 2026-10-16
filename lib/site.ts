@@ -10,7 +10,7 @@ export const SAME_AS = [
   "https://marketplace.visualstudio.com/publishers/flightcoders",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
-  "https://github.com/fcopensource/salesforce-studio",
+  "https://github.com/fcopensource/salesforce-studio-releases",
 ];
 /** The site-wide social preview image (app/opengraph-image.tsx), for pages that set their own openGraph. */
 export const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "Veyra: the fast, local-first AI code editor" };

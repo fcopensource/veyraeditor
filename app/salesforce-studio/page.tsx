@@ -12,7 +12,8 @@ import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 import './salesforce-studio.css';
 
-const REPO='fcopensource/salesforce-studio';
+/** Public downloads and product page; the source is private. */
+const REPO='fcopensource/salesforce-studio-releases';
 const GITHUB=`https://github.com/${REPO}`;
 const RELEASES=`${GITHUB}/releases/latest`;
 
@@ -34,7 +35,7 @@ const FEATURES=[
 ];
 const TYPES=['Lightning Web Components','Aura Components','Apex Classes','Apex Triggers','Visualforce Pages','Visualforce Components','Lightning Message Channels'];
 const FAQ=[
-  {q:'Is Salesforce Studio free?',a:'Yes. It is free and open source, with no account and no telemetry. It works in Chrome and Edge.'},
+  {q:'Is Salesforce Studio free?',a:'Yes. It is free to use for personal and business work, with no account and no telemetry. It works in Chrome and Edge.'},
   {q:'How does it connect without an OAuth app?',a:'Like Lightning Studio and Salesforce Inspector, it uses the Salesforce sign-in already in your browser. It reads that org’s session cookie and calls the API only on the org’s own my.salesforce.com address. The session is never stored; signing out of Salesforce disconnects Studio.'},
   {q:'What happens when I press Ctrl+S?',a:'The open component is saved straight to your org, like Lightning Studio. LWC, Aura and Visualforce files are saved in place with the Tooling API in about a second. Apex classes and triggers are deployed directly. Any error appears in the console and your edit stays in the editor.'},
   {q:'Why do Apex tests run when I save Apex in production?',a:'Salesforce requires your local Apex tests for every Apex change in a production org, whichever tool you use. LWC, Aura and Visualforce changes never run tests, and in a sandbox no tests run at all.'},
@@ -69,9 +70,9 @@ export default async function SalesforceStudioPage(){
         <p className="live-intro">Edit Lightning web components, Aura, Apex and Visualforce right in your browser. One click from any Salesforce tab, and Ctrl+S saves straight to your org.</p>
         <div className="live-actions">
           <a className="primary" href={zipUrl}><Download size={16}/>Download for Chrome &amp; Edge</a>
-          <a className="secondary" href={GITHUB}><Code2 size={16}/>View on GitHub</a>
+          <a className="secondary" href={`${GITHUB}#readme`}><Code2 size={16}/>Guide &amp; releases</a>
         </div>
-        <p className="live-micro">{version?`v${version} · `:''}Free · Open source · Chrome and Edge</p>
+        <p className="live-micro">{version?`v${version} · `:''}Free · Chrome and Edge · By Veyra</p>
       </section>
 
       <section className="pm-shot">
@@ -132,7 +133,7 @@ export default async function SalesforceStudioPage(){
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
         <p className="live-more"><Globe size={14}/>More from Veyra: <Link href="/live-server">Veyra Live Server</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/extensions">all extensions</Link>.</p>
-        <p className="sfs-legal">Salesforce Studio is an independent project and is not affiliated with or endorsed by Salesforce, Inc. Salesforce, Lightning and Visualforce are trademarks of Salesforce, Inc.</p>
+        <p className="sfs-legal">Salesforce Studio is a product of Veyra / Flightcoders, free to use under its <a href={`${GITHUB}/blob/main/LICENSE`}>License Agreement</a>. It is not affiliated with or endorsed by Salesforce, Inc. Salesforce, Lightning and Visualforce are trademarks of Salesforce, Inc.</p>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
