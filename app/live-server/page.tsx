@@ -66,7 +66,7 @@ export default async function LiveServerPage(){
     <main className="page-shell"><div className="content live-page">
       <section className="live-hero">
         <div className="live-hero-glow" aria-hidden="true"/>
-        <div className="live-icon"><Image src="/live-server-icon.png" width={148} height={148} alt="Veyra Live Server icon" priority/></div>
+        <div className="live-icon"><Image src="/live-server-icon-296.png" width={148} height={148} alt="Veyra Live Server icon" priority/></div>
         <span className="live-kicker"><i/>VEYRA EDITION · FOR VEYRA AND VS CODE</span>
         <h1>Veyra <em>Live Server</em></h1>
         <p className="live-tagline">Save. See it. Instantly.</p>
@@ -108,7 +108,7 @@ export default async function LiveServerPage(){
       <section className="content-section">
         <header><span>ONE SERVER, TWO EDITORS</span><h2>The same Live Server in Veyra and VS Code.</h2><p>Both editions share the same live reload script and follow the same rules, so your project behaves identically wherever you open it.</p></header>
         <div className="live-table" role="table" aria-label="Veyra and VS Code editions">
-          <div role="row" className="head"><span role="columnheader"/><span role="columnheader"><Image src="/veyra.png" width={18} height={18} alt=""/>In Veyra Studio</span><span role="columnheader"><Code2 size={16}/>In VS Code</span></div>
+          <div role="row" className="head"><span role="columnheader"/><span role="columnheader"><Image src="/veyra-96.png" width={18} height={18} alt=""/>In Veyra Studio</span><span role="columnheader"><Code2 size={16}/>In VS Code</span></div>
           {COMPARE.map(([label,veyra,vscode])=><div role="row" key={label}><span role="rowheader">{label}</span><span role="cell">{veyra}</span><span role="cell">{vscode}</span></div>)}
         </div>
       </section>

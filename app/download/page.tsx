@@ -35,7 +35,7 @@ export default async function DownloadPage(){
       <Platform icon={<Terminal className="platform"/>} name="Linux" detail="64-bit distributions" primary={{label:'AppImage',...asset(files.appImage)}} others={[{label:'Debian / Ubuntu (.deb)',...asset(files.deb)},{label:'Fedora (.rpm)',...asset(files.rpm)}]} requirements={['WebKitGTK 4.1','glibc 2.35 or newer']}/>
     </div>
     <div className="download-grid">
-      <article className="download-card primary-card"><div><h2>Always up to date</h2><p>Installed copies check for new versions and offer a one-click, signature-verified update. No reinstalling.</p><a className="secondary" href={RELEASES_URL}><Github/>Release notes</a></div><Image src="/veyra.png" width={120} height={120} alt="Veyra app icon"/></article>
+      <article className="download-card primary-card"><div><h2>Always up to date</h2><p>Installed copies check for new versions and offer a one-click, signature-verified update. No reinstalling.</p><a className="secondary" href={RELEASES_URL}><Github/>Release notes</a></div><Image src="/veyra-192.png" width={120} height={120} alt="Veyra app icon"/></article>
       <article className="download-card"><Laptop className="platform"/><h2>Build from source</h2><p>Clone Veyra and run the complete Tauri application locally with Node.js 22+ and Rust.</p><a className="secondary" href="https://github.com/fcopensource/veyraeditor"><Github/>Open on GitHub</a></article>
     </div>
     <section className="trust-panel" aria-labelledby="trust-title">

@@ -4,7 +4,7 @@ import Link from 'next/link';
 export function Footer(){
   return <footer className="site-footer">
     <div className="footer-brand">
-      <Link className="brand" href="/"><span><Image src="/veyra.png" width={30} height={30} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
+      <Link className="brand" href="/"><span><Image src="/veyra-96.png" width={30} height={30} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
       <p>A fast, local-first code editor with Git, a real terminal and AI built in.</p>
     </div>
     <div><strong>Product</strong><Link href="/features">Features</Link><Link href="/extensions">Extensions</Link><Link href="/live-server">Live Server</Link><Link href="/port-manager">Port Manager</Link><Link href="/salesforce-studio">Salesforce Studio</Link><Link href="/download">Download</Link><Link href="/changelog">Changelog</Link><Link href="/roadmap">Roadmap</Link></div>

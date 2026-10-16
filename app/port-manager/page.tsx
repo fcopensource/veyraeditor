@@ -84,7 +84,7 @@ export default async function PortManagerPage(){
       </section>
 
       <section className="pm-shot">
-        <img src="/port-manager-hero.png" alt="The Ports in Use view in VS Code: Next.js on 3000 and Vite on 5173 in This Workspace, Django on 8000 and PostgreSQL on 5432 in Apps and Dev Servers" width={1920} height={960} loading="lazy"/>
+        <img src="/port-manager-hero.webp" alt="The Ports in Use view in VS Code: Next.js on 3000 and Vite on 5173 in This Workspace, Django on 8000 and PostgreSQL on 5432 in Apps and Dev Servers" width={1920} height={960} loading="lazy"/>
       </section>
 
       <section className="content-section">
