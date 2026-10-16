@@ -25,7 +25,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/about'),changeFrequency:'yearly',priority:0.5},
     {url:absolute('/security'),changeFrequency:'monthly',priority:0.6},
     {url:absolute('/blog'),lastModified:new Date(allPosts()[0]?.date||Date.now()),changeFrequency:'weekly',priority:0.8},
-    ...allPosts().map(post=>({url:absolute(`/blog/${post.slug}`),lastModified:new Date(post.date+'T12:00:00Z'),changeFrequency:'monthly' as const,priority:0.7})),
+    ...allPosts().map(post=>({url:absolute(`/blog/${post.slug}`),lastModified:new Date(post.updated+'T12:00:00Z'),changeFrequency:'monthly' as const,priority:0.7})),
     {url:absolute('/register'),changeFrequency:'monthly',priority:0.4},
     {url:absolute('/privacy'),changeFrequency:'yearly',priority:0.2},
     {url:absolute('/terms'),changeFrequency:'yearly',priority:0.2},

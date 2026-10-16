@@ -29,7 +29,7 @@ export function Nav(){
   },[open]);
   const current=(href:string)=>!href.includes('#')&&!href.startsWith('http')&&pathname===href;
   return <header className={'nav'+(open?' open':'')}>
-    <Link className="brand" href="/" aria-label="Veyra Studio home"><span><Image src="/veyra.png" width={34} height={34} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
+    <Link className="brand" href="/" aria-label="Veyra Studio home"><span><Image src="/veyra-96.png" width={34} height={34} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
     <nav aria-label="Main">{links.map(link=>link.external
       ?<a key={link.href} href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
       :<Link key={link.href} href={link.href} aria-current={current(link.href)?'page':undefined}>{link.label}</Link>)}</nav>

@@ -54,7 +54,7 @@ export default function Extensions(){
           <div className="ext-mock-head"><span>EXTENSIONS</span><i/></div>
           <div className="ext-mock-search"><Search size={13}/>live server</div>
           <div className="ext-mock-label">POPULAR ON OPEN VSX</div>
-          <div className="ext-mock-row featured"><Image src="/live-server-icon.png" width={34} height={34} alt=""/><span><b>Live Server</b><small>Launch a development local server with live reload</small><em>Built into Veyra</em></span><button>Installed</button></div>
+          <div className="ext-mock-row featured"><Image src="/live-server-icon-296.png" width={34} height={34} alt=""/><span><b>Live Server</b><small>Launch a development local server with live reload</small><em>Built into Veyra</em></span><button>Installed</button></div>
           <div className="ext-mock-row"><span className="ext-mock-icon tone-violet"><Sparkles size={16}/></span><span><b>ESLint</b><small>Integrates ESLint into the editor</small><em>Built into Veyra</em></span><button>Install</button></div>
           <div className="ext-mock-row"><span className="ext-mock-icon tone-pink"><Palette size={16}/></span><span><b>Prettier</b><small>Code formatter using prettier</small><em>Built into Veyra</em></span><button>Install</button></div>
           <div className="ext-mock-row"><span className="ext-mock-icon tone-dark"><Code2 size={16}/></span><span><b>One Dark Pro</b><small>Atom’s iconic One Dark theme</small><i>★ 4.7 · 9.1M</i></span><button>Install</button></div>
@@ -67,7 +67,7 @@ export default function Extensions(){
         <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2></header>
         <div className="ext-originals">
           <Link href="/live-server" className="ext-original live">
-            <Image src="/live-server-icon.png" width={96} height={96} alt=""/>
+            <Image src="/live-server-icon-296.png" width={96} height={96} alt=""/>
             <div><small>LIVE PREVIEW · ALSO FOR VS CODE</small><h3>Veyra Live Server</h3><p>Save. See it. Instantly. Go Live serves your folder and reloads the browser on save, with CSS applied without a reload.</p><span className="ext-link">Explore Live Server <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/docs#ai" className="ext-original ai">

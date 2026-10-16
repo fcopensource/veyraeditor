@@ -175,6 +175,14 @@ a.card:hover{transform:translateY(-3px)}
 .post-cta div{display:grid;gap:4px}
 .post-cta b{font-size:17px}
 .post-cta span{color:var(--muted);font-size:13px}
+.post-related{max-width:760px;margin:48px auto 0}
+.post-related h2{font-size:20px;margin:0 0 14px}
+.post-related>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.post-related a{display:grid;gap:6px;align-content:start;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#0b1018;color:inherit;text-decoration:none;transition:border-color .2s ease,transform .2s ease}
+.post-related a:hover{border-color:#68f4d166;transform:translateY(-2px)}
+.post-related em{font-style:normal;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#68f4d1}
+.post-related b{font-size:15px;line-height:1.35}
+.post-related span{color:var(--muted);font-size:13px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .post-nav{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;margin:22px auto 0}
 .post-nav a{display:grid;gap:6px;padding:18px 20px;border:1px solid var(--line);border-radius:14px;color:#dce5ea;font-weight:600;line-height:1.4}
 .post-nav a:hover{border-color:#3d5563}
@@ -221,3 +229,10 @@ html{scroll-padding-top:104px}
 main p,main li,main dd,main td{overflow-wrap:anywhere}
 /* The home page's floating cards stay inside the screen on tablets and small laptops. */
 @media(min-width:801px) and (max-width:1240px){.float-card.left{left:12px}.float-card.right{right:12px}}
+/* Long code lines and wide tables scroll inside the article on phones, never the page. */
+.post-layout>*{min-width:0}
+.post-body{min-width:0;overflow-wrap:break-word}
+.post-body table{display:block;max-width:100%;overflow-x:auto}
+.post-body td code,.post-body th code{white-space:nowrap}
+.post-body th,.post-body td{overflow-wrap:normal;word-break:normal}
+.post-body td:first-child,.post-body th:first-child{min-width:7.5em}

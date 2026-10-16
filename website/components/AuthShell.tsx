@@ -6,7 +6,7 @@ import {Check} from 'lucide-react';
 export function AuthShell({title,copy,children}:{title:string;copy:string;children:ReactNode}){
   return <main className="auth-page">
     <section className="auth-art">
-      <Link className="brand" href="/"><span><Image src="/veyra.png" width={34} height={34} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
+      <Link className="brand" href="/"><span><Image src="/veyra-96.png" width={34} height={34} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
       <div>
         <span>BUILD BEYOND THE ORDINARY</span>
         <h1>A better room<br/>for your code.</h1>
@@ -22,7 +22,7 @@ export function AuthShell({title,copy,children}:{title:string;copy:string;childr
     <section className="auth-panel">
       <div>
         <div className="auth-topbar">
-          <Link className="brand auth-mobile-brand" href="/" aria-label="Veyra home"><span><Image src="/veyra.png" width={30} height={30} alt=""/></span><b>Veyra</b></Link>
+          <Link className="brand auth-mobile-brand" href="/" aria-label="Veyra home"><span><Image src="/veyra-96.png" width={30} height={30} alt=""/></span><b>Veyra</b></Link>
           <Link className="auth-back" href="/">← Back to Veyra</Link>
         </div>
         <span>VEYRA ACCOUNT</span>

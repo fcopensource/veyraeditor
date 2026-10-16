@@ -100,11 +100,11 @@ export default async function Home() {
           <div className="product-shell">
             <div className="window-bar">
               <span className="traffic"><i /><i /><i /></span>
-              <b><Image src="/veyra.png" width={20} height={20} alt="" />Veyra Studio</b>
+              <b><Image src="/veyra-96.png" width={20} height={20} alt="" />Veyra Studio</b>
               <small><Command size={12} /> K</small>
             </div>
             <div className="screen">
-              <Image src="/editor.png" fill sizes="(max-width: 900px) 96vw, 1100px" alt="The Veyra editor with explorer, code and terminal" />
+              <Image src="/editor.webp" fill sizes="(max-width: 900px) 96vw, 1100px" alt="The Veyra editor with explorer, code and terminal" />
             </div>
             <div className="float-card left"><Zap size={16} /><span><b>Veyra AI built in</b><small>10 free requests, no API key</small></span></div>
             <div className="float-card right"><Check size={16} /><span><b>All changes reviewed</b><small>You stay in control</small></span></div>
@@ -223,7 +223,7 @@ export default async function Home() {
 
         <section className="cta" data-reveal>
           <div className="cta-glow" />
-          <Image src="/veyra.png" width={84} height={84} alt="Veyra" />
+          <Image src="/veyra-192.png" width={84} height={84} alt="Veyra" />
           <span>YOUR NEXT IDEA DESERVES A GREAT ROOM</span>
           <h2>Build beyond<br />the ordinary.</h2>
           <p>Download Veyra for free, explore the source, and help shape an editor built for the way software is changing.</p>
