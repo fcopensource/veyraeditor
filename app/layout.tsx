@@ -8,7 +8,7 @@ import './site.css';
 import './content.css';
 import './account.css';
 import {latestRelease} from '@/lib/releases';
-import {ALT_NAMES,DESCRIPTION,KEYWORDS,PRODUCT_NAME,SAME_AS,SITE_NAME,SITE_URL,TAGLINE,absolute,jsonLd} from '@/lib/site';
+import {ALT_NAMES,DESCRIPTION,KEYWORDS,MS_STORE_URL,PRODUCT_NAME,SAME_AS,SITE_NAME,SITE_URL,TAGLINE,absolute,jsonLd} from '@/lib/site';
 
 // Self-hosted fonts: no render-blocking request to Google Fonts, and no layout shift while they load.
 const sans=Manrope({subsets:['latin'],variable:'--font-sans',display:'swap'});
@@ -45,7 +45,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
       {'@type':'SoftwareApplication','@id':absolute('/#software'),name:PRODUCT_NAME,alternateName:ALT_NAMES,url:SITE_URL,description:DESCRIPTION,
         applicationCategory:'DeveloperApplication',applicationSubCategory:'Code editor',operatingSystem:'Windows 10, Windows 11, macOS 11+, Linux',
         ...(release?.version?{softwareVersion:release.version,datePublished:release.publishedAt}:{}),
-        downloadUrl:absolute('/download'),installUrl:absolute('/download'),releaseNotes:absolute('/changelog'),
+        downloadUrl:absolute('/download'),installUrl:MS_STORE_URL,releaseNotes:absolute('/changelog'),
         image:absolute('/opengraph-image'),screenshot:absolute('/editor.png'),license:'https://opensource.org/licenses/MIT',isAccessibleForFree:true,
         offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@id':absolute('/#organization')},
         featureList:['Veyra AI assistant with reviewable AI edits','Project-wide IntelliSense','Built-in Git with diffs and branches','Integrated terminal','Signed automatic updates']},

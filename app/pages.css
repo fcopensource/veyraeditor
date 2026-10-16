@@ -25,3 +25,9 @@
 .checksums code{font:11px var(--font-mono);word-break:break-all;color:#cfe}
 .checksums p{color:var(--muted);font-size:12px}
 @media(max-width:700px){.trust-rows{grid-template-columns:1fr}.checksums th:nth-child(2),.checksums td:nth-child(2){display:none}}
+/* Microsoft Store button on the Windows card */
+.platform-card .store-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#0b0b0b;color:#fff;border:1px solid #ffffff3a}
+.platform-card .store-button:hover{background:#1a1a1a;border-color:#ffffff66}
+.store-button span{display:grid;text-align:left;line-height:1.1;font-weight:600}
+.store-button small{font-size:10.5px;font-weight:400;opacity:.8}
+.platform-card .alt-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;font-size:13px;color:#c5d0db;text-decoration:underline;text-underline-offset:3px}

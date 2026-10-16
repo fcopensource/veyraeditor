@@ -4,9 +4,12 @@ export const SITE_NAME = "Veyra";
 export const PRODUCT_NAME = "Veyra Studio";
 export const ALT_NAMES = ["Veyra Studio", "Veyra Editor", "Veyra Code Editor", "veyraeditor"];
 export const GITHUB_URL = "https://github.com/fcopensource/veyraeditor";
+/** Veyra Studio in the Microsoft Store: signed and trusted by Windows, no SmartScreen warning. */
+export const MS_STORE_URL = "https://apps.microsoft.com/detail/XP8LKHC447THM1";
 /** Other official places Veyra lives: they tell search engines these all belong to one brand. */
 export const SAME_AS = [
   GITHUB_URL,
+  MS_STORE_URL,
   "https://marketplace.visualstudio.com/publishers/flightcoders",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
@@ -56,7 +59,7 @@ export const FAQ_GROUPS: { title: string; items: QA[] }[] = [
   ]},
   { title: "Install & updates", items: [
     { q: "How do updates work?", a: "Veyra checks for new versions automatically. When one is ready, the Sign in button in the top-right corner turns into Update: click it, and Veyra installs the update and restarts. Updates are cryptographically signed and verified before installing, and Veyra asks before closing unsaved work. Help → Check for Updates checks right away." },
-    { q: "Windows says \"Windows protected your PC\". Is Veyra safe?", a: "Preview builds are not yet signed with a Microsoft certificate, so SmartScreen shows this warning for new apps. Choose More info → Run anyway. Every release is built publicly on GitHub Actions from the open-source code." },
+    { q: "Windows says \"Windows protected your PC\". Is Veyra safe?", a: "Yes. Install Veyra from the Microsoft Store to avoid the warning entirely: the Store version is verified by Microsoft and installs in one click. The installer downloaded directly from this site isn't signed with a Microsoft certificate yet, so SmartScreen may warn on first run; choose More info → Run anyway. Every release is built publicly on GitHub Actions from the open-source code." },
     { q: "macOS says the app is damaged. What do I do?", a: "Run xattr -cr \"/Applications/Veyra Studio.app\" once in Terminal, then open Veyra again. On newer versions, right-click the app and choose Open the first time." },
   ]},
 ];
