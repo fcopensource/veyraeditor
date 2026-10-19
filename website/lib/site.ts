@@ -6,6 +6,9 @@ export const ALT_NAMES = ["Veyra Studio", "Veyra Editor", "Veyra Code Editor", "
 export const GITHUB_URL = "https://github.com/fcopensource/veyraeditor";
 /** Veyra Studio in the Microsoft Store: signed and trusted by Windows, no SmartScreen warning. */
 export const MS_STORE_URL = "https://apps.microsoft.com/detail/XP8LKHC447THM1";
+/** Veyra PDF for Windows: the installer is hosted on downloads.veyraeditor.com. */
+export const PDF_VERSION = "1.0.0";
+export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${PDF_VERSION}_x64-setup.exe`;
 /** Other official places Veyra lives: they tell search engines these all belong to one brand. */
 export const SAME_AS = [
   GITHUB_URL,
