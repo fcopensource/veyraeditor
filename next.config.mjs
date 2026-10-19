@@ -16,6 +16,12 @@ const config = {
     unoptimized: true,
     remotePatterns: [{ protocol: "https", hostname: "avatars.githubusercontent.com" }],
   },
+  // The AI gateway reads its app profiles at runtime: ship them with the API routes.
+  outputFileTracingIncludes: { "/api/v1/**": ["./content/ai-apps/**"] },
+  // api.veyraeditor.com/v1/... (and veyraeditor.com/v1/...) is the AI gateway in app/api/v1.
+  async rewrites() {
+    return [{ source: "/v1/:path*", destination: "/api/v1/:path*" }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
