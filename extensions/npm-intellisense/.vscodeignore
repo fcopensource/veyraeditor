@@ -1,0 +1,10 @@
+src/**
+test/**
+dist/**
+node_modules/**
+tsconfig.json
+**/*.map
+.gitignore
+.vscode-test/**
+media/readme/**
+test/integration/**

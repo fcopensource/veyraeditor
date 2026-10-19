@@ -1,0 +1,175 @@
+{
+  "name": "veyra-npm-intellisense",
+  "displayName": "Veyra npm IntelliSense",
+  "description": "Autocomplete npm packages, subpaths and Node built-ins in import and require, with versions. Catch missing packages and install them in one click, see package details on hover, and find unused dependencies.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/npm-intellisense"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "npm",
+    "npm intellisense",
+    "intellisense",
+    "autocomplete",
+    "import",
+    "require",
+    "package.json",
+    "node_modules",
+    "dependencies",
+    "unused dependencies",
+    "missing dependency",
+    "pnpm",
+    "yarn",
+    "bun",
+    "monorepo",
+    "typescript",
+    "javascript",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode, completions and hovers work, but installing packages is turned off.",
+      "restrictedConfigurations": []
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:vue",
+    "onLanguage:svelte",
+    "onLanguage:astro",
+    "workspaceContains:**/package.json"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "veyraNpm.addImport",
+        "title": "Add Import from Package…",
+        "category": "Veyra npm"
+      },
+      {
+        "command": "veyraNpm.install",
+        "title": "Install Package…",
+        "category": "Veyra npm"
+      },
+      {
+        "command": "veyraNpm.findUnused",
+        "title": "Find Unused Dependencies",
+        "category": "Veyra npm"
+      },
+      {
+        "command": "veyraNpm.installAll",
+        "title": "Install All Dependencies",
+        "category": "Veyra npm"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "veyraNpm.findUnused",
+          "when": "resourceFilename == package.json",
+          "group": "7_modification"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraNpm.addImport",
+          "when": "editorLangId =~ /^(javascript|javascriptreact|typescript|typescriptreact|vue|svelte|astro)$/"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra npm IntelliSense",
+      "properties": {
+        "veyraNpm.checkImports": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Warn about imports of packages that are not in `package.json`, or that are in it but not installed, with a quick fix to install them."
+        },
+        "veyraNpm.builtins": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suggest Node.js built-in modules such as fs, path and crypto."
+        },
+        "veyraNpm.nodeProtocol": {
+          "type": "string",
+          "enum": ["auto", "always", "never"],
+          "enumDescriptions": [
+            "Write node:fs when the file already uses node: imports, otherwise fs.",
+            "Always write node:fs.",
+            "Always write fs."
+          ],
+          "default": "auto",
+          "description": "Whether to add the node: prefix when completing a built-in module."
+        },
+        "veyraNpm.importStyle": {
+          "type": "string",
+          "enum": ["auto", "import", "require"],
+          "default": "auto",
+          "markdownDescription": "What **Add Import from Package** writes: `import` or `require()`. `auto` matches the file."
+        },
+        "veyraNpm.latestVersion": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the latest version from the npm registry when hovering an import. Turn off to stay fully offline."
+        },
+        "veyraNpm.ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Import prefixes that are not npm packages, such as your own aliases. `@/`, `~/`, `#` and tsconfig `paths` are already understood."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/",
+    "vscode:prepublish": "tsc -p .",
+    "test:integration": "tsc -p . && node test/integration/run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "^5.9.0"
+  }
+}
