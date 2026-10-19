@@ -32,6 +32,12 @@ function configured():Model[]{
   return list;
 }
 
+/** Every configured provider, chosen one first: for the API gateway, which picks per app and falls back. */
+export function providerModels():Model[]{
+  const all=configured(),preferred=env('VEYRA_AI_PROVIDER').toLowerCase();
+  return [...all.filter(m=>m.provider===preferred),...all.filter(m=>m.provider!==preferred)];
+}
+export type {Provider};
 /** The model offered to the app: one "Veyra AI", served by the chosen provider. */
 export function models():Model[]{
   const all=configured();
@@ -103,13 +109,18 @@ export async function addTokens(userId:number,tokens:number){
 }
 
 /* ---------- Requests ---------- */
-type ChatMessage={role:'system'|'user'|'assistant';content:string};
+export type ChatMessage={role:'system'|'user'|'assistant';content:string};
 /** The parts of an OpenAI chat request Veyra AI accepts, validated and capped. */
 export function readChat(body:unknown):{model:Model;messages:ChatMessage[];maxTokens:number}|string{
-  const input=body as {model?:unknown;messages?:unknown;max_tokens?:unknown;max_completion_tokens?:unknown}|null;
   const available=models();
   if(!available.length) return 'Veyra AI is not set up on this server yet.';
-  const model=available.find(m=>m.id===input?.model)||available[0];
+  const model=available.find(m=>m.id===(body as {model?:unknown}|null)?.model)||available[0];
+  const read=readMessages(body);
+  return typeof read==='string'?read:{model,...read};
+}
+/** The messages and output limit of an OpenAI-style chat request, validated and capped. */
+export function readMessages(body:unknown):{messages:ChatMessage[];maxTokens:number}|string{
+  const input=body as {messages?:unknown;max_tokens?:unknown;max_completion_tokens?:unknown}|null;
   if(!Array.isArray(input?.messages)||!input.messages.length||input.messages.length>40) return 'Send between 1 and 40 messages.';
   const messages:ChatMessage[]=[];let size=0;
   for(const item of input.messages as {role?:unknown;content?:unknown}[]){
@@ -119,7 +130,7 @@ export function readChat(body:unknown):{model:Model;messages:ChatMessage[];maxTo
   }
   if(size>160_000) return 'The conversation is too long. Start a new chat or attach less code.';
   const requested=Number(input?.max_completion_tokens??input?.max_tokens)||MAX_OUTPUT_TOKENS;
-  return {model,messages,maxTokens:Math.max(16,Math.min(requested,MAX_OUTPUT_TOKENS))};
+  return {messages,maxTokens:Math.max(16,Math.min(requested,MAX_OUTPUT_TOKENS))};
 }
 
 /** Ask the upstream provider. Returns its JSON (OpenAI chat-completion shape) or throws with a safe message. */
