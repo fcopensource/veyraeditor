@@ -45,7 +45,9 @@ const FAQ=[
 
 export default async function SalesforceStudioPage(){
   const release=await latestRelease(REPO);
-  const zip=release?.assets.find(asset=>/^salesforce-studio-.*\.zip$/i.test(asset.name));
+  // The Chrome and Edge zip is salesforce-studio-<version>.zip; the same release also carries the Firefox build.
+  const zip=release?.assets.find(asset=>/^salesforce-studio-[\d.]+\.zip$/i.test(asset.name));
+  const firefox=release?.assets.find(asset=>/^salesforce-studio-[\d.]+-firefox\.zip$/i.test(asset.name));
   const zipUrl=zip?.browser_download_url||RELEASES;
   const version=release?.version;
   const app={
@@ -72,7 +74,7 @@ export default async function SalesforceStudioPage(){
           <a className="primary" href={zipUrl}><Download size={16}/>Download for Chrome &amp; Edge</a>
           <a className="secondary" href={`${GITHUB}#readme`}><Code2 size={16}/>Guide &amp; releases</a>
         </div>
-        <p className="live-micro">{version?`v${version} · `:''}Free · Chrome and Edge · By Veyra</p>
+        <p className="live-micro">{version?`v${version} · `:''}Free · Chrome and Edge{firefox?<> · <a href={firefox.browser_download_url}>Firefox version</a></>:''} · By Veyra</p>
       </section>
 
       <section className="pm-shot">
