@@ -12,7 +12,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Live Server, TypeScript, ESLint, Prettier, Tailwind, Python and Claude Code in one click, plus themes and snippets from Open VSX. Veyra\'s extensions.',
+  description:'Veyra API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -77,6 +77,14 @@ export default function Extensions(){
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/api-client" className="ext-original api">
+            <Image src="/api-client-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra API Client</h3><p>Test any API without leaving VS Code. REST and GraphQL, collections saved in your repo, environments with private values, and cURL and Postman import. Free, no account.</p><span className="ext-link">Explore API Client <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/npm-intellisense" className="ext-original npm">
+            <Image src="/npm-intellisense-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra npm IntelliSense</h3><p>Every package, one keystroke away. Autocomplete imports with versions, catch missing packages and install them in one click, and find unused dependencies.</p><span className="ext-link">Explore npm IntelliSense <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/salesforce-studio" className="ext-original salesforce">
             <Image src="/salesforce-studio-icon.png" width={96} height={96} alt=""/>

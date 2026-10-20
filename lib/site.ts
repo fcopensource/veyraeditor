@@ -9,6 +9,17 @@ export const MS_STORE_URL = "https://apps.microsoft.com/detail/XP8LKHC447THM1";
 /** Veyra PDF for Windows: the installer is hosted on downloads.veyraeditor.com. */
 export const PDF_VERSION = "1.0.0";
 export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${PDF_VERSION}_x64-setup.exe`;
+/**
+ * Veyra extensions for VS Code that are installed from a .vsix on GitHub until they are on the Visual Studio
+ * Marketplace. Once an extension is live there, set listed: true and its page links to the Marketplace.
+ */
+export const VSCODE_EXTENSIONS = {
+  apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: false },
+  npmIntelliSense: { id: "flightcoders.veyra-npm-intellisense", folder: "npm-intellisense", file: "veyra-npm-intellisense", version: "1.0.1", listed: false },
+} as const;
+export const marketplaceUrl = (id: string) => `https://marketplace.visualstudio.com/items?itemName=${id}`;
+export const vsixUrl = (ext: { folder: string; file: string; version: string }) =>
+  `https://github.com/fcopensource/veyraeditor/raw/main/extensions/${ext.folder}/release/${ext.file}-${ext.version}.vsix`;
 /** Other official places Veyra lives: they tell search engines these all belong to one brand. */
 export const SAME_AS = [
   GITHUB_URL,
