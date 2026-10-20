@@ -1,0 +1,215 @@
+{
+  "name": "veyra-api-client",
+  "displayName": "Veyra API Client",
+  "description": "A fast, free API client in VS Code: send REST and GraphQL requests, organize collections, switch environments and share everything through git. Import cURL and Postman. No account, no limits.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/api-client"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "keywords": [
+    "api",
+    "rest",
+    "rest client",
+    "http",
+    "http client",
+    "api client",
+    "postman",
+    "postman alternative",
+    "thunder client",
+    "thunder client alternative",
+    "insomnia",
+    "graphql",
+    "curl",
+    "request",
+    "testing",
+    "collections",
+    "environments",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Collections are saved in the extension's own storage instead of the workspace."
+    }
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:http",
+    "workspaceContains:.veyra-api/**"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraApi",
+          "title": "Veyra API",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraApi": [
+        {
+          "id": "veyraApi.collections",
+          "name": "Collections"
+        },
+        {
+          "id": "veyraApi.environments",
+          "name": "Environments"
+        },
+        {
+          "id": "veyraApi.history",
+          "name": "History"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraApi.collections",
+        "contents": "Send your first request in seconds.\n[New Request](command:veyraApi.newRequest)\n[New Collection](command:veyraApi.newCollection)\nOr bring what you already have:\n[Import cURL](command:veyraApi.importCurl)\n[Import Postman Collection](command:veyraApi.importPostman)\nCollections are saved in .veyra-api in your project, so your team shares them through git."
+      },
+      {
+        "view": "veyraApi.environments",
+        "contents": "Keep base URLs and tokens for Dev, Staging and Production, and use them as {{name}}.\n[New Environment](command:veyraApi.newEnvironment)"
+      },
+      {
+        "view": "veyraApi.history",
+        "contents": "Requests you send appear here."
+      }
+    ],
+    "commands": [
+      { "command": "veyraApi.newRequest", "title": "New Request", "category": "Veyra API", "icon": "$(add)" },
+      { "command": "veyraApi.newCollection", "title": "New Collection", "category": "Veyra API", "icon": "$(new-folder)" },
+      { "command": "veyraApi.importCurl", "title": "Import cURL", "category": "Veyra API", "icon": "$(terminal)" },
+      { "command": "veyraApi.importPostman", "title": "Import Postman Collection…", "category": "Veyra API" },
+      { "command": "veyraApi.exportPostman", "title": "Export as Postman Collection…", "category": "Veyra API" },
+      { "command": "veyraApi.newEnvironment", "title": "New Environment", "category": "Veyra API", "icon": "$(add)" },
+      { "command": "veyraApi.editEnvironments", "title": "Edit Environments", "category": "Veyra API", "icon": "$(edit)" },
+      { "command": "veyraApi.switchEnvironment", "title": "Switch Environment", "category": "Veyra API" },
+      { "command": "veyraApi.useEnvironment", "title": "Use This Environment", "category": "Veyra API" },
+      { "command": "veyraApi.clearHistory", "title": "Clear History", "category": "Veyra API", "icon": "$(clear-all)" },
+      { "command": "veyraApi.refresh", "title": "Refresh", "category": "Veyra API", "icon": "$(refresh)" },
+      { "command": "veyraApi.addRequest", "title": "Add Request", "category": "Veyra API", "icon": "$(add)" },
+      { "command": "veyraApi.rename", "title": "Rename…", "category": "Veyra API" },
+      { "command": "veyraApi.duplicate", "title": "Duplicate", "category": "Veyra API" },
+      { "command": "veyraApi.delete", "title": "Delete", "category": "Veyra API", "icon": "$(trash)" },
+      { "command": "veyraApi.copyAsCurl", "title": "Copy as cURL", "category": "Veyra API" },
+      { "command": "veyraApi.saveHistoryItem", "title": "Save to Collection…", "category": "Veyra API", "icon": "$(save)" },
+      { "command": "veyraApi.sendHttpRequest", "title": "Send Request", "category": "Veyra API" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraApi.newRequest", "when": "view == veyraApi.collections", "group": "navigation@1" },
+        { "command": "veyraApi.newCollection", "when": "view == veyraApi.collections", "group": "navigation@2" },
+        { "command": "veyraApi.importCurl", "when": "view == veyraApi.collections", "group": "navigation@3" },
+        { "command": "veyraApi.importPostman", "when": "view == veyraApi.collections", "group": "1_import@1" },
+        { "command": "veyraApi.refresh", "when": "view == veyraApi.collections", "group": "1_import@2" },
+        { "command": "veyraApi.newEnvironment", "when": "view == veyraApi.environments", "group": "navigation@1" },
+        { "command": "veyraApi.editEnvironments", "when": "view == veyraApi.environments", "group": "navigation@2" },
+        { "command": "veyraApi.clearHistory", "when": "view == veyraApi.history", "group": "navigation" }
+      ],
+      "view/item/context": [
+        { "command": "veyraApi.addRequest", "when": "view == veyraApi.collections && viewItem =~ /^(collection|folder)$/", "group": "inline@1" },
+        { "command": "veyraApi.addRequest", "when": "view == veyraApi.collections && viewItem =~ /^(collection|folder)$/", "group": "1_edit@1" },
+        { "command": "veyraApi.exportPostman", "when": "view == veyraApi.collections && viewItem == collection", "group": "2_share@1" },
+        { "command": "veyraApi.copyAsCurl", "when": "view == veyraApi.collections && viewItem == request", "group": "2_share@1" },
+        { "command": "veyraApi.rename", "when": "view == veyraApi.collections && viewItem =~ /^(collection|request)$/", "group": "3_modify@1" },
+        { "command": "veyraApi.duplicate", "when": "view == veyraApi.collections && viewItem == request", "group": "3_modify@2" },
+        { "command": "veyraApi.delete", "when": "view == veyraApi.collections && viewItem =~ /^(collection|request)$/", "group": "3_modify@3" },
+        { "command": "veyraApi.useEnvironment", "when": "view == veyraApi.environments && viewItem == environment", "group": "1_use@1" },
+        { "command": "veyraApi.editEnvironments", "when": "view == veyraApi.environments && viewItem =~ /^environment/", "group": "1_use@2" },
+        { "command": "veyraApi.saveHistoryItem", "when": "view == veyraApi.history && viewItem == history", "group": "inline" },
+        { "command": "veyraApi.copyAsCurl", "when": "view == veyraApi.history && viewItem == history", "group": "2_share@1" }
+      ],
+      "commandPalette": [
+        { "command": "veyraApi.addRequest", "when": "false" },
+        { "command": "veyraApi.rename", "when": "false" },
+        { "command": "veyraApi.duplicate", "when": "false" },
+        { "command": "veyraApi.delete", "when": "false" },
+        { "command": "veyraApi.useEnvironment", "when": "false" },
+        { "command": "veyraApi.saveHistoryItem", "when": "false" },
+        { "command": "veyraApi.copyAsCurl", "when": "false" },
+        { "command": "veyraApi.sendHttpRequest", "when": "false" }
+      ]
+    },
+    "languages": [
+      {
+        "id": "http",
+        "aliases": ["HTTP", "http"],
+        "extensions": [".http", ".rest"]
+      }
+    ],
+    "configuration": {
+      "title": "Veyra API Client",
+      "properties": {
+        "veyraApi.timeout": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "description": "Seconds to wait for a response before giving up."
+        },
+        "veyraApi.followRedirects": {
+          "type": "boolean",
+          "default": true,
+          "description": "Follow redirects (301, 302 and so on) automatically."
+        },
+        "veyraApi.historyLimit": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "description": "How many sent requests to keep in History."
+        },
+        "veyraApi.responseLayout": {
+          "type": "string",
+          "enum": ["auto", "below", "beside"],
+          "default": "auto",
+          "description": "Where the response appears: below the request, beside it, or beside it when the panel is wide."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "package": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --out dist/",
+    "vscode:prepublish": "tsc -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "^5.9.0"
+  }
+}
