@@ -15,6 +15,8 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/extensions'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/live-server'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/port-manager'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/api-client'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/npm-intellisense'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/salesforce-studio'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/salesforce-studio/privacy'),lastModified:updated,changeFrequency:'yearly',priority:0.3},
     {url:absolute('/pdf'),lastModified:new Date('2026-10-19'),changeFrequency:'monthly',priority:0.8},
