@@ -12,7 +12,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Veyra MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
+  description:'Veyra Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -77,6 +77,10 @@ export default function Extensions(){
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/docker" className="ext-original docker">
+            <Image src="/docker-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra Container Studio for Docker</h3><p>Docker in VS Code, made easy. Containers, images and Compose in one sidebar, live logs, CPU and memory, one-click cleanup, and Dockerfile checks with fixes.</p><span className="ext-link">Explore Container Studio <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/mcp-studio" className="ext-original mcp">
             <Image src="/mcp-studio-icon.png" width={96} height={96} alt=""/>
