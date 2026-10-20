@@ -1,0 +1,253 @@
+{
+  "name": "veyra-mcp-studio",
+  "displayName": "Veyra MCP Studio",
+  "description": "Manage, test and inspect MCP servers for Claude, Cursor, VS Code and Windsurf in one place. Add servers from a catalog, copy them between apps, and see exactly why a server fails.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/extensions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/mcp-studio"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Debuggers",
+    "Other"
+  ],
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "mcp server",
+    "mcp inspector",
+    "mcp client",
+    "claude",
+    "claude code",
+    "claude desktop",
+    "cursor",
+    "windsurf",
+    "copilot",
+    "ai agents",
+    "ai tools",
+    "agent",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0d1117",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode, servers are listed but not started: starting one runs its command on your computer."
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraMcp",
+          "title": "MCP Studio",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraMcp": [
+        {
+          "id": "veyraMcp.servers",
+          "name": "MCP Servers"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraMcp.servers",
+        "contents": "No AI apps with MCP servers were found yet.\n[Add an MCP Server](command:veyraMcp.addServer)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "veyraMcp.addServer",
+        "title": "Add MCP Server…",
+        "category": "MCP Studio",
+        "icon": "$(add)"
+      },
+      {
+        "command": "veyraMcp.openCatalog",
+        "title": "Browse Server Catalog",
+        "category": "MCP Studio"
+      },
+      {
+        "command": "veyraMcp.testAll",
+        "title": "Check All Servers",
+        "category": "MCP Studio",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "veyraMcp.refresh",
+        "title": "Refresh",
+        "category": "MCP Studio",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "veyraMcp.inspect",
+        "title": "Open Inspector",
+        "category": "MCP Studio",
+        "icon": "$(inspect)"
+      },
+      {
+        "command": "veyraMcp.test",
+        "title": "Test Server",
+        "category": "MCP Studio",
+        "icon": "$(play)"
+      },
+      {
+        "command": "veyraMcp.copyTo",
+        "title": "Copy to Other Apps…",
+        "category": "MCP Studio",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "veyraMcp.openConfig",
+        "title": "Open Config File",
+        "category": "MCP Studio",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "veyraMcp.remove",
+        "title": "Remove…",
+        "category": "MCP Studio",
+        "icon": "$(trash)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "veyraMcp.addServer",
+          "when": "view == veyraMcp.servers",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraMcp.testAll",
+          "when": "view == veyraMcp.servers",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraMcp.refresh",
+          "when": "view == veyraMcp.servers",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "veyraMcp.test",
+          "when": "view == veyraMcp.servers && viewItem =~ /^server/",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraMcp.inspect",
+          "when": "view == veyraMcp.servers && viewItem =~ /^server/",
+          "group": "inline@2"
+        },
+        {
+          "command": "veyraMcp.inspect",
+          "when": "view == veyraMcp.servers && viewItem =~ /^server/",
+          "group": "1_run@1"
+        },
+        {
+          "command": "veyraMcp.test",
+          "when": "view == veyraMcp.servers && viewItem =~ /^server/",
+          "group": "1_run@2"
+        },
+        {
+          "command": "veyraMcp.copyTo",
+          "when": "view == veyraMcp.servers && viewItem =~ /^server/",
+          "group": "2_share@1"
+        },
+        {
+          "command": "veyraMcp.openConfig",
+          "when": "view == veyraMcp.servers && viewItem =~ /^(server|app)/",
+          "group": "3_edit@1"
+        },
+        {
+          "command": "veyraMcp.remove",
+          "when": "view == veyraMcp.servers && viewItem == server",
+          "group": "3_edit@2"
+        },
+        {
+          "command": "veyraMcp.addServer",
+          "when": "view == veyraMcp.servers && viewItem == app",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraMcp.openConfig",
+          "when": "view == veyraMcp.servers && viewItem =~ /^app/",
+          "group": "inline@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraMcp.inspect",
+          "when": "false"
+        },
+        {
+          "command": "veyraMcp.test",
+          "when": "false"
+        },
+        {
+          "command": "veyraMcp.copyTo",
+          "when": "false"
+        },
+        {
+          "command": "veyraMcp.openConfig",
+          "when": "false"
+        },
+        {
+          "command": "veyraMcp.remove",
+          "when": "false"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --main-fields=module,main --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs test/inspector.test.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "jsonc-parser": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
