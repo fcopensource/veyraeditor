@@ -102,6 +102,13 @@ test("reports imports that are missing from package.json or not installed", () =
   assert.deepEqual(problems.map(p => `${p.pkg}:${p.code}`), ["lodash:transitive", "ghost:missing", "zod:not-installed"]);
   const ghost = problems.find(p => p.pkg === "ghost");
   assert.equal(text.slice(ghost.start, ghost.end), "ghost");
+
+  // A VS Code extension imports "vscode", which VS Code provides; only @types/vscode is declared.
+  const ext = m.checkImports(m.findImports(`import * as vscode from "vscode"; import x from "@scope/runtime";`), {
+    declared: new Set(["@types/vscode", "@types/scope__runtime"]), builtins, ignore: m.DEFAULT_IGNORE, installed: () => false,
+  });
+  assert.deepEqual(ext, []);
+  assert.equal(m.typesPackage("@babel/core"), "@types/babel__core");
 });
 
 test("finds unused dependencies, skipping tools, types and anything in scripts", () => {

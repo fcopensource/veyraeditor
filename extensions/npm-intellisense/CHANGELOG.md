@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- No false warning for modules the runtime provides, such as `vscode` in a VS Code extension, when their `@types` package is declared.
+
 ## 1.0.0
 
 First release.

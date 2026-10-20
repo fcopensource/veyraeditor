@@ -2,7 +2,7 @@
   "name": "veyra-npm-intellisense",
   "displayName": "Veyra npm IntelliSense",
   "description": "Autocomplete npm packages, subpaths and Node built-ins in import and require, with versions. Catch missing packages and install them in one click, see package details on hover, and find unused dependencies.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"

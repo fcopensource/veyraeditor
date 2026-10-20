@@ -145,6 +145,9 @@ export function importContextAt(line: string, column: number): ImportContext | n
 
 // ---------- Checks ----------
 
+/** The DefinitelyTyped package for a package: "express" → "@types/express", "@scope/pkg" → "@types/scope__pkg". */
+export const typesPackage = (pkg: string) => `@types/${pkg.startsWith("@") ? pkg.slice(1).replace("/", "__") : pkg}`;
+
 export interface Problem { spec: string; pkg: string; start: number; end: number; code: "missing" | "transitive" | "not-installed" }
 /**
  * Imports whose package is not in package.json ("missing"; "transitive" when it only works because another
@@ -156,6 +159,8 @@ export function checkImports(imports: FoundImport[], o: { declared: Set<string>;
     if (classify(found.spec, o.builtins, o.ignore) !== "package") continue;
     const pkg = packageNameOf(found.spec)!;
     if (pkg === o.self) continue;
+    // Modules the runtime provides, like "vscode" in a VS Code extension, are declared only as @types/….
+    if (!o.declared.has(pkg) && o.declared.has(typesPackage(pkg))) continue;
     if (!o.declared.has(pkg)) {
       problems.push({ ...found, pkg, code: o.installed(pkg) ? "transitive" : "missing" });
     } else if (!o.installed(pkg)) problems.push({ ...found, pkg, code: "not-installed" });
