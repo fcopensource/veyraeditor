@@ -1,0 +1,638 @@
+{
+  "name": "veyra-docker",
+  "displayName": "Veyra Container Studio for Docker",
+  "description": "Docker in VS Code, made easy: manage containers, images, volumes and Docker Compose, stream logs, open a shell, see live CPU and memory, clean up disk space, and check Dockerfiles. Free.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/docker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/docker"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Linters",
+    "Debuggers"
+  ],
+  "keywords": [
+    "docker",
+    "docker compose",
+    "compose",
+    "containers",
+    "container",
+    "dockerfile",
+    "docker desktop",
+    "devops",
+    "images",
+    "logs",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0b1424",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode you can manage existing containers, but building images and starting Compose projects from this folder is turned off.",
+      "restrictedConfigurations": [
+        "veyraDocker.command"
+      ]
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/Dockerfile",
+    "workspaceContains:**/*.Dockerfile",
+    "workspaceContains:**/{docker-compose,compose}*.{yml,yaml}",
+    "onLanguage:dockerfile"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraDocker",
+          "title": "Docker",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraDocker": [
+        {
+          "id": "veyraDocker.containers",
+          "name": "Containers"
+        },
+        {
+          "id": "veyraDocker.images",
+          "name": "Images"
+        },
+        {
+          "id": "veyraDocker.volumes",
+          "name": "Volumes",
+          "visibility": "collapsed"
+        },
+        {
+          "id": "veyraDocker.networks",
+          "name": "Networks",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraDocker.containers",
+        "contents": "No containers yet.\n[Run an Image](command:veyraDocker.runImage)\nOpen a folder with a Dockerfile or compose.yaml to build and start your app with one click.\n[Open Dashboard](command:veyraDocker.dashboard)"
+      },
+      {
+        "view": "veyraDocker.images",
+        "contents": "No images yet.\n[Pull an Image](command:veyraDocker.pullImage)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "veyraDocker.refresh",
+        "title": "Refresh",
+        "category": "Docker",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "veyraDocker.dashboard",
+        "title": "Open Dashboard",
+        "category": "Docker",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "veyraDocker.cleanup",
+        "title": "Clean Up Disk Space…",
+        "category": "Docker",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "veyraDocker.logs",
+        "title": "View Logs",
+        "category": "Docker",
+        "icon": "$(output)"
+      },
+      {
+        "command": "veyraDocker.shell",
+        "title": "Open Shell",
+        "category": "Docker",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "veyraDocker.openPort",
+        "title": "Open in Browser",
+        "category": "Docker",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "veyraDocker.start",
+        "title": "Start",
+        "category": "Docker",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "veyraDocker.stop",
+        "title": "Stop",
+        "category": "Docker",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "veyraDocker.restart",
+        "title": "Restart",
+        "category": "Docker",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "veyraDocker.pause",
+        "title": "Pause",
+        "category": "Docker",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "veyraDocker.unpause",
+        "title": "Resume",
+        "category": "Docker",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "veyraDocker.remove",
+        "title": "Remove…",
+        "category": "Docker",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "veyraDocker.inspect",
+        "title": "Inspect",
+        "category": "Docker",
+        "icon": "$(json)"
+      },
+      {
+        "command": "veyraDocker.copyId",
+        "title": "Copy ID",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.copyName",
+        "title": "Copy Name",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.runImage",
+        "title": "Run Image…",
+        "category": "Docker",
+        "icon": "$(play)"
+      },
+      {
+        "command": "veyraDocker.pullImage",
+        "title": "Pull Image…",
+        "category": "Docker",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "veyraDocker.tagImage",
+        "title": "Tag Image…",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.pushImage",
+        "title": "Push Image",
+        "category": "Docker",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "veyraDocker.login",
+        "title": "Sign In to a Registry…",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.composeUp",
+        "title": "Compose Up",
+        "category": "Docker",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "veyraDocker.composeDown",
+        "title": "Compose Down",
+        "category": "Docker",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "veyraDocker.composeRestart",
+        "title": "Compose Restart",
+        "category": "Docker",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "veyraDocker.composePull",
+        "title": "Compose Pull",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.composeBuild",
+        "title": "Compose Up with Rebuild",
+        "category": "Docker"
+      },
+      {
+        "command": "veyraDocker.composeLogs",
+        "title": "Compose Logs",
+        "category": "Docker",
+        "icon": "$(output)"
+      },
+      {
+        "command": "veyraDocker.buildImage",
+        "title": "Build Image",
+        "category": "Docker",
+        "icon": "$(package)"
+      },
+      {
+        "command": "veyraDocker.buildRun",
+        "title": "Build and Run",
+        "category": "Docker",
+        "icon": "$(play)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "veyraDocker.dashboard",
+          "when": "view == veyraDocker.containers",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraDocker.refresh",
+          "when": "view =~ /^veyraDocker\\./",
+          "group": "navigation@9"
+        },
+        {
+          "command": "veyraDocker.runImage",
+          "when": "view == veyraDocker.containers",
+          "group": "1_run@1"
+        },
+        {
+          "command": "veyraDocker.cleanup",
+          "when": "view =~ /^veyraDocker\\./",
+          "group": "2_clean@1"
+        },
+        {
+          "command": "veyraDocker.pullImage",
+          "when": "view == veyraDocker.images",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraDocker.login",
+          "when": "view == veyraDocker.images",
+          "group": "1_run@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "veyraDocker.logs",
+          "when": "viewItem =~ /^container/",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraDocker.shell",
+          "when": "viewItem =~ /^container-running/",
+          "group": "inline@2"
+        },
+        {
+          "command": "veyraDocker.start",
+          "when": "viewItem =~ /^container-stopped/",
+          "group": "inline@3"
+        },
+        {
+          "command": "veyraDocker.stop",
+          "when": "viewItem =~ /^container-running/",
+          "group": "inline@3"
+        },
+        {
+          "command": "veyraDocker.unpause",
+          "when": "viewItem =~ /^container-paused/",
+          "group": "inline@3"
+        },
+        {
+          "command": "veyraDocker.logs",
+          "when": "viewItem =~ /^container/",
+          "group": "1_view@1"
+        },
+        {
+          "command": "veyraDocker.shell",
+          "when": "viewItem =~ /^container-running/",
+          "group": "1_view@2"
+        },
+        {
+          "command": "veyraDocker.openPort",
+          "when": "viewItem =~ /^container-running.*-ports/",
+          "group": "1_view@3"
+        },
+        {
+          "command": "veyraDocker.inspect",
+          "when": "viewItem =~ /^(container|image|volume|network)/",
+          "group": "1_view@4"
+        },
+        {
+          "command": "veyraDocker.start",
+          "when": "viewItem =~ /^container-stopped/",
+          "group": "2_state@1"
+        },
+        {
+          "command": "veyraDocker.stop",
+          "when": "viewItem =~ /^container-(running|paused)/",
+          "group": "2_state@2"
+        },
+        {
+          "command": "veyraDocker.restart",
+          "when": "viewItem =~ /^container-(running|paused)/",
+          "group": "2_state@3"
+        },
+        {
+          "command": "veyraDocker.pause",
+          "when": "viewItem =~ /^container-running/",
+          "group": "2_state@4"
+        },
+        {
+          "command": "veyraDocker.unpause",
+          "when": "viewItem =~ /^container-paused/",
+          "group": "2_state@5"
+        },
+        {
+          "command": "veyraDocker.copyId",
+          "when": "viewItem =~ /^(container|image|network)/",
+          "group": "3_copy@1"
+        },
+        {
+          "command": "veyraDocker.copyName",
+          "when": "viewItem =~ /^(container|image|volume|network)/",
+          "group": "3_copy@2"
+        },
+        {
+          "command": "veyraDocker.remove",
+          "when": "viewItem =~ /^(container|image|volume|network-custom)/",
+          "group": "4_remove@1"
+        },
+        {
+          "command": "veyraDocker.runImage",
+          "when": "viewItem =~ /^image/",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraDocker.runImage",
+          "when": "viewItem =~ /^image/",
+          "group": "2_state@1"
+        },
+        {
+          "command": "veyraDocker.tagImage",
+          "when": "viewItem =~ /^image/",
+          "group": "2_state@2"
+        },
+        {
+          "command": "veyraDocker.pushImage",
+          "when": "viewItem =~ /^image-tagged/",
+          "group": "2_state@3"
+        },
+        {
+          "command": "veyraDocker.composeLogs",
+          "when": "viewItem =~ /^project/",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraDocker.composeUp",
+          "when": "viewItem =~ /^project.*-files/",
+          "group": "inline@2"
+        },
+        {
+          "command": "veyraDocker.composeDown",
+          "when": "viewItem =~ /^project/",
+          "group": "inline@3"
+        },
+        {
+          "command": "veyraDocker.composeLogs",
+          "when": "viewItem =~ /^project/",
+          "group": "1_view@1"
+        },
+        {
+          "command": "veyraDocker.composeUp",
+          "when": "viewItem =~ /^project.*-files/",
+          "group": "2_state@1"
+        },
+        {
+          "command": "veyraDocker.composeBuild",
+          "when": "viewItem =~ /^project.*-files/",
+          "group": "2_state@2"
+        },
+        {
+          "command": "veyraDocker.composeRestart",
+          "when": "viewItem =~ /^project/",
+          "group": "2_state@3"
+        },
+        {
+          "command": "veyraDocker.composePull",
+          "when": "viewItem =~ /^project.*-files/",
+          "group": "2_state@4"
+        },
+        {
+          "command": "veyraDocker.composeDown",
+          "when": "viewItem =~ /^project/",
+          "group": "2_state@5"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "veyraDocker.buildImage",
+          "when": "resourceFilename =~ /(^|\\.)Dockerfile$|^Dockerfile\\./i",
+          "group": "docker@1"
+        },
+        {
+          "command": "veyraDocker.buildRun",
+          "when": "resourceFilename =~ /(^|\\.)Dockerfile$|^Dockerfile\\./i",
+          "group": "docker@2"
+        },
+        {
+          "command": "veyraDocker.composeUp",
+          "when": "resourceFilename =~ /^(docker-)?compose(\\.[\\w-]+)?\\.ya?ml$/i",
+          "group": "docker@1"
+        },
+        {
+          "command": "veyraDocker.composeDown",
+          "when": "resourceFilename =~ /^(docker-)?compose(\\.[\\w-]+)?\\.ya?ml$/i",
+          "group": "docker@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraDocker.logs",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.shell",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.openPort",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.start",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.stop",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.restart",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.pause",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.unpause",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.remove",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.inspect",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.copyId",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.copyName",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.tagImage",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.pushImage",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.composeRestart",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.composeLogs",
+          "when": "false"
+        },
+        {
+          "command": "veyraDocker.composeUp",
+          "when": "editorLangId == yaml || editorLangId == dockercompose"
+        },
+        {
+          "command": "veyraDocker.composeDown",
+          "when": "editorLangId == yaml || editorLangId == dockercompose"
+        },
+        {
+          "command": "veyraDocker.composePull",
+          "when": "editorLangId == yaml || editorLangId == dockercompose"
+        },
+        {
+          "command": "veyraDocker.composeBuild",
+          "when": "editorLangId == yaml || editorLangId == dockercompose"
+        },
+        {
+          "command": "veyraDocker.buildImage",
+          "when": "editorLangId == dockerfile"
+        },
+        {
+          "command": "veyraDocker.buildRun",
+          "when": "editorLangId == dockerfile"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Container Studio",
+      "properties": {
+        "veyraDocker.command": {
+          "type": "string",
+          "default": "docker",
+          "markdownDescription": "The Docker command to use. Set it to the full path of `docker` if it is not on your PATH.",
+          "scope": "machine"
+        },
+        "veyraDocker.logs.lines": {
+          "type": "number",
+          "default": 500,
+          "minimum": 10,
+          "maximum": 100000,
+          "description": "How many recent lines to show when logs open."
+        },
+        "veyraDocker.dockerfile.checks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check Dockerfiles for common mistakes as you type, with quick fixes."
+        },
+        "veyraDocker.codeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Build, Run and Compose Up buttons above Dockerfiles and compose files."
+        },
+        "veyraDocker.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show running containers in the status bar."
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "veyra-docker",
+        "required": [
+          "run"
+        ],
+        "properties": {
+          "run": {
+            "type": "string",
+            "description": "What this Docker task does."
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:docker": "tsc -p . && node --test test/docker.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
