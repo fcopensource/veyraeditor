@@ -23,6 +23,7 @@ const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:str
     {href:'/salesforce-studio',icon:'/salesforce-studio-icon.png',name:'Salesforce Studio',copy:'LWC, Apex and Aura in your browser'},
   ]},
   {group:'For VS Code',items:[
+    {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},
     {href:'/api-client',icon:'/api-client-icon.png',name:'API Client',copy:'Test any API without leaving VS Code',tag:'New'},
     {href:'/npm-intellisense',icon:'/npm-intellisense-icon.png',name:'npm IntelliSense',copy:'Autocomplete and check npm imports',tag:'New'},
     {href:'/port-manager',icon:'/port-manager-icon.png',name:'Port Manager',copy:'Free a busy port in one click'},
