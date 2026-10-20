@@ -52,6 +52,7 @@
 .ext-original.ports:before{background:radial-gradient(circle at 12% 18%,#22d3ee26,transparent 45%),radial-gradient(circle at 95% 100%,#34d3991a,transparent 40%)}
 .ext-original.salesforce:before{background:radial-gradient(circle at 12% 18%,#38bdf833,transparent 45%),radial-gradient(circle at 95% 100%,#6366f11f,transparent 40%)}
 .ext-original.api:before{background:radial-gradient(circle at 12% 18%,#f9731633,transparent 45%),radial-gradient(circle at 95% 100%,#8b5cf626,transparent 40%)}
+.ext-original.docker:before{background:radial-gradient(circle at 12% 18%,#38bdf833,transparent 45%),radial-gradient(circle at 95% 100%,#8b5cf626,transparent 40%)}
 .ext-original.mcp:before{background:radial-gradient(circle at 12% 18%,#2ee6c533,transparent 45%),radial-gradient(circle at 95% 100%,#a855f726,transparent 40%)}
 .ext-original.npm:before{background:radial-gradient(circle at 12% 18%,#8b5cf633,transparent 45%),radial-gradient(circle at 95% 100%,#34d3991a,transparent 40%)}
 .ext-original.ai:before{background:radial-gradient(circle at 12% 18%,#d946ef2e,transparent 45%),radial-gradient(circle at 95% 100%,#22d3ee1f,transparent 40%)}
