@@ -23,6 +23,7 @@ const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:str
     {href:'/salesforce-studio',icon:'/salesforce-studio-icon.png',name:'Salesforce Studio',copy:'LWC, Apex and Aura in your browser'},
   ]},
   {group:'For VS Code',items:[
+    {href:'/mongodb',icon:'/mongodb-icon.png',name:'Query Lens for MongoDB',copy:'Slow queries and the index that fixes them',tag:'New'},
     {href:'/env',icon:'/env-icon.png',name:'Env',copy:'.env checks, hidden secrets, in sync',tag:'New'},
     {href:'/docker',icon:'/docker-icon.png',name:'Container Studio',copy:'Docker containers, Compose and logs',tag:'New'},
     {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},

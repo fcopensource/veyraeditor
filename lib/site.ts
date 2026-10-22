@@ -15,6 +15,7 @@ export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${P
  */
 export const VSCODE_EXTENSIONS = {
   apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: false },
+  mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: false },
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: false },
   docker: { id: "flightcoders.veyra-docker", folder: "docker", file: "veyra-docker", version: "1.0.0", listed: false },
   mcpStudio: { id: "flightcoders.veyra-mcp-studio", folder: "mcp-studio", file: "veyra-mcp-studio", version: "1.0.0", listed: false },
