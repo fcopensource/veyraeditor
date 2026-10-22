@@ -46,7 +46,7 @@ Template files such as `.env.example` are ignored.
 Run **MongoDB Lens: Connect to MongoDB…** from the Command Palette (or click the status bar, or the **Connect** button in the sidebar). You can:
 
 - pick a connection string found in your `.env` files (shown with the password hidden), or
-- enter one, like `mongodb://localhost:27017/myapp` or `mongodb+srv://user:pass@cluster0.example.mongodb.net/myapp`.
+- enter one, like `mongodb://localhost:27017/myapp`, or the `mongodb+srv://` string Atlas shows under **Connect → Drivers**, with your database user's name and password in it.
 
 If the connection string doesn't name a database, Query Lens asks which one your app uses. To switch databases later, run **Connect to MongoDB…** again and choose **Use another database…**.
 
