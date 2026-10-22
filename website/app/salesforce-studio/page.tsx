@@ -1,13 +1,13 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Cloud,Code2,Download,FilePlus2,FolderTree,Globe,MousePointerClick,ShieldCheck,Zap} from 'lucide-react';
+import {Chrome,Cloud,Code2,Download,FilePlus2,FolderTree,Globe,MousePointerClick,ShieldCheck,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {latestRelease} from '@/lib/releases';
-import {absolute,jsonLd} from '@/lib/site';
+import {absolute,jsonLd,SALESFORCE_CHROME_URL,SALESFORCE_FIREFOX_URL} from '@/lib/site';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 import './salesforce-studio.css';
@@ -52,7 +52,7 @@ export default async function SalesforceStudioPage(){
   const version=release?.version;
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Salesforce Studio',applicationCategory:'DeveloperApplication',
-    operatingSystem:'Chrome, Microsoft Edge',url:absolute('/salesforce-studio'),image:absolute('/salesforce-studio-home.png'),
+    operatingSystem:'Chrome, Microsoft Edge, Brave, Firefox',url:absolute('/salesforce-studio'),downloadUrl:SALESFORCE_CHROME_URL,installUrl:SALESFORCE_CHROME_URL,image:absolute('/salesforce-studio-home.png'),
     description:'A browser extension that edits, validates and deploys Lightning web components, Aura, Apex and Visualforce in your Salesforce org.',
     offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},...(version?{softwareVersion:version}:{}),
     publisher:{'@type':'Organization',name:'Veyra Studio',url:absolute('/')},
@@ -66,15 +66,16 @@ export default async function SalesforceStudioPage(){
       <section className="live-hero">
         <div className="live-hero-glow" aria-hidden="true"/>
         <div className="live-icon"><Image src="/salesforce-studio-icon.png" width={148} height={148} alt="Salesforce Studio icon" priority/></div>
-        <span className="live-kicker"><i/>VEYRA ORIGINAL · FOR CHROME &amp; EDGE</span>
+        <span className="live-kicker"><i/>VEYRA ORIGINAL · FOR CHROME, EDGE &amp; FIREFOX</span>
         <h1>Salesforce <em>Studio</em></h1>
         <p className="live-tagline">Your org’s code, open in seconds.</p>
         <p className="live-intro">Edit Lightning web components, Aura, Apex and Visualforce right in your browser. One click from any Salesforce tab, and Ctrl+S saves straight to your org.</p>
         <div className="live-actions">
-          <a className="primary" href={zipUrl}><Download size={16}/>Download for Chrome &amp; Edge</a>
+          <a className="primary" href={SALESFORCE_CHROME_URL}><Chrome size={16}/>Add to Chrome</a>
+          <a className="secondary" href={SALESFORCE_FIREFOX_URL}><Download size={16}/>Add to Firefox</a>
           <a className="secondary" href={`${GITHUB}#readme`}><Code2 size={16}/>Guide &amp; releases</a>
         </div>
-        <p className="live-micro">{version?`v${version} · `:''}Free · Chrome and Edge{firefox?<> · <a href={firefox.browser_download_url}>Firefox version</a></>:''} · By Veyra</p>
+        <p className="live-micro">{version?`v${version} · `:''}Free · Chrome Web Store (Chrome, Edge, Brave) and Firefox Add-ons · By Veyra</p>
       </section>
 
       <section className="pm-shot">
@@ -116,12 +117,11 @@ export default async function SalesforceStudioPage(){
           <span className="kicker">INSTALL</span>
           <h2>Ready in a minute.</h2>
           <ol className="live-install">
-            <li><a href={zipUrl}>Download the zip</a> and unzip it.</li>
-            <li>Open <code>chrome://extensions</code> or <code>edge://extensions</code> and turn on <strong>Developer mode</strong>.</li>
-            <li>Click <strong>Load unpacked</strong> and choose the unzipped folder.</li>
-            <li>Open any Salesforce tab and click the <strong>Salesforce Studio</strong> icon.</li>
+            <li>Open Salesforce Studio in the <a href={SALESFORCE_CHROME_URL}>Chrome Web Store</a> (for Chrome, Edge and Brave) or <a href={SALESFORCE_FIREFOX_URL}>Firefox Add-ons</a>.</li>
+            <li>Click <strong>Add to Chrome</strong> or <strong>Add to Firefox</strong>. It updates by itself.</li>
+            <li>Open any Salesforce tab and click the <strong>Salesforce Studio</strong> icon. Pin it to the toolbar to keep it handy.</li>
           </ol>
-          <p className="live-note">Every release is on <a href={RELEASES}>GitHub</a>. To update, load the new folder and click <strong>Reload</strong> on the extension.</p>
+          <p className="live-note">In Edge, the first time you add an extension from the Chrome Web Store, click <strong>Allow extensions from other stores</strong>. Can&apos;t use the stores at work? Every release is also on <a href={RELEASES}>GitHub</a>{zip?<> (<a href={zipUrl}>Chrome zip</a>{firefox?<>, <a href={firefox.browser_download_url}>Firefox zip</a></>:null})</>:null}, to load with Developer mode.</p>
         </div>
         <div className="visual" aria-label="Keyboard shortcuts">
           <small>Shortcuts</small>
