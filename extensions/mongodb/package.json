@@ -1,0 +1,171 @@
+{
+  "name": "veyra-mongodb",
+  "displayName": "Veyra Query Lens for MongoDB",
+  "description": "See how every MongoDB query in your code performs, right above it: full collection scans, in-memory sorts, the index that fixes them in one click, unused indexes, and Mongoose schemas that don't match your data. For Node.js, Mongoose and Python. Free.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/mongodb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/mongodb"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other",
+    "Debuggers"
+  ],
+  "keywords": [
+    "mongodb",
+    "mongo",
+    "mongoose",
+    "pymongo",
+    "index",
+    "indexes",
+    "explain",
+    "query performance",
+    "slow query",
+    "collection scan",
+    "schema",
+    "database",
+    "nosql",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0b1a14",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode, connection strings from this folder's .env files are not used."
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/node_modules/mongodb/package.json",
+    "workspaceContains:**/node_modules/mongoose/package.json",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:python"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "veyraMongo", "title": "MongoDB Query Lens", "icon": "media/activity.svg" }
+      ]
+    },
+    "views": {
+      "veyraMongo": [
+        { "id": "veyraMongo.queries", "name": "Queries" },
+        { "id": "veyraMongo.collections", "name": "Collections" }
+      ]
+    },
+    "viewsWelcome": [
+      { "view": "veyraMongo.queries", "contents": "Connect to a development database to see how each MongoDB query in your code performs.\n[Connect to MongoDB](command:veyraMongo.connect)\nYour connection string is stored in VS Code's secret storage, never in settings." }
+    ],
+    "commands": [
+      { "command": "veyraMongo.connect", "title": "Connect to MongoDB…", "category": "MongoDB Lens", "icon": "$(plug)" },
+      { "command": "veyraMongo.disconnect", "title": "Disconnect", "category": "MongoDB Lens", "icon": "$(debug-disconnect)" },
+      { "command": "veyraMongo.analyzeWorkspace", "title": "Check All Queries", "category": "MongoDB Lens", "icon": "$(pulse)" },
+      { "command": "veyraMongo.indexDoctor", "title": "Open Index Doctor", "category": "MongoDB Lens", "icon": "$(dashboard)" },
+      { "command": "veyraMongo.checkSchema", "title": "Check Schema Against Data", "category": "MongoDB Lens", "icon": "$(symbol-structure)" },
+      { "command": "veyraMongo.refresh", "title": "Refresh", "category": "MongoDB Lens", "icon": "$(refresh)" },
+      { "command": "veyraMongo.showQuery", "title": "Show Query Details", "category": "MongoDB Lens" },
+      { "command": "veyraMongo.createIndex", "title": "Create Suggested Index", "category": "MongoDB Lens" },
+      { "command": "veyraMongo.copyIndex", "title": "Copy Suggested Index as Code", "category": "MongoDB Lens" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraMongo.analyzeWorkspace", "when": "view == veyraMongo.queries", "group": "navigation@1" },
+        { "command": "veyraMongo.indexDoctor", "when": "view =~ /^veyraMongo\\./", "group": "navigation@2" },
+        { "command": "veyraMongo.refresh", "when": "view =~ /^veyraMongo\\./", "group": "navigation@3" },
+        { "command": "veyraMongo.checkSchema", "when": "view =~ /^veyraMongo\\./", "group": "1_more@1" },
+        { "command": "veyraMongo.connect", "when": "view =~ /^veyraMongo\\./", "group": "2_conn@1" },
+        { "command": "veyraMongo.disconnect", "when": "view =~ /^veyraMongo\\./ && veyraMongo.connected", "group": "2_conn@2" }
+      ],
+      "commandPalette": [
+        { "command": "veyraMongo.showQuery", "when": "false" },
+        { "command": "veyraMongo.createIndex", "when": "false" },
+        { "command": "veyraMongo.copyIndex", "when": "false" },
+        { "command": "veyraMongo.disconnect", "when": "veyraMongo.connected" }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Query Lens for MongoDB",
+      "properties": {
+        "veyraMongo.analyze": {
+          "type": "string",
+          "enum": ["local", "always", "onClick"],
+          "enumDescriptions": [
+            "Check queries automatically when connected to a database on this computer (localhost, Docker). On other databases, click to check.",
+            "Always check queries automatically.",
+            "Only check a query when you click its lens."
+          ],
+          "default": "local",
+          "description": "When to run explain() for the queries in your code. explain() reads documents, like the query itself does."
+        },
+        "veyraMongo.readOnly": {
+          "type": "boolean",
+          "default": false,
+          "description": "Never create or drop indexes from VS Code. Suggestions can still be copied as code."
+        },
+        "veyraMongo.maxTimeMS": {
+          "type": "number",
+          "default": 3000,
+          "minimum": 100,
+          "description": "Stop any explain() that takes longer than this, so a slow query never holds up your database."
+        },
+        "veyraMongo.sampleSize": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 10,
+          "maximum": 100000,
+          "description": "How many random documents to read when checking a Mongoose schema against the data."
+        },
+        "veyraMongo.problems": {
+          "type": "boolean",
+          "default": true,
+          "description": "Also list slow queries and schema drift in the Problems panel."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --external:kerberos --external:@mongodb-js/zstd --external:snappy --external:mongodb-client-encryption --external:@aws-sdk/credential-providers --external:gcp-metadata --external:socks --external:aws4 --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:mongo": "tsc -p . && node --test test/mongo.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "mongodb-memory-server": "^10.1.2",
+    "typescript": "^5.9.0"
+  }
+}

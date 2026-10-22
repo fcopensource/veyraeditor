@@ -156,6 +156,45 @@ jobs:
           path: extensions/docker/dist/*.vsix
           retention-days: 14
 
+  # Query Lens drives a real MongoDB server: explain plans, index suggestions that fix the scan, Index Doctor and schema drift.
+  mongodb-extension:
+    name: Query Lens with real MongoDB
+    runs-on: ubuntu-24.04
+    services:
+      mongodb:
+        image: mongo:7
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      MONGODB_TEST_URI: mongodb://localhost:27017
+      MONGOMS_DISABLE_POSTINSTALL: "1"
+    defaults:
+      run:
+        working-directory: extensions/mongodb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: extensions/mongodb/package-lock.json
+      - run: npm ci
+      - name: Tests
+        run: npm test
+      - name: Tests against real MongoDB
+        run: npm run test:mongo
+      - name: Integration test in VS Code, with a real database
+        run: xvfb-run -a npm run test:integration
+      - name: Package
+        run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: veyra-mongodb-vsix
+          path: extensions/mongodb/dist/*.vsix
+          retention-days: 14
+
   dependencies:
     name: Dependency advisories
     runs-on: ubuntu-22.04
