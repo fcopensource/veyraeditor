@@ -12,7 +12,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Veyra Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
+  description:'Veyra Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -77,6 +77,10 @@ export default function Extensions(){
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/env" className="ext-original env">
+            <Image src="/env-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra Env</h3><p>Never ship a missing or leaked env variable again. Warnings for missing variables, autocomplete for process.env, secrets hidden on screen, a .gitignore guard and .env.example in sync.</p><span className="ext-link">Explore Veyra Env <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/docker" className="ext-original docker">
             <Image src="/docker-icon.png" width={96} height={96} alt=""/>

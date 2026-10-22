@@ -103,7 +103,7 @@ export default function NpmIntelliSensePage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Globe size={14}/>More for VS Code: <Link href="/docker">Veyra Container Studio for Docker</Link>, <Link href="/mcp-studio">Veyra MCP Studio</Link>, <Link href="/api-client">Veyra API Client</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/live-server">Veyra Live Server</Link>.</p>
+        <p className="live-more"><Globe size={14}/>More for VS Code: <Link href="/env">Veyra Env</Link>, <Link href="/docker">Veyra Container Studio for Docker</Link>, <Link href="/mcp-studio">Veyra MCP Studio</Link>, <Link href="/api-client">Veyra API Client</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/live-server">Veyra Live Server</Link>.</p>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

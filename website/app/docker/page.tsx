@@ -130,7 +130,7 @@ export default function DockerPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/mcp-studio">Veyra MCP Studio</Link>, <Link href="/api-client">Veyra API Client</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/npm-intellisense">Veyra npm IntelliSense</Link>.</p>
+        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/env">Veyra Env</Link>, <Link href="/mcp-studio">Veyra MCP Studio</Link>, <Link href="/api-client">Veyra API Client</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/npm-intellisense">Veyra npm IntelliSense</Link>.</p>
         <p className="live-note" style={{marginTop:12}}>Docker is a trademark of Docker, Inc. Veyra Container Studio is an independent extension and is not made or endorsed by Docker, Inc.</p>
       </section>
 
