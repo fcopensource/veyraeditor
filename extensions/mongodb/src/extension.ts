@@ -341,6 +341,7 @@ export function activate(context: vscode.ExtensionContext) {
     await setConnected(false);
     showStatus(); collectionsTree.refresh(); lenses.refresh();
   });
+  register("veyraMongo.openGuide", () => vscode.commands.executeCommand("markdown.showPreview", vscode.Uri.joinPath(context.extensionUri, "docs", "GUIDE.md")));
   register("veyraMongo.refresh", async () => { await ws.scan(); lens.forget(); collectionsTree.refresh(); });
   register("veyraMongo.reveal", async (uriText: string, line: number, character: number) => {
     const editor = await vscode.window.showTextDocument(vscode.Uri.parse(uriText), { preview: true });

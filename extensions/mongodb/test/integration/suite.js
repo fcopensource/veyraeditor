@@ -36,7 +36,7 @@ async function steps() {
   assert.equal(api.ws.models.find(m => m.name === "Product").collection, "products");
 
   const commands = await vscode.commands.getCommands(true);
-  for (const id of ["connect", "disconnect", "analyzeWorkspace", "indexDoctor", "checkSchema", "refresh"]) assert.ok(commands.includes(`veyraMongo.${id}`), id);
+  for (const id of ["connect", "disconnect", "analyzeWorkspace", "indexDoctor", "checkSchema", "refresh", "openGuide"]) assert.ok(commands.includes(`veyraMongo.${id}`), id);
   const orders = file("src/orders.js");
   await vscode.window.showTextDocument(orders);
 
