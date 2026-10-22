@@ -255,7 +255,7 @@
   },
   "scripts": {
     "compile": "tsc -p .",
-    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --external:kerberos --external:@mongodb-js/zstd --external:snappy --external:mongodb-client-encryption --external:@aws-sdk/credential-providers --external:gcp-metadata --external:socks --external:aws4 --outfile=bundle/extension.js --log-level=warning",
+    "bundle": "node build.mjs",
     "test": "tsc -p . && node --test test/model.test.mjs",
     "test:mongo": "tsc -p . && node --test test/mongo.test.mjs",
     "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",

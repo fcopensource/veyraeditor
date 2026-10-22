@@ -55,9 +55,16 @@ if (base) {
   await db.collection("orders").insertMany(Array.from({ length: 5000 }, (_, i) => ({ customerId: `c${i % 200}`, status: statuses[i % 3], total: i % 500, region: i % 2 ? "eu" : "us", createdAt: new Date(Date.UTC(2026, 0, 1) + i * 60000) })));
   await db.collection("orders").createIndex({ region: 1 });
   await db.collection("products").insertMany(Array.from({ length: 100 }, (_, i) => ({ name: `P${i}`, price: i < 10 ? `${i}.50` : i + 0.5, color: i < 30 ? "red" : undefined })));
+  // A user with a non-ASCII password: signing in with SCRAM-SHA-256 runs it through saslprep, which build.mjs replaces.
+  const password = "Pässwörd Ünïcode-42";
+  await client.db("admin").command({ dropUser: "lens" }).catch(() => {});
+  await client.db("admin").command({ createUser: "lens", pwd: password, roles: [{ role: "readWrite", db: "lens_it" }], mechanisms: ["SCRAM-SHA-256"] });
   await client.close();
   const url = new URL(base.replace(/^mongodb/, "http"));
   url.pathname = "/lens_it";
+  url.username = "lens";
+  url.password = encodeURIComponent(password);
+  url.search = "?authSource=admin&authMechanism=SCRAM-SHA-256";
   write(".env", `MONGODB_URI=${url.toString().replace(/^http/, "mongodb")}\n`);
 }
 

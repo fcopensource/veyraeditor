@@ -50,7 +50,7 @@ async function steps() {
     return;
   }
 
-  step("Connects by itself to the local database in .env");
+  step("Connects by itself to the local database in .env, signing in with a non-ASCII password (SCRAM-SHA-256)");
   await until(() => api.lens.mongo, "the connection");
   assert.equal(api.lens.mongo.db.databaseName, "lens_it");
 
