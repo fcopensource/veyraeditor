@@ -1,0 +1,58 @@
+:root {
+  --bg: var(--vscode-editor-background);
+  --fg: var(--vscode-foreground);
+  --muted: var(--vscode-descriptionForeground);
+  --line: var(--vscode-panel-border, rgba(128, 128, 128, .25));
+  --card: rgba(128, 128, 128, .07);
+  --grad: linear-gradient(135deg, #22c55e 0%, #14b8a6 50%, #3b82f6 100%);
+  --ok: #2fbf71; --warn: #e5a50a; --bad: #f05252; --info: #3b9cff;
+  --mono: var(--vscode-editor-font-family, Consolas, monospace);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--vscode-font-family); font-size: var(--vscode-font-size, 13px); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.muted { color: var(--muted); }
+.pad { padding: 18px 24px; margin: 0; }
+.grow { flex: 1; }
+.head { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.head .logo { width: 40px; height: 40px; }
+.head h1 { margin: 0; font-size: 18px; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid; }
+.pill.missing { color: var(--bad); border-color: rgba(240, 82, 82, .45); background: rgba(240, 82, 82, .1); }
+.pill.differs { color: var(--info); border-color: rgba(59, 156, 255, .45); background: rgba(59, 156, 255, .1); }
+.pill.empty { color: var(--warn); border-color: rgba(229, 165, 10, .45); background: rgba(229, 165, 10, .1); }
+.pill.ok { color: var(--ok); border-color: rgba(47, 191, 113, .45); background: rgba(47, 191, 113, .1); }
+.tools { display: flex; gap: 16px; align-items: center; padding: 12px 24px; flex-wrap: wrap; }
+.search { width: 100%; max-width: 320px; padding: 5px 9px; border-radius: 7px; border: 1px solid var(--vscode-input-border, var(--line)); background: var(--vscode-input-background); color: var(--vscode-input-foreground); font: inherit; }
+.search:focus { outline: 1px solid var(--vscode-focusBorder); }
+.check { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+.table-wrap { padding: 0 24px 24px; overflow-x: auto; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 520px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(128, 128, 128, .14); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: 0; }
+thead th { background: var(--card); font-weight: 600; position: sticky; top: 0; }
+th small { display: block; color: var(--muted); font-weight: 400; font-size: 11px; }
+th.template .fname { opacity: .8; }
+.fname { display: flex; align-items: center; gap: 6px; font-family: var(--mono); }
+.warn-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--warn); color: #000; font-size: 11px; font-weight: 800; display: inline-grid; place-items: center; }
+td.name { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+td.name .tag { margin-left: 8px; font-family: var(--vscode-font-family); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 6px; border-radius: 4px; }
+.tag.missing { color: var(--bad); background: rgba(240, 82, 82, .12); }
+.tag.differs { color: var(--info); background: rgba(59, 156, 255, .12); }
+.tag.empty { color: var(--warn); background: rgba(229, 165, 10, .12); }
+tr.missing td.name { box-shadow: inset 3px 0 0 var(--bad); }
+tr.differs td.name { box-shadow: inset 3px 0 0 var(--info); }
+tr.empty td.name { box-shadow: inset 3px 0 0 var(--warn); }
+tbody tr:hover { background: rgba(128, 128, 128, .05); }
+.cell { font-family: var(--mono); font-size: 12.5px; max-width: 340px; }
+.cell .value { cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 260px; vertical-align: middle; }
+.cell .value:hover { text-decoration: underline; }
+.cell .value.masked { letter-spacing: .08em; color: var(--muted); }
+.cell.absent { background: rgba(240, 82, 82, .06); }
+.icon { border: 0; background: transparent; opacity: .55; padding: 0 4px; font-size: 13px; vertical-align: middle; }
+.icon:hover { opacity: 1; }
+.link { border: 0; background: transparent; color: var(--vscode-textLink-foreground); margin-left: 8px; padding: 0; font-family: var(--vscode-font-family); }
+.link:hover { text-decoration: underline; }
+.toast { position: fixed; right: 18px; bottom: 18px; padding: 9px 14px; border-radius: 9px; background: var(--vscode-notifications-background, #252526); border: 1px solid var(--line); border-left: 3px solid var(--ok); box-shadow: 0 8px 28px rgba(0, 0, 0, .35); z-index: 50; }

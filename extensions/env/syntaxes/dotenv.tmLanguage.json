@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "dotenv",
+  "scopeName": "source.dotenv",
+  "patterns": [
+    { "include": "#comment" },
+    {
+      "begin": "^\\s*(export\\s+)?([A-Za-z_][A-Za-z0-9_.\\-]*)\\s*(=)",
+      "beginCaptures": {
+        "1": { "name": "storage.modifier.export.dotenv" },
+        "2": { "name": "variable.other.env.dotenv" },
+        "3": { "name": "keyword.operator.assignment.dotenv" }
+      },
+      "end": "$",
+      "patterns": [
+        { "include": "#double" },
+        { "include": "#single" },
+        { "include": "#backtick" },
+        { "include": "#inline-comment" },
+        { "include": "#interpolation" },
+        { "include": "#constants" },
+        { "match": "[^\\s#]+", "name": "string.unquoted.dotenv" }
+      ]
+    }
+  ],
+  "repository": {
+    "comment": { "match": "^\\s*(#).*$", "name": "comment.line.number-sign.dotenv", "captures": { "1": { "name": "punctuation.definition.comment.dotenv" } } },
+    "inline-comment": { "match": "(?<=\\s)#.*$", "name": "comment.line.number-sign.dotenv" },
+    "interpolation": { "match": "\\$\\{[A-Za-z_][A-Za-z0-9_]*(?::?-[^}]*)?\\}|\\$[A-Za-z_][A-Za-z0-9_]*", "name": "variable.other.interpolated.dotenv" },
+    "constants": { "match": "(?<==|\\s)(true|false|yes|no|on|off|null)(?=\\s*(#|$))|(?<==)-?\\d+(\\.\\d+)?(?=\\s*(#|$))", "name": "constant.language.dotenv" },
+    "escape": { "match": "\\\\[nrt\"\\\\]", "name": "constant.character.escape.dotenv" },
+    "double": { "begin": "\"", "end": "\"", "name": "string.quoted.double.dotenv", "patterns": [{ "include": "#escape" }, { "include": "#interpolation" }] },
+    "single": { "begin": "'", "end": "'", "name": "string.quoted.single.dotenv" },
+    "backtick": { "begin": "`", "end": "`", "name": "string.quoted.other.dotenv", "patterns": [{ "include": "#interpolation" }] }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "name": "veyra-env",
+  "displayName": "Veyra Env: .env Files, dotenv & Secrets",
+  "description": "Never ship a missing or leaked env variable again. Warnings for env variables your code uses but .env doesn't set, autocomplete and hover for process.env, secrets hidden on screen, a .gitignore guard, .env.example kept in sync, and a side-by-side compare. Free.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/env",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/env"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "env",
+    "dotenv",
+    ".env",
+    "environment variables",
+    "env file",
+    "secrets",
+    "process.env",
+    "env example",
+    "gitignore",
+    "12factor",
+    "vite",
+    "nextjs",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0b1424",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "The .gitignore check needs files on disk."
+    }
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/.env",
+    "workspaceContains:**/.env.*",
+    "workspaceContains:**/*.env"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "dotenv",
+        "aliases": ["Env", "dotenv"],
+        "filenames": [".env"],
+        "filenamePatterns": [".env.*", "*.env"],
+        "configuration": "./syntaxes/language-configuration.json",
+        "icon": { "light": "./media/file-icon.svg", "dark": "./media/file-icon.svg" }
+      }
+    ],
+    "grammars": [
+      { "language": "dotenv", "scopeName": "source.dotenv", "path": "./syntaxes/dotenv.tmLanguage.json" }
+    ],
+    "views": {
+      "explorer": [
+        { "id": "veyraEnv.files", "name": "Env Files", "icon": "media/activity.svg", "contextualTitle": "Veyra Env" }
+      ]
+    },
+    "viewsWelcome": [
+      { "view": "veyraEnv.files", "contents": "No .env files in this folder yet.\n[Create .env](command:veyraEnv.createEnv)" }
+    ],
+    "commands": [
+      { "command": "veyraEnv.compare", "title": "Compare Env Files", "category": "Env", "icon": "$(split-horizontal)" },
+      { "command": "veyraEnv.syncExample", "title": "Update .env.example", "category": "Env", "icon": "$(sync)" },
+      { "command": "veyraEnv.toggleHide", "title": "Show or Hide Values", "category": "Env", "icon": "$(eye)" },
+      { "command": "veyraEnv.createEnv", "title": "Create .env", "category": "Env", "icon": "$(new-file)" },
+      { "command": "veyraEnv.refresh", "title": "Refresh", "category": "Env", "icon": "$(refresh)" },
+      { "command": "veyraEnv.copyValue", "title": "Copy Value", "category": "Env" },
+      { "command": "veyraEnv.copyKey", "title": "Copy Name", "category": "Env" },
+      { "command": "veyraEnv.copyLine", "title": "Copy as KEY=value", "category": "Env" },
+      { "command": "veyraEnv.addToGitignore", "title": "Add to .gitignore", "category": "Env" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraEnv.compare", "when": "view == veyraEnv.files", "group": "navigation@1" },
+        { "command": "veyraEnv.toggleHide", "when": "view == veyraEnv.files", "group": "navigation@2" },
+        { "command": "veyraEnv.refresh", "when": "view == veyraEnv.files", "group": "navigation@3" },
+        { "command": "veyraEnv.syncExample", "when": "view == veyraEnv.files", "group": "1_more@1" },
+        { "command": "veyraEnv.createEnv", "when": "view == veyraEnv.files", "group": "1_more@2" }
+      ],
+      "view/item/context": [
+        { "command": "veyraEnv.copyValue", "when": "view == veyraEnv.files && viewItem == variable", "group": "1_copy@1" },
+        { "command": "veyraEnv.copyKey", "when": "view == veyraEnv.files && viewItem == variable", "group": "1_copy@2" },
+        { "command": "veyraEnv.copyLine", "when": "view == veyraEnv.files && viewItem == variable", "group": "1_copy@3" },
+        { "command": "veyraEnv.addToGitignore", "when": "view == veyraEnv.files && viewItem == file-exposed", "group": "inline@1" },
+        { "command": "veyraEnv.addToGitignore", "when": "view == veyraEnv.files && viewItem == file-exposed", "group": "2_git@1" },
+        { "command": "veyraEnv.syncExample", "when": "view == veyraEnv.files && viewItem =~ /^file/", "group": "3_sync@1" }
+      ],
+      "editor/title": [
+        { "command": "veyraEnv.toggleHide", "when": "resourceLangId == dotenv", "group": "navigation@1" }
+      ],
+      "commandPalette": [
+        { "command": "veyraEnv.copyValue", "when": "false" },
+        { "command": "veyraEnv.copyKey", "when": "false" },
+        { "command": "veyraEnv.copyLine", "when": "false" },
+        { "command": "veyraEnv.addToGitignore", "when": "false" }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Env",
+      "properties": {
+        "veyraEnv.hideValues": {
+          "type": "string",
+          "enum": ["secrets", "all", "off"],
+          "enumDescriptions": ["Hide values that look like passwords, tokens and keys", "Hide every value", "Show every value"],
+          "default": "secrets",
+          "description": "Hide values in .env files until you put the cursor on their line, so they don't show when you share your screen."
+        },
+        "veyraEnv.missingVariables": {
+          "type": "string",
+          "enum": ["warning", "information", "off"],
+          "default": "warning",
+          "description": "How to report env variables your code reads that no .env file sets."
+        },
+        "veyraEnv.ignore": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Variable names that are set somewhere else (your host, CI or shell), so they are never reported as missing."
+        },
+        "veyraEnv.gitignoreCheck": {
+          "type": "boolean",
+          "default": true,
+          "description": "Warn when a .env file with values is not ignored by git, or is already committed."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

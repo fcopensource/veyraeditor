@@ -77,6 +77,7 @@ jobs:
         include:
           - { dir: live-server, name: Live Server }
           - { dir: port-manager, name: Port Manager }
+          - { dir: env, name: Env }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
