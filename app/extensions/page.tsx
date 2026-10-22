@@ -104,7 +104,7 @@ export default function Extensions(){
           </Link>
           <Link href="/salesforce-studio" className="ext-original salesforce">
             <Image src="/salesforce-studio-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR CHROME &amp; EDGE</small><h3>Salesforce Studio</h3><p>Your org’s code, open in seconds. Edit LWC, Aura, Apex and Visualforce from any Salesforce tab, and save to your org with Ctrl+S.</p><span className="ext-link">Explore Salesforce Studio <ArrowRight size={14}/></span></div>
+            <div><small>FOR CHROME, EDGE &amp; FIREFOX</small><h3>Salesforce Studio</h3><p>Your org’s code, open in seconds. Edit LWC, Aura, Apex and Visualforce from any Salesforce tab, and save to your org with Ctrl+S.</p><span className="ext-link">Explore Salesforce Studio <ArrowRight size={14}/></span></div>
           </Link>
         </div>
       </section>

@@ -9,6 +9,8 @@ keywords: Salesforce Studio, Salesforce code editor, edit LWC in browser, Lightn
 
 Editing a Lightning web component shouldn't mean setting up a project, authorizing the CLI and waiting for a retrieve. Today we're releasing **[Salesforce Studio](/salesforce-studio)**, a free browser extension for Chrome and Microsoft Edge that opens your org's code in seconds, right where you already are: on a Salesforce tab.
 
+> **Update:** Salesforce Studio is now in the [Chrome Web Store and Firefox Add-ons](/blog/salesforce-studio-chrome-firefox), so it installs in one click in Chrome, Edge, Brave and Firefox.
+
 ## One click from any Salesforce tab
 
 Sign in to Salesforce as usual. Then, on any Lightning, Setup, Classic or Visualforce page, click the **Salesforce Studio** icon. Studio opens in its own window, like a desktop app, connected to that org. It works in production and sandboxes, and it uses the sign-in you already have: no OAuth app, no Consumer Key, no CLI.

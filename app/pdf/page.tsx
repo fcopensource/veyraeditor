@@ -1,12 +1,12 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Download,Eraser,FileImage,Files,Globe,Highlighter,LayoutGrid,ShieldCheck,Signature,Stamp,WifiOff} from 'lucide-react';
+import {Download,Eraser,Store,FileImage,Files,Globe,Highlighter,LayoutGrid,ShieldCheck,Signature,Stamp,WifiOff} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
-import {absolute,jsonLd,PDF_DOWNLOAD_URL,PDF_VERSION} from '@/lib/site';
+import {absolute,jsonLd,PDF_DOWNLOAD_URL,PDF_STORE_URL,PDF_VERSION} from '@/lib/site';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 import '../salesforce-studio/salesforce-studio.css';
@@ -36,13 +36,13 @@ const FAQ=[
   {q:'Can I sign a PDF with Veyra PDF?',a:'Yes. Choose Fill & sign, draw your signature with the mouse or a pen, or type your name and pick a handwriting style, then click on the page to place it. You can move and resize it before saving.'},
   {q:'Can Veyra PDF remove a watermark?',a:'It removes watermarks that were added with a PDF editor such as Acrobat, Word or Veyra PDF. A watermark that is part of a scanned image cannot be lifted off; cover it with White-out instead. Only change documents you own or have permission to edit.'},
   {q:'Can I edit the existing text in a PDF?',a:'You can cover existing text with White-out and type new text on top. Changing the original words in place is on the roadmap.'},
-  {q:'Windows says “Windows protected your PC”. Is it safe?',a:'Yes. The direct download is not yet signed with a Microsoft certificate, so SmartScreen may warn the first time. Choose More info, then Run anyway. The Microsoft Store version, once listed, installs without the warning.'},
+  {q:'Windows says “Windows protected your PC”. Is it safe?',a:'Yes. The direct download is not yet signed with a Microsoft certificate, so SmartScreen may warn the first time. Choose More info, then Run anyway, or get Veyra PDF from the Microsoft Store instead: that version is signed, installs without the warning and updates by itself.'},
 ];
 
 export default function VeyraPdfPage(){
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra PDF',applicationCategory:'BusinessApplication',
-    operatingSystem:'Windows 10, Windows 11',url:absolute('/pdf'),image:absolute('/veyra-pdf-home.webp'),downloadUrl:PDF_DOWNLOAD_URL,softwareVersion:PDF_VERSION,
+    operatingSystem:'Windows 10, Windows 11',url:absolute('/pdf'),image:absolute('/veyra-pdf-home.webp'),downloadUrl:PDF_STORE_URL,installUrl:PDF_STORE_URL,softwareVersion:PDF_VERSION,
     description:'An offline PDF editor and toolkit for Windows: highlight, add text, sign, merge, split, organize, watermark and convert PDFs without uploading them.',
     offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@type':'Organization',name:'Veyra',url:absolute('/')},
   };
@@ -60,10 +60,11 @@ export default function VeyraPdfPage(){
         <p className="live-tagline">Every PDF tool you need. One private app.</p>
         <p className="live-intro">Edit, highlight, sign, merge, split, watermark and convert PDFs right on your PC. Fast, offline and free, with nothing uploaded.</p>
         <div className="live-actions">
-          <a className="primary" href={PDF_DOWNLOAD_URL}><Download size={16}/>Download for Windows</a>
+          <a className="primary" href={PDF_STORE_URL}><Store size={16}/>Get it from the Microsoft Store</a>
+          <a className="secondary" href={PDF_DOWNLOAD_URL}><Download size={16}/>Download the installer</a>
           <a className="secondary" href="#tools"><LayoutGrid size={16}/>See all 22 tools</a>
         </div>
-        <p className="live-micro">v{PDF_VERSION} · Free · Windows 10 and 11 · 2 MB · By Veyra</p>
+        <p className="live-micro">v{PDF_VERSION} · Free · Windows 10 and 11 · Microsoft Store or 2 MB installer · By Veyra</p>
       </section>
 
       <section className="pm-shot">
@@ -111,10 +112,10 @@ export default function VeyraPdfPage(){
           <span className="kicker">INSTALL</span>
           <h2>Ready in a minute.</h2>
           <ol className="live-install">
-            <li><a href={PDF_DOWNLOAD_URL}>Download the installer</a> (2 MB).</li>
-            <li>Run it and click <strong>Install</strong>. No administrator rights needed.</li>
+            <li>Open <a href={PDF_STORE_URL}>Veyra PDF in the Microsoft Store</a> and click <strong>Get</strong>. It&apos;s signed, trusted by Windows, and updates by itself.</li>
             <li>Open <strong>Veyra PDF</strong> from the Start menu, or right-click any PDF and choose <strong>Open with</strong>.</li>
           </ol>
+          <p className="live-note">Prefer not to use the Store? <a href={PDF_DOWNLOAD_URL}>Download the installer</a> (2 MB). No administrator rights needed.</p>
         </div>
         <div className="visual" aria-label="Keyboard shortcuts">
           <small>Shortcuts</small>

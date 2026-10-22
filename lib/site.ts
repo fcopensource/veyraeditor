@@ -8,6 +8,11 @@ export const GITHUB_URL = "https://github.com/fcopensource/veyraeditor";
 export const MS_STORE_URL = "https://apps.microsoft.com/detail/XP8LKHC447THM1";
 /** Veyra PDF for Windows: the installer is hosted on downloads.veyraeditor.com. */
 export const PDF_VERSION = "1.0.0";
+/** Veyra PDF in the Microsoft Store: signed, trusted by Windows, and updated automatically. */
+export const PDF_STORE_URL = "https://apps.microsoft.com/detail/XP89HQ4DMX824K";
+/** Salesforce Studio in the browser stores. The Chrome Web Store also serves Edge and Brave. */
+export const SALESFORCE_CHROME_URL = "https://chromewebstore.google.com/detail/salesforce-studio/goeclmlgbldldpcdhddkdpkjpohghafn";
+export const SALESFORCE_FIREFOX_URL = "https://addons.mozilla.org/firefox/addon/salesforce-studio/";
 export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${PDF_VERSION}_x64-setup.exe`;
 /**
  * Veyra extensions for VS Code that are installed from a .vsix on GitHub until they are on the Visual Studio
@@ -28,6 +33,9 @@ export const vsixUrl = (ext: { folder: string; file: string; version: string }) 
 export const SAME_AS = [
   GITHUB_URL,
   MS_STORE_URL,
+  PDF_STORE_URL,
+  SALESFORCE_CHROME_URL,
+  SALESFORCE_FIREFOX_URL,
   "https://marketplace.visualstudio.com/publishers/flightcoders",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
