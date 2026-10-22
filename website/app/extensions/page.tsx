@@ -12,7 +12,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Veyra Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
+  description:'Veyra Query Lens for MongoDB, Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -77,6 +77,10 @@ export default function Extensions(){
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/mongodb" className="ext-original mongodb">
+            <Image src="/mongodb-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra Query Lens for MongoDB</h3><p>See how every MongoDB query performs, right above your code. The index that fixes slow ones in one click, unused indexes, and Mongoose schemas checked against real data.</p><span className="ext-link">Explore Query Lens <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/env" className="ext-original env">
             <Image src="/env-icon.png" width={96} height={96} alt=""/>
