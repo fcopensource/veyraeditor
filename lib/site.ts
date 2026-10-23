@@ -19,12 +19,12 @@ export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${P
  * Marketplace. Once an extension is live there, set listed: true and its page links to the Marketplace.
  */
 export const VSCODE_EXTENSIONS = {
-  apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: false },
-  mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: false },
-  env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: false },
-  docker: { id: "flightcoders.veyra-docker", folder: "docker", file: "veyra-docker", version: "1.0.0", listed: false },
-  mcpStudio: { id: "flightcoders.veyra-mcp-studio", folder: "mcp-studio", file: "veyra-mcp-studio", version: "1.0.0", listed: false },
-  npmIntelliSense: { id: "flightcoders.veyra-npm-intellisense", folder: "npm-intellisense", file: "veyra-npm-intellisense", version: "1.0.1", listed: false },
+  apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: true },
+  mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: true },
+  env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
+  docker: { id: "flightcoders.veyra-docker", folder: "docker", file: "veyra-docker", version: "1.0.0", listed: true },
+  mcpStudio: { id: "flightcoders.veyra-mcp-studio", folder: "mcp-studio", file: "veyra-mcp-studio", version: "1.0.0", listed: true },
+  npmIntelliSense: { id: "flightcoders.veyra-npm-intellisense", folder: "npm-intellisense", file: "veyra-npm-intellisense", version: "1.0.0", listed: true },
 } as const;
 export const marketplaceUrl = (id: string) => `https://marketplace.visualstudio.com/items?itemName=${id}`;
 export const vsixUrl = (ext: { folder: string; file: string; version: string }) =>
@@ -39,6 +39,12 @@ export const SAME_AS = [
   "https://marketplace.visualstudio.com/publishers/flightcoders",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-mongodb",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-env",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-docker",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-mcp-studio",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-api-client",
+  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-npm-intellisense",
   "https://github.com/fcopensource/salesforce-studio-releases",
 ];
 /** The site-wide social preview image (app/opengraph-image.tsx), for pages that set their own openGraph. */
