@@ -12,7 +12,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Veyra Query Lens for MongoDB, Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
+  description:'Path IntelliSense Veyra, Query Lens for MongoDB, Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -77,6 +77,10 @@ export default function Extensions(){
           <Link href="/port-manager" className="ext-original ports">
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
+          </Link>
+          <Link href="/path-intellisense" className="ext-original pathis">
+            <Image src="/path-intellisense-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Path IntelliSense Veyra</h3><p>File paths, completed as you type: imports, src, href, CSS url() and Markdown. tsconfig aliases with no setup, the right import extension, and broken paths flagged with a fix.</p><span className="ext-link">Explore Path IntelliSense <ArrowRight size={14}/></span></div>
           </Link>
           <Link href="/mongodb" className="ext-original mongodb">
             <Image src="/mongodb-icon.png" width={96} height={96} alt=""/>

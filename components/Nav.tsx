@@ -28,6 +28,7 @@ const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:str
     {href:'/docker',icon:'/docker-icon.png',name:'Container Studio',copy:'Docker containers, Compose and logs',tag:'New'},
     {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},
     {href:'/api-client',icon:'/api-client-icon.png',name:'API Client',copy:'Test any API without leaving VS Code',tag:'New'},
+    {href:'/path-intellisense',icon:'/path-intellisense-icon.png',name:'Path IntelliSense',copy:'File paths, completed as you type',tag:'New'},
     {href:'/npm-intellisense',icon:'/npm-intellisense-icon.png',name:'npm IntelliSense',copy:'Autocomplete and check npm imports',tag:'New'},
     {href:'/port-manager',icon:'/port-manager-icon.png',name:'Port Manager',copy:'Free a busy port in one click'},
     {href:'/live-server',icon:'/live-server-icon-296.png',name:'Live Server',copy:'Live reload as you save'},
