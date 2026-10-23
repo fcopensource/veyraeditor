@@ -15,6 +15,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/extensions'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/live-server'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/port-manager'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/path-intellisense'),lastModified:new Date('2026-10-23'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/mongodb'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/mongodb/docs'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.6},
     {url:absolute('/env'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.8},
