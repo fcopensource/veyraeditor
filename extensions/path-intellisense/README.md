@@ -25,6 +25,7 @@ Start a path with `./`, `../`, `/` or one of your aliases, and Path IntelliSense
 - In HTML, CSS and Markdown, `img/logo.png` works as well as `./img/logo.png`. Paths starting with `/` look in your workspace and in `public/` or `static/`, like Vite, Next.js and most site tools serve them.
 - Hidden files stay hidden until you type a `.`, and `node_modules` is left out unless you type it.
 - Package names (`react`, `lodash/fp`) are left to package completion, such as [Veyra npm IntelliSense](https://veyraeditor.com/npm-intellisense).
+- VS Code's own TypeScript support also suggests import paths, so you'd see each file twice. The first time it matters, Path IntelliSense Veyra offers to turn those off (`typescript.suggest.paths` and `javascript.suggest.paths`). It only changes them if you say yes.
 
 ## Imports written the way your project needs
 

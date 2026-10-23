@@ -39,6 +39,9 @@ write("server/package.json", `{ "type": "module" }`);
 write("server/src/db.ts", "export const db = 1;\n");
 write("server/src/main.ts", ['import { db } from "./";', 'import { x } from "./db.js";', ""].join("\n"));
 const userData = fs.mkdtempSync(path.join(os.tmpdir(), "veyra-path-vscode-"));
+// As after answering "Turn Off" to the extension's offer: VS Code's own import path suggestions are off.
+fs.mkdirSync(path.join(userData, "User"), { recursive: true });
+fs.writeFileSync(path.join(userData, "User", "settings.json"), JSON.stringify({ "typescript.suggest.paths": false, "javascript.suggest.paths": false }));
 
 await runTests({
   vscodeExecutablePath: process.env.VSCODE_PATH || undefined,

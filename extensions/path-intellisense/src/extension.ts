@@ -83,8 +83,24 @@ class Projects {
 
 // ---------- Completions ----------
 
+/**
+ * VS Code's own TypeScript and JavaScript support also suggests paths in imports, so every file would be listed
+ * twice. The first time it matters, offer to turn the built-in suggestions off. Asked once; nothing changes without a yes.
+ */
+function offerToTurnOffBuiltIn(context: vscode.ExtensionContext, languageId: string) {
+  const section = /^typescript/.test(languageId) ? "typescript" : /^javascript/.test(languageId) ? "javascript" : undefined;
+  if (!section || context.globalState.get<boolean>("veyraPath.askedBuiltIn")) return;
+  if (!vscode.workspace.getConfiguration(section).get<boolean>("suggest.paths", true)) return;
+  void context.globalState.update("veyraPath.askedBuiltIn", true);
+  void vscode.window.showInformationMessage("VS Code also suggests paths in imports, so you may see each file twice. Turn off VS Code's own path suggestions and keep Path IntelliSense Veyra's?", "Turn Off", "Keep Both").then(async pick => {
+    if (pick !== "Turn Off") return;
+    await vscode.workspace.getConfiguration("typescript").update("suggest.paths", false, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("javascript").update("suggest.paths", false, vscode.ConfigurationTarget.Global);
+  });
+}
+
 class Completions implements vscode.CompletionItemProvider {
-  constructor(private projects: Projects) {}
+  constructor(private projects: Projects, private context: vscode.ExtensionContext) {}
   async provideCompletionItems(doc: vscode.TextDocument, pos: vscode.Position): Promise<vscode.CompletionItem[] | undefined> {
     const project = await this.projects.get(doc.uri);
     const line = doc.lineAt(pos.line).text;
@@ -104,6 +120,7 @@ class Completions implements vscode.CompletionItemProvider {
     const range = new vscode.Range(pos.line, pos.character - partial.length, pos.line, pos.character);
     const style = m.importStyle(project.config, project.packageType, doc.languageId, config().get<"auto" | "always" | "never">("importExtension", "auto"));
     const isImport = ctx.kind === "import" || ctx.kind === "require";
+    if (isImport) offerToTurnOffBuiltIn(this.context, doc.languageId);
     const showHidden = config().get<boolean>("showHiddenFiles", false) || partial.startsWith(".");
     const excluded = Object.entries(vscode.workspace.getConfiguration("files", doc.uri).get<Record<string, boolean>>("exclude", {})).filter(([, on]) => on === true).map(([glob]) => glob.replace(/^\*\*\//, ""));
     const respectExclude = config().get<boolean>("respectFilesExclude", true);
@@ -260,7 +277,7 @@ class Checker implements vscode.CodeActionProvider, vscode.Disposable {
 
 export function activate(context: vscode.ExtensionContext) {
   const projects = new Projects();
-  const completions = new Completions(projects);
+  const completions = new Completions(projects, context);
   const checker = new Checker(projects);
   const selector: vscode.DocumentSelector = [{ scheme: "file" }, { scheme: "vscode-remote" }, { scheme: "vscode-vfs" }];
   const recheckAll = () => vscode.workspace.textDocuments.forEach(d => checker.schedule(d, 100));
