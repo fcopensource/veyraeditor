@@ -78,6 +78,7 @@ jobs:
           - { dir: live-server, name: Live Server }
           - { dir: port-manager, name: Port Manager }
           - { dir: env, name: Env }
+          - { dir: path-intellisense, name: Path IntelliSense }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}

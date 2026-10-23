@@ -1,0 +1,122 @@
+{
+  "name": "veyra-path-intellisense",
+  "displayName": "Path IntelliSense Veyra",
+  "description": "Autocomplete file paths as you type them: imports, require, src, href, CSS url() and Markdown links. Understands tsconfig and jsconfig aliases, writes imports the way your project needs them, and warns about paths that don't exist. Free.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/path-intellisense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/path-intellisense"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "path",
+    "intellisense",
+    "path intellisense",
+    "autocomplete",
+    "file path",
+    "import",
+    "filename",
+    "tsconfig paths",
+    "alias",
+    "relative path",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#111418",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Path IntelliSense Veyra",
+      "properties": {
+        "veyraPath.importExtension": {
+          "type": "string",
+          "enum": ["auto", "always", "never"],
+          "enumDescriptions": [
+            "Follow the project: no extension for bundlers, .js for Node ESM (moduleResolution node16/nodenext)",
+            "Always keep the file's extension",
+            "Never add .js, .ts and similar extensions to imports"
+          ],
+          "default": "auto",
+          "description": "Whether completions in imports and require() include the file extension."
+        },
+        "veyraPath.checkPaths": {
+          "type": "boolean",
+          "default": true,
+          "description": "Warn about relative and alias paths that point to files that don't exist, with a fix when there's a close match."
+        },
+        "veyraPath.showHiddenFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include files and folders whose names start with a dot."
+        },
+        "veyraPath.respectFilesExclude": {
+          "type": "boolean",
+          "default": true,
+          "description": "Leave out files hidden by the files.exclude setting (node_modules is always left out of relative paths' suggestions unless you type it)."
+        },
+        "veyraPath.slashAfterFolder": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add a / after a folder and show its contents straight away."
+        },
+        "veyraPath.mappings": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "default": {},
+          "markdownDescription": "Extra aliases, like `{ \"@\": \"${workspaceFolder}/src\", \"~assets\": \"${workspaceFolder}/public/assets\" }`. Aliases from tsconfig.json, jsconfig.json and package.json `imports` are found by themselves."
+        },
+        "veyraPath.absolutePathTo": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "The folder paths starting with `/` are relative to, like `${workspaceFolder}/public`. Empty means the workspace folder."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
