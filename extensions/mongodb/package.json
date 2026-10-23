@@ -1,7 +1,7 @@
 {
   "name": "veyra-mongodb",
-  "displayName": "Veyra Query Lens for MongoDB",
-  "description": "See how every MongoDB query in your code performs, right above it: full collection scans, in-memory sorts, the index that fixes them in one click, unused indexes, and Mongoose schemas that don't match your data. For Node.js, Mongoose and Python. Free.",
+  "displayName": "Veyra Query Lens",
+  "description": "An index advisor for the MongoDB queries in your code. See documents read, time and index use above each query, add the suggested index in one click, find unused indexes, and compare Mongoose schemas with your data.",
   "version": "1.0.0",
   "publisher": "flightcoders",
   "author": {
@@ -70,7 +70,7 @@
       "activitybar": [
         {
           "id": "veyraMongo",
-          "title": "MongoDB Query Lens",
+          "title": "Query Lens",
           "icon": "media/activity.svg"
         }
       ]
@@ -210,7 +210,7 @@
       ]
     },
     "configuration": {
-      "title": "Veyra Query Lens for MongoDB",
+      "title": "Veyra Query Lens",
       "properties": {
         "veyraMongo.analyze": {
           "type": "string",

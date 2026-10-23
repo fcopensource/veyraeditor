@@ -1,7 +1,8 @@
 // Bundles the extension with esbuild.
 //
 // The MongoDB driver ships client-side field level encryption, which Query Lens never uses. Two of its files hold
-// a PEM private-key template and start the mongocryptd process, and the URL parser it depends on calls eval().
+// a PEM private-key template and start the mongocryptd process; saslprep unpacks a compressed table at start-up;
+// and the URL parser calls eval() and carries Unicode tables on lines of up to 188,000 characters.
 // The Marketplace's malware scan flags such code, so those parts are replaced with plain equivalents here.
 import { build } from "esbuild";
 import fs from "node:fs";
@@ -53,13 +54,10 @@ saslprep.default = saslprep;
 module.exports = saslprep;
 `,
     }));
-    b.onLoad({ filter: /whatwg-url[\\/]lib[\\/]utils\.js$/ }, args => {
-      const source = fs.readFileSync(args.path, "utf8");
-      const from = 'globalObject.eval("(async function* () {})").prototype';
-      if (!source.includes(from)) throw new Error("whatwg-url changed: update build.mjs");
-      // The same object, without eval: the prototype of an async generator function.
-      return { contents: source.replace(from, "(async function* () {}).prototype"), loader: "js" };
-    });
+    // mongodb-connection-string-url only needs the URL and URLSearchParams classes from whatwg-url. Node.js has the
+    // same standard classes built in, so whatwg-url (with its eval() call and 200 KB of Unicode tables) is left out.
+    b.onResolve({ filter: /^whatwg-url$/ }, () => ({ path: "whatwg-url", namespace: "veyra-node-url" }));
+    b.onLoad({ filter: /.*/, namespace: "veyra-node-url" }, () => ({ loader: "js", contents: "module.exports = { URL: globalThis.URL, URLSearchParams: globalThis.URLSearchParams };" }));
   },
 };
 
@@ -77,5 +75,5 @@ await build({
 
 // Fail the build if anything a malware scan would flag is still there.
 const out = fs.readFileSync("bundle/extension.js", "utf8");
-const flagged = [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, /\beval\s*\(/, /require\("child_process"\)/, /new Function\(/, /[A-Za-z0-9+/]{400,}={0,2}/, /gunzipSync\(Buffer\.from\(/].filter(re => re.test(out));
+const flagged = [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, /\beval\s*\(/, /require\("child_process"\)/, /new Function\(/, /[A-Za-z0-9+/]{400,}={0,2}/, /gunzipSync\(Buffer\.from\(/, /^.{2000,}$/m].filter(re => re.test(out));
 if (flagged.length) { console.error("bundle still contains:", flagged.map(String).join(", ")); process.exit(1); }

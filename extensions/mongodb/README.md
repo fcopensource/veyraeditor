@@ -2,7 +2,9 @@
   <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/mongodb/media/readme/hero.png" alt="Veyra Query Lens for MongoDB: a query's full collection scan, the numbers, and the index that fixes it as Mongoose code" width="100%">
 </p>
 
-# Veyra Query Lens for MongoDB
+# Veyra Query Lens
+
+*An index advisor for MongoDB queries, in VS Code.*
 
 **See how every MongoDB query performs, right above your code.**
 
