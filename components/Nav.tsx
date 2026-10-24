@@ -28,6 +28,7 @@ const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:str
     {href:'/docker',icon:'/docker-icon.png',name:'Container Studio',copy:'Docker containers, Compose and logs',tag:'New'},
     {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},
     {href:'/api-client',icon:'/api-client-icon.png',name:'API Client',copy:'Test any API without leaving VS Code',tag:'New'},
+    {href:'/todo-tree',icon:'/todo-tree-icon.png',name:'Todo Tree',copy:'Every TODO in one tree',tag:'New'},
     {href:'/error-lens',icon:'/error-lens-icon.png',name:'Error Lens',copy:'Problems shown right on the line',tag:'New'},
     {href:'/git-graph',icon:'/git-graph-icon.png',name:'Git Graph',copy:'Your repository as a graph',tag:'New'},
     {href:'/document-viewer',icon:'/document-viewer-icon.png',name:'Document Viewer',copy:'Open Word, PowerPoint and Excel files',tag:'New'},

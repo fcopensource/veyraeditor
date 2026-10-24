@@ -78,6 +78,10 @@ export default function Extensions(){
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
           </Link>
+          <Link href="/todo-tree" className="ext-original todotree">
+            <Image src="/todo-tree-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Todo Tree Veyra</h3><p>Every TODO in your project, in one tree. FIXME, BUG, HACK and NOTE too, coloured in your code, with owners, a filter and a Markdown checklist to copy.</p><span className="ext-link">Explore Todo Tree <ArrowRight size={14}/></span></div>
+          </Link>
           <Link href="/error-lens" className="ext-original errorlens">
             <Image src="/error-lens-icon.png" width={96} height={96} alt=""/>
             <div><small>NEW · FOR VS CODE</small><h3>Error Lens Veyra</h3><p>See every problem right where it is. Errors and warnings at the end of their lines, the line gently tinted, and the cursor&apos;s problem in the status bar. Every language.</p><span className="ext-link">Explore Error Lens <ArrowRight size={14}/></span></div>
