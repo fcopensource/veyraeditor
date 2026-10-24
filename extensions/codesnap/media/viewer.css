@@ -1,0 +1,52 @@
+/* CodeSnap Veyra panel. Colours follow the VS Code theme. */
+:root {
+  --bg: var(--vscode-editor-background, #1f1f1f);
+  --fg: var(--vscode-foreground, #cccccc);
+  --muted: var(--vscode-descriptionForeground, #9d9d9d);
+  --line: var(--vscode-panel-border, rgba(128, 128, 128, .25));
+  --raised: color-mix(in srgb, var(--fg) 7%, transparent);
+  --hover: color-mix(in srgb, var(--fg) 12%, transparent);
+  --accent: #7c83f6;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--vscode-font-family, "Segoe UI", sans-serif); font-size: var(--vscode-font-size, 13px); overflow: hidden; }
+#app { height: 100%; display: flex; flex-direction: column; }
+button, select, input { font: inherit; color: inherit; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--vscode-focusBorder, var(--accent)); outline-offset: 1px; }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.actions { margin-left: auto; }
+.label, .field > span { color: var(--muted); font-size: 11.5px; }
+.field { display: inline-flex; align-items: center; gap: 7px; }
+.field select, .title-input { height: 26px; padding: 0 8px; border: 1px solid var(--vscode-input-border, var(--line)); border-radius: 6px; background: var(--vscode-input-background, var(--raised)); color: var(--vscode-input-foreground, var(--fg)); }
+.field select option { background: var(--vscode-dropdown-background, var(--bg)); }
+.title-input { width: 140px; }
+.field input[type="range"] { width: 92px; accent-color: var(--accent); }
+.field output { min-width: 2.2em; color: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12.5px; }
+.toggle input { accent-color: var(--accent); margin: 0; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatch { width: 22px; height: 22px; padding: 0; border: 2px solid transparent; border-radius: 50%; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .15), 0 1px 3px rgba(0, 0, 0, .3); transition: transform .12s; }
+.swatch:hover { transform: scale(1.12); }
+.swatch[aria-checked="true"] { border-color: var(--fg); transform: scale(1.08); }
+.swatch.transparent { background: repeating-conic-gradient(#8884 0% 25%, transparent 0% 50%) 50% / 8px 8px; }
+
+.btn { height: 28px; padding: 0 14px; border: 1px solid var(--line); border-radius: 7px; background: var(--raised); cursor: pointer; font-weight: 600; transition: background .12s, transform .12s; }
+.btn:hover { background: var(--hover); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { border-color: transparent; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 2px 10px rgba(99, 102, 241, .35); }
+.btn.primary:hover { filter: brightness(1.08); }
+
+.preview { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 22px; overflow: auto;
+  background: radial-gradient(color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px) 0 0 / 20px 20px, color-mix(in srgb, var(--bg) 88%, #000); }
+.stage { display: flex; justify-content: center; width: 100%; min-height: 0; }
+.stage.checker .snap { background: repeating-conic-gradient(#8883 0% 25%, transparent 0% 50%) 50% / 16px 16px; }
+.snap { display: block; width: 100%; height: auto; max-height: calc(100vh - 150px); object-fit: contain; border-radius: 6px; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, .35); }
+.stage.empty .snap { display: none; }
+.stage.empty::before { content: "Select some code and run CodeSnap Veyra: Snap Code to an Image (Ctrl+Alt+S)."; color: var(--muted); }
+.hint { margin: 0; color: var(--muted); font-size: 12px; text-align: center; }
+.status { color: #3fb950; font-weight: 600; }
+@media (max-width: 760px) { .actions { margin-left: 0; } .title-input { width: 110px; } }

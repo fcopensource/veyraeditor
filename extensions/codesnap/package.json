@@ -1,0 +1,81 @@
+{
+  "name": "veyra-codesnap",
+  "displayName": "CodeSnap Veyra",
+  "description": "Turn your code into beautiful images to share: your theme's colours, gradient backgrounds, window frames, highlighted lines and social media sizes. Copy or save as PNG.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/codesnap",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/codesnap" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "Visualization"],
+  "keywords": ["codesnap", "code screenshot", "screenshot", "code image", "snippet", "carbon", "share code", "png", "social", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      { "command": "veyraSnap.snap", "title": "Snap Code to an Image", "category": "CodeSnap Veyra", "icon": "$(device-camera)" }
+    ],
+    "keybindings": [
+      { "command": "veyraSnap.snap", "key": "ctrl+alt+s", "mac": "cmd+alt+s", "when": "editorTextFocus" }
+    ],
+    "menus": {
+      "editor/context": [
+        { "command": "veyraSnap.snap", "when": "editorHasSelection", "group": "9_cutcopypaste@10" }
+      ],
+      "editor/title": [
+        { "command": "veyraSnap.snap", "when": "editorHasSelection && config.veyraSnap.showTitleButton", "group": "navigation@90" }
+      ]
+    },
+    "configuration": {
+      "title": "CodeSnap Veyra",
+      "properties": {
+        "veyraSnap.background": {
+          "type": "string",
+          "enum": ["aurora", "sunset", "ocean", "candy", "forest", "midnight", "peach", "lavender", "mono", "veyra", "solid", "transparent"],
+          "default": "aurora",
+          "description": "The background behind the window."
+        },
+        "veyraSnap.solidColor": { "type": "string", "default": "#1f2937", "description": "The colour used when the background is solid." },
+        "veyraSnap.frame": { "type": "string", "enum": ["macos", "windows", "none"], "default": "macos", "description": "The window around the code." },
+        "veyraSnap.padding": { "type": "number", "default": 56, "minimum": 0, "maximum": 160, "description": "Space around the window, in pixels." },
+        "veyraSnap.lineNumbers": { "type": "boolean", "default": true, "description": "Show line numbers, starting from the selection's real line." },
+        "veyraSnap.shadow": { "type": "boolean", "default": true, "description": "A soft shadow under the window." },
+        "veyraSnap.size": {
+          "type": "string", "enum": ["auto", "square", "wide", "linkedin"],
+          "enumDescriptions": ["Fits the code", "1:1, for Instagram", "16:9, for X and slides", "1.91:1, for LinkedIn"],
+          "default": "auto", "description": "The shape of the image."
+        },
+        "veyraSnap.scale": { "type": "number", "enum": [1, 2, 3], "default": 2, "description": "How sharp the saved image is (2 is good for most screens)." },
+        "veyraSnap.liveUpdate": { "type": "boolean", "default": true, "description": "Update the snap while you change the selection." },
+        "veyraSnap.showTitleButton": { "type": "boolean", "default": false, "description": "Show a camera button in the editor's title bar when code is selected." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

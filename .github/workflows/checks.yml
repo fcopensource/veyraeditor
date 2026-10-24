@@ -85,6 +85,7 @@ jobs:
           - { dir: todo-tree, name: Todo Tree }
           - { dir: auto-rename-tag, name: Auto Rename Tag }
           - { dir: pets, name: Pets }
+          - { dir: codesnap, name: CodeSnap }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
