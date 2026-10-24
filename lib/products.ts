@@ -84,6 +84,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/pets', icon: '/pets-icon.png', name: 'Pets', title: 'Pets Veyra', group: 'Just for fun', order: 15, tone: 'pets', updated: '2026-10-24',
     copy: 'Cute pets that cheer you on', cta: 'Meet the pets',
     summary: 'A cat, dog, fox, bunny or panda that lives in VS Code. They play ball, nap, and cheer when you save and fix your errors. Drawn from scratch.' }),
+  vs({ href: '/codesnap', icon: '/codesnap-icon.png', name: 'CodeSnap', title: 'CodeSnap Veyra', group: 'Project', order: 16, tone: 'codesnap', updated: '2026-10-25',
+    copy: 'Your code as a beautiful image', cta: 'Explore CodeSnap',
+    summary: 'Turn your code into a beautiful image in your theme’s colours. Gradients, window frames, highlighted lines and social media sizes. Copy it or save it as PNG.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Veyra AI and Salesforce Studio. */
