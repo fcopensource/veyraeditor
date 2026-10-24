@@ -1,9 +1,10 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Bell,Code2,Download,Eraser,Gauge,Globe,Layers,ShieldCheck,Sparkles,Star} from 'lucide-react';
+import {Bell,Code2,Download,Eraser,Gauge,Layers,ShieldCheck,Sparkles,Star} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {latestRelease,RELEASES_URL} from '@/lib/releases';
@@ -141,7 +142,7 @@ export default async function PortManagerPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Globe size={14}/>More from Veyra: <Link href="/live-server">Veyra Live Server</Link> and <Link href="/extensions">all extensions</Link>.</p>
+        <MoreExtensions current="/port-manager"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

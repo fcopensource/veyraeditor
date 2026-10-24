@@ -2,6 +2,7 @@ import type {MetadataRoute} from 'next';
 import {latestRelease} from '@/lib/releases';
 import {absolute} from '@/lib/site';
 import {allPosts} from '@/lib/blog';
+import {EXTENSIONS} from '@/lib/products';
 
 export const revalidate=3600;
 
@@ -13,22 +14,9 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/download'),lastModified:updated,changeFrequency:'weekly',priority:0.9},
     {url:absolute('/features'),lastModified:updated,changeFrequency:'monthly',priority:0.9},
     {url:absolute('/extensions'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/live-server'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/port-manager'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/pets'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/auto-rename-tag'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/todo-tree'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/error-lens'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/git-graph'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/document-viewer'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/path-intellisense'),lastModified:new Date('2026-10-23'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/mongodb'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.8},
+    // Every extension's page, from lib/products.ts.
+    ...EXTENSIONS.map(p=>({url:absolute(p.href),lastModified:p.updated?new Date(p.updated):updated,changeFrequency:'monthly' as const,priority:0.8})),
     {url:absolute('/mongodb/docs'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.6},
-    {url:absolute('/env'),lastModified:new Date('2026-10-22'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/docker'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/mcp-studio'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/api-client'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
-    {url:absolute('/npm-intellisense'),lastModified:new Date('2026-10-20'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/salesforce-studio'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/salesforce-studio/privacy'),lastModified:updated,changeFrequency:'yearly',priority:0.3},
     {url:absolute('/pdf'),lastModified:new Date('2026-10-19'),changeFrequency:'monthly',priority:0.8},

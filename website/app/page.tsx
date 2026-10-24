@@ -14,6 +14,7 @@ import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
 import { allPosts, formatDate } from "@/lib/blog";
+import { EXTENSIONS } from "@/lib/products";
 
 export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
@@ -186,6 +187,22 @@ export default async function Home() {
           <h2>Stay inside the work.</h2>
           <p>Files, terminal, source control, intelligent context and the final diff, arranged as one continuous instrument.</p>
           <div className="signal-line"><i /><i /><i /><i /><i /></div>
+        </section>
+
+        <section className="home-blog home-new" data-reveal aria-labelledby="new-title">
+          <header>
+            <div><span>// NEW FOR VS CODE</span><h2 id="new-title">Fresh from the Veyra team</h2></div>
+            <Link className="secondary" href="/extensions#made-by-veyra">All {EXTENSIONS.length} extensions <ArrowRight size={14} /></Link>
+          </header>
+          <div className="new-grid">
+            {[...EXTENSIONS].sort((x, y) => y.order - x.order).slice(0, 3).map(p => (
+              <Link key={p.href} href={p.href} className={`new-card tone-${p.tone}`}>
+                <Image src={p.icon} width={56} height={56} alt="" />
+                <div><small>{p.group}</small><h3>{p.title}</h3><p>{p.copy}</p></div>
+                <ArrowRight className="new-arrow" size={16} />
+              </Link>
+            ))}
+          </div>
         </section>
 
         <section className="home-blog" data-reveal aria-labelledby="blog-title">

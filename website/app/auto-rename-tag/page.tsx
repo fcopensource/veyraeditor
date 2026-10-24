@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {Blocks,Braces,Code2,Download,Keyboard,Layers,ShieldCheck,Sparkles,Undo2,Users,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -101,7 +102,7 @@ export default function AutoRenameTagPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/error-lens">Error Lens Veyra</Link>, <Link href="/todo-tree">Todo Tree Veyra</Link>, <Link href="/git-graph">Git Graph Veyra</Link> and <Link href="/path-intellisense">Path IntelliSense Veyra</Link>.</p>
+        <MoreExtensions current="/auto-rename-tag"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

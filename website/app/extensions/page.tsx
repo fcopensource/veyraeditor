@@ -8,11 +8,14 @@ import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {ExtensionGallery} from '@/components/ExtensionGallery';
+import {OriginalsBrowser} from '@/components/OriginalsBrowser';
+import {EXTENSIONS} from '@/lib/products';
+import {TOOLS} from '@/lib/tools';
 import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:'Path IntelliSense Veyra, Query Lens for MongoDB, Env, Container Studio for Docker, MCP Studio, API Client, npm IntelliSense, Port Manager and Live Server for VS Code, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.',
+  description:`${EXTENSIONS.length} free Veyra extensions for VS Code, including ${[...EXTENSIONS].sort((a,b)=>b.order-a.order).slice(0,6).map(p=>p.title).join(', ')}, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.`,
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };
@@ -45,7 +48,8 @@ export default function Extensions(){
             <a className="secondary" href="#gallery"><Search size={16}/>Browse built-in tools</a>
           </div>
           <ul className="ext-hero-stats">
-            <li><b>11</b><span>built-in tools</span></li>
+            <li><b>{TOOLS.length}</b><span>built-in tools</span></li>
+            <li><b>{EXTENSIONS.length}</b><span>Veyra extensions</span></li>
             <li><b>1 click</b><span>to install</span></li>
             <li><b>0</b><span>settings to copy</span></li>
           </ul>
@@ -62,79 +66,10 @@ export default function Extensions(){
         </div>
       </section>
 
-      {/* Veyra originals */}
-      <section className="ext-section">
-        <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2></header>
-        <div className="ext-originals">
-          <Link href="/live-server" className="ext-original live">
-            <Image src="/live-server-icon-296.png" width={96} height={96} alt=""/>
-            <div><small>LIVE PREVIEW · ALSO FOR VS CODE</small><h3>Veyra Live Server</h3><p>Save. See it. Instantly. Go Live serves your folder and reloads the browser on save, with CSS applied without a reload.</p><span className="ext-link">Explore Live Server <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/docs#ai" className="ext-original ai">
-            <Image src="/veyra-ai.svg" width={96} height={96} alt=""/>
-            <div><small>AI ASSISTANT · BUILT IN</small><h3>Veyra AI</h3><p>Ask about your code, explain it, or edit with AI and review every change as a diff. Sign in with a free account: 10 free requests, no API key.</p><span className="ext-link">Set up Veyra AI <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/port-manager" className="ext-original ports">
-            <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
-            <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/pets" className="ext-original pets">
-            <Image src="/pets-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Pets Veyra</h3><p>A cat, dog, fox, bunny or panda that lives in VS Code. They play ball, nap, and cheer when you save and fix your errors. Drawn from scratch.</p><span className="ext-link">Meet the pets <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/auto-rename-tag" className="ext-original renametag">
-            <Image src="/auto-rename-tag-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Auto Rename Tag Veyra</h3><p>Rename one tag and its pair follows, as you type. HTML, React, Vue, Svelte, Astro and XML, with nested tags, components and fragments handled.</p><span className="ext-link">Explore Auto Rename Tag <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/todo-tree" className="ext-original todotree">
-            <Image src="/todo-tree-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Todo Tree Veyra</h3><p>Every TODO in your project, in one tree. FIXME, BUG, HACK and NOTE too, coloured in your code, with owners, a filter and a Markdown checklist to copy.</p><span className="ext-link">Explore Todo Tree <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/error-lens" className="ext-original errorlens">
-            <Image src="/error-lens-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Error Lens Veyra</h3><p>See every problem right where it is. Errors and warnings at the end of their lines, the line gently tinted, and the cursor&apos;s problem in the status bar. Every language.</p><span className="ext-link">Explore Error Lens <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/git-graph" className="ext-original gitgraph">
-            <Image src="/git-graph-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Git Graph Veyra</h3><p>Your repository as a graph. Every branch, merge and tag, what each commit changed, and one-click checkout, cherry-pick and revert. Fast and private.</p><span className="ext-link">Explore Git Graph <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/document-viewer" className="ext-original docs">
-            <Image src="/document-viewer-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra Document Viewer</h3><p>Open Word, PowerPoint and Excel files right in VS Code. Real pages, slides with a Present mode, sheets with their formats and formulas, and CSV as a sortable table.</p><span className="ext-link">Explore Document Viewer <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/path-intellisense" className="ext-original pathis">
-            <Image src="/path-intellisense-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Path IntelliSense Veyra</h3><p>File paths, completed as you type: imports, src, href, CSS url() and Markdown. tsconfig aliases with no setup, the right import extension, and broken paths flagged with a fix.</p><span className="ext-link">Explore Path IntelliSense <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/mongodb" className="ext-original mongodb">
-            <Image src="/mongodb-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra Query Lens for MongoDB</h3><p>See how every MongoDB query performs, right above your code. The index that fixes slow ones in one click, unused indexes, and Mongoose schemas checked against real data.</p><span className="ext-link">Explore Query Lens <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/env" className="ext-original env">
-            <Image src="/env-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra Env</h3><p>Never ship a missing or leaked env variable again. Warnings for missing variables, autocomplete for process.env, secrets hidden on screen, a .gitignore guard and .env.example in sync.</p><span className="ext-link">Explore Veyra Env <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/docker" className="ext-original docker">
-            <Image src="/docker-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra Container Studio for Docker</h3><p>Docker in VS Code, made easy. Containers, images and Compose in one sidebar, live logs, CPU and memory, one-click cleanup, and Dockerfile checks with fixes.</p><span className="ext-link">Explore Container Studio <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/mcp-studio" className="ext-original mcp">
-            <Image src="/mcp-studio-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra MCP Studio</h3><p>Your MCP servers, all in one place. See the servers of VS Code, Claude, Cursor and Windsurf, add popular ones in two clicks, try every tool, and see why a server fails.</p><span className="ext-link">Explore MCP Studio <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/api-client" className="ext-original api">
-            <Image src="/api-client-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra API Client</h3><p>Test any API without leaving VS Code. REST and GraphQL, collections saved in your repo, environments with private values, and cURL and Postman import. Free, no account.</p><span className="ext-link">Explore API Client <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/npm-intellisense" className="ext-original npm">
-            <Image src="/npm-intellisense-icon.png" width={96} height={96} alt=""/>
-            <div><small>NEW · FOR VS CODE</small><h3>Veyra npm IntelliSense</h3><p>Every package, one keystroke away. Autocomplete imports with versions, catch missing packages and install them in one click, and find unused dependencies.</p><span className="ext-link">Explore npm IntelliSense <ArrowRight size={14}/></span></div>
-          </Link>
-          <Link href="/salesforce-studio" className="ext-original salesforce">
-            <Image src="/salesforce-studio-icon.png" width={96} height={96} alt=""/>
-            <div><small>FOR CHROME, EDGE &amp; FIREFOX</small><h3>Salesforce Studio</h3><p>Your org’s code, open in seconds. Edit LWC, Aura, Apex and Visualforce from any Salesforce tab, and save to your org with Ctrl+S.</p><span className="ext-link">Explore Salesforce Studio <ArrowRight size={14}/></span></div>
-          </Link>
-        </div>
+      {/* Veyra originals: searchable, grouped and paged, built from lib/products.ts */}
+      <section className="ext-section" id="made-by-veyra">
+        <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2><p>{EXTENSIONS.length} free extensions for VS Code, plus Veyra AI and Salesforce Studio. Search them, or pick a group.</p></header>
+        <OriginalsBrowser/>
       </section>
 
       {/* Interactive gallery */}

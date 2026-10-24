@@ -236,3 +236,16 @@ main p,main li,main dd,main td{overflow-wrap:anywhere}
 .post-body td code,.post-body th code{white-space:nowrap}
 .post-body th,.post-body td{overflow-wrap:normal;word-break:normal}
 .post-body td:first-child,.post-body th:first-child{min-width:7.5em}
+/* Home: the newest extensions, from lib/products.ts */
+.home-new{margin-bottom:90px}
+.new-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.new-card{position:relative;display:flex;align-items:center;gap:16px;padding:18px 44px 18px 18px;border:1px solid #ffffff12;border-radius:18px;background:linear-gradient(150deg,#111722,#0a0e15);transition:transform .25s,border-color .25s,box-shadow .25s}
+.new-card:hover{transform:translateY(-3px);border-color:#a78bfa55;box-shadow:0 18px 40px #0007}
+.new-card img{flex:none;border-radius:14px;filter:drop-shadow(0 8px 16px #0008)}
+.new-card div{min-width:0}
+.new-card small{color:var(--mint);font:500 9.5px var(--font-mono);letter-spacing:1.5px;text-transform:uppercase}
+.new-card h3{margin:5px 0 4px;font-size:16px;letter-spacing:-.3px}
+.new-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.new-arrow{position:absolute;right:16px;top:50%;color:#5f6d7a;transform:translateY(-50%);transition:transform .25s,color .25s}
+.new-card:hover .new-arrow{color:var(--mint);transform:translate(3px,-50%)}
+@media(max-width:900px){.new-grid{grid-template-columns:1fr}}

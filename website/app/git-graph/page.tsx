@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {ArrowUpDown,Download,GitBranch,GitCompare,GitMerge,Keyboard,Lock,MousePointerClick,Search,Sparkles,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -104,7 +105,7 @@ export default function GitGraphPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/document-viewer">Veyra Document Viewer</Link>, <Link href="/path-intellisense">Path IntelliSense Veyra</Link>, <Link href="/env">Veyra Env</Link> and <Link href="/docker">Veyra Container Studio for Docker</Link>.</p>
+        <MoreExtensions current="/git-graph"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

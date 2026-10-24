@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {BookOpen,Brain,Download,Gauge,GitCompare,Hammer,ListChecks,Lock,Search,ShieldCheck,Sparkles,Stethoscope,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -127,7 +128,7 @@ export default function MongoPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/env">Veyra Env</Link>, <Link href="/docker">Veyra Container Studio for Docker</Link>, <Link href="/mcp-studio">Veyra MCP Studio</Link> and <Link href="/api-client">Veyra API Client</Link>.</p>
+        <MoreExtensions current="/mongodb"/>
         <p className="live-note" style={{marginTop:12}}>MongoDB is a trademark of MongoDB, Inc. Veyra Query Lens is an independent extension and is not made or endorsed by MongoDB, Inc.</p>
       </section>
 

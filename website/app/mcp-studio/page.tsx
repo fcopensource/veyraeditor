@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {Copy,Download,FlaskConical,LayoutList,LifeBuoy,Lock,MessagesSquare,PlusCircle,SearchCheck,ShieldCheck,Stethoscope,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -128,7 +129,7 @@ export default function McpStudioPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><ShieldCheck size={14}/>More for VS Code: <Link href="/mongodb">Veyra Query Lens for MongoDB</Link>, <Link href="/env">Veyra Env</Link>, <Link href="/docker">Veyra Container Studio for Docker</Link>, <Link href="/api-client">Veyra API Client</Link>, <Link href="/npm-intellisense">Veyra npm IntelliSense</Link>, <Link href="/port-manager">Veyra Port Manager</Link> and <Link href="/live-server">Veyra Live Server</Link>.</p>
+        <MoreExtensions current="/mcp-studio"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

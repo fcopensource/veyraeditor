@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {AtSign,ClipboardList,Download,Filter,FolderTree,Highlighter,Languages,RefreshCw,Sparkles,Tags,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -102,7 +103,7 @@ export default function TodoTreePage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/error-lens">Error Lens Veyra</Link>, <Link href="/git-graph">Git Graph Veyra</Link>, <Link href="/path-intellisense">Path IntelliSense Veyra</Link> and <Link href="/document-viewer">Veyra Document Viewer</Link>.</p>
+        <MoreExtensions current="/todo-tree"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
