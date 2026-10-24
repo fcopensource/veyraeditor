@@ -1,0 +1,124 @@
+:root {
+  --bg: var(--vscode-editor-background);
+  --fg: var(--vscode-foreground);
+  --muted: var(--vscode-descriptionForeground);
+  --line: var(--vscode-panel-border, rgba(128, 128, 128, .25));
+  --panel: var(--vscode-sideBar-background, rgba(128, 128, 128, .06));
+  --accent: #2f6fed;
+  --word: #2b6fd6; --ppt: #d9622b; --xls: #1f8a4c;
+  --mono: var(--vscode-editor-font-family, Consolas, monospace);
+  --slide-font: "Segoe UI", Calibri, Arial, sans-serif;
+  --zoom: 1;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--vscode-font-family); font-size: var(--vscode-font-size, 13px); overflow: hidden; }
+#app { height: 100%; display: flex; flex-direction: column; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.muted { color: var(--muted); }
+.grow { flex: 1; }
+.row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* Toolbar */
+.bar { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; flex: none; }
+.badge { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; color: #fff; background: #6b7280; }
+.badge.word { background: var(--word); } .badge.powerpoint { background: var(--ppt); } .badge.excel { background: var(--xls); } .badge.csv, .badge.tsv { background: #4b5563; }
+.file { max-width: 34ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stats { color: var(--muted); font-size: 12px; }
+.find { display: flex; align-items: center; gap: 4px; }
+.search { width: 190px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--vscode-input-border, var(--line)); background: var(--vscode-input-background); color: var(--vscode-input-foreground); font: inherit; }
+.search:focus { outline: 1px solid var(--vscode-focusBorder); }
+.count { color: var(--muted); font-size: 12px; min-width: 2.5em; }
+.zoom { display: flex; align-items: center; gap: 2px; }
+.zoom-label { min-width: 3.6em; text-align: center; font-size: 12px; color: var(--muted); }
+.icon { border: 0; background: transparent; width: 26px; height: 26px; border-radius: 5px; }
+.icon:hover, .btn:hover { background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, .15)); }
+.btn { border: 1px solid var(--line); background: transparent; padding: 4px 10px; border-radius: 6px; white-space: nowrap; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.1); background: var(--accent); }
+mark.hit { background: rgba(255, 213, 0, .45); color: inherit; border-radius: 2px; }
+mark.hit.now { background: #ff9632; outline: 2px solid #ff9632; }
+.toast { position: fixed; right: 16px; bottom: 16px; padding: 8px 14px; border-radius: 8px; background: var(--vscode-notifications-background, #252526); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); z-index: 100; }
+
+/* Layout */
+.body { flex: 1; display: flex; min-height: 0; }
+.content { flex: 1; min-width: 0; overflow: auto; position: relative; }
+.loading, .empty { padding: 40px; color: var(--muted); text-align: center; }
+
+/* Word */
+.outline { width: 240px; flex: none; overflow: auto; border-right: 1px solid var(--line); background: var(--panel); padding: 10px 6px; }
+.outline small, .notes-box small { display: block; color: var(--muted); font-size: 10.5px; letter-spacing: .08em; font-weight: 600; padding: 4px 8px 8px; }
+.ol { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 4px 8px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ol:hover { background: var(--vscode-list-hoverBackground); }
+.ol.l2 { padding-left: 20px; } .ol.l3 { padding-left: 32px; font-size: 12px; } .ol.l4 { padding-left: 44px; font-size: 12px; color: var(--muted); }
+.docx-host { padding: 0; }
+.docx-host .docx-wrapper { background: transparent !important; padding: 24px 0 !important; }
+.docx-host .docx-wrapper > section.docx { box-shadow: 0 2px 14px rgba(0, 0, 0, .28) !important; margin-bottom: 24px !important; }
+.docx-host.dark-pages .docx-wrapper > section.docx { filter: invert(.9) hue-rotate(180deg); }
+.docx-host.dark-pages .docx-wrapper > section.docx img { filter: invert(1) hue-rotate(180deg); }
+
+/* PowerPoint */
+.side { width: 190px; flex: none; overflow: auto; border-right: 1px solid var(--line); background: var(--panel); }
+.thumbs { display: flex; flex-direction: column; gap: 10px; padding: 12px 10px; }
+.thumb { display: flex; gap: 6px; align-items: flex-start; border: 0; background: transparent; padding: 0; text-align: left; }
+.thumb > span { width: 14px; font-size: 11px; color: var(--muted); padding-top: 2px; }
+.thumb-frame { border: 2px solid transparent; border-radius: 4px; overflow: hidden; position: relative; }
+.thumb.on .thumb-frame { border-color: var(--accent); }
+.thumb-frame .slide, .slide-frame .slide, .present-box .slide { transform-origin: 0 0; position: absolute; left: 0; top: 0; }
+.deck-host { display: flex; flex-direction: column; min-height: 100%; }
+.deck { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+.slide-wrap { display: flex; flex-direction: column; gap: 6px; }
+.slide-wrap.hidden-slide { opacity: .55; }
+.slide-num { font-size: 11px; color: var(--muted); }
+.slide-frame { position: relative; overflow: hidden; box-shadow: 0 2px 14px rgba(0, 0, 0, .3); border-radius: 2px; }
+.slide { overflow: hidden; color: #000; font-family: var(--slide-font); background: #fff; }
+.slide .el { position: absolute; display: flex; flex-direction: column; overflow: hidden; line-height: 1.15; }
+.slide .el.image { overflow: hidden; }
+.slide .el.image img { width: 100%; height: 100%; object-fit: fill; display: block; }
+.slide .el.missing { align-items: center; justify-content: center; border: 1px dashed rgba(0, 0, 0, .3); color: rgba(0, 0, 0, .45); font-size: 14px; background: rgba(0, 0, 0, .03); }
+.slide .el.table table { border-collapse: collapse; width: 100%; height: 100%; table-layout: fixed; }
+.slide .el.table td { border: 1px solid rgba(0, 0, 0, .35); padding: 4px 8px; vertical-align: top; font-size: 14px; }
+.slide .pp { white-space: pre-wrap; overflow-wrap: break-word; margin: 0 0 .15em; }
+.slide .bu { display: inline-block; width: 1.1em; margin-left: -1.1em; padding-left: 1.4em; box-sizing: content-box; margin-right: .2em; }
+.notes-box { position: sticky; bottom: 0; border-top: 1px solid var(--line); background: var(--bg); padding: 6px 16px 10px; max-height: 26vh; overflow: auto; }
+.notes { white-space: pre-wrap; line-height: 1.5; }
+.notes.empty { color: var(--muted); font-style: italic; }
+.present { position: fixed; inset: 0; background: #000; z-index: 50; display: grid; place-items: center; outline: none; }
+.present-box { position: relative; overflow: hidden; }
+.present-count { position: fixed; right: 16px; bottom: 12px; color: rgba(255, 255, 255, .55); font-size: 12px; }
+
+/* Excel and CSV */
+.book { display: flex; flex-direction: column; height: 100%; }
+.formula { display: flex; align-items: center; gap: 10px; padding: 5px 12px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; flex: none; }
+.formula .ref { min-width: 5em; color: var(--muted); }
+.formula .fx { font-style: italic; color: var(--muted); }
+.formula .fval { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: text; }
+.grid-host, .book > .grid-scroll { flex: 1; min-height: 0; overflow: auto; }
+.grid-host > .grid-scroll { height: 100%; overflow: auto; }
+table.grid { border-collapse: separate; border-spacing: 0; font-size: calc(12.5px * var(--zoom)); font-family: Calibri, "Segoe UI", Arial, sans-serif; table-layout: fixed; }
+table.grid col.rh { width: calc(46px * var(--zoom)); }
+table.grid th, table.grid td { border-right: 1px solid rgba(128, 128, 128, .22); border-bottom: 1px solid rgba(128, 128, 128, .22); padding: 2px 6px; height: calc(21px * var(--zoom)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+table.grid thead th { position: sticky; top: 0; z-index: 2; background: var(--vscode-editorGroupHeader-tabsBackground, #252526); color: var(--muted); font-weight: 600; text-align: center; }
+table.grid th.rn { position: sticky; left: 0; z-index: 1; background: var(--vscode-editorGroupHeader-tabsBackground, #252526); color: var(--muted); font-weight: 400; text-align: center; }
+table.grid th.corner { position: sticky; left: 0; top: 0; z-index: 3; background: var(--vscode-editorGroupHeader-tabsBackground, #252526); }
+table.grid td { user-select: text; cursor: cell; }
+table.grid td.filled { color: #111; }
+table.grid td.sel { outline: 2px solid var(--xls); outline-offset: -2px; }
+table.grid td.has-formula { background-image: linear-gradient(135deg, transparent 0 calc(100% - 5px), rgba(31, 138, 76, .7) calc(100% - 5px)); }
+table.grid.csv td.num { text-align: right; }
+table.grid th.sortable { cursor: pointer; } table.grid th.sortable:hover { color: var(--fg); }
+table.grid th.asc::after { content: " ▲"; font-size: 9px; } table.grid th.desc::after { content: " ▼"; font-size: 9px; }
+.tabs { display: flex; gap: 2px; padding: 0 8px; border-top: 1px solid var(--line); overflow-x: auto; flex: none; background: var(--panel); }
+.tab { border: 0; background: transparent; padding: 6px 14px; border-bottom: 2px solid transparent; white-space: nowrap; color: var(--muted); }
+.tab.on { color: var(--fg); border-bottom-color: var(--xls); font-weight: 600; background: var(--bg); }
+.more { color: var(--muted); padding: 10px 14px; }
+.filter { width: 160px; }
+
+/* Messages */
+.message { margin: auto; max-width: 520px; text-align: center; padding: 40px 24px; }
+.message h2 { margin: 10px 0 6px; font-size: 17px; }
+.message p { color: var(--muted); line-height: 1.55; }
+.msg-icon { width: 46px; height: 46px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: rgba(229, 165, 10, .15); color: #e5a50a; font-weight: 800; font-size: 22px; }
+@media (max-width: 720px) { .outline, .side { display: none; } .search { width: 120px; } }
+/* Spreadsheets on paper: white cells and dark text, as in Excel, so the file's own font colours stay readable. */
+.grid-host.paper table.grid td { background-color: #fff; color: #111; border-color: #e1e1e1; }

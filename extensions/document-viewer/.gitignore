@@ -1,0 +1,7 @@
+out/
+dist/
+bundle/
+node_modules/
+.vscode-test/
+test/fixtures/out/
+media/viewer.js

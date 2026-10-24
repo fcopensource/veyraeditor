@@ -79,6 +79,7 @@ jobs:
           - { dir: port-manager, name: Port Manager }
           - { dir: env, name: Env }
           - { dir: path-intellisense, name: Path IntelliSense }
+          - { dir: document-viewer, name: Document Viewer }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}

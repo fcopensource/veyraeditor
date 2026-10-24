@@ -1,0 +1,98 @@
+{
+  "name": "veyra-document-viewer",
+  "displayName": "Veyra Document Viewer",
+  "description": "Open Word, PowerPoint and Excel files right in VS Code: .docx with real pages, .pptx slides with a presenter mode, .xlsx sheets with formulas, plus CSV and TSV. Search, zoom and copy text. Free, offline, nothing uploaded.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/document-viewer",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/document-viewer" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Visualization", "Other"],
+  "keywords": ["docx", "word", "pptx", "powerpoint", "xlsx", "excel", "csv", "office", "viewer", "document", "spreadsheet", "slides", "preview", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "veyraDocs.viewer",
+        "displayName": "Veyra Document Viewer",
+        "priority": "default",
+        "selector": [
+          { "filenamePattern": "*.docx" }, { "filenamePattern": "*.docm" }, { "filenamePattern": "*.dotx" },
+          { "filenamePattern": "*.pptx" }, { "filenamePattern": "*.pptm" }, { "filenamePattern": "*.ppsx" },
+          { "filenamePattern": "*.xlsx" }, { "filenamePattern": "*.xlsm" },
+          { "filenamePattern": "*.doc" }, { "filenamePattern": "*.ppt" }, { "filenamePattern": "*.xls" }
+        ]
+      },
+      {
+        "viewType": "veyraDocs.table",
+        "displayName": "Veyra Document Viewer (table)",
+        "priority": "option",
+        "selector": [{ "filenamePattern": "*.csv" }, { "filenamePattern": "*.tsv" }]
+      }
+    ],
+    "commands": [
+      { "command": "veyraDocs.openTable", "title": "Open as Table", "category": "Document Viewer", "icon": "$(table)" },
+      { "command": "veyraDocs.openDefault", "title": "Open in Default App", "category": "Document Viewer", "icon": "$(link-external)" }
+    ],
+    "menus": {
+      "editor/title": [
+        { "command": "veyraDocs.openTable", "when": "resourceExtname =~ /^\\.(csv|tsv)$/i && activeCustomEditorId != veyraDocs.table", "group": "navigation" }
+      ],
+      "explorer/context": [
+        { "command": "veyraDocs.openTable", "when": "resourceExtname =~ /^\\.(csv|tsv)$/i", "group": "navigation@9" },
+        { "command": "veyraDocs.openDefault", "when": "resourceExtname =~ /^\\.(docx|docm|dotx|pptx|pptm|ppsx|xlsx|xlsm|doc|ppt|xls)$/i", "group": "navigation@9" }
+      ],
+      "commandPalette": [
+        { "command": "veyraDocs.openTable", "when": "resourceExtname =~ /^\\.(csv|tsv)$/i" }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Document Viewer",
+      "properties": {
+        "veyraDocs.pageTheme": {
+          "type": "string",
+          "enum": ["paper", "dark"],
+          "enumDescriptions": ["White pages and cells, like Word and Excel", "Dark pages that suit a dark VS Code theme"],
+          "default": "paper",
+          "description": "How Word pages and spreadsheet cells look."
+        },
+        "veyraDocs.maxFileSizeMB": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "description": "Files bigger than this ask before opening."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "docx-preview": "0.4.1",
+    "esbuild": "^0.25.0",
+    "jszip": "3.10.2",
+    "typescript": "^5.9.0"
+  }
+}
