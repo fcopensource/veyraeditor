@@ -82,6 +82,7 @@ jobs:
           - { dir: document-viewer, name: Document Viewer }
           - { dir: git-graph, name: Git Graph }
           - { dir: error-lens, name: Error Lens }
+          - { dir: todo-tree, name: Todo Tree }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}

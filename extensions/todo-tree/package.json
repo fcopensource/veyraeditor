@@ -1,0 +1,110 @@
+{
+  "name": "veyra-todo-tree",
+  "displayName": "Todo Tree Veyra",
+  "description": "Every TODO, FIXME, BUG and HACK in your project, in one tree. Group by file or tag, filter, jump to the line, see who it's for, and export a checklist. Tags highlighted in the editor.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/todo-tree",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/todo-tree" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "Visualization"],
+  "keywords": ["todo", "todo tree", "fixme", "tasks", "comments", "bug", "hack", "highlight", "checklist", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{ "id": "veyraTodo", "title": "Todo Tree", "icon": "media/activity.svg" }]
+    },
+    "views": {
+      "veyraTodo": [{ "id": "veyraTodo.tree", "name": "Todos", "contextualTitle": "Todo Tree Veyra" }]
+    },
+    "viewsWelcome": [
+      { "view": "veyraTodo.tree", "contents": "No TODOs found. Write a comment like // TODO: tidy this up and it will show up here.\n[Refresh](command:veyraTodo.refresh)", "when": "!veyraTodo.scanning && !veyraTodo.filtered" },
+      { "view": "veyraTodo.tree", "contents": "Nothing matches the filter.\n[Clear Filter](command:veyraTodo.clearFilter)", "when": "veyraTodo.filtered" },
+      { "view": "veyraTodo.tree", "contents": "Looking for TODOs…", "when": "veyraTodo.scanning" }
+    ],
+    "commands": [
+      { "command": "veyraTodo.refresh", "title": "Refresh", "category": "Todo Tree Veyra", "icon": "$(refresh)" },
+      { "command": "veyraTodo.groupByTag", "title": "Group by Tag", "category": "Todo Tree Veyra", "icon": "$(tag)" },
+      { "command": "veyraTodo.groupByFile", "title": "Group by File", "category": "Todo Tree Veyra", "icon": "$(list-tree)" },
+      { "command": "veyraTodo.filter", "title": "Filter…", "category": "Todo Tree Veyra", "icon": "$(filter)" },
+      { "command": "veyraTodo.clearFilter", "title": "Clear Filter", "category": "Todo Tree Veyra", "icon": "$(filter-filled)" },
+      { "command": "veyraTodo.exportMarkdown", "title": "Copy as Markdown Checklist", "category": "Todo Tree Veyra", "icon": "$(checklist)" },
+      { "command": "veyraTodo.copyText", "title": "Copy Text", "category": "Todo Tree Veyra" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraTodo.filter", "when": "view == veyraTodo.tree && !veyraTodo.filtered", "group": "navigation@1" },
+        { "command": "veyraTodo.clearFilter", "when": "view == veyraTodo.tree && veyraTodo.filtered", "group": "navigation@1" },
+        { "command": "veyraTodo.groupByTag", "when": "view == veyraTodo.tree && veyraTodo.groupBy != tag", "group": "navigation@2" },
+        { "command": "veyraTodo.groupByFile", "when": "view == veyraTodo.tree && veyraTodo.groupBy == tag", "group": "navigation@2" },
+        { "command": "veyraTodo.refresh", "when": "view == veyraTodo.tree", "group": "navigation@3" },
+        { "command": "veyraTodo.exportMarkdown", "when": "view == veyraTodo.tree", "group": "9_export" }
+      ],
+      "view/item/context": [
+        { "command": "veyraTodo.copyText", "when": "view == veyraTodo.tree && viewItem == todo", "group": "9_copy" }
+      ],
+      "commandPalette": [
+        { "command": "veyraTodo.copyText", "when": "false" },
+        { "command": "veyraTodo.clearFilter", "when": "veyraTodo.filtered" }
+      ]
+    },
+    "colors": [
+      { "id": "veyraTodo.todo", "description": "TODO tags.", "defaults": { "dark": "#e3b341", "light": "#9a6700", "highContrast": "#e3b341", "highContrastLight": "#7d4e00" } },
+      { "id": "veyraTodo.fixme", "description": "FIXME and BUG tags.", "defaults": { "dark": "#ff7b72", "light": "#cf222e", "highContrast": "#ff7b72", "highContrastLight": "#b3001f" } },
+      { "id": "veyraTodo.hack", "description": "HACK and XXX tags.", "defaults": { "dark": "#d2a8ff", "light": "#8250df", "highContrast": "#d2a8ff", "highContrastLight": "#6639ba" } },
+      { "id": "veyraTodo.note", "description": "NOTE tags.", "defaults": { "dark": "#79c0ff", "light": "#0969da", "highContrast": "#79c0ff", "highContrastLight": "#0550ae" } }
+    ],
+    "configuration": {
+      "title": "Todo Tree Veyra",
+      "properties": {
+        "veyraTodo.tags": {
+          "type": "array", "items": { "type": "string" },
+          "default": ["TODO", "FIXME", "BUG", "HACK", "XXX", "NOTE"],
+          "description": "The words to look for in comments. They must be written in capitals in your code."
+        },
+        "veyraTodo.include": { "type": "string", "default": "**/*", "description": "Glob of files to look in." },
+        "veyraTodo.exclude": {
+          "type": "array", "items": { "type": "string" },
+          "default": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/.next/**", "**/coverage/**", "**/vendor/**", "**/*.min.*", "**/*.map", "**/package-lock.json"],
+          "description": "Globs of files to skip, as well as your files.exclude and search.exclude settings."
+        },
+        "veyraTodo.maxFiles": { "type": "number", "default": 5000, "minimum": 100, "description": "The most files to look through." },
+        "veyraTodo.highlight": {
+          "type": "string", "enum": ["tag", "text", "none"],
+          "enumDescriptions": ["Colour the tag word", "Colour the tag and the text after it", "No colour in the editor"],
+          "default": "tag", "description": "How tags look in the editor."
+        },
+        "veyraTodo.groupBy": { "type": "string", "enum": ["file", "tag"], "default": "file", "description": "How the tree is grouped." },
+        "veyraTodo.showCount": { "type": "boolean", "default": true, "description": "Show how many there are on the Todo Tree icon." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
