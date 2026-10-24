@@ -3,7 +3,8 @@ import {useEffect,useRef,useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {ChevronDown,Download,Menu,UserRound,X} from 'lucide-react';
+import {ArrowRight,ChevronDown,Download,Menu,UserRound,X} from 'lucide-react';
+import {APPS,EXTENSION_GROUPS,PRODUCT_PATHS} from '@/lib/products';
 
 const links=[
   {href:'/features',label:'Features'},
@@ -15,32 +16,7 @@ const links=[
   {href:'https://github.com/fcopensource/veyraeditor',label:'GitHub',external:true},
 ];
 
-/** Everything Veyra makes, for the Products menu. */
-const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:string;tag?:string}[]}[]=[
-  {group:'Apps',items:[
-    {href:'/download',icon:'/veyra-96.png',name:'Veyra Studio',copy:'The fast, free AI code editor'},
-    {href:'/pdf',icon:'/veyra-96.png',name:'Veyra PDF',copy:'Edit, sign and merge PDFs offline',tag:'New'},
-    {href:'/salesforce-studio',icon:'/salesforce-studio-icon.png',name:'Salesforce Studio',copy:'LWC, Apex and Aura in your browser'},
-  ]},
-  {group:'For VS Code',items:[
-    {href:'/mongodb',icon:'/mongodb-icon.png',name:'Query Lens for MongoDB',copy:'Slow queries and the index that fixes them',tag:'New'},
-    {href:'/env',icon:'/env-icon.png',name:'Env',copy:'.env checks, hidden secrets, in sync',tag:'New'},
-    {href:'/docker',icon:'/docker-icon.png',name:'Container Studio',copy:'Docker containers, Compose and logs',tag:'New'},
-    {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},
-    {href:'/api-client',icon:'/api-client-icon.png',name:'API Client',copy:'Test any API without leaving VS Code',tag:'New'},
-    {href:'/pets',icon:'/pets-icon.png',name:'Pets',copy:'Cute pets that cheer you on',tag:'New'},
-    {href:'/auto-rename-tag',icon:'/auto-rename-tag-icon.png',name:'Auto Rename Tag',copy:'Rename a tag, its pair follows',tag:'New'},
-    {href:'/todo-tree',icon:'/todo-tree-icon.png',name:'Todo Tree',copy:'Every TODO in one tree',tag:'New'},
-    {href:'/error-lens',icon:'/error-lens-icon.png',name:'Error Lens',copy:'Problems shown right on the line',tag:'New'},
-    {href:'/git-graph',icon:'/git-graph-icon.png',name:'Git Graph',copy:'Your repository as a graph',tag:'New'},
-    {href:'/document-viewer',icon:'/document-viewer-icon.png',name:'Document Viewer',copy:'Open Word, PowerPoint and Excel files',tag:'New'},
-    {href:'/path-intellisense',icon:'/path-intellisense-icon.png',name:'Path IntelliSense',copy:'File paths, completed as you type',tag:'New'},
-    {href:'/npm-intellisense',icon:'/npm-intellisense-icon.png',name:'npm IntelliSense',copy:'Autocomplete and check npm imports',tag:'New'},
-    {href:'/port-manager',icon:'/port-manager-icon.png',name:'Port Manager',copy:'Free a busy port in one click'},
-    {href:'/live-server',icon:'/live-server-icon-296.png',name:'Live Server',copy:'Live reload as you save'},
-  ]},
-];
-const productPaths=PRODUCTS.flatMap(group=>group.items.map(item=>item.href));
+const productPaths=PRODUCT_PATHS;
 
 export function Nav(){
   const pathname=usePathname();
@@ -75,13 +51,24 @@ export function Nav(){
       <div className={'nav-products'+(products?' open':'')} ref={productsRef} onMouseEnter={hoverOpen} onMouseLeave={hoverClose}>
         <button type="button" aria-expanded={products} aria-controls="products-menu" aria-current={productPaths.includes(pathname)?'page':undefined} onClick={()=>setProducts(value=>!value)}>Products<ChevronDown size={13}/></button>
         <div id="products-menu" className="products-panel" hidden={!products}>
-          {PRODUCTS.map(group=><div key={group.group} className="products-group">
-            <small>{group.group}</small>
-            {group.items.map(item=><Link key={item.href+item.name} href={item.href} className="product-link" aria-current={pathname===item.href?'page':undefined}>
+          <div className="products-group products-apps">
+            <small>Apps</small>
+            {APPS.map(item=><Link key={item.href+item.name} href={item.href} className="product-link" aria-current={pathname===item.href?'page':undefined}>
               <Image src={item.icon} width={36} height={36} alt=""/>
               <span><b>{item.name}{item.tag?<em>{item.tag}</em>:null}</b><small>{item.copy}</small></span>
             </Link>)}
-          </div>)}
+          </div>
+          <div className="products-extensions">
+            <div className="products-extensions-head"><small>For VS Code</small><Link href="/extensions">See all extensions<ArrowRight size={12}/></Link></div>
+            <div className="products-extension-groups">
+              {EXTENSION_GROUPS.map(group=><div key={group.group} className="products-extension-group">
+                <span>{group.group}</span>
+                {group.items.map(item=><Link key={item.href} href={item.href} className="extension-link" title={item.copy} aria-current={pathname===item.href?'page':undefined}>
+                  <Image src={item.icon} width={22} height={22} alt=""/>{item.name}
+                </Link>)}
+              </div>)}
+            </div>
+          </div>
         </div>
       </div>
       {links.map(link=>link.external
@@ -96,10 +83,15 @@ export function Nav(){
     <button className="nav-toggle" aria-label={open?'Close menu':'Open menu'} aria-expanded={open} aria-controls="mobile-menu" onClick={()=>setOpen(value=>!value)}>{open?<X size={20}/>:<Menu size={20}/>}</button>
     <div id="mobile-menu" className="mobile-menu" hidden={!open}>
       <div className="mobile-products">
-        {PRODUCTS.map(group=><div key={group.group}>
+        <div className="mobile-apps">
+          <small>Apps</small>
+          {APPS.map(item=><Link key={item.href+item.name} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
+        </div>
+        {EXTENSION_GROUPS.map(group=><div key={group.group} className="mobile-extensions">
           <small>{group.group}</small>
-          {group.items.map(item=><Link key={item.href+item.name} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
+          <div>{group.items.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={22} height={22} alt=""/>{item.name}</Link>)}</div>
         </div>)}
+        <Link className="mobile-all" href="/extensions" onClick={()=>setOpen(false)}>See all extensions<ArrowRight size={14}/></Link>
       </div>
       <nav aria-label="Mobile">{links.map(link=>link.external
         ?<a key={link.href} href={link.href} target="_blank" rel="noreferrer" onClick={()=>setOpen(false)}>{link.label}</a>
