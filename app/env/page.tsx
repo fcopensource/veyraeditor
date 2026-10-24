@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {AlertTriangle,Columns3,Download,EyeOff,FileCheck2,GitBranch,Keyboard,RefreshCw,ShieldCheck,Sparkles,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -127,7 +128,7 @@ export default function EnvPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/mongodb">Veyra Query Lens for MongoDB</Link>, <Link href="/docker">Veyra Container Studio for Docker</Link>, <Link href="/mcp-studio">Veyra MCP Studio</Link>, <Link href="/api-client">Veyra API Client</Link> and <Link href="/npm-intellisense">Veyra npm IntelliSense</Link>.</p>
+        <MoreExtensions current="/env"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

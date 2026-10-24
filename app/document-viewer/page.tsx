@@ -1,9 +1,10 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Copy,Download,ExternalLink,FileSpreadsheet,FileText,Lock,Presentation,Search,Sparkles,Table2,Zap} from 'lucide-react';
+import {Copy,Download,ExternalLink,FileSpreadsheet,FileText,Lock,Presentation,Search,Table2,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -107,7 +108,7 @@ export default function DocumentViewerPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More from Veyra: <Link href="/pdf">Veyra PDF</Link> for PDFs on Windows, <Link href="/path-intellisense">Path IntelliSense Veyra</Link>, <Link href="/env">Veyra Env</Link> and <Link href="/mongodb">Veyra Query Lens for MongoDB</Link>.</p>
+        <MoreExtensions current="/document-viewer"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {Copy,Download,EyeOff,Filter,Keyboard,Languages,MousePointer2,Palette,Sparkles,TriangleAlert,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -101,7 +102,7 @@ export default function ErrorLensPage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/git-graph">Git Graph Veyra</Link>, <Link href="/path-intellisense">Path IntelliSense Veyra</Link>, <Link href="/document-viewer">Veyra Document Viewer</Link> and <Link href="/env">Veyra Env</Link>.</p>
+        <MoreExtensions current="/error-lens"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>

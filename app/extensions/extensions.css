@@ -165,3 +165,23 @@
   .ext-mock-row small{display:none}
   .ext-section{margin-bottom:72px}
 }
+/* Searchable, paged lists (Made by Veyra and the built-in tools) */
+.originals-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.originals-sort{display:inline-flex;align-items:center;gap:8px;padding:6px 10px 6px 12px;border:1px solid var(--line);border-radius:20px;background:#0b0f17;color:#7d8895;font-size:12px}
+.originals-sort select{border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.originals-sort select option{background:#0b0f17}
+.originals-sort:focus-within{border-color:#6366f188;box-shadow:0 0 0 3px #6366f122}
+.page-count{margin:0 0 14px;color:#7d8895;font-size:12.5px}
+.ext-gallery .page-count{margin:16px 0 0;text-align:center}
+.card-in{animation:card-in .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes card-in{from{opacity:0;transform:translateY(12px)}}
+.link-button{padding:0;border:0;background:none;color:var(--mint);font:inherit;font-weight:600;cursor:pointer}
+.pagination{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:22px}
+.pagination ol{display:flex;gap:6px;margin:0;padding:0;list-style:none}
+.pagination li button,.page-step{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:38px;height:38px;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:#0b0f17;color:#a9b4bf;font:600 13px var(--font-sans,inherit);cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.pagination li button:hover,.page-step:hover:not(:disabled){color:#fff;border-color:#3a4658;transform:translateY(-1px)}
+.pagination li button.active{border-color:#a78bfa66;background:linear-gradient(120deg,#6366f140,#d946ef26);color:#fff;box-shadow:0 6px 18px #6366f126}
+.page-step:disabled{opacity:.35;cursor:default}
+.page-gap{display:grid;place-items:center;min-width:24px;color:#5f6d7a}
+@media(max-width:640px){.page-step span{display:none}.page-step{padding:0 10px}.originals-tools{width:100%}}
+@media(prefers-reduced-motion:reduce){.card-in{animation:none}}

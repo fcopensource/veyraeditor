@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {AlertTriangle,Code2,Download,FileCode2,FolderTree,Globe,Image as ImageIcon,Link2,ShieldCheck,Sparkles,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
+import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
@@ -104,7 +105,7 @@ export default function PathIntelliSensePage(){
       <section className="content-section">
         <header><span>FAQ</span><h2>Questions</h2></header>
         <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
-        <p className="live-more"><Sparkles size={14}/>More for VS Code: <Link href="/npm-intellisense">Veyra npm IntelliSense</Link>, <Link href="/env">Veyra Env</Link>, <Link href="/mongodb">Veyra Query Lens for MongoDB</Link> and <Link href="/api-client">Veyra API Client</Link>.</p>
+        <MoreExtensions current="/path-intellisense"/>
       </section>
 
       <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
