@@ -1,0 +1,88 @@
+{
+  "name": "veyra-git-graph",
+  "displayName": "Git Graph Veyra",
+  "description": "See your repository as a graph: every branch, merge and tag, with commit details, diffs and one-click actions like checkout, cherry-pick and revert. Free, fast and private.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/git-graph",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/git-graph" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["SCM Providers", "Visualization", "Other"],
+  "keywords": ["git", "git graph", "graph", "git log", "history", "branches", "commits", "cherry-pick", "git history", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "extensionDependencies": ["vscode.git"],
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": false, "description": "Git Graph Veyra runs git in your repository." },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "veyraGit.view", "title": "View Git Graph", "category": "Git Graph Veyra", "icon": "$(git-commit)" },
+      { "command": "veyraGit.fetch", "title": "Fetch from All Remotes", "category": "Git Graph Veyra" }
+    ],
+    "menus": {
+      "scm/title": [
+        { "command": "veyraGit.view", "when": "scmProvider == git", "group": "navigation@50" }
+      ],
+      "commandPalette": [
+        { "command": "veyraGit.fetch", "when": "false" }
+      ]
+    },
+    "keybindings": [
+      { "command": "veyraGit.view", "key": "ctrl+alt+g", "mac": "cmd+alt+g" }
+    ],
+    "configuration": {
+      "title": "Git Graph Veyra",
+      "properties": {
+        "veyraGit.commitsToLoad": {
+          "type": "number",
+          "default": 400,
+          "minimum": 50,
+          "maximum": 5000,
+          "description": "How many commits to show at first. More load as you scroll."
+        },
+        "veyraGit.showRemoteBranches": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show remote branches (like origin/main) in the graph."
+        },
+        "veyraGit.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a Git Graph button in the status bar."
+        },
+        "veyraGit.dateFormat": {
+          "type": "string",
+          "enum": ["relative", "date", "dateTime"],
+          "enumDescriptions": ["3 hours ago", "2026-10-24", "2026-10-24 14:05"],
+          "default": "relative",
+          "description": "How commit dates are shown."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
