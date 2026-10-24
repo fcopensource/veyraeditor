@@ -28,6 +28,7 @@ const PRODUCTS:{group:string;items:{href:string;icon:string;name:string;copy:str
     {href:'/docker',icon:'/docker-icon.png',name:'Container Studio',copy:'Docker containers, Compose and logs',tag:'New'},
     {href:'/mcp-studio',icon:'/mcp-studio-icon.png',name:'MCP Studio',copy:'Manage and test MCP servers',tag:'New'},
     {href:'/api-client',icon:'/api-client-icon.png',name:'API Client',copy:'Test any API without leaving VS Code',tag:'New'},
+    {href:'/pets',icon:'/pets-icon.png',name:'Pets',copy:'Cute pets that cheer you on',tag:'New'},
     {href:'/auto-rename-tag',icon:'/auto-rename-tag-icon.png',name:'Auto Rename Tag',copy:'Rename a tag, its pair follows',tag:'New'},
     {href:'/todo-tree',icon:'/todo-tree-icon.png',name:'Todo Tree',copy:'Every TODO in one tree',tag:'New'},
     {href:'/error-lens',icon:'/error-lens-icon.png',name:'Error Lens',copy:'Problems shown right on the line',tag:'New'},
