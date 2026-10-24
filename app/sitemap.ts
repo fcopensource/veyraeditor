@@ -15,6 +15,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/extensions'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/live-server'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/port-manager'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/auto-rename-tag'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/todo-tree'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/error-lens'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/git-graph'),lastModified:new Date('2026-10-24'),changeFrequency:'monthly',priority:0.8},
