@@ -78,6 +78,10 @@ export default function Extensions(){
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
           </Link>
+          <Link href="/git-graph" className="ext-original gitgraph">
+            <Image src="/git-graph-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Git Graph Veyra</h3><p>Your repository as a graph. Every branch, merge and tag, what each commit changed, and one-click checkout, cherry-pick and revert. Fast and private.</p><span className="ext-link">Explore Git Graph <ArrowRight size={14}/></span></div>
+          </Link>
           <Link href="/document-viewer" className="ext-original docs">
             <Image src="/document-viewer-icon.png" width={96} height={96} alt=""/>
             <div><small>NEW · FOR VS CODE</small><h3>Veyra Document Viewer</h3><p>Open Word, PowerPoint and Excel files right in VS Code. Real pages, slides with a Present mode, sheets with their formats and formulas, and CSV as a sortable table.</p><span className="ext-link">Explore Document Viewer <ArrowRight size={14}/></span></div>
