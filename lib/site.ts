@@ -20,12 +20,12 @@ export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${P
  */
 export const VSCODE_EXTENSIONS = {
   pathIntelliSense: { id: "flightcoders.veyra-path-intellisense", folder: "path-intellisense", file: "veyra-path-intellisense", version: "1.0.0", listed: false },
-  documentViewer: { id: "flightcoders.veyra-document-viewer", folder: "document-viewer", file: "veyra-document-viewer", version: "1.0.0", listed: false },
-  gitGraph: { id: "flightcoders.veyra-git-graph", folder: "git-graph", file: "veyra-git-graph", version: "1.0.0", listed: false },
-  errorLens: { id: "flightcoders.veyra-error-lens", folder: "error-lens", file: "veyra-error-lens", version: "1.0.0", listed: false },
-  todoTree: { id: "flightcoders.veyra-todo-tree", folder: "todo-tree", file: "veyra-todo-tree", version: "1.0.0", listed: false },
-  autoRenameTag: { id: "flightcoders.veyra-auto-rename-tag", folder: "auto-rename-tag", file: "veyra-auto-rename-tag", version: "1.0.0", listed: false },
-  pets: { id: "flightcoders.veyra-pets", folder: "pets", file: "veyra-pets", version: "1.0.0", listed: false },
+  documentViewer: { id: "flightcoders.veyra-document-viewer", folder: "document-viewer", file: "veyra-document-viewer", version: "1.0.0", listed: true },
+  gitGraph: { id: "flightcoders.veyra-git-graph", folder: "git-graph", file: "veyra-git-graph", version: "1.0.0", listed: true },
+  errorLens: { id: "flightcoders.veyra-error-lens", folder: "error-lens", file: "veyra-error-lens", version: "1.0.0", listed: true },
+  todoTree: { id: "flightcoders.veyra-todo-tree", folder: "todo-tree", file: "veyra-todo-tree", version: "1.0.0", listed: true },
+  autoRenameTag: { id: "flightcoders.veyra-auto-rename-tag", folder: "auto-rename-tag", file: "veyra-auto-rename-tag", version: "1.0.0", listed: true },
+  pets: { id: "flightcoders.veyra-pets", folder: "pets", file: "veyra-pets", version: "1.0.0", listed: true },
   apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: true },
   mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: true },
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
@@ -46,12 +46,8 @@ export const SAME_AS = [
   "https://marketplace.visualstudio.com/publishers/flightcoders",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server",
   "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-mongodb",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-env",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-docker",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-mcp-studio",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-api-client",
-  "https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-npm-intellisense",
+  // Every extension marked listed above, so new ones are added here by themselves.
+  ...Object.values(VSCODE_EXTENSIONS).filter(e => e.listed).map(e => marketplaceUrl(e.id)),
   "https://github.com/fcopensource/salesforce-studio-releases",
 ];
 /** The site-wide social preview image (app/opengraph-image.tsx), for pages that set their own openGraph. */
