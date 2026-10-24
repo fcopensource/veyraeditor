@@ -1,0 +1,77 @@
+{
+  "name": "veyra-pets",
+  "displayName": "Pets Veyra",
+  "description": "Cute pets that live in VS Code: a cat, dog, fox, bunny or panda that walks, naps, chases a ball, and cheers when you save and fix your errors.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/pets",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/pets" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "keywords": ["pets", "vscode pets", "cat", "dog", "fox", "bunny", "panda", "fun", "game", "cute", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "views": {
+      "explorer": [{ "type": "webview", "id": "veyraPets.view", "name": "Pets", "icon": "media/paw.svg" }]
+    },
+    "commands": [
+      { "command": "veyraPets.addPet", "title": "Add a Pet…", "category": "Pets Veyra", "icon": "$(add)" },
+      { "command": "veyraPets.throwBall", "title": "Throw a Ball", "category": "Pets Veyra", "icon": "$(circle-large-filled)" },
+      { "command": "veyraPets.removePet", "title": "Say Goodbye to a Pet…", "category": "Pets Veyra", "icon": "$(trash)" },
+      { "command": "veyraPets.renamePet", "title": "Rename a Pet…", "category": "Pets Veyra" },
+      { "command": "veyraPets.openPanel", "title": "Open in a Bigger Panel", "category": "Pets Veyra", "icon": "$(screen-full)" },
+      { "command": "veyraPets.background", "title": "Change Background…", "category": "Pets Veyra", "icon": "$(color-mode)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraPets.throwBall", "when": "view == veyraPets.view", "group": "navigation@1" },
+        { "command": "veyraPets.addPet", "when": "view == veyraPets.view", "group": "navigation@2" },
+        { "command": "veyraPets.removePet", "when": "view == veyraPets.view", "group": "navigation@3" },
+        { "command": "veyraPets.openPanel", "when": "view == veyraPets.view", "group": "9_more@1" },
+        { "command": "veyraPets.background", "when": "view == veyraPets.view", "group": "9_more@2" },
+        { "command": "veyraPets.renamePet", "when": "view == veyraPets.view", "group": "9_more@3" }
+      ]
+    },
+    "configuration": {
+      "title": "Pets Veyra",
+      "properties": {
+        "veyraPets.background": {
+          "type": "string", "enum": ["meadow", "night", "beach", "plain"],
+          "enumDescriptions": ["Grass and a soft sky", "Stars and the moon", "Sand and the sea", "Your theme's background"],
+          "default": "meadow", "description": "What your pets live on."
+        },
+        "veyraPets.size": { "type": "string", "enum": ["small", "medium", "large"], "default": "medium", "description": "How big the pets are." },
+        "veyraPets.reactToCode": { "type": "boolean", "default": true, "description": "Pets cheer when you save, worry when errors appear, celebrate when they're fixed, and nap while you're away." },
+        "veyraPets.showNames": { "type": "boolean", "default": true, "description": "Show each pet's name when you hover over it." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

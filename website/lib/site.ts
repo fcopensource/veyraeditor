@@ -25,6 +25,7 @@ export const VSCODE_EXTENSIONS = {
   errorLens: { id: "flightcoders.veyra-error-lens", folder: "error-lens", file: "veyra-error-lens", version: "1.0.0", listed: false },
   todoTree: { id: "flightcoders.veyra-todo-tree", folder: "todo-tree", file: "veyra-todo-tree", version: "1.0.0", listed: false },
   autoRenameTag: { id: "flightcoders.veyra-auto-rename-tag", folder: "auto-rename-tag", file: "veyra-auto-rename-tag", version: "1.0.0", listed: false },
+  pets: { id: "flightcoders.veyra-pets", folder: "pets", file: "veyra-pets", version: "1.0.0", listed: false },
   apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: true },
   mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: true },
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
