@@ -1,0 +1,102 @@
+{
+  "name": "veyra-error-lens",
+  "displayName": "Error Lens Veyra",
+  "description": "See errors and warnings right where they happen: the message at the end of the line, the line gently highlighted, and the problem under your cursor in the status bar. Works with every language.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/error-lens",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/error-lens" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Linters", "Visualization", "Other"],
+  "keywords": ["error lens", "errors", "warnings", "inline errors", "diagnostics", "problems", "lint", "eslint", "typescript", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "veyraLens.toggle", "title": "Turn On or Off", "category": "Error Lens Veyra" },
+      { "command": "veyraLens.toggleWarnings", "title": "Show or Hide Warnings", "category": "Error Lens Veyra" },
+      { "command": "veyraLens.toggleInfo", "title": "Show or Hide Info and Hints", "category": "Error Lens Veyra" },
+      { "command": "veyraLens.copyMessage", "title": "Copy the Problem on This Line", "category": "Error Lens Veyra" },
+      { "command": "veyraLens.searchMessage", "title": "Search the Web for the Problem on This Line", "category": "Error Lens Veyra" },
+      { "command": "veyraLens.ignoreSource", "title": "Hide Problems from This Source…", "category": "Error Lens Veyra" }
+    ],
+    "menus": {
+      "editor/context": [
+        { "command": "veyraLens.copyMessage", "when": "veyraLens.lineHasProblem", "group": "9_cutcopypaste@9" }
+      ]
+    },
+    "colors": [
+      { "id": "veyraLens.errorForeground", "description": "Error messages at the end of a line.", "defaults": { "dark": "#ff7b72", "light": "#cf222e", "highContrast": "#ff7b72", "highContrastLight": "#b3001f" } },
+      { "id": "veyraLens.warningForeground", "description": "Warning messages at the end of a line.", "defaults": { "dark": "#e3b341", "light": "#9a6700", "highContrast": "#e3b341", "highContrastLight": "#7d4e00" } },
+      { "id": "veyraLens.infoForeground", "description": "Info messages at the end of a line.", "defaults": { "dark": "#79c0ff", "light": "#0969da", "highContrast": "#79c0ff", "highContrastLight": "#0550ae" } },
+      { "id": "veyraLens.hintForeground", "description": "Hint messages at the end of a line.", "defaults": { "dark": "#8b949e", "light": "#6e7781", "highContrast": "#8b949e", "highContrastLight": "#57606a" } },
+      { "id": "veyraLens.errorBackground", "description": "Background of a line with an error.", "defaults": { "dark": "#f8514914", "light": "#cf222e0d", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
+      { "id": "veyraLens.warningBackground", "description": "Background of a line with a warning.", "defaults": { "dark": "#d2992212", "light": "#9a67000b", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
+      { "id": "veyraLens.infoBackground", "description": "Background of a line with info.", "defaults": { "dark": "#388bfd0d", "light": "#0969da08", "highContrast": "#00000000", "highContrastLight": "#00000000" } },
+      { "id": "veyraLens.hintBackground", "description": "Background of a line with a hint.", "defaults": { "dark": "#00000000", "light": "#00000000", "highContrast": "#00000000", "highContrastLight": "#00000000" } }
+    ],
+    "configuration": {
+      "title": "Error Lens Veyra",
+      "properties": {
+        "veyraLens.enabled": { "type": "boolean", "default": true, "description": "Show problems at the end of their lines." },
+        "veyraLens.severities": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["error", "warning", "info", "hint"] },
+          "default": ["error", "warning", "info"],
+          "uniqueItems": true,
+          "description": "Which kinds of problems to show."
+        },
+        "veyraLens.messageTemplate": { "type": "string", "default": "{message}", "markdownDescription": "How a message reads. You can use `{message}`, `{source}`, `{code}`, `{severity}` and `{count}`, for example `{source}: {message}`." },
+        "veyraLens.maxMessageLength": { "type": "number", "default": 200, "minimum": 20, "description": "Longer messages are cut off with …" },
+        "veyraLens.highlightLine": { "type": "boolean", "default": true, "description": "Tint the whole line behind a problem." },
+        "veyraLens.gutterIcons": { "type": "boolean", "default": false, "description": "Show a dot in the gutter next to lines with problems." },
+        "veyraLens.followCursor": {
+          "type": "string",
+          "enum": ["allLines", "activeLine", "closestProblem"],
+          "enumDescriptions": ["Show every problem", "Only the line the cursor is on", "Only the problem nearest the cursor"],
+          "default": "allLines",
+          "description": "Which lines show their problem."
+        },
+        "veyraLens.whileTyping": {
+          "type": "string",
+          "enum": ["show", "hideCurrentLine", "wait"],
+          "enumDescriptions": ["Update straight away", "Hide the message on the line you're typing on until you pause", "Wait until you pause to update everything"],
+          "default": "hideCurrentLine",
+          "description": "What happens while you type."
+        },
+        "veyraLens.typingDelay": { "type": "number", "default": 600, "minimum": 0, "description": "How long a pause in typing is, in milliseconds." },
+        "veyraLens.statusBar": { "type": "boolean", "default": true, "description": "Show the problem on the cursor's line in the status bar." },
+        "veyraLens.excludeSources": { "type": "array", "items": { "type": "string" }, "default": [], "markdownDescription": "Don't show problems from these sources, like `cSpell` or `eslint`." },
+        "veyraLens.excludeMessages": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Don't show problems whose message matches one of these regular expressions." },
+        "veyraLens.excludeFiles": { "type": "array", "items": { "type": "string" }, "default": ["**/node_modules/**"], "description": "Glob patterns of files where problems aren't shown inline." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
