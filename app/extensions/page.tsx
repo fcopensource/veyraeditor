@@ -78,6 +78,10 @@ export default function Extensions(){
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
           </Link>
+          <Link href="/document-viewer" className="ext-original docs">
+            <Image src="/document-viewer-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Veyra Document Viewer</h3><p>Open Word, PowerPoint and Excel files right in VS Code. Real pages, slides with a Present mode, sheets with their formats and formulas, and CSV as a sortable table.</p><span className="ext-link">Explore Document Viewer <ArrowRight size={14}/></span></div>
+          </Link>
           <Link href="/path-intellisense" className="ext-original pathis">
             <Image src="/path-intellisense-icon.png" width={96} height={96} alt=""/>
             <div><small>NEW · FOR VS CODE</small><h3>Path IntelliSense Veyra</h3><p>File paths, completed as you type: imports, src, href, CSS url() and Markdown. tsconfig aliases with no setup, the right import extension, and broken paths flagged with a fix.</p><span className="ext-link">Explore Path IntelliSense <ArrowRight size={14}/></span></div>

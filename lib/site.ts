@@ -20,6 +20,7 @@ export const PDF_DOWNLOAD_URL = `https://downloads.veyraeditor.com/Veyra.PDF_${P
  */
 export const VSCODE_EXTENSIONS = {
   pathIntelliSense: { id: "flightcoders.veyra-path-intellisense", folder: "path-intellisense", file: "veyra-path-intellisense", version: "1.0.0", listed: false },
+  documentViewer: { id: "flightcoders.veyra-document-viewer", folder: "document-viewer", file: "veyra-document-viewer", version: "1.0.0", listed: false },
   apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: true },
   mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: true },
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
