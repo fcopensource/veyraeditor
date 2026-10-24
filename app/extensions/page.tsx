@@ -78,6 +78,10 @@ export default function Extensions(){
             <Image src="/port-manager-icon.png" width={96} height={96} alt=""/>
             <div><small>FOR VS CODE</small><h3>Veyra Port Manager</h3><p>Every port in use, and the app behind it. Open, copy or stop it in one click, and free a busy port in seconds. System services are never touched.</p><span className="ext-link">Explore Port Manager <ArrowRight size={14}/></span></div>
           </Link>
+          <Link href="/error-lens" className="ext-original errorlens">
+            <Image src="/error-lens-icon.png" width={96} height={96} alt=""/>
+            <div><small>NEW · FOR VS CODE</small><h3>Error Lens Veyra</h3><p>See every problem right where it is. Errors and warnings at the end of their lines, the line gently tinted, and the cursor&apos;s problem in the status bar. Every language.</p><span className="ext-link">Explore Error Lens <ArrowRight size={14}/></span></div>
+          </Link>
           <Link href="/git-graph" className="ext-original gitgraph">
             <Image src="/git-graph-icon.png" width={96} height={96} alt=""/>
             <div><small>NEW · FOR VS CODE</small><h3>Git Graph Veyra</h3><p>Your repository as a graph. Every branch, merge and tag, what each commit changed, and one-click checkout, cherry-pick and revert. Fast and private.</p><span className="ext-link">Explore Git Graph <ArrowRight size={14}/></span></div>
