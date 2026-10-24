@@ -1,0 +1,63 @@
+{
+  "name": "veyra-auto-rename-tag",
+  "displayName": "Auto Rename Tag Veyra",
+  "description": "Rename an HTML, JSX or XML tag and its closing tag changes with it, as you type. One undo puts both back. HTML, React, Vue, Svelte, Astro, XML, PHP and more.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/auto-rename-tag",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/auto-rename-tag" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "Formatters"],
+  "keywords": ["auto rename tag", "rename tag", "html", "jsx", "tsx", "react", "vue", "svelte", "xml", "tags", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onLanguage:html", "onLanguage:xml", "onLanguage:xhtml", "onLanguage:xsl", "onLanguage:svg", "onLanguage:vue", "onLanguage:svelte", "onLanguage:astro",
+    "onLanguage:javascriptreact", "onLanguage:typescriptreact", "onLanguage:javascript", "onLanguage:typescript", "onLanguage:php", "onLanguage:handlebars",
+    "onLanguage:razor", "onLanguage:aspnetcorerazor", "onLanguage:blade", "onLanguage:twig", "onLanguage:jinja-html", "onLanguage:django-html",
+    "onLanguage:erb", "onLanguage:liquid", "onLanguage:nunjucks", "onLanguage:markdown", "onLanguage:mdx", "onLanguage:plist", "onLanguage:xaml"
+  ],
+  "contributes": {
+    "commands": [
+      { "command": "veyraRename.toggle", "title": "Turn On or Off", "category": "Auto Rename Tag Veyra" }
+    ],
+    "configuration": {
+      "title": "Auto Rename Tag Veyra",
+      "properties": {
+        "veyraRename.enabled": { "type": "boolean", "default": true, "description": "Rename the matching tag as you type." },
+        "veyraRename.languages": {
+          "type": "array", "items": { "type": "string" },
+          "default": ["html", "xml", "xhtml", "xsl", "svg", "vue", "svelte", "astro", "javascriptreact", "typescriptreact", "javascript", "typescript", "php", "handlebars", "razor", "aspnetcorerazor", "blade", "twig", "jinja-html", "django-html", "erb", "liquid", "nunjucks", "markdown", "mdx", "plist", "xaml"],
+          "markdownDescription": "Language ids where tags are renamed. Plain `javascript` and `typescript` are included for JSX in `.js` files. Use `*` for every language."
+        },
+        "veyraRename.maxFileSize": { "type": "number", "default": 2000000, "description": "Skip files bigger than this many characters." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

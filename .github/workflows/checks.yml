@@ -83,6 +83,7 @@ jobs:
           - { dir: git-graph, name: Git Graph }
           - { dir: error-lens, name: Error Lens }
           - { dir: todo-tree, name: Todo Tree }
+          - { dir: auto-rename-tag, name: Auto Rename Tag }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
