@@ -22,10 +22,53 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, 
   for (const c of children) if (c !== null && c !== undefined && c !== false) el.append(c);
   return el;
 }
+// Line icons, 16 x 16, drawn with currentColor so they follow the VS Code theme.
+const ICONS: Record<string, string> = {
+  search: '<circle cx="7" cy="7" r="4.25"/><path d="M10.2 10.2 13.5 13.5"/>',
+  up: '<path d="M4.5 9.5 8 6l3.5 3.5"/>',
+  down: '<path d="M4.5 6.5 8 10l3.5-3.5"/>',
+  minus: '<path d="M4 8h8"/>',
+  plus: '<path d="M4 8h8M8 4v8"/>',
+  copy: '<rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 5.5V4A1.5 1.5 0 0 0 9 2.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5"/>',
+  open: '<path d="M9.5 2.5h4v4M13.5 2.5 8 8M12 9.5v2.5a1.5 1.5 0 0 1-1.5 1.5h-6A1.5 1.5 0 0 1 3 12V5.5A1.5 1.5 0 0 1 4.5 4H7"/>',
+  play: '<path d="M5 3.2v9.6L12.8 8z" fill="currentColor" stroke="none"/>',
+  filter: '<path d="M2.5 3.5h11L9.3 8.4v3.8l-2.6 1.3V8.4z"/>',
+  notes: '<rect x="2.5" y="2.5" width="11" height="11" rx="2"/><path d="M5 6h6M5 8.5h6M5 11h3.5"/>',
+  folder: '<path d="M2.5 4.5A1.5 1.5 0 0 1 4 3h2.6l1.4 1.6h4A1.5 1.5 0 0 1 13.5 6v5.5A1.5 1.5 0 0 1 12 13H4a1.5 1.5 0 0 1-1.5-1.5z"/>',
+  table: '<rect x="2.5" y="3" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M2.5 9.75h11M6.5 6.5V13"/>',
+  lock: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/>',
+  alert: '<path d="M8 2.5 14 13H2z"/><path d="M8 6.5v3M8 11.2v.1"/>',
+  check: '<path d="M3.5 8.5 6.5 11.5 12.5 4.5"/>',
+};
+function icon(name: string, size = 16): SVGSVGElement {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  el.setAttribute("viewBox", "0 0 16 16"); el.setAttribute("width", String(size)); el.setAttribute("height", String(size));
+  el.setAttribute("fill", "none"); el.setAttribute("stroke", "currentColor"); el.setAttribute("stroke-width", "1.4");
+  el.setAttribute("stroke-linecap", "round"); el.setAttribute("stroke-linejoin", "round"); el.setAttribute("aria-hidden", "true");
+  el.innerHTML = ICONS[name] ?? "";
+  return el;
+}
+/** The coloured tile for a file type: W, P and X for Office files, a grid for tables. */
+function fileTile(ext: string, large = false): HTMLElement {
+  const kind = kindOf(ext);
+  const letter = kind === "word" ? "W" : kind === "powerpoint" ? "P" : kind === "excel" ? "X" : "";
+  return h("span", { class: `tile ${kind} ${large ? "large" : ""}`, "aria-hidden": "true" }, letter || icon(kind === "table" ? "table" : "alert", large ? 24 : 14));
+}
+function kindOf(ext: string): string {
+  if (/^(docx|docm|dotx|doc)$/.test(ext)) return "word";
+  if (/^(pptx|pptm|ppsx|ppt)$/.test(ext)) return "powerpoint";
+  if (/^(xlsx|xlsm|xls)$/.test(ext)) return "excel";
+  if (/^(csv|tsv)$/.test(ext)) return "table";
+  return "other";
+}
+function loading(file: string, ext: string): HTMLElement {
+  document.body.dataset.kind = kindOf(ext);
+  return h("div", { class: "loading", role: "status" }, h("div", { class: "spinner" }), h("span", {}, `Opening ${file}…`));
+}
 let toastTimer: number | undefined;
 function toast(text: string) {
   document.querySelector(".toast")?.remove();
-  const el = h("div", { class: "toast", role: "status" }, text);
+  const el = h("div", { class: "toast", role: "status" }, icon("check", 14), text);
   document.body.append(el);
   clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => el.remove(), 2200);
@@ -33,14 +76,15 @@ function toast(text: string) {
 
 // ---------- Shared chrome: toolbar, search and zoom ----------
 
-interface View { content: HTMLElement; stats: string; text: () => string; zoomable: boolean; sidebar?: HTMLElement; onZoom?: (z: number) => void; extraTools?: HTMLElement[] }
+interface View { content: HTMLElement; stats: string; text: () => string; zoomable: boolean; canvas?: boolean; sidebar?: HTMLElement; onZoom?: (z: number) => void; extraTools?: HTMLElement[] }
 const KIND: Record<string, string> = { docx: "Word", docm: "Word", dotx: "Word", pptx: "PowerPoint", pptm: "PowerPoint", ppsx: "PowerPoint", xlsx: "Excel", xlsm: "Excel", csv: "CSV", tsv: "TSV" };
 let zoom = 1;
 
 function chrome(file: string, ext: string, view: View) {
+  document.body.dataset.kind = kindOf(ext);
   const searchInput = h("input", { class: "search", type: "search", placeholder: "Find (Ctrl+F)", "aria-label": "Find in document" }) as HTMLInputElement;
   const count = h("span", { class: "count" });
-  const zoomLabel = h("span", { class: "zoom-label" }, "100%");
+  const zoomLabel = h("button", { class: "zoom-label", title: "Reset zoom (Ctrl+0)", onclick: () => setZoom(1) }, "100%");
   const setZoom = (z: number) => {
     zoom = Math.min(4, Math.max(0.25, Math.round(z * 100) / 100));
     zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
@@ -48,18 +92,22 @@ function chrome(file: string, ext: string, view: View) {
     vscode.setState({ ...(vscode.getState() ?? {}), zoom });
   };
   const bar = h("header", { class: "bar" },
-    h("span", { class: `badge ${KIND[ext]?.toLowerCase() ?? ""}` }, KIND[ext] ?? ext.toUpperCase()),
-    h("strong", { class: "file", title: file }, file),
-    h("span", { class: "stats" }, view.stats),
+    fileTile(ext),
+    h("div", { class: "title" },
+      h("strong", { class: "file", title: file }, file),
+      h("span", { class: "stats" }, h("span", { class: "kind-name" }, KIND[ext] ?? ext.toUpperCase()), view.stats)),
     h("div", { class: "grow" }),
     ...(view.extraTools ?? []),
-    h("div", { class: "find" }, searchInput, count,
-      h("button", { class: "icon", title: "Previous (Shift+Enter)", onclick: () => step(-1) }, "↑"),
-      h("button", { class: "icon", title: "Next (Enter)", onclick: () => step(1) }, "↓")),
-    view.zoomable ? h("div", { class: "zoom" }, h("button", { class: "icon", title: "Zoom out", onclick: () => setZoom(zoom - 0.1) }, "−"), zoomLabel, h("button", { class: "icon", title: "Zoom in", onclick: () => setZoom(zoom + 0.1) }, "+")) : null,
-    h("button", { class: "btn", title: "Copy all the text", onclick: () => { send({ type: "copy", text: view.text() }); } }, "Copy text"),
-    h("button", { class: "btn", title: "Open with the app your computer uses for this file", onclick: () => send({ type: "openDefault" }) }, "Open in app"));
-  const body = h("div", { class: "body" }, view.sidebar ?? null, h("main", { class: "content" }, view.content));
+    h("div", { class: "find pill" }, h("span", { class: "pill-icon" }, icon("search", 14)), searchInput, count,
+      h("button", { class: "icon", title: "Previous match (Shift+Enter)", "aria-label": "Previous match", onclick: () => step(-1) }, icon("up")),
+      h("button", { class: "icon", title: "Next match (Enter)", "aria-label": "Next match", onclick: () => step(1) }, icon("down"))),
+    view.zoomable ? h("div", { class: "zoom pill" },
+      h("button", { class: "icon", title: "Zoom out (Ctrl+-)", "aria-label": "Zoom out", onclick: () => setZoom(zoom - 0.1) }, icon("minus")), zoomLabel,
+      h("button", { class: "icon", title: "Zoom in (Ctrl+=)", "aria-label": "Zoom in", onclick: () => setZoom(zoom + 0.1) }, icon("plus"))) : null,
+    h("div", { class: "actions" },
+      h("button", { class: "btn ghost", title: "Copy all the text", onclick: () => { send({ type: "copy", text: view.text() }); } }, icon("copy", 14), h("span", { class: "label" }, "Copy text")),
+      h("button", { class: "btn ghost", title: "Open with the app your computer uses for this file", onclick: () => send({ type: "openDefault" }) }, icon("open", 14), h("span", { class: "label" }, "Open in app"))));
+  const body = h("div", { class: "body" }, view.sidebar ?? null, h("main", { class: `content ${view.canvas ? "canvas" : ""}` }, view.content));
   app.replaceChildren(bar, body);
 
   // Search: highlight every match in the rendered document, step through them.
@@ -112,22 +160,73 @@ function chrome(file: string, ext: string, view: View) {
 async function showWord(bytes: Uint8Array, file: string, ext: string, theme: string) {
   const pages = h("div", { class: `docx-host ${theme === "dark" ? "dark-pages" : ""}` });
   const styles = h("div");
-  app.replaceChildren(h("div", { class: "loading" }, "Opening…"), styles, pages);
+  app.replaceChildren(loading(file, ext), styles, pages);
   await renderAsync(new Blob([bytes as BlobPart]), pages, styles, {
     className: "docx", inWrapper: true, breakPages: true, ignoreLastRenderedPageBreak: false, renderHeaders: true, renderFooters: true,
     renderFootnotes: true, renderEndnotes: true, renderComments: false, useBase64URL: true, experimental: true,
   } as any);
+  await applyTableBorders(bytes, pages);
   const pageCount = pages.querySelectorAll("section.docx").length;
   const text = () => Array.from(pages.querySelectorAll("section.docx article")).map(a => (a as HTMLElement).innerText).join("\n\n");
   const words = text().split(/\s+/).filter(Boolean).length;
   // Outline from heading paragraphs.
   const headings = Array.from(pages.querySelectorAll<HTMLElement>("article p")).filter(p => /heading|title/i.test(p.className) && p.textContent?.trim());
-  const sidebar = headings.length ? h("nav", { class: "outline", "aria-label": "Outline" }, h("small", {}, "OUTLINE"), ...headings.slice(0, 300).map(p => {
+  const shown = headings.slice(0, 300);
+  const links = shown.map(p => {
     const level = Number(/heading(\d)/i.exec(p.className)?.[1] ?? 1);
-    return h("button", { class: `ol l${Math.min(level, 4)}`, onclick: () => p.scrollIntoView({ behavior: "smooth", block: "start" }) }, p.textContent!.trim());
-  })) : undefined;
+    return h("button", { class: `ol l${Math.min(level, 4)}`, title: p.textContent!.trim(), onclick: () => p.scrollIntoView({ behavior: "smooth", block: "start" }) }, p.textContent!.trim());
+  });
+  const sidebar = links.length ? h("nav", { class: "outline", "aria-label": "Outline" }, h("small", {}, "OUTLINE"), ...links) : undefined;
   const content = h("div", { class: "docx-zoom" }, styles, pages);
-  chrome(file, ext, { content, stats: `${pageCount} page${pageCount === 1 ? "" : "s"} · ${words.toLocaleString()} words`, text, zoomable: true, sidebar, onZoom: z => { pages.style.zoom = String(z); } });
+  chrome(file, ext, { content, canvas: true, stats: `${pageCount} page${pageCount === 1 ? "" : "s"} · ${words.toLocaleString()} words`, text, zoomable: true, sidebar, onZoom: z => { pages.style.zoom = String(z); } });
+  // The outline marks the section you're reading.
+  const scroller = content.closest("main")!;
+  let queued = false;
+  const track = () => {
+    queued = false;
+    const top = scroller.getBoundingClientRect().top + 90;
+    let at = 0;
+    shown.forEach((p, i) => { if (p.getBoundingClientRect().top <= top) at = i; });
+    links.forEach((l, i) => l.classList.toggle("on", i === at));
+  };
+  scroller.addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(track); } });
+  if (links.length) track();
+}
+
+/**
+ * docx-preview draws borders that come from a table style, but not ones written on the table itself
+ * (<w:tblBorders> in the document). Read those and draw them, matching tables by their order in the file.
+ */
+async function applyTableBorders(bytes: Uint8Array, pages: HTMLElement) {
+  const W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+  const xml = await (await JSZip.loadAsync(bytes)).file("word/document.xml")?.async("string");
+  if (!xml) return;
+  const tables = Array.from(new DOMParser().parseFromString(xml, "application/xml").getElementsByTagNameNS(W, "tbl"));
+  const rendered = Array.from(pages.querySelectorAll<HTMLTableElement>("article table"));
+  if (tables.length !== rendered.length) return; // can't pair them safely
+  const css = (b: Element | undefined) => {
+    const val = b?.getAttributeNS(W, "val");
+    if (!b || !val || val === "nil" || val === "none") return undefined;
+    const pt = Math.max(0.5, Number(b.getAttributeNS(W, "sz") ?? 4) / 8);
+    const color = b.getAttributeNS(W, "color");
+    const style = /double/.test(val) ? "double" : /dot/i.test(val) ? "dotted" : /dash/i.test(val) ? "dashed" : "solid";
+    return `${style === "double" ? Math.max(pt, 2.25) : pt}pt ${style} ${color && /^[0-9a-f]{6}$/i.test(color) ? `#${color}` : "#000"}`;
+  };
+  tables.forEach((tbl, i) => {
+    const borders = Array.from(tbl.childNodes).find((n): n is Element => (n as Element).localName === "tblPr");
+    const set = borders && Array.from(borders.childNodes).find((n): n is Element => (n as Element).localName === "tblBorders");
+    if (!set) return;
+    const side = (name: string) => css(Array.from(set.children).find(c => c.localName === name));
+    const table = rendered[i];
+    table.style.borderCollapse = "collapse";
+    const outer: [string, string | undefined][] = [["borderTop", side("top")], ["borderBottom", side("bottom")], ["borderLeft", side("left") ?? side("start")], ["borderRight", side("right") ?? side("end")]];
+    for (const [prop, value] of outer) if (value && !table.style[prop as any]) table.style[prop as any] = value;
+    const h = side("insideH"), v = side("insideV");
+    for (const row of Array.from(table.rows)) for (const cell of Array.from(row.cells)) {
+      if (h) { if (!cell.style.borderTop) cell.style.borderTop = h; if (!cell.style.borderBottom) cell.style.borderBottom = h; }
+      if (v) { if (!cell.style.borderLeft) cell.style.borderLeft = v; if (!cell.style.borderRight) cell.style.borderRight = v; }
+    }
+  });
 }
 
 // ---------- PowerPoint ----------
@@ -142,8 +241,8 @@ async function showPowerPoint(bytes: Uint8Array, file: string, ext: string) {
   const slideWidth = () => Math.max(240, (holder.clientWidth || 900) - 48) * zoom;
   const pages = deck.slides.map((slide, i) => {
     const frame = h("div", { class: "slide-frame", id: `slide-${i + 1}` }, drawSlide(slide, deck));
-    const wrap = h("section", { class: `slide-wrap ${slide.hidden ? "hidden-slide" : ""}`, "data-index": String(i) }, h("div", { class: "slide-num" }, `${i + 1}${slide.hidden ? " · hidden" : ""}`), frame);
-    const thumb = h("button", { class: "thumb", title: `Slide ${i + 1}`, onclick: () => go(i) }, h("span", {}, String(i + 1)), h("div", { class: "thumb-frame" }, drawSlide(slide, deck)));
+    const wrap = h("section", { class: `slide-wrap ${slide.hidden ? "hidden-slide" : ""}`, "data-index": String(i), "aria-label": `Slide ${i + 1}` }, h("div", { class: "slide-num" }, `${i + 1}${slide.hidden ? " · hidden" : ""}`), frame);
+    const thumb = h("button", { class: "thumb", title: `Slide ${i + 1}`, "aria-label": `Slide ${i + 1}`, onclick: () => go(i) }, h("span", {}, String(i + 1)), h("div", { class: "thumb-frame" }, drawSlide(slide, deck)));
     thumbs.append(thumb);
     holder.append(wrap);
     return { frame, thumb, wrap };
@@ -151,7 +250,7 @@ async function showPowerPoint(bytes: Uint8Array, file: string, ext: string) {
   const layout = () => {
     const w = slideWidth();
     for (const p of pages) fit(p.frame.firstElementChild as HTMLElement, w);
-    for (const p of pages) fit(p.thumb.querySelector(".thumb-frame")!.firstElementChild as HTMLElement, 150);
+    for (const p of pages) fit(p.thumb.querySelector(".thumb-frame")!.firstElementChild as HTMLElement, 148);
   };
   const go = (i: number) => {
     current = Math.max(0, Math.min(deck.slides.length - 1, i));
@@ -176,24 +275,31 @@ async function showPowerPoint(bytes: Uint8Array, file: string, ext: string) {
   // Present: one slide filling the panel, arrows and space to move, Esc to leave.
   const present = () => {
     let i = current;
-    const stage = h("div", { class: "present", tabindex: "0" });
+    const stage = h("div", { class: "present", tabindex: "0", role: "dialog", "aria-label": "Presenting" });
     const counter = h("div", { class: "present-count" });
+    const progress = h("div", { class: "present-progress" });
     const show = () => {
       const slide = drawSlide(deck.slides[i], deck);
       const s = Math.min(window.innerWidth / deck.width, window.innerHeight / deck.height);
       slide.style.transform = `scale(${s})`;
       const box = h("div", { class: "present-box" }, slide);
       box.style.width = `${deck.width * s}px`; box.style.height = `${deck.height * s}px`;
-      stage.replaceChildren(box, counter);
+      stage.replaceChildren(box, counter, progress);
       counter.textContent = `${i + 1} / ${deck.slides.length} · Esc to exit`;
+      progress.style.width = `${((i + 1) / deck.slides.length) * 100}%`;
     };
+    // The pointer and the counter fade away while you talk, and come back when the mouse moves.
+    let idle: number | undefined;
+    const wake = () => { stage.classList.remove("idle"); clearTimeout(idle); idle = window.setTimeout(() => stage.classList.add("idle"), 1800); };
+    stage.addEventListener("mousemove", wake);
+    wake();
     const key = (e: KeyboardEvent) => {
       if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) { i = Math.min(deck.slides.length - 1, i + 1); show(); e.preventDefault(); }
       else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(e.key)) { i = Math.max(0, i - 1); show(); e.preventDefault(); }
       else if (e.key === "Home") { i = 0; show(); } else if (e.key === "End") { i = deck.slides.length - 1; show(); }
       else if (e.key === "Escape") { close(); }
     };
-    const close = () => { document.removeEventListener("keydown", key, true); stage.remove(); go(i); };
+    const close = () => { document.removeEventListener("keydown", key, true); clearTimeout(idle); stage.remove(); go(i); };
     stage.addEventListener("click", e => { i = e.clientX < window.innerWidth / 3 ? Math.max(0, i - 1) : Math.min(deck.slides.length - 1, i + 1); show(); });
     document.addEventListener("keydown", key, true);
     document.body.append(stage);
@@ -201,13 +307,20 @@ async function showPowerPoint(bytes: Uint8Array, file: string, ext: string) {
     stage.focus();
   };
   const sidebar = h("div", { class: "side" }, thumbs);
-  const content = h("div", { class: "deck-host" }, holder, h("aside", { class: "notes-box" }, h("small", {}, "SPEAKER NOTES"), notes));
+  // Speaker notes fold away to give the slides more room; the choice is remembered.
+  const notesBox = h("aside", { class: `notes-box ${vscode.getState()?.notesHidden ? "collapsed" : ""}` },
+    h("button", { class: "notes-head", "aria-label": "Show or hide speaker notes", onclick: () => {
+      const hidden = notesBox.classList.toggle("collapsed");
+      vscode.setState({ ...(vscode.getState() ?? {}), notesHidden: hidden });
+    } }, icon("notes", 14), h("small", {}, "SPEAKER NOTES"), h("span", { class: "chev" }, icon("down", 14))),
+    notes);
+  const content = h("div", { class: "deck-host" }, holder, notesBox);
   chrome(file, ext, {
-    content, sidebar, zoomable: true,
+    content, sidebar, zoomable: true, canvas: true,
     stats: `${deck.slides.length} slide${deck.slides.length === 1 ? "" : "s"}`,
     text: () => deck.slides.map((s, i) => `Slide ${i + 1}\n${slideText(s)}${s.notes ? `\n\nNotes: ${s.notes}` : ""}`).join("\n\n"),
     onZoom: () => layout(),
-    extraTools: [h("button", { class: "btn primary", title: "Present from the current slide", onclick: present }, "▶ Present")],
+    extraTools: [h("button", { class: "btn primary", title: "Present from the current slide", onclick: present }, icon("play", 13), h("span", {}, "Present"))],
   });
   new ResizeObserver(() => layout()).observe(holder);
   layout();
@@ -222,7 +335,7 @@ async function showExcel(bytes: Uint8Array, file: string, ext: string, theme: st
   if (!visible.length) throw new Error("This workbook has no visible sheets.");
   const grid = h("div", { class: `grid-host ${theme === "dark" ? "" : "paper"}` });
   const tabs = h("nav", { class: "tabs", "aria-label": "Sheets" });
-  const formula = h("div", { class: "formula" }, h("span", { class: "ref" }, ""), h("span", { class: "fx" }, "fx"), h("span", { class: "fval" }, "Click a cell to see its value and formula."));
+  const formula = h("div", { class: "formula" }, h("span", { class: "ref", title: "Cell" }, ""), h("span", { class: "fx" }, "fx"), h("span", { class: "fval" }, "Click a cell to see its value and formula."));
   let active = 0;
   const showSheet = (i: number) => {
     active = i;
@@ -246,8 +359,9 @@ async function showExcel(bytes: Uint8Array, file: string, ext: string, theme: st
 }
 const MAX_ROWS = 20000, MAX_COLS = 400;
 function sheetTable(sheet: Sheet, onPick: (ref: string, cell: Cell | undefined) => void): HTMLElement {
-  const rows = Math.min(sheet.maxRow + 1, MAX_ROWS), cols = Math.min(sheet.maxCol + 1, MAX_COLS);
-  if (rows <= 0) return h("p", { class: "empty" }, "This sheet is empty.");
+  if (sheet.maxRow < 0) return h("p", { class: "empty" }, "This sheet is empty.");
+  // A small sheet still shows a page of grid around it, as Excel does.
+  const rows = Math.max(30, Math.min(sheet.maxRow + 1, MAX_ROWS)), cols = Math.max(12, Math.min(sheet.maxCol + 1, MAX_COLS));
   const covered = new Set<string>(), spans = new Map<string, [number, number]>();
   for (const m of sheet.merges) {
     spans.set(`${m.r1}:${m.c1}`, [m.r2 - m.r1 + 1, m.c2 - m.c1 + 1]);
@@ -278,7 +392,14 @@ function sheetTable(sheet: Sheet, onPick: (ref: string, cell: Cell | undefined) 
         td.style.textAlign = cell.align && cell.align !== "general" ? cell.align : cell.number ? "right" : "left";
         if (cell.formula) td.classList.add("has-formula");
       }
-      td.addEventListener("click", () => { table.querySelector("td.sel")?.classList.remove("sel"); td.classList.add("sel"); onPick(td.dataset.ref!, cell); });
+      td.addEventListener("click", () => {
+        table.querySelectorAll(".sel, .hl").forEach(el => el.classList.remove("sel", "hl"));
+        td.classList.add("sel");
+        // Like Excel, light up the cell's column letter and row number.
+        head.children[c + 1]?.classList.add("hl");
+        tr.firstElementChild?.classList.add("hl");
+        onPick(td.dataset.ref!, cell);
+      });
       tr.append(td);
     }
     body.append(tr);
@@ -334,18 +455,22 @@ function showCsv(bytes: Uint8Array, file: string, ext: string) {
     stats: `${rows.length.toLocaleString()} rows · ${width} columns · ${names[delimiter]}-separated`,
     text: () => text,
     onZoom: z => grid.style.setProperty("--zoom", String(z)),
-    extraTools: [h("div", { class: "find" }, filterInput, filterCount)],
+    extraTools: [h("div", { class: "find pill" }, h("span", { class: "pill-icon" }, icon("filter", 14)), filterInput, filterCount)],
   });
   draw();
 }
 
 // ---------- Older formats and errors ----------
 
-function showMessage(file: string, title: string, detail: string) {
-  app.replaceChildren(h("div", { class: "message" },
-    h("div", { class: "msg-icon" }, "!"), h("h2", {}, title), h("p", {}, detail),
-    h("div", { class: "row" }, h("button", { class: "btn primary", onclick: () => send({ type: "openDefault" }) }, "Open in default app"), h("button", { class: "btn", onclick: () => send({ type: "reveal" }) }, "Show in folder")),
-    h("small", { class: "muted" }, file)));
+function showMessage(file: string, ext: string, title: string, detail: string, badge: "alert" | "lock" = "alert") {
+  document.body.dataset.kind = kindOf(ext);
+  app.replaceChildren(h("div", { class: "message-wrap" }, h("div", { class: "message" },
+    h("div", { class: "msg-art" }, fileTile(ext, true), h("span", { class: `msg-badge ${badge}` }, icon(badge, 14))),
+    h("h2", {}, title), h("p", {}, detail),
+    h("div", { class: "row" },
+      h("button", { class: "btn primary", onclick: () => send({ type: "openDefault" }) }, icon("open", 14), h("span", {}, "Open in default app")),
+      h("button", { class: "btn", onclick: () => send({ type: "reveal" }) }, icon("folder", 14), h("span", {}, "Show in folder"))),
+    h("small", { class: "muted file-name" }, file))));
 }
 
 window.addEventListener("message", async ({ data: msg }) => {
@@ -355,7 +480,7 @@ window.addEventListener("message", async ({ data: msg }) => {
   const bytes: Uint8Array = msg.bytes instanceof Uint8Array ? msg.bytes : new Uint8Array(msg.bytes);
   try {
     if (["doc", "ppt", "xls"].includes(ext)) {
-      showMessage(file, `This is an older ${ext === "doc" ? "Word" : ext === "ppt" ? "PowerPoint" : "Excel"} file (.${ext})`, `Files from Office 97–2003 use a closed binary format this viewer can't read. Open it in its app and save it as .${ext}x to view it here.`);
+      showMessage(file, ext, `This is an older ${ext === "doc" ? "Word" : ext === "ppt" ? "PowerPoint" : "Excel"} file (.${ext})`, `Files from Office 97–2003 use a closed binary format this viewer can't read. Open it in its app and save it as .${ext}x to view it here.`);
       send({ type: "rendered" });
       return;
     }
@@ -363,12 +488,12 @@ window.addEventListener("message", async ({ data: msg }) => {
     else if (/^(docx|docm|dotx)$/.test(ext)) await showWord(bytes, file, ext, theme);
     else if (/^(pptx|pptm|ppsx)$/.test(ext)) await showPowerPoint(bytes, file, ext);
     else if (/^(xlsx|xlsm)$/.test(ext)) await showExcel(bytes, file, ext, theme);
-    else showMessage(file, "This file type isn't supported", "Open it in its app instead.");
+    else showMessage(file, ext, "This file type isn't supported", "Open it in its app instead.");
     send({ type: "rendered" });
   } catch (error) {
     const message = (error as Error)?.message ?? String(error);
     const encrypted = /encrypt|password|Corrupted zip|End of data reached|can't find end of central directory/i.test(message) && bytes[0] === 0xd0 && bytes[1] === 0xcf;
-    showMessage(file, encrypted ? "This file is password-protected" : "This file couldn't be opened", encrypted ? "Open it in its app and enter the password there." : `It may be damaged, or use a feature this viewer doesn't read yet. (${message})`);
+    showMessage(file, ext, encrypted ? "This file is password-protected" : "This file couldn't be opened", encrypted ? "Open it in its app and enter the password there." : `It may be damaged, or use a feature this viewer doesn't read yet. (${message})`, encrypted ? "lock" : "alert");
     send({ type: "rendered", error: message });
   }
 });

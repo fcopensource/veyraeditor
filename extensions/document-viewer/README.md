@@ -21,7 +21,7 @@ Click a `.docx`, `.pptx` or `.xlsx` in the Explorer and it opens as the document
 <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/document-viewer/media/readme/word.png" alt="A Word report shown as a white page, with an outline of its headings on the left and the page and word count at the top" width="100%">
 
 - Shown page by page, the way it prints.
-- The **outline** lists the headings. Click one to jump there.
+- The **outline** lists the headings and marks the section you're reading. Click one to jump there.
 - **Find** (Ctrl+F) highlights every match. Enter and Shift+Enter move between them.
 - Prefer dark pages? Set `veyraDocs.pageTheme` to `dark`.
 
@@ -30,7 +30,7 @@ Click a `.docx`, `.pptx` or `.xlsx` in the Explorer and it opens as the document
 <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/document-viewer/media/readme/present.png" alt="Present mode: the Goals slide full screen, with bullets, a bar chart picture and a rounded On track label" width="100%">
 
 - Slides are drawn from the deck itself: theme colours, layouts and masters, text boxes, shapes, pictures and tables.
-- The **speaker notes** follow the slide you're looking at.
+- The **speaker notes** follow the slide you're looking at, and fold away when you want more room.
 - **Present** shows the deck full screen, from the slide you're on. The arrow keys, Space and Page Up/Down move between slides; Esc stops.
 
 ## Excel workbooks
@@ -38,7 +38,7 @@ Click a `.docx`, `.pptx` or `.xlsx` in the Explorer and it opens as the document
 <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/document-viewer/media/readme/excel.png" alt="A sales workbook: a merged title, a header row with a fill, dollar amounts, percentages, dates, and the formula =SUM(B3:B5) in the formula bar" width="100%">
 
 - Numbers appear as the workbook formats them: `$1,250.50`, `14.40%`, `2026-01-01`.
-- Click a cell to see its value and **formula** in the formula bar.
+- Click a cell to see its value and **formula** in the formula bar. Its column letter and row number light up, as in Excel.
 - Sheet tabs at the bottom. Hidden sheets stay hidden.
 - Merged cells, bold, italics, font colours, fills and column widths are kept.
 

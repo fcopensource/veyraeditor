@@ -22,7 +22,7 @@ class DocumentViewer implements vscode.CustomReadonlyEditorProvider {
     panel.webview.html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${panel.webview.cspSource} data: blob:; font-src ${panel.webview.cspSource} data: blob:; style-src ${panel.webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="${src("viewer.css")}"></head>
-<body><div id="app"><div class="loading">Opening…</div></div><script nonce="${nonce}" src="${src("viewer.js")}"></script></body></html>`;
+<body><div id="app"><div class="loading" role="status"><div class="spinner"></div><span>Opening…</span></div></div><script nonce="${nonce}" src="${src("viewer.js")}"></script></body></html>`;
 
     panel.webview.onDidReceiveMessage(async msg => {
       switch (msg.type) {
