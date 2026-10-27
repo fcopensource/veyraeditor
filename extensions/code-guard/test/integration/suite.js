@@ -74,4 +74,35 @@ async function steps() {
   const ed = await vscode.window.showTextDocument(doc);
   await ed.edit(e => e.insert(new vscode.Position(1, 0), ["fetch('http://198.51", ".100.7/c');"].join("")));
   await until(() => ours(doc.uri).some(d => d.code === "raw-ip-url"), "flag while typing");
+
+  step("The Code Guard panel opens, and hovers say how to fix");
+  await vscode.commands.executeCommand("veyraGuard.findings.focus");
+  assert.match(ours(doc.uri).find(d => d.code === "raw-ip-url").message, /How to fix: Use your service/);
+
+  step("A PDF security report is created");
+  const reportUri = vscode.Uri.file(path.join(folder, "report.pdf"));
+  await vscode.commands.executeCommand("veyraGuard.createReport", reportUri);
+  const pdf = Buffer.from(await vscode.workspace.fs.readFile(reportUri));
+  assert.equal(pdf.subarray(0, 8).toString(), "%PDF-1.4");
+  assert.ok(pdf.length > 4000, `report is ${pdf.length} bytes`);
+
+  step("The pre-commit guard stops a commit with malicious code");
+  const { execFileSync } = require("node:child_process");
+  const fs = require("node:fs"), os = require("node:os");
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "guard-hook-"));
+  const git = (...a) => execFileSync("git", a, { cwd: repo, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  git("init", "-q"); git("config", "user.email", "t@example.com"); git("config", "user.name", "T");
+  fs.writeFileSync(path.join(repo, "pre-commit-existing.txt"), "x");
+  const hook = await vscode.commands.executeCommand("veyraGuard.installHook", repo);
+  assert.match(fs.readFileSync(hook, "utf8"), /veyra-code-guard.cjs" --staged/);
+  fs.writeFileSync(path.join(repo, "evil.js"), ["ev", "al(at", "ob(x));", "\n"].join(""));
+  git("add", "evil.js");
+  assert.throws(() => git("commit", "-q", "-m", "evil"), /Commit blocked|Running decoded/, "the commit is refused");
+  git("reset", "-q");
+  fs.writeFileSync(path.join(repo, "good.js"), "export const add = (a, b) => a + b;\n");
+  git("add", "good.js");
+  git("commit", "-q", "-m", "good");
+  assert.match(git("log", "--oneline"), /good/, "a clean commit goes through");
+  await vscode.commands.executeCommand("veyraGuard.removeHook", repo);
+  assert.doesNotMatch(fs.readFileSync(hook, "utf8"), /veyra-code-guard/, "the guard can be removed");
 }

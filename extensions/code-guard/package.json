@@ -1,8 +1,8 @@
 {
   "name": "veyra-code-guard",
   "displayName": "Veyra Code Guard",
-  "description": "A security reviewer that checks every line for trojans, backdoors and malicious code: hidden Trojan Source characters, obfuscated eval, download-and-run commands, reverse shells, crypto miners, credential theft, leaked keys and poisoned install scripts. In VS Code and on every GitHub pull request.",
-  "version": "1.0.0",
+  "description": "A security reviewer that checks every line for trojans, backdoors and supply-chain attacks, explains how to fix each one, grades your project A to F and creates a PDF security report. In VS Code, before every commit and on every GitHub pull request.",
+  "version": "1.1.0",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
@@ -35,9 +35,13 @@
     "trojan source",
     "backdoor",
     "supply chain",
+    "typosquatting",
     "code review",
+    "security report",
+    "pdf",
+    "sarif",
+    "pre-commit",
     "secrets",
-    "vulnerability",
     "veyra"
   ],
   "galleryBanner": {
@@ -60,7 +64,24 @@
         "command": "veyraGuard.scanWorkspace",
         "title": "Scan Whole Workspace",
         "category": "Veyra Code Guard",
-        "icon": "$(shield)"
+        "icon": "$(search)"
+      },
+      {
+        "command": "veyraGuard.createReport",
+        "title": "Create Security Report (PDF)",
+        "category": "Veyra Code Guard",
+        "icon": "$(file-pdf)"
+      },
+      {
+        "command": "veyraGuard.installHook",
+        "title": "Install Pre-commit Guard",
+        "category": "Veyra Code Guard",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "veyraGuard.removeHook",
+        "title": "Remove Pre-commit Guard",
+        "category": "Veyra Code Guard"
       },
       {
         "command": "veyraGuard.scanFile",
@@ -70,12 +91,14 @@
       {
         "command": "veyraGuard.listRules",
         "title": "What It Looks For",
-        "category": "Veyra Code Guard"
+        "category": "Veyra Code Guard",
+        "icon": "$(book)"
       },
       {
         "command": "veyraGuard.clear",
         "title": "Clear Results",
-        "category": "Veyra Code Guard"
+        "category": "Veyra Code Guard",
+        "icon": "$(clear-all)"
       }
     ],
     "menus": {
@@ -89,6 +112,33 @@
         {
           "command": "veyraGuard.scanWorkspace",
           "group": "7_modification@9"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "veyraGuard.scanWorkspace",
+          "when": "view == veyraGuard.findings",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraGuard.createReport",
+          "when": "view == veyraGuard.findings",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraGuard.installHook",
+          "when": "view == veyraGuard.findings",
+          "group": "navigation@3"
+        },
+        {
+          "command": "veyraGuard.listRules",
+          "when": "view == veyraGuard.findings",
+          "group": "more@1"
+        },
+        {
+          "command": "veyraGuard.clear",
+          "when": "view == veyraGuard.findings",
+          "group": "more@2"
         }
       ]
     },
@@ -131,12 +181,37 @@
           "markdownDescription": "Rule ids to turn off, such as `raw-ip-url` or `base64-blob`. Run **Veyra Code Guard: What It Looks For** to see them all."
         }
       }
-    }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyra-code-guard",
+          "title": "Code Guard",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyra-code-guard": [
+        {
+          "id": "veyraGuard.findings",
+          "name": "Findings",
+          "icon": "media/activity.svg",
+          "contextualTitle": "Veyra Code Guard"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraGuard.findings",
+        "contents": "No suspicious code in the files checked so far.\n[$(search) Scan Whole Workspace](command:veyraGuard.scanWorkspace)\n[$(file-pdf) Create Security Report (PDF)](command:veyraGuard.createReport)\nStop risky code before it's committed:\n[$(git-commit) Install Pre-commit Guard](command:veyraGuard.installHook)\n[What it looks for](command:veyraGuard.listRules)"
+      }
+    ]
   },
   "scripts": {
     "compile": "tsc -p .",
-    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\" && esbuild src/action.ts --bundle --platform=node --format=cjs --target=node20 --outfile=action/index.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\"",
-    "test": "tsc -p . && npm run bundle && node --test test/scanner.test.mjs test/action.test.mjs",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\" && esbuild src/action.ts --bundle --platform=node --format=cjs --target=node18 --outfile=bundle/cli.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\" && esbuild src/action.ts --bundle --platform=node --format=cjs --target=node20 --outfile=action/index.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\"",
+    "test": "tsc -p . && npm run bundle && node --test test/scanner.test.mjs test/report.test.mjs test/action.test.mjs",
     "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
     "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
     "vscode:prepublish": "tsc -p . && npm run bundle"

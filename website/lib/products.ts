@@ -87,9 +87,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/codesnap', icon: '/codesnap-icon.png', name: 'CodeSnap', title: 'CodeSnap Veyra', group: 'Project', order: 16, tone: 'codesnap', updated: '2026-10-25',
     copy: 'Your code as a beautiful image', cta: 'Explore CodeSnap',
     summary: 'Turn your code into a beautiful image in your theme’s colours. Gradients, window frames, highlighted lines and social media sizes. Copy it or save it as PNG.' }),
-  vs({ href: '/code-guard', icon: '/code-guard-icon.png', name: 'Code Guard', title: 'Veyra Code Guard', group: 'Write code', order: 17, tone: 'codeguard', platform: 'For VS Code and GitHub', updated: '2026-10-27',
+  vs({ href: '/code-guard', icon: '/code-guard-icon.png', name: 'Code Guard', title: 'Veyra Code Guard', group: 'Write code', order: 17, tone: 'codeguard', platform: 'For VS Code and GitHub', updated: '2026-10-28',
     copy: 'Find trojans and backdoors in code', cta: 'Explore Code Guard',
-    summary: 'A security reviewer that checks every line for trojans, backdoors, hidden characters, leaked keys and poisoned install scripts, in VS Code and on every GitHub pull request.' }),
+    summary: 'A security reviewer that checks every line for trojans, backdoors and supply-chain attacks, shows how to fix each one, grades your project A to F and writes a PDF security report. In VS Code, before every commit and on GitHub.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Veyra AI and Salesforce Studio. */

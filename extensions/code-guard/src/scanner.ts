@@ -15,7 +15,52 @@ export interface Finding {
   endColumn: number;  // 1-based, exclusive
   message: string;    // what was found on this line
   why: string;        // why it matters, in plain words
+  fix: string;        // what to do about it
   snippet: string;    // the matched text, made visible (hidden characters shown as <U+202E>)
+}
+
+/** What to do about each kind of finding. */
+export const FIXES: Record<string, string> = {
+  "trojan-source": "Delete the hidden characters (Code Guard's quick fix does it), then re-read the line as it really is. If you didn't add them, treat the change as hostile and find out where it came from.",
+  "invisible-character": "Remove the invisible characters, then check the names on the line: a variable with a hidden character is a different variable from the one it looks like.",
+  "homoglyph": "Retype the name using plain Latin letters, then search the code for both spellings to see whether a look-alike function was defined somewhere.",
+  "hidden-far-right": "Scroll right to read the hidden code, then move it to its own line or remove it. Nothing legitimate needs hundreds of spaces before it.",
+  "eval-decoded": "Decode the string and read what it really does. Replace eval/Function with ordinary code; if the code came from someone else, treat it as malicious until proven otherwise.",
+  "packed-code": "Unpack it (for example with a JavaScript beautifier) to see what it does, and replace it with the readable source. Don't ship packed code you can't read.",
+  "python-exec": "Decode what is being executed and replace exec()/__import__ with normal imports and calls. Hidden execution has no place in reviewed code.",
+  "download-execute": "Download to a file, check its checksum or signature, review it, then run it, or pin a specific version through your package manager instead.",
+  "reverse-shell": "Remove it and assume the machine that ran it may be compromised: rotate credentials and check for other changes by the same author.",
+  "crypto-miner": "Remove the miner and check where it came from (a dependency, a pull request, a build script). Rotate any credentials on machines that ran it.",
+  "credential-theft": "Code should never read keys, wallets or browser data it wasn't built for. Remove it; if it ran, rotate the affected keys and passwords.",
+  "exfil-endpoint": "Find out what is being sent and why. Remove the endpoint unless it is your own, documented integration, and keep webhook URLs out of source code.",
+  "env-exfil": "Read only the variables you need, by name (process.env.API_URL), and never send the whole environment anywhere.",
+  "persistence": "Remove the start-up entry unless installing a service is the program's documented purpose, and check machines that ran it for the entry it created.",
+  "disable-defences": "Remove it. Software should never turn off antivirus, the firewall or logging; if it ran, re-enable the protections and investigate.",
+  "hidden-powershell": "Decode the command and replace it with a readable script. Visible, signed scripts are the norm; hidden encoded ones are a red flag.",
+  "insecure-tls": "Keep certificate checks on. For a private certificate authority, trust that authority explicitly (NODE_EXTRA_CA_CERTS, verify='ca.pem') instead of turning checks off.",
+  "char-code-obfuscation": "Convert the character codes back to text to see what they spell, and write it as a normal string.",
+  "hex-escapes": "Decode the escapes to see what they hide. If it's data, move it to a file; if it's code, rewrite it readably.",
+  "base64-blob": "Decode it and check what it is. Move legitimate assets (images, fonts) into files; remove anything executable.",
+  "raw-ip-url": "Use your service's domain name, ideally over https. If the address is unknown to you, find out who added it and why.",
+  "secret": "Revoke the key with its provider now (deleting it from the code isn't enough: it stays in history), then load the new one from an environment variable or secret store.",
+  "install-script": "Remove the install script, or replace it with a reviewed local script. If the package isn't yours, don't install it.",
+  "install-hook": "Read the script it runs. If it's needed (building native code), keep it; otherwise remove it, and consider installing with --ignore-scripts.",
+  "workflow-injection": "Pass the value through an environment variable (env: TITLE: ${{ github.event.issue.title }}) and use \"$TITLE\" in the script, so it is treated as text, not code.",
+  "workflow-pr-target": "Use the pull_request event for building pull requests, or don't check out the pull request's code in pull_request_target jobs.",
+  "typosquat-package": "Check the name letter by letter. If you meant the popular package, fix the name, remove the look-alike and its lockfile entry, and rotate any secrets on machines that installed it.",
+  "remote-dependency": "Install from the registry with a pinned version, or pin the git dependency to an exact commit you have reviewed.",
+  "dependency-confusion": "Use a single index that proxies the public one (--index-url), reserve your private names publicly, and always use https.",
+  "unpinned-dependency": "Pin a version range you have reviewed (for example ^4.18.2) and commit the lockfile.",
+  "guard-opt-out": "Make sure each opt-out has a reason in the comment and was agreed in review.",
+};
+
+/** A 0-100 score and A-F grade for a set of findings: one critical finding caps the grade at D. */
+export function grade(findings: Finding[]) {
+  const c = summarize(findings);
+  const score = Math.max(0, 100 - (c.critical * 30 + c.high * 12 + c.medium * 4 + c.low));
+  const letter = c.critical ? (score >= 40 ? "D" : "F") : c.high ? (score >= 75 ? "B" : score >= 60 ? "C" : score >= 40 ? "D" : "F") : score >= 90 ? "A" : score >= 75 ? "B" : score >= 60 ? "C" : score >= 40 ? "D" : "F";
+  const verdict = c.critical ? "Action needed: critical findings" : c.high ? "Review needed: high-risk findings" : c.medium ? "Mostly clean: a few things to check" : c.low ? "Clean: minor notes only" : "Clean: no signs of malicious code";
+  return { score, letter, verdict, counts: c };
 }
 
 interface Rule {
@@ -281,7 +326,109 @@ const RULES: Rule[] = [
     },
     why: "pull_request_target runs with your repository's secrets and write access. Checking out and running the pull request's code there lets any outsider's pull request steal those secrets.",
   },
+
+  // ---- Supply chain: the packages a project pulls in ----
+  {
+    id: "typosquat-package", title: "Package name one letter away from a popular one", severity: "high",
+    files: /(^|\/)(package\.json|requirements[\w.-]*\.txt|Pipfile|pyproject\.toml)$/i,
+    check: (lines, path) => {
+      const python = !/package\.json$/i.test(path);
+      const popular = python ? POPULAR_PYPI : POPULAR_NPM;
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      const npmDeps = python ? undefined : dependencyLines(lines);
+      lines.forEach((line, i) => {
+        if (npmDeps && !npmDeps.has(i)) return;
+        const name = dependencyName(line, path);
+        if (!name) return;
+        const lower = name.toLowerCase().replace(/_/g, "-");
+        if (popular.has(lower) || REAL_NEIGHBOURS.has(lower)) return;
+        const near = [...popular].find(p => p.length >= 4 && Math.abs(p.length - lower.length) <= 1 && editDistance(p, lower) === 1);
+        if (near) out.push({ line: i + 1, column: line.indexOf(name) + 1, length: name.length, message: `"${name}" is one letter away from the popular package "${near}".` });
+      });
+      return out;
+    },
+    why: "Attackers publish packages with names one typo away from popular ones (expres, reqeusts) so a slip of the keyboard installs their malware. It is one of the most common supply-chain attacks.",
+  },
+  {
+    id: "remote-dependency", title: "Dependency installed from a URL or git, not the registry", severity: "medium",
+    files: /(^|\/)(package\.json|requirements[\w.-]*\.txt)$/i,
+    check: (lines, path) => {
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      const npm = /package\.json$/i.test(path), deps = npm ? dependencyLines(lines) : undefined;
+      lines.forEach((line, i) => {
+        if (deps && !deps.has(i)) return;
+        const m = npm ? /"([@\w./-]+)"\s*:\s*"((?:https?:|git\+|git:|github:|gitlab:|bitbucket:)[^"]*)"/.exec(line) : /^\s*((?:git\+|https?:)\S+)/.exec(line);
+        if (m) out.push({ line: i + 1, column: m.index + 1, length: m[0].length, message: `${npm ? `"${m[1]}" comes` : "This package comes"} from ${truncate(npm ? m[2] : m[1], 70)} instead of the package registry.` });
+      });
+      return out;
+    },
+    why: "Code fetched from a URL or a git repository skips the registry's checks and can change at any time without a new version, so what you reviewed may not be what gets installed.",
+  },
+  {
+    id: "dependency-confusion", title: "Extra package source that can be hijacked", severity: "high",
+    files: /(^|\/)(requirements[\w.-]*\.txt|pip\.conf|\.npmrc|\.yarnrc(\.yml)?)$/i,
+    pattern: /--extra-index-url\s+\S+|--index-url\s+http:\/\/\S+|--trusted-host\s+\S+|^\s*registry\s*=\s*http:\/\/\S+|npmRegistryServer:\s*["']?http:\/\/\S+|^\s*always-auth\s*=\s*false/im,
+    why: "With an extra package index, pip installs whichever source has the higher version, so an attacker can publish a public package with your private package's name and get it installed (dependency confusion). Plain http sources can be tampered with in transit.",
+    message: m => `Package source: ${truncate(m, 70)}`,
+  },
+  {
+    id: "unpinned-dependency", title: "Dependency with no version limit", severity: "low",
+    files: /(^|\/)package\.json$/i,
+    check: lines => {
+      const deps = dependencyLines(lines);
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      lines.forEach((line, i) => {
+        const m = /"([@\w./-]+)"\s*:\s*"(\*|latest|x|)"/.exec(line);
+        if (m && deps.has(i)) out.push({ line: i + 1, column: m.index + 1, length: m[0].length, message: `"${m[1]}" has no version limit ("${m[2]}").` });
+      });
+      return out;
+    },
+    why: "\"*\" or \"latest\" installs whatever version is newest on the day, including a malicious one published by a hijacked account. Pin a version range you have reviewed.",
+  },
 ];
+
+// The most installed packages, for spotting look-alike names. Names that are popular in their own right aren't flagged.
+const POPULAR_NPM = new Set(["react", "react-dom", "express", "lodash", "axios", "chalk", "commander", "request", "moment", "debug", "typescript", "webpack", "eslint", "prettier", "jest", "mocha", "vue", "angular", "jquery", "underscore", "async", "bluebird", "uuid", "dotenv", "cors", "body-parser", "mongoose", "sequelize", "socket.io", "nodemon", "yargs", "inquirer", "colors", "redis", "mysql", "mysql2", "jsonwebtoken", "bcrypt", "bcryptjs", "multer", "passport", "cheerio", "puppeteer", "electron", "rxjs", "tslib", "classnames", "prop-types", "styled-components", "tailwindcss", "vite", "rollup", "esbuild", "glob", "minimist", "semver", "fs-extra", "node-fetch", "cross-env", "rimraf", "mkdirp", "crypto-js", "discord.js", "ethers", "web3", "next", "nuxt", "svelte", "zod", "dayjs", "date-fns", "graphql", "apollo-server", "playwright", "cypress", "sharp", "nodemailer", "winston", "morgan", "helmet", "chokidar", "ioredis", "knex", "prisma", "openai", "stripe", "firebase", "aws-sdk", "pg", "ws"]);
+const POPULAR_PYPI = new Set(["requests", "numpy", "pandas", "django", "flask", "urllib3", "setuptools", "boto3", "botocore", "scipy", "matplotlib", "pillow", "cryptography", "pyyaml", "beautifulsoup4", "selenium", "tensorflow", "torch", "scikit-learn", "colorama", "python-dateutil", "jinja2", "sqlalchemy", "pytest", "fastapi", "uvicorn", "pydantic", "httpx", "aiohttp", "openai", "anthropic", "transformers", "psycopg2", "pymongo", "redis", "celery", "gunicorn", "paramiko", "pycryptodome", "openpyxl", "lxml", "click", "tqdm", "rich", "certifi", "idna", "six", "wheel", "pip", "docker", "kubernetes", "streamlit"]);
+
+// Real, well-known packages that happen to be one letter from a popular one.
+const REAL_NEIGHBOURS = new Set(["preact", "color", "uid", "boto", "nest", "vuex", "rxjs", "jsdom", "pino", "ky", "got", "yaml", "axe", "chai", "sinon", "redux", "ioredis", "execa", "globby", "lxml", "httpie", "attrs", "black", "mypy", "pytz", "tomli", "toml", "jsonschema", "esbuild-wasm", "vitest"]);
+
+/** Line numbers (0-based) inside the dependency sections of a package.json. */
+function dependencyLines(lines: string[]) {
+  const inside = new Set<number>();
+  let depth = 0, open = false;
+  lines.forEach((line, i) => {
+    if (!open && /"(?:dependencies|devDependencies|peerDependencies|optionalDependencies|overrides|resolutions)"\s*:\s*\{/.test(line)) { open = true; depth = 0; }
+    if (!open) return;
+    for (const c of line) { if (c === "{") depth++; else if (c === "}") depth--; }
+    inside.add(i);
+    if (depth <= 0) open = false;
+  });
+  return inside;
+}
+
+/** The package name declared on a line of package.json (inside a dependencies block) or a Python requirements file. */
+function dependencyName(line: string, path: string): string | undefined {
+  if (/package\.json$/i.test(path)) {
+    const m = /^\s*"(@?[a-z0-9][\w.-]*(?:\/[\w.-]+)?)"\s*:\s*"[~^<>=*\d xX.|-]+[\w.-]*"\s*,?\s*$/i.exec(line);
+    // Skip the package's own fields such as "version": "1.0.0".
+    return m && !["version", "node", "npm", "vscode", "name", "license", "main", "types"].includes(m[1]) ? m[1] : undefined;
+  }
+  const m = /^\s*([A-Za-z0-9][A-Za-z0-9._-]*)\s*(?:\[[^\]]*\])?\s*(?:[=<>!~]=?|;|$|#)/.exec(line);
+  return m && !line.trim().startsWith("-") ? m[1] : undefined;
+}
+
+/** Levenshtein distance, with a swap of two neighbouring letters counted as one edit. */
+export function editDistance(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
 
 // Reading, copying or sending a file, in the common languages.
 const READS = /\b(?:readFile\w*|readSync|createReadStream|read_to_string|read_text|read_bytes|open\s*\(|fopen|file_get_contents|File\.Read\w*|Get-Content|gc\s|cat\s|type\s|copyFile\w*|copy\s*\(|shutil\.copy\w*|cp\s|scp\s|upload\w*|send\w*|post\s*\(|fetch\s*\(|request\s*\(|axios|requests\.|urllib|zip\w*|tar\s|base64|exfil\w*|Compress-Archive|Invoke-WebRequest|iwr\s|curl\s|wget\s|ReadAll\w*|ioutil\.ReadFile|os\.ReadFile|Files\.read\w*|readlines?)\b/i;
@@ -347,12 +494,14 @@ export function scan(text: string, path: string, options: ScanOptions = {}): Fin
     if (options.onlyLines && !options.onlyLines.has(line)) return;
     const own = ignoredRules(lines[line - 1] ?? ""), prev = ignoredRules(lines[line - 2] ?? "");
     for (const ig of [own, prev]) if (ig === "all" || ig?.has(rule.id)) return;
-    findings.push({ rule: rule.id, title: rule.title, severity: rule.severity, line, column, endColumn: column + Math.max(1, length), message, why: rule.why, snippet: visible(matched).slice(0, 200) });
+    findings.push({ rule: rule.id, title: rule.title, severity: rule.severity, line, column, endColumn: column + Math.max(1, length), message, why: rule.why, fix: FIXES[rule.id] ?? "", snippet: visible(matched).slice(0, 200) });
   };
   for (const rule of RULES) {
     if (disabled.has(rule.id) || severityRank(rule.severity) < min) continue;
     if (rule.files && !rule.files.test(file)) continue;
     if (rule.skipFiles && rule.skipFiles.test(file)) continue;
+    // Documentation isn't run, and often describes attacks: there only hidden characters and leaked keys matter.
+    if (DOCS.test(file) && !/(^|\/)requirements[\w.-]*\.txt$/i.test(file) && rule.id !== "trojan-source" && rule.id !== "secret") continue;
     if (rule.check) {
       for (const f of rule.check(lines, file)) add(rule, f.line, f.column, f.length, f.message, (lines[f.line - 1] ?? "").substr(f.column - 1, f.length));
       continue;
@@ -372,7 +521,7 @@ export function scan(text: string, path: string, options: ScanOptions = {}): Fin
   if (options.onlyLines && !disabled.has("guard-opt-out")) {
     lines.forEach((line, i) => {
       const at = line.search(/veyra-guard-ignore/);
-      if (at >= 0 && options.onlyLines!.has(i + 1)) findings.push({ rule: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium", line: i + 1, column: at + 1, endColumn: at + 1 + (/veyra-guard-ignore[\w:,\s-]*/.exec(line.slice(at))?.[0].trimEnd().length ?? 18), message: `This change tells Code Guard to skip ${/veyra-guard-ignore-file/.test(line) ? "this whole file" : "a line"}. Make sure that's intended.`, why: GUARD_OPT_OUT_WHY, snippet: visible(line.trim()).slice(0, 200) });
+      if (at >= 0 && options.onlyLines!.has(i + 1)) findings.push({ rule: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium", line: i + 1, column: at + 1, endColumn: at + 1 + (/veyra-guard-ignore[\w:,\s-]*/.exec(line.slice(at))?.[0].trimEnd().length ?? 18), message: `This change tells Code Guard to skip ${/veyra-guard-ignore-file/.test(line) ? "this whole file" : "a line"}. Make sure that's intended.`, why: GUARD_OPT_OUT_WHY, fix: FIXES["guard-opt-out"], snippet: visible(line.trim()).slice(0, 200) });
     });
   }
   return findings.sort((a, b) => a.line - b.line || severityRank(b.severity) - severityRank(a.severity));
@@ -383,7 +532,7 @@ const GUARD_OPT_OUT_WHY = "An attacker who hides malicious code can also add an 
 function scanOptOutsOnly(lines: string[], only: Set<number>): Finding[] {
   return lines.flatMap((line, i) => {
     const at = line.search(/veyra-guard-ignore/);
-    return at >= 0 && only.has(i + 1) ? [{ rule: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium" as Severity, line: i + 1, column: at + 1, endColumn: at + 1 + 24, message: "This change tells Code Guard to skip this whole file. Make sure that's intended.", why: GUARD_OPT_OUT_WHY, snippet: visible(line.trim()).slice(0, 200) }] : [];
+    return at >= 0 && only.has(i + 1) ? [{ rule: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium" as Severity, line: i + 1, column: at + 1, endColumn: at + 1 + 24, message: "This change tells Code Guard to skip this whole file. Make sure that's intended.", why: GUARD_OPT_OUT_WHY, fix: FIXES["guard-opt-out"], snippet: visible(line.trim()).slice(0, 200) }] : [];
   });
 }
 
@@ -391,8 +540,8 @@ function isBinary(text: string) { const head = text.slice(0, 8000); return head.
 
 /** Which rules exist, for settings and documentation. */
 export const ruleList = () => [
-  ...RULES.map(r => ({ id: r.id, title: r.title, severity: r.severity, why: r.why })),
-  { id: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium" as Severity, why: GUARD_OPT_OUT_WHY },
+  ...RULES.map(r => ({ id: r.id, title: r.title, severity: r.severity, why: r.why, fix: FIXES[r.id] ?? "" })),
+  { id: "guard-opt-out", title: "Turns off Veyra Code Guard checks", severity: "medium" as Severity, why: GUARD_OPT_OUT_WHY, fix: FIXES["guard-opt-out"] },
 ];
 
 /** Parse a unified diff patch (as GitHub returns per file) into the new-file line numbers it adds. */

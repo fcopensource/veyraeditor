@@ -108,3 +108,65 @@ test("fail-on, ignore-paths and fork pull requests (read-only token)", async () 
     assert.equal(r.code, 1, "fails at medium when asked");
   } finally { gh2.close(); }
 });
+
+test("the Action writes a PDF report and SARIF for GitHub code scanning", async () => {
+  const ws = workspaceWith({ "src/app.js": j("ev", "al(at", "ob(payload));\n") });
+  const gh = await mockGitHub([{ filename: "src/app.js", status: "added", patch: j("@@ -0,0 +1 @@\n+ev", "al(at", "ob(payload));") }]);
+  try {
+    const r = await runAction(ws, gh.url, { "report-pdf": "security-report.pdf", sarif: "code-guard.sarif", review: "false" });
+    assert.equal(r.code, 1);
+    const pdf = fs.readFileSync(path.join(ws, "security-report.pdf"));
+    assert.equal(pdf.subarray(0, 8).toString(), "%PDF-1.4");
+    const sarif = JSON.parse(fs.readFileSync(path.join(ws, "code-guard.sarif"), "utf8"));
+    assert.equal(sarif.runs[0].results[0].ruleId, "eval-decoded");
+    assert.match(r.output, /grade=D\nscore=70\nreport=.*security-report\.pdf\nsarif=.*code-guard\.sarif/);
+    assert.match(r.summary, /Grade D \(70\/100\)/);
+    assert.match(r.summary, /How to fix/);
+    assert.equal(gh.reviews.length, 0, "review: false posts no review");
+  } finally { gh.close(); }
+});
+
+// The pre-commit guard: `cli.js --staged` checks exactly what is about to be committed.
+const cli = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../bundle/cli.js");
+const git = (cwd, ...args) => new Promise((resolve, reject) => { const c = spawn("git", args, { cwd }); let err = ""; c.stderr.on("data", d => err += d); c.on("close", code => code ? reject(new Error(`git ${args.join(" ")}: ${err}`)) : resolve()); });
+function runCli(cwd, ...args) {
+  return new Promise(resolve => {
+    const env = { ...process.env }; for (const k of Object.keys(env)) if (k.startsWith("GITHUB_") || k.startsWith("INPUT_")) delete env[k];
+    const child = spawn(process.execPath, [cli, ...args], { cwd, env });
+    let stdout = ""; child.stdout.on("data", d => stdout += d);
+    child.on("close", code => resolve({ code, stdout }));
+  });
+}
+
+test("--staged blocks a commit that adds malicious code, and only looks at staged lines", async () => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "guard-git-"));
+  await git(repo, "init", "-q"); await git(repo, "config", "user.email", "t@example.com"); await git(repo, "config", "user.name", "T");
+  // Already committed (old) suspicious code is not the commit's fault.
+  fs.writeFileSync(path.join(repo, "old.js"), j("fetch('http://203.0", ".113.9/old')\n"));
+  await git(repo, "add", "."); await git(repo, "commit", "-q", "-m", "old");
+  fs.writeFileSync(path.join(repo, "old.js"), j("fetch('http://203.0", ".113.9/old')\nconsole.log('hi');\n"));
+  fs.writeFileSync(path.join(repo, "new.js"), j("const ok = 1;\nev", "al(at", "ob(payload));\n"));
+  fs.writeFileSync(path.join(repo, "unstaged.js"), j("ev", "al(at", "ob(x));\n"));
+  await git(repo, "add", "old.js", "new.js");
+  let r = await runCli(repo, "--staged");
+  assert.equal(r.code, 1, "blocked");
+  assert.match(r.stdout, /CRITICAL\s+Running decoded or obfuscated code\s+new\.js:2:1/);
+  assert.match(r.stdout, /Commit blocked\./);
+  assert.doesNotMatch(r.stdout, /old\.js:1/, "lines already committed are not re-reported");
+  assert.doesNotMatch(r.stdout, /unstaged\.js/, "unstaged files are not checked");
+  // A clean change passes.
+  await git(repo, "reset", "-q"); await git(repo, "add", "old.js");
+  r = await runCli(repo, "--staged");
+  assert.equal(r.code, 0, r.stdout);
+  assert.match(r.stdout, /Grade A \(100\/100\)/);
+});
+
+test("the command line scans a folder and can print JSON", async () => {
+  const dir = workspaceWith({ "a.js": j("fetch('http://203.0", ".113.9/x')\n"), "node_modules/x/i.js": j("ev", "al(at", "ob(x));\n") });
+  const r = await runCli(dir, ".", "--json");
+  assert.equal(r.code, 0, "a medium finding doesn't fail at the default high");
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.grade.letter, "A");
+  assert.deepEqual(out.files.map(f => f.path), ["a.js"], "node_modules skipped");
+  assert.equal((await runCli(dir, ".", "--fail-on", "medium", "--json")).code, 1);
+});
