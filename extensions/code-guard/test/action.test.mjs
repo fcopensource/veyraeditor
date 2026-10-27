@@ -170,3 +170,19 @@ test("the command line scans a folder and can print JSON", async () => {
   assert.deepEqual(out.files.map(f => f.path), ["a.js"], "node_modules skipped");
   assert.equal((await runCli(dir, ".", "--fail-on", "medium", "--json")).code, 1);
 });
+
+test("the git hook checks the repository being committed, even inside a CI job", async () => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "guard-ci-git-"));
+  await git(repo, "init", "-q"); await git(repo, "config", "user.email", "t@example.com"); await git(repo, "config", "user.name", "T");
+  fs.writeFileSync(path.join(repo, "evil.js"), j("ev", "al(at", "ob(x));\n"));
+  await git(repo, "add", "evil.js");
+  const elsewhere = fs.mkdtempSync(path.join(os.tmpdir(), "guard-ci-ws-"));
+  const r = await new Promise(resolve => {
+    const child = spawn(process.execPath, [cli, "--staged"], { cwd: repo, env: { ...process.env, GITHUB_ACTIONS: "true", GITHUB_WORKSPACE: elsewhere } });
+    let stdout = ""; child.stdout.on("data", d => stdout += d);
+    child.on("close", code => resolve({ code, stdout }));
+  });
+  assert.equal(r.code, 1, "blocked");
+  assert.match(r.stdout, /Commit blocked\./, "terminal output, not Action annotations");
+  assert.match(r.stdout, /evil\.js:1/);
+});

@@ -16,6 +16,8 @@ interface Options {
   root: string; staged: boolean; pdf?: string; sarif?: string; json: boolean;
   failOn: Severity | "never"; minSeverity: Severity; ignore: (path: string) => boolean; disabled: string[];
   mode: string; review: boolean;
+  /** Running as the GitHub Action (not the command line or the git hook, even inside CI). */
+  action: boolean;
 }
 
 /** Glob-ish path filters: "docs/**", "*.md", "test/fixtures/**". */
@@ -40,7 +42,9 @@ function options(): Options {
   const input = (name: string, fallback = "") => (process.env[`INPUT_${name.toUpperCase()}`] ?? "").trim() || fallback;
   const positional = args.filter((a, i) => !a.startsWith("--") && !(i > 0 && /^--(pdf|sarif|fail-on|min-severity|ignore|disable)$/.test(args[i - 1])))[0];
   return {
-    root: resolve(process.env.GITHUB_WORKSPACE || positional || process.cwd()),
+    // The git hook and an explicit folder always mean that folder, even when a commit happens inside CI.
+    root: resolve(positional || (flag("staged") ? process.cwd() : process.env.GITHUB_WORKSPACE || process.cwd())),
+    action: !!process.env.GITHUB_ACTIONS && !flag("staged") && !positional,
     staged: flag("staged"),
     pdf: value("pdf") || input("report-pdf") || undefined,
     sarif: value("sarif") || input("sarif") || undefined,
@@ -137,7 +141,7 @@ export async function main() {
   const o = options();
   const event = process.env.GITHUB_EVENT_PATH && existsSync(process.env.GITHUB_EVENT_PATH) ? JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, "utf8")) : {};
   const repo = process.env.GITHUB_REPOSITORY ?? "";
-  const pr = process.env.GITHUB_ACTIONS ? event.pull_request?.number as number | undefined : undefined;
+  const pr = o.action ? event.pull_request?.number as number | undefined : undefined;
   const scanOpts = { minSeverity: o.minSeverity, disabled: o.disabled };
 
   const results: FileResult[] = [];
@@ -173,11 +177,11 @@ export async function main() {
   if (o.pdf) {
     const target = resolve(o.root, o.pdf);
     writeFileSync(target, buildReport({ project, scope, files: results, filesScanned, linesScanned, version: VERSION, repositoryUrl: repo ? `${process.env.GITHUB_SERVER_URL || "https://github.com"}/${repo}` : undefined }));
-    if (!process.env.GITHUB_ACTIONS && !o.json) console.log(`Report saved: ${target}`);
+    if (!o.action && !o.json) console.log(`Report saved: ${target}`);
   }
   if (o.sarif) writeFileSync(resolve(o.root, o.sarif), JSON.stringify(toSarif(results, VERSION), null, 2));
 
-  if (process.env.GITHUB_ACTIONS) {
+  if (o.action) {
     const body = markdown(results, scope.replace(/^P/, "p").replace(/^W/, "the w"));
     const g = grade(all);
     annotate(results);
