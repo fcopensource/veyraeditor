@@ -1,0 +1,36 @@
+name: Veyra Code Guard
+description: Reviews every pull request line by line for trojans, backdoors, obfuscated code, leaked secrets and poisoned install scripts.
+author: FlightCoders
+branding:
+  icon: shield
+  color: green
+inputs:
+  github-token:
+    description: Token used to read the pull request and post the review. The default works for most repositories.
+    default: ${{ github.token }}
+  fail-on:
+    description: "Fail the check when a finding is at or above this severity: critical, high, medium, low, or never."
+    default: high
+  min-severity:
+    description: "Lowest severity to report: low, medium, high or critical."
+    default: low
+  scan:
+    description: "What to check: changed-lines (only lines the pull request adds), changed-files (every line of changed files) or all (the whole repository)."
+    default: changed-lines
+  review:
+    description: Post the findings as a pull request review with comments on each line (true or false).
+    default: "true"
+  ignore-paths:
+    description: Paths to skip, comma or newline separated, such as "docs/**, test/fixtures/**".
+    default: ""
+  disable-rules:
+    description: Rule ids to turn off, such as "raw-ip-url, base64-blob".
+    default: ""
+outputs:
+  findings:
+    description: Number of suspicious lines found.
+  critical:
+    description: Number of critical findings.
+runs:
+  using: node20
+  main: action/index.js

@@ -1,0 +1,13 @@
+# Veyra Code Guard reviews every pull request to this repository for trojans, backdoors and leaked secrets.
+# It runs the Action from this repository's own copy, so changes to Code Guard are tested on their own pull request.
+name: Veyra Code Guard
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  code-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./extensions/code-guard

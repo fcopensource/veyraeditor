@@ -1,0 +1,152 @@
+{
+  "name": "veyra-code-guard",
+  "displayName": "Veyra Code Guard",
+  "description": "A security reviewer that checks every line for trojans, backdoors and malicious code: hidden Trojan Source characters, obfuscated eval, download-and-run commands, reverse shells, crypto miners, credential theft, leaked keys and poisoned install scripts. In VS Code and on every GitHub pull request.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/code-guard",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/code-guard"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "security",
+    "malware",
+    "trojan",
+    "trojan source",
+    "backdoor",
+    "supply chain",
+    "code review",
+    "secrets",
+    "vulnerability",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#0b1214",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "veyraGuard.scanWorkspace",
+        "title": "Scan Whole Workspace",
+        "category": "Veyra Code Guard",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "veyraGuard.scanFile",
+        "title": "Scan This File",
+        "category": "Veyra Code Guard"
+      },
+      {
+        "command": "veyraGuard.listRules",
+        "title": "What It Looks For",
+        "category": "Veyra Code Guard"
+      },
+      {
+        "command": "veyraGuard.clear",
+        "title": "Clear Results",
+        "category": "Veyra Code Guard"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "veyraGuard.scanFile",
+          "when": "editorIsOpen"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "veyraGuard.scanWorkspace",
+          "group": "7_modification@9"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Code Guard",
+      "properties": {
+        "veyraGuard.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check files as you open, edit and save them."
+        },
+        "veyraGuard.scanWhileTyping": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check a file again shortly after you stop typing."
+        },
+        "veyraGuard.minSeverity": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "enumDescriptions": [
+            "Everything, including install hooks worth a look",
+            "Medium and above",
+            "High and critical only",
+            "Only the most dangerous findings"
+          ],
+          "default": "low",
+          "description": "The lowest severity to show."
+        },
+        "veyraGuard.disabledRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Rule ids to turn off, such as `raw-ip-url` or `base64-blob`. Run **Veyra Code Guard: What It Looks For** to see them all."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\" && esbuild src/action.ts --bundle --platform=node --format=cjs --target=node20 --outfile=action/index.js --log-level=warning --banner:js=\"// veyra-guard-ignore-file: built from src/, which defines the detection rules.\"",
+    "test": "tsc -p . && npm run bundle && node --test test/scanner.test.mjs test/action.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

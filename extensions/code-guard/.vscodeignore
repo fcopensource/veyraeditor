@@ -1,0 +1,12 @@
+src/**
+test/**
+out/**
+dist/**
+action/**
+action.yml
+node_modules/**
+tsconfig.json
+**/*.map
+.gitignore
+.vscode-test/**
+media/readme/**

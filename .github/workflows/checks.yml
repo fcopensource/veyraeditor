@@ -86,6 +86,7 @@ jobs:
           - { dir: auto-rename-tag, name: Auto Rename Tag }
           - { dir: pets, name: Pets }
           - { dir: codesnap, name: CodeSnap }
+          - { dir: code-guard, name: Code Guard }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
