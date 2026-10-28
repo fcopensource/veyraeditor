@@ -51,6 +51,20 @@ export const FIXES: Record<string, string> = {
   "remote-dependency": "Install from the registry with a pinned version, or pin the git dependency to an exact commit you have reviewed.",
   "dependency-confusion": "Use a single index that proxies the public one (--index-url), reserve your private names publicly, and always use https.",
   "unpinned-dependency": "Pin a version range you have reviewed (for example ^4.18.2) and commit the lockfile.",
+  "webshell": "Delete it and check the server it was deployed to: a web shell means someone may already have run commands there. Never pass request input to eval, system or include; use fixed commands and an allow-list of values.",
+  "remote-code-load": "Never run code fetched at run time. Ship the code with the program, or install it as a pinned, reviewed dependency.",
+  "destructive-command": "Remove it. If it is a clean-up step, delete only a specific folder your program created, never a drive, the home folder or the root.",
+  "ransomware": "Remove it and check every machine that ran it. Restore from backups kept offline, and report the incident.",
+  "keylogger": "Remove the keyboard capture unless recording keys is the program's documented purpose, and never send or store keystrokes.",
+  "clipboard-hijack": "Remove it. If it ran, check recent crypto transfers: clipboard hijackers swap the address you paste for the attacker's.",
+  "process-injection": "Remove it unless this is a debugger or security tool you trust. Normal programs never write code into other processes.",
+  "shellcode": "Remove it and treat the program as malware. Raw machine code run from memory is how attack tools load their payloads.",
+  "exec-memory": "Allocate memory as writable or executable, never both. If this is a JIT compiler, mark the line as reviewed.",
+  "office-macro": "Remove the macro, or at least the part that downloads or runs programs. Documents should not run commands when opened.",
+  "sql-command-exec": "Remove it and turn the feature off on the database server (for example sp_configure 'xp_cmdshell', 0).",
+  "build-time-execution": "Install and build scripts should only build. Remove downloads and shell commands, or move them into a reviewed, pinned step.",
+  "anti-analysis": "Ordinary programs don't check for debuggers or virtual machines. Remove it, or mark it as reviewed if it is licence protection you trust.",
+  "hardcoded-login": "Remove the hard-coded password. Check credentials against a hashed value from your user store, never against a literal in the code.",
   "guard-opt-out": "Make sure each opt-out has a reason in the comment and was agreed in review.",
 };
 
@@ -71,11 +85,13 @@ interface Rule {
   /** Regular expression run on every line (flags: g is added). */
   pattern?: RegExp;
   /** Only run on files whose path matches. */
-  files?: RegExp;
+  files?: { test(path: string): boolean };
   /** Skip files whose path matches. */
   skipFiles?: RegExp;
-  /** Extra test a pattern match must pass to count (lines are 0-based here). */
-  accept?: (match: string, lines: string[], index: number) => boolean;
+  /** Extra test a pattern match must pass to count (lines are 0-based here; at is the match's 0-based column). */
+  accept?: (match: string, lines: string[], index: number, at: number) => boolean;
+  /** A team's own rule: also checked in documentation. */
+  custom?: boolean;
   /** Custom check for a whole file; returns findings without rule metadata. */
   check?: (lines: string[], path: string) => Array<{ line: number; column: number; length: number; message: string }>;
   message?: (match: string) => string;
@@ -101,6 +117,7 @@ const RULES: Rule[] = [
     id: "invisible-character", title: "Invisible character in code", severity: "high",
     pattern: /[\u200b-\u200d\u2060-\u2064\u180e\u3164\u115f\u1160\uffa0\u00ad]/,
     skipFiles: DOCS,
+    accept: (_m, lines, i, at) => suspiciousInvisible(lines[i], at),
     why: "Zero-width and blank characters can hide extra code or create look-alike names (two variables that look identical but aren't), a known way to sneak in backdoors.",
     message: m => `Invisible character ${visible(m)} on this line.`,
   },
@@ -139,7 +156,10 @@ const RULES: Rule[] = [
   // ---- Running hidden or downloaded code ----
   {
     id: "eval-decoded", title: "Running decoded or obfuscated code", severity: "critical",
-    pattern: /\b(?:eval|Function|exec|execSync|setTimeout|setInterval|vm\.run\w*|runInNewContext|execScript|Invoke-Expression|iex)\s*\(?\s*(?:new\s+Function\s*\()?[^;\n]{0,40}?\b(?:atob|unescape|decodeURIComponent|fromCharCode|b64decode|base64\.decode|decodebytes|Buffer\.from\s*\([^)]*['"](?:base64|hex)['"]|FromBase64String|zlib\.(?:inflate|gunzip)\w*|codecs\.decode|bytes\.fromhex|rot13|marshal\.loads|decompress)/i,
+    // Runners in JavaScript, PowerShell, PHP, Ruby, Lua, VBScript, .NET and Java; decoders in those and Perl and Go.
+    pattern: /(?:\b(?:eval|Function|exec|execSync|setTimeout|setInterval|vm\.run\w*|runInNewContext|execScript|Invoke-Expression|iex|create_function|instance_eval|class_eval|module_eval|loadstring)|(?<![.\w])(?:assert|load|Execute|ExecuteGlobal|defineClass)(?=\s*\()|Assembly\]?(?:::|\.)Load|ScriptEngine\w*\.eval)\s*\(?\s*(?:new\s+Function\s*\()?[^;\n]{0,40}?\b(?:atob|unescape|decodeURIComponent|fromCharCode|b64decode|base64\.decode|decodebytes|Buffer\.from\s*\([^)]*['"](?:base64|hex)['"]|FromBase64String|zlib\.(?:inflate|gunzip)\w*|codecs\.decode|bytes\.fromhex|rot13|marshal\.loads|decompress|base64_decode|gzinflate|gzuncompress|gzdecode|str_rot13|hex2bin|convert_uudecode|Base64\.decode64|decode_base64|getDecoder\(\)\.decode|StdEncoding\.DecodeString|unpack\s*\(\s*['"]m)/i,
+    // The pattern ignores case, so "Function" also matches the function keyword ("function decompress() {"), which runs nothing.
+    accept: m => !m.startsWith("function"),
     why: "Decoding a hidden string and then executing it is the classic way malware hides its real behaviour from reviewers and scanners. Legitimate code almost never needs this.",
     message: m => `Decodes and runs hidden code: ${truncate(m, 80)}`,
   },
@@ -171,15 +191,149 @@ const RULES: Rule[] = [
   },
   {
     id: "crypto-miner", title: "Cryptocurrency miner", severity: "critical",
-    pattern: /stratum\+(?:tcp|ssl|tls):\/\/|\bxmrig\b|\bcoinhive\b|\bcryptonight\b|\b(?:minexmr|nanopool|supportxmr|moneroocean|nicehash|f2pool|2miners)\.(?:com|org|net)\b|\bcpuminer\b|\bethminer\b/i,
+    pattern: /stratum\+(?:tcp|ssl|tls):\/\/|\bxmrig\b|\bxmr-stak\b|\bcoinhive\b|\bcryptonight\b|\b(?:minexmr|nanopool|supportxmr|moneroocean|nicehash|f2pool|2miners|hashvault|herominers)\.(?:com|org|net|pro)\b|\bcpuminer\b|\bethminer\b|--donate-level\b/i,
     why: "Hidden miners steal CPU and electricity from whoever runs the code to earn cryptocurrency for the attacker. They are one of the most common payloads in poisoned packages.",
     message: m => `Cryptocurrency mining reference: ${truncate(m, 60)}`,
+  },
+
+  {
+    id: "webshell", title: "Web shell: runs commands sent in a web request", severity: "critical",
+    // Request input passed straight to eval, a shell or include: PHP, ASP, JSP, Node.js, Python and Ruby.
+    pattern: /\b(?:eval|assert|system|exec|shell_exec|passthru|popen|proc_open|pcntl_exec|create_function|include|include_once|require|require_once|call_user_func(?:_array)?|preg_replace)\s*\(?\s*[^;\n]{0,40}?\$_(?:GET|POST|REQUEST|COOKIE|SERVER|FILES)\b|\$_(?:GET|POST|REQUEST|COOKIE)\s*\[[^\]\n]+\]\s*\(|`\s*\{?\s*\$_(?:GET|POST|REQUEST|COOKIE)\s*\[|\b(?:eval|Execute|ExecuteGlobal)\s*\(?\s*Request(?:\.(?:Form|QueryString|Item))?\s*\(|Runtime\.getRuntime\(\)\.exec\s*\(\s*request\.getParameter|\b(?:eval|exec|execSync|spawn|spawnSync|Function|runInThisContext|runInNewContext)\s*\(\s*req(?:uest)?\.(?:query|body|params|headers|cookies)\b|\b(?:eval|exec|os\.system|os\.popen|subprocess\.\w+)\s*\(\s*request\.(?:args|form|values|GET|POST|data|json|get_json)\b|\b(?:eval|system|exec|instance_eval|%x)\s*\(?\s*params\[/i,
+    skipFiles: DOCS,
+    why: "Code that hands text from a web request to eval, a shell or include lets anyone who can reach the server run commands on it. It is the defining feature of a web shell, the most common backdoor on hacked websites.",
+    accept: m => !m.startsWith("function"),
+    message: m => `Runs input from a web request: ${truncate(m, 70)}`,
+  },
+  {
+    id: "remote-code-load", title: "Runs code downloaded at run time", severity: "critical",
+    pattern: /(?:(?<![\w.])(?:eval|exec|loadstring|load|execfile|iex|Invoke-Expression|Function)|\binstance_eval|\bclass_eval|\brunIn(?:This|New)Context|Assembly\]?(?:::|\.)Load|\b(?:pickle|cPickle|marshal|dill)\.loads?|\bunserialize)\s*\(\s*[^;\n]{0,80}?(?:\brequests\.(?:get|post)|\burlopen|\burllib\.request|\bfetch\s*\(|\bhttps?\.get|\baxios\b|\bfile_get_contents\s*\(\s*['"]https?:|\bcurl_exec|\bURI\.open|\bopen-uri|\bNet::HTTP|\bHttpClient|\bWebClient|\bDownload(?:String|Data)|\bhttp\.Get|\breqwest|\bHttpGet|\burllib2|\bhttpx\.get)/i,
+    skipFiles: DOCS,
+    why: "Fetching code from a server and running it means the program does whatever that server says, today and every day after. The code you reviewed is not the code that runs.",
+    // "Function" ignoring case is also the function keyword, as in function(){fetch(...)}, which runs nothing.
+    accept: m => !m.startsWith("function"),
+    message: m => `Runs code fetched from the network: ${truncate(m, 70)}`,
+  },
+  {
+    id: "destructive-command", title: "Wipes disks or deletes everything", severity: "critical",
+    pattern: /\brm\s+-(?:[a-zA-Z]*r[a-zA-Z]*f|[a-zA-Z]*f[a-zA-Z]*r)[a-zA-Z]*\s+(?:--no-preserve-root\s+)?["']?(?:\/\*?|~\/?\*?|\$HOME\/?\*?|\$\{HOME\}\/?\*?)["']?(?=\s|$|;|&|\|)|--no-preserve-root\b|\bdd\s+if=\/dev\/(?:zero|u?random)\s+of=\/dev\/(?:sd|nvme|hd|xvd|vd|disk|mmcblk)|:\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:|\bformat(?:\.com)?\s+[a-z]:\s*\/[qyx]|\b(?:del|erase)\s+(?:\/[a-z]\s+)*["']?[a-z]:\\\*?["']?(?=\s|$)|\b(?:rd|rmdir)\s+\/s\s+\/q\s+["']?[a-z]:\\["']?(?=\s|$)|\bRemove-Item\b[^\n]{0,200}["'\s](?:[A-Za-z]:\\\*?|\$env:(?:SystemDrive|SystemRoot|USERPROFILE|HOMEDRIVE)\\?\*?)["']?\s[^\n]{0,200}-Recurse|\bshutil\.rmtree\s*\(\s*(?:['"](?:\/|~|[A-Za-z]:\\\\?)['"]|os\.path\.expanduser\(\s*['"]~['"]\s*\)|Path\.home\(\))\s*[,)]|\bfs\.(?:rmSync|rm|rmdirSync|rmdir|promises\.rm)\s*\(\s*(?:['"](?:\/|[A-Za-z]:\\\\)['"]|os\.homedir\(\))\s*,|\bos\.RemoveAll\s*\(\s*"(?:\/|[A-Za-z]:\\\\)"\s*\)|\\{2,4}\.\\{1,2}PhysicalDrive\d/i,
+    skipFiles: DOCS,
+    why: "Deleting the root, a drive or the home folder, overwriting a disk or starting a fork bomb destroys data. Wipers and protestware hide commands like these in packages and scripts.",
+    message: m => `Destroys data: ${truncate(m, 70)}`,
+  },
+  {
+    id: "ransomware", title: "Ransomware behaviour", severity: "critical",
+    pattern: /\bvssadmin(?:\.exe)?\s+delete\s+shadows|\bwmic(?:\.exe)?\s+shadowcopy\s+delete|\bwbadmin(?:\.exe)?\s+delete\s+(?:catalog|systemstatebackup)|\bbcdedit(?:\.exe)?\s+\/set\s+\{?\w+\}?\s+(?:recoveryenabled\s+no|bootstatuspolicy\s+ignoreallfailures)|Win32_Shadowcopy[^\n]*\.Delete|\bcipher(?:\.exe)?\s+\/w:|\byour (?:important |personal )?files (?:have been|are|were) (?:encrypted|locked)|\b(?:decrypt|recover|restore) (?:all )?your files\b[^\n]{0,100}\b(?:bitcoin|btc|monero|xmr|ransom|payment|wallet)/i,
+    skipFiles: DOCS,
+    why: "Deleting backups and shadow copies, turning off recovery, or showing a ransom note is what ransomware does right before or after it encrypts your files.",
+    message: m => `Ransomware step: ${truncate(m, 70)}`,
+  },
+  {
+    id: "keylogger", title: "Records what you type", severity: "high",
+    pattern: /\bSetWindowsHookEx[AW]?\s*\(\s*(?:WH_KEYBOARD(?:_LL)?|13)\b|\bGetAsyncKeyState\s*\(|\bGetKeyboardState\s*\(|\bfrom\s+pynput\s+import\s+keyboard|\bpynput\.keyboard\.Listener|\bkeyboard\.(?:on_press|on_release|hook|record)\s*\(|\bCGEventTapCreate\s*\(|\/dev\/input\/event\d/,
+    skipFiles: new RegExp(`${DOCS.source}|\\.d\\.ts$`, "i"),
+    // Games read the keyboard too: it only counts in code (not a comment) in a file that also stores or sends something.
+    accept: (_m, lines, i) => !/^\s*(?:\*|\/\/|#|--|\/\*)/.test(lines[i]) && lines.some(l => SENDS.test(l)),
+    why: "Capturing every key pressed system-wide, and saving or sending it, is how spyware steals passwords, messages and card numbers as they are typed.",
+    message: m => `Captures keystrokes: ${truncate(m, 60)}`,
+  },
+  {
+    id: "clipboard-hijack", title: "Swaps crypto wallet addresses on the clipboard", severity: "critical",
+    check: lines => {
+      if (!lines.some(l => CLIPBOARD.test(l))) return [];
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      lines.forEach((line, i) => {
+        // Minified lines are full of random-looking text; a hijacker's address pattern sits on a line of its own.
+        if (line.length > 500) return;
+        const m = WALLET.exec(line);
+        if (m) out.push({ line: i + 1, column: m.index + 1, length: m[0].length, message: `Looks for or inserts a crypto wallet address in a file that uses the clipboard: ${truncate(m[0], 50)}` });
+      });
+      return out;
+    },
+    skipFiles: new RegExp(`${DOCS.source}|${MINIFIED.source}`, "i"),
+    why: "Clipboard hijackers watch for a copied crypto address and replace it with the attacker's, so the money goes to them when you paste. They need only the clipboard and an address pattern.",
+  },
+  {
+    id: "process-injection", title: "Injects code into another program", severity: "high",
+    pattern: /\b(?:WriteProcessMemory|CreateRemoteThread(?:Ex)?|NtCreateThreadEx|RtlCreateUserThread|QueueUserAPC|NtQueueApcThread|SetThreadContext|NtUnmapViewOfSection|ZwUnmapViewOfSection)\b/,
+    skipFiles: DOCS,
+    accept: (_m, lines) => lines.some(l => /\b(?:OpenProcess|VirtualAllocEx|NtAllocateVirtualMemory|CREATE_SUSPENDED)\b/.test(l)),
+    why: "Opening another process and writing code into it (process injection or hollowing) lets malware hide inside a trusted program such as explorer.exe and get past antivirus.",
+    message: m => `Writes code into another process: ${m}`,
+  },
+  {
+    id: "shellcode", title: "Shellcode (raw attack payload)", severity: "critical",
+    pattern: /\\x(?:fc\\x48\\x83\\xe4\\xf0|fc\\xe8\\x8[29]\\x00\\x00\\x00)|0x(?:fc,\s*0x48,\s*0x83,\s*0xe4,\s*0xf0|fc,\s*0xe8,\s*0x8[29],\s*0x00,\s*0x00,\s*0x00)/i,
+    why: "These bytes are the start of payloads made by attack frameworks such as Metasploit and Cobalt Strike. Machine code embedded like this is meant to be run straight from memory.",
+    message: () => "Starts like a Metasploit or Cobalt Strike payload.",
+  },
+  {
+    id: "exec-memory", title: "Runs raw machine code from memory", severity: "high",
+    pattern: /\bVirtual(?:Alloc|Protect)(?:Ex)?\s*\([^\n]*(?:PAGE_EXECUTE_READWRITE|0x40\b)|\bmmap\s*\([^\n]*(?:PROT_WRITE[^\n]*PROT_EXEC|PROT_EXEC[^\n]*PROT_WRITE)|\bMarshal\.GetDelegateForFunctionPointer\b|\bctypes\.(?:windll|cdll)\.kernel32\.(?:VirtualAlloc|RtlMoveMemory|CreateThread)\b|\bmmap\.mmap\s*\([^\n]*PROT_EXEC/,
+    skipFiles: DOCS,
+    why: "Memory that is both writable and executable lets a program write machine code and jump into it, which is how shellcode loaders run payloads that never touch the disk.",
+    message: m => `Executable memory: ${truncate(m, 70)}`,
+  },
+  {
+    id: "office-macro", title: "Macro that downloads or runs programs", severity: "critical",
+    check: lines => {
+      const autoRun = lines.some(l => /^\s*(?:Private\s+|Public\s+)?Sub\s+(?:Auto_?Open|AutoExec|AutoClose|Auto_Close|Document_Open|Document_Close|Workbook_Open|Workbook_BeforeClose)\b/i.test(l));
+      const dropper = lines.some(l => /MSXML2\.(?:Server)?XMLHTTP|Microsoft\.XMLHTTP|WinHttp\.WinHttpRequest/i.test(l)) && lines.some(l => /ADODB\.Stream|SaveToFile/i.test(l));
+      if (!autoRun && !dropper) return [];
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      lines.forEach((line, i) => {
+        const m = /\bShell\s*\(|WScript\.Shell|Shell\.Application|\.ShellExecute\b|\.Run\s*\(?\s*["\w]|\.Exec\s*\(|URLDownloadToFile\w*|\.SaveToFile\b/i.exec(line);
+        if (m) out.push({ line: i + 1, column: m.index + 1, length: m[0].length, message: `${autoRun ? "A macro that runs when the document opens" : "A script that downloads and saves a file"} ${/SaveToFile|URLDownload/i.test(m[0]) ? "saves a downloaded file" : "runs a program"}: ${truncate(line, 60)}` });
+      });
+      return out;
+    },
+    skipFiles: DOCS,
+    why: "Macros that run when a document opens and then download or start a program are the classic way malicious Word and Excel files infect a computer.",
+  },
+  {
+    id: "sql-command-exec", title: "Database runs operating-system commands", severity: "high",
+    pattern: /\bxp_cmdshell\b|\bsp_OACreate\b[^\n]*(?:WScript\.Shell|Shell\.Application)|\bCOPY\s+\w+\s+(?:\([^)]*\)\s+)?FROM\s+PROGRAM\b|\bsys_exec\s*\(|\bINTO\s+(?:OUTFILE|DUMPFILE)\s+['"][^'"\n]*\.(?:php|jsp|aspx?|sh)['"]/i,
+    skipFiles: DOCS,
+    why: "xp_cmdshell, COPY FROM PROGRAM and writing script files from SQL turn a database into a way to run commands on its server, a favourite step after SQL injection.",
+    message: m => `Runs commands from the database: ${truncate(m, 60)}`,
+  },
+  {
+    id: "build-time-execution", title: "Install or build script downloads or runs commands", severity: "high",
+    files: /(^|\/)(setup\.py|build\.rs|[^/]+\.pth)$/i,
+    check: (lines, path) => {
+      const pth = /\.pth$/i.test(path);
+      const out: ReturnType<NonNullable<Rule["check"]>> = [];
+      lines.forEach((line, i) => {
+        // A .pth line runs on every Python start only when it begins with "import".
+        if (pth && !/^\s*import\s/.test(line)) return;
+        // Building native code is normal; downloads, decoding, eval and shells are not. exec(open("version.py").read()) is a common, harmless idiom.
+        const m = pth ? /\b(?:exec|eval|b64decode|base64|subprocess|os\.system|os\.popen|urlopen|urllib|socket|compile)\b/.exec(line)
+          : /\b(?:os\.(?:system|popen)|subprocess\.\w+)\s*\([^\n]*?(?:\bcurl\b|\bwget\b|powershell|pwsh|\bbash\b|\bsh\b|\bcmd(?:\.exe)?\b|https?:\/\/)|\burlopen\s*\(|\brequests\.(?:get|post)\s*\(|\burllib\.request\b|\bsocket\.socket\s*\(|\b(?:exec|eval)\s*\((?!\s*open\s*\()|\bb64decode\b|\breqwest::|\bureq::|\bTcpStream::connect|Command::new\s*\(\s*"(?:sh|bash|cmd|powershell|pwsh|curl|wget)"/.exec(line);
+        if (m) out.push({ line: i + 1, column: m.index + 1, length: m[0].length, message: `${pth ? "Runs on every Python start" : /\.rs$/.test(path) ? "Runs during cargo build" : "Runs during pip install"}: ${truncate(line, 70)}` });
+      });
+      return out;
+    },
+    why: "setup.py runs on pip install, build.rs on cargo build, and import lines in .pth files every time Python starts. Downloads, shell commands or eval there run on every developer's machine and CI server, unreviewed.",
+  },
+  {
+    id: "anti-analysis", title: "Hides from debuggers or sandboxes", severity: "medium",
+    pattern: /\bIsDebuggerPresent\s*\(|\bCheckRemoteDebuggerPresent\s*\(|\bptrace\s*\(\s*PTRACE_TRACEME\b|\b(?:VBoxService|VBoxTray|vmtoolsd|vmwaretray|SbieDll\.dll|wireshark\.exe|procmon\.exe|x64dbg\.exe|ollydbg\.exe|ida64?\.exe)\b/i,
+    skipFiles: DOCS,
+    why: "Checking for debuggers, virtual machines or analysis tools and behaving differently when found is how malware avoids being studied by security researchers and sandboxes.",
+    message: m => `Looks for analysis tools: ${truncate(m, 60)}`,
+  },
+  {
+    id: "hardcoded-login", title: "Hard-coded password check (possible backdoor login)", severity: "medium",
+    pattern: /\b(?:if|elif|elsif|when|unless)\b[^\n]{0,40}?\b\w*(?:password|passwd|pwd|passcode|passphrase|master_?key)\s*(?:===?|\.equals\s*\()\s*["'][^"'\s]{4,}["']|\bstrcmp\s*\(\s*\w*(?:password|passwd|pwd)\w*\s*,\s*"[^"\n]{4,}"\s*\)\s*==\s*0/i,
+    skipFiles: new RegExp(`${DOCS.source}|(^|/)(tests?|__tests__|spec|specs|fixtures?|e2e)/|[._-](?:test|spec)\\.\\w+$|_test\\.go$`, "i"),
+    why: "Comparing a password with a fixed string in the code is how backdoor logins work: anyone who knows (or reads) the magic password gets in, whatever the real account says.",
+    message: m => `Compares a password with a fixed value: ${truncate(m, 60)}`,
   },
 
   // ---- Stealing data ----
   {
     id: "credential-theft", title: "Reads stored passwords, keys or wallets", severity: "high",
-    pattern: /\.ssh[\\/](?:id_(?:rsa|dsa|ecdsa|ed25519)|authorized_keys)|\.aws[\\/]credentials|\.npmrc\b|\.pypirc\b|\.git-credentials|\.docker[\\/]config\.json|\.kube[\\/]config|\/etc\/(?:shadow|sudoers)\b|Login Data\b|Local State\b|\bCookies\b[^\n]{0,40}(?:Chrome|Edge|Brave|Firefox)|(?:Chrome|Edge|Brave)[^\n]{0,60}\b(?:Login Data|Cookies|Web Data)\b|\bwallet\.dat\b|\bkeychain-db\b|\bExodus[\\/]exodus\.wallet|\bMetaMask\b[^\n]{0,60}(?:Local Extension Settings|nkbihfbeogaeaoehlefnkodbefgpgknn)|discord[\\/]Local Storage/i,
+    pattern: /\.ssh[\\/](?:id_(?:rsa|dsa|ecdsa|ed25519)|authorized_keys)|\.aws[\\/]credentials|\.npmrc\b|\.pypirc\b|\.git-credentials|\.docker[\\/]config\.json|\.kube[\\/]config|\/etc\/(?:shadow|sudoers)\b|Login Data\b|Local State\b|\bCookies\b[^\n]{0,40}(?:Chrome|Edge|Brave|Firefox)|(?:Chrome|Edge|Brave)[^\n]{0,60}\b(?:Login Data|Cookies|Web Data)\b|\bwallet\.dat\b|\bkeychain-db\b|\blogin\.keychain\b|\bExodus[\\/]exodus\.wallet|\bMetaMask\b[^\n]{0,60}(?:Local Extension Settings|nkbihfbeogaeaoehlefnkodbefgpgknn)|discord[\\/]Local Storage|\bdQw4w9WgXcQ:|Telegram Desktop[\\/]tdata|\bloginusers\.vdf\b|\b(?:key4\.db|logins\.json)\b[^\n]{0,60}(?:Firefox|Mozilla|profile)|(?:Firefox|Mozilla)[^\n]{0,80}\b(?:key4\.db|logins\.json)\b/i,
     skipFiles: new RegExp(`${DOCS.source}|(^|/)\\.gitignore$|(^|/)\\.dockerignore$|(^|/)\\.npmignore$`, "i"),
     // Mentioning a path (a .gitignore entry, a list of files to protect) is fine; reading, copying or sending it nearby is not.
     accept: (_m, lines, i) => lines.slice(Math.max(0, i - 2), i + 3).some(l => READS.test(l)),
@@ -188,7 +342,7 @@ const RULES: Rule[] = [
   },
   {
     id: "exfil-endpoint", title: "Sends data to a drop point used by attackers", severity: "high",
-    pattern: /discord(?:app)?\.com\/api\/webhooks\/|api\.telegram\.org\/bot|\bhooks\.slack\.com\/services\/|\bwebhook\.site\/|\b(?:requestbin|pipedream)\.(?:net|com)\b|\b[\w-]+\.(?:ngrok(?:-free)?\.(?:io|app)|oast\.(?:fun|me|pro|live|site|online)|burpcollaborator\.net|interact\.sh|requestcatcher\.com|canarytokens\.com)\b|\bpastebin\.com\/(?:api|raw)\b|\btransfer\.sh\b|\bfile\.io\b|\banonfiles\.com\b/i,
+    pattern: /discord(?:app)?\.com\/api\/webhooks\/|api\.telegram\.org\/bot|\bhooks\.slack\.com\/services\/|\bwebhook\.site\/|\b(?:requestbin|pipedream)\.(?:net|com)\b|\b[\w-]+\.(?:ngrok(?:-free)?\.(?:io|app)|oast\.(?:fun|me|pro|live|site|online)|burpcollaborator\.net|interact\.sh|requestcatcher\.com|canarytokens\.com)\b|\bpastebin\.com\/(?:api|raw)\b|\btransfer\.sh\b|\bfile\.io\b|\banonfiles\.com\b|\b(?:dnslog\.cn|ceye\.io|interactsh\.com|beeceptor\.com|hookbin\.com|paste\.ee|hastebin\.com|0x0\.st|bashupload\.com|gofile\.io|catbox\.moe|filebin\.net|trycloudflare\.com)\b/i,
     skipFiles: DOCS,
     why: "Webhooks, chat bots, tunnels and paste sites are favourite places for stolen data to be sent, because they need no server of the attacker's own.",
     message: m => `Sends data to ${truncate(m, 60)}`,
@@ -203,9 +357,9 @@ const RULES: Rule[] = [
   // ---- Persistence, defence evasion, privilege ----
   {
     id: "persistence", title: "Installs itself to run again later", severity: "high",
-    pattern: /\bcrontab\s+(?:-l\b[^\n]{0,40}\||-\s*$|[^\n]*<<)|\(\s*crontab\s+-l|\bschtasks(?:\.exe)?\s+\/create\b|\\(?:CurrentVersion)\\Run(?:Once)?\b|\bHKCU:?\\[^\n]*\\Run\b|\bLaunchAgents\/[^\n]*\.plist|>>\s*~?\/?(?:\$HOME\/|~\/)?\.(?:bashrc|zshrc|profile|bash_profile)\b|\bsystemctl\s+enable\b[^\n]{0,60}--now|\bNew-ScheduledTask\w*|\bRegister-ScheduledTask\b|\/etc\/rc\.local\b|\bStartup\\[^\n]*\.(?:lnk|bat|vbs|exe)\b/i,
+    pattern: /\bcrontab\s+(?:-l\b[^\n]{0,40}\||-\s*$|[^\n]*<<)|\(\s*crontab\s+-l|\bschtasks(?:\.exe)?\s+\/create\b|\\(?:CurrentVersion)\\Run(?:Once)?\b|\bHKCU:?\\[^\n]*\\Run\b|\bLaunchAgents\/[^\n]*\.plist|>>\s*~?\/?(?:\$HOME\/|~\/)?\.(?:bashrc|zshrc|profile|bash_profile)\b|\bsystemctl\s+enable\b[^\n]{0,60}--now|\bNew-ScheduledTask\w*|\bRegister-ScheduledTask\b|\/etc\/rc\.local\b|\bStartup\\[^\n]*\.(?:lnk|bat|vbs|exe)\b|>>\s*["']?\S*\.ssh\/authorized_keys|\/etc\/ld\.so\.preload\b|\bnet(?:\.exe)?\s+user\s+\S+\s+\S+\s+\/add\b|\bnet(?:\.exe)?\s+localgroup\s+administrators\s+\S+\s+\/add\b|\buseradd\b[^\n]*\s-u\s*0\b|>>\s*\/etc\/(?:passwd|sudoers)\b/i,
     skipFiles: DOCS,
-    why: "Adding itself to cron, scheduled tasks, startup folders, the registry Run key or shell start-up files lets malware survive reboots and keep running.",
+    why: "Adding itself to cron, scheduled tasks, startup folders, the registry Run key or shell start-up files, or adding an SSH key or admin account, lets an attacker survive reboots and come back at will.",
     message: m => `Sets up automatic start-up: ${truncate(m, 70)}`,
   },
   {
@@ -430,6 +584,11 @@ export function editDistance(a: string, b: string): number {
   return d[a.length][b.length];
 }
 
+// Storing or sending data: what turns reading the keyboard into a keylogger.
+const SENDS = /\b(?:send\w*|post\s*\(|fetch\s*\(|requests\.|urllib|socket|smtplib|SMTP|WebClient|HttpClient|http\.request|axios|webhook\w*|upload\w*|ftp\w*|fwrite|fprintf|appendFile\w*|WriteAllText|AppendAllText|write\s*\()/i;
+// Clipboard access, and crypto wallet addresses or the patterns that find them (Bitcoin, Ethereum, Monero).
+const CLIPBOARD = /\b(?:clipboard\w*|pyperclip|GetClipboardData|SetClipboardData|OpenClipboard|xclip|xsel|pbcopy|pbpaste|Set-Clipboard|Get-Clipboard)\b/i;
+const WALLET = /0x\[[a-fA-F0-9-]+\]\{40\}|\[13\]\[a-km-zA-HJ-NP-Z1-9\]|\bbc1q?\)?\[|\b(?:bc1q[02-9ac-hj-np-z]{38,58}|0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|4[0-9AB][1-9A-HJ-NP-Za-km-z]{93})\b/;
 // Reading, copying or sending a file, in the common languages.
 const READS = /\b(?:readFile\w*|readSync|createReadStream|read_to_string|read_text|read_bytes|open\s*\(|fopen|file_get_contents|File\.Read\w*|Get-Content|gc\s|cat\s|type\s|copyFile\w*|copy\s*\(|shutil\.copy\w*|cp\s|scp\s|upload\w*|send\w*|post\s*\(|fetch\s*\(|request\s*\(|axios|requests\.|urllib|zip\w*|tar\s|base64|exfil\w*|Compress-Archive|Invoke-WebRequest|iwr\s|curl\s|wget\s|ReadAll\w*|ioutil\.ReadFile|os\.ReadFile|Files\.read\w*|readlines?)\b/i;
 // Sample values in docs and tests: AWS's documented example key, x-ed or repeated placeholders.
@@ -478,6 +637,156 @@ export interface ScanOptions {
   onlyLines?: Set<number>;
   /** Lowest severity to report. */
   minSeverity?: Severity;
+  /** A team's own patterns, from settings or .veyra-guard.json. */
+  customRules?: CustomRule[];
+}
+
+/** A team's own rule: a regular expression checked on every line of matching files, in any language. */
+export interface CustomRule {
+  id: string;
+  pattern: string;
+  /** Regular expression flags; "i" (ignore case) by default. */
+  flags?: string;
+  severity?: Severity;
+  title?: string;
+  message?: string;
+  why?: string;
+  fix?: string;
+  /** Only files matching these globs, such as "src/**" or "*.php". */
+  files?: string | string[];
+}
+
+const CUSTOM_FIXES = new WeakMap<Rule, string>();
+const compiled = new Map<string, { rules: Rule[]; errors: string[] }>();
+
+/** Turn custom rules into scanner rules; rules with an invalid pattern are reported in errors and left out. */
+export function compileCustomRules(list: CustomRule[]): { rules: Rule[]; errors: string[] } {
+  if (!list.length) return { rules: [], errors: [] };
+  const key = JSON.stringify(list);
+  const cached = compiled.get(key);
+  if (cached) return cached;
+  const rules: Rule[] = [], errors: string[] = [];
+  for (const c of list) {
+    const id = String(c?.id ?? "").trim().replace(/[^\w-]+/g, "-");
+    if (!id || typeof c.pattern !== "string" || !c.pattern) { errors.push(`A custom rule needs an "id" and a "pattern"${id ? ` (${id})` : ""}.`); continue; }
+    let pattern: RegExp;
+    try { pattern = new RegExp(c.pattern, (c.flags ?? "i").replace(/[^imsuy]/g, "")); } catch (e) { errors.push(`Custom rule "${id}" has an invalid pattern: ${(e as Error).message}`); continue; }
+    if (pattern.test("")) { errors.push(`Custom rule "${id}" matches empty text, so it would flag every line.`); continue; }
+    const severity = SEVERITIES.includes(c.severity as Severity) ? c.severity as Severity : "high";
+    const files = c.files ? globMatcher(Array.isArray(c.files) ? c.files : [c.files]) : undefined;
+    const rule: Rule = {
+      id, title: c.title || `Custom rule: ${id}`, severity, pattern, custom: true,
+      why: c.why || "Your team marked this pattern as something to review (a custom rule in settings or .veyra-guard.json).",
+      message: m => c.message ? `${c.message} (${truncate(m, 50)})` : `Matches the custom rule "${id}": ${truncate(m, 60)}`,
+    };
+    if (files) rule.files = { test: files };
+    CUSTOM_FIXES.set(rule, c.fix || "Follow your team's guidance for this pattern, or mark the line as reviewed.");
+    rules.push(rule);
+  }
+  const result = { rules, errors };
+  if (compiled.size > 20) compiled.clear();
+  compiled.set(key, result);
+  return result;
+}
+
+/** Glob-ish path filters: "docs/**", "*.md", "test/fixtures/**". A pattern without a slash also matches file names in any folder. */
+export function globMatcher(patterns: string[]) {
+  const res = patterns.map(p => p.trim().replace(/^\.\//, "")).filter(Boolean).map(p => new RegExp((p.includes("/") ? "^" : "(^|/)") + p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*\*\/?/g, "__GLOBSTAR__").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]").replace(/__GLOBSTAR__/g, ".*") + "$"));
+  return (path: string) => res.some(r => r.test(path.replace(/\\/g, "/")));
+}
+
+/** Settings a project keeps in .veyra-guard.json, read by the editor, the command line, the git hook and the GitHub Action. */
+export interface GuardConfig {
+  minSeverity?: Severity;
+  failOn?: Severity | "never";
+  disabledRules?: string[];
+  ignorePaths?: string[];
+  customRules?: CustomRule[];
+}
+export const CONFIG_FILE = ".veyra-guard.json";
+
+/** Read .veyra-guard.json leniently: unknown or wrongly typed fields are dropped, comments are allowed. */
+export function parseConfig(text: string): { config: GuardConfig; error?: string } {
+  let raw: Record<string, unknown>;
+  try { raw = JSON.parse(text.replace(/^﻿/, "").replace(/^\s*\/\/.*$/gm, "")); } catch (e) { return { config: {}, error: `${CONFIG_FILE} isn't valid JSON: ${(e as Error).message}` }; }
+  if (!raw || typeof raw !== "object") return { config: {}, error: `${CONFIG_FILE} should contain an object.` };
+  const strings = (v: unknown) => Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : undefined;
+  const config: GuardConfig = {};
+  if (SEVERITIES.includes(raw.minSeverity as Severity)) config.minSeverity = raw.minSeverity as Severity;
+  if (raw.failOn === "never" || SEVERITIES.includes(raw.failOn as Severity)) config.failOn = raw.failOn as Severity | "never";
+  if (strings(raw.disabledRules)) config.disabledRules = strings(raw.disabledRules);
+  if (strings(raw.ignorePaths)) config.ignorePaths = strings(raw.ignorePaths);
+  if (Array.isArray(raw.customRules)) config.customRules = raw.customRules as CustomRule[];
+  const errors = config.customRules ? compileCustomRules(config.customRules).errors : [];
+  return { config, error: errors.length ? errors.join(" ") : undefined };
+}
+
+// ---------- Languages ----------
+
+const LANGUAGE_EXTENSIONS: Record<string, string> = {
+  JavaScript: "js mjs cjs jsx", TypeScript: "ts mts cts tsx", Python: "py pyw pyi pyx ipynb", Java: "java", Kotlin: "kt kts", Scala: "scala sc", Groovy: "groovy gradle gvy",
+  "C#": "cs csx", "F#": "fs fsx fsi", "Visual Basic": "vb bas cls frm vba", VBScript: "vbs vbe wsf", C: "c h", "C++": "cpp cc cxx c++ hpp hh hxx ino", "Objective-C": "m mm",
+  Go: "go", Rust: "rs", Swift: "swift", Dart: "dart", Ruby: "rb rake gemspec erb", PHP: "php phtml php3 php4 php5 php7 phar", Perl: "pl pm t cgi", Lua: "lua luau", R: "r rmd",
+  Julia: "jl", Elixir: "ex exs", Erlang: "erl hrl", Haskell: "hs lhs", OCaml: "ml mli", Clojure: "clj cljs cljc edn", Lisp: "lisp lsp el scm rkt", Nim: "nim", Zig: "zig", Crystal: "cr",
+  D: "d", Fortran: "f f90 f95 f03 for", COBOL: "cob cbl", Pascal: "pas pp dpr", Ada: "adb ads", Assembly: "asm s nasm", "Shell script": "sh bash zsh ksh fish", PowerShell: "ps1 psm1 psd1",
+  Batch: "bat cmd", AutoHotkey: "ahk", AppleScript: "applescript scpt", SQL: "sql psql plsql", Solidity: "sol", Vyper: "vy", Move: "move", Cairo: "cairo", "Apex (Salesforce)": "trigger apex",
+  HTML: "html htm xhtml hta", CSS: "css scss sass less styl", Vue: "vue", Svelte: "svelte", Astro: "astro", "ASP.NET": "asp aspx ascx ashx asmx cshtml razor", JSP: "jsp jspx",
+  Templates: "ejs hbs handlebars mustache twig jinja j2 njk liquid pug haml slim", XML: "xml xsl xslt xaml plist csproj vbproj fsproj props targets", JSON: "json jsonc json5",
+  YAML: "yaml yml", TOML: "toml", INI: "ini cfg conf properties env", Terraform: "tf tfvars hcl", Nix: "nix", Docker: "dockerfile containerfile", Makefile: "mk mak make", CMake: "cmake",
+  Bicep: "bicep", GraphQL: "graphql gql", Protobuf: "proto", Elm: "elm", PureScript: "purs", Tcl: "tcl", Verilog: "v sv svh vhd vhdl", GDScript: "gd", WebAssembly: "wat wast",
+  Markdown: "md markdown mdx", Text: "txt rst adoc",
+};
+const BY_EXTENSION = new Map<string, string>();
+for (const [language, exts] of Object.entries(LANGUAGE_EXTENSIONS)) for (const e of exts.split(" ")) if (!BY_EXTENSION.has(e)) BY_EXTENSION.set(e, language);
+const BY_NAME: Record<string, string> = {
+  dockerfile: "Docker", containerfile: "Docker", makefile: "Makefile", gnumakefile: "Makefile", "cmakelists.txt": "CMake", jenkinsfile: "Groovy", gemfile: "Ruby", rakefile: "Ruby", vagrantfile: "Ruby",
+  podfile: "Ruby", brewfile: "Ruby", procfile: "Shell script", ".bashrc": "Shell script", ".zshrc": "Shell script", ".profile": "Shell script", ".bash_profile": "Shell script", pipfile: "TOML",
+  ".npmrc": "INI", ".yarnrc": "INI", ".env": "INI", "requirements.txt": "Python", "pip.conf": "INI", "go.mod": "Go", "build.rs": "Rust",
+};
+/** Languages Code Guard reads code in (every text file is checked; these are the ones it recognises by name). */
+export const LANGUAGES = [...new Set([...Object.keys(LANGUAGE_EXTENSIONS), ...Object.values(BY_NAME)])].filter(l => !["Markdown", "Text"].includes(l)).sort();
+
+/** The language of a file, from its name or extension; undefined for files it doesn't recognise (still checked). */
+export function languageOf(path: string): string | undefined {
+  const name = path.replace(/\\/g, "/").split("/").pop()!.toLowerCase();
+  if (BY_NAME[name]) return BY_NAME[name];
+  if (/^requirements[\w.-]*\.txt$/.test(name)) return "Python";
+  if (/^dockerfile[.-]/.test(name)) return "Docker";
+  const dot = name.lastIndexOf(".");
+  return dot > 0 || (dot === 0 && name.length > 1) ? BY_EXTENSION.get(name.slice(dot + 1)) : undefined;
+}
+
+/** Files per language, most first, for summaries and the report. */
+export function languageCounts(paths: Iterable<string>): Array<[string, number]> {
+  const counts = new Map<string, number>();
+  for (const p of paths) { const l = languageOf(p); if (l) counts.set(l, (counts.get(l) ?? 0) + 1); }
+  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+}
+
+// ---------- Removing hidden characters ----------
+
+const ZERO_WIDTH_JOINERS = /[‌‍]/;
+/**
+ * Zero-width joiners are part of emoji sequences (👩‍💻) and of Persian, Arabic and Indic writing. They are only
+ * suspicious next to plain ASCII, where they can split or disguise a name. Every other invisible character always is.
+ */
+function suspiciousInvisible(line: string, at: number) {
+  if (!ZERO_WIDTH_JOINERS.test(line[at] ?? "")) return true;
+  const before = line.codePointAt(at - 1 >= 0 && /[\udc00-\udfff]/.test(line[at - 1]) ? at - 2 : at - 1) ?? 0x20;
+  const after = line.codePointAt(at + 1) ?? 0x20;
+  const plain = (c: number) => c < 0x80;
+  return plain(before) && plain(after);
+}
+
+const HIDDEN = /[‪-‮⁦-⁩​-‍⁠-⁤᠎ㅤᅟᅠﾠ­]/g;
+/** Remove text-direction and invisible characters (keeping emoji and script joiners). Returns the new text and how many were removed. */
+export function removeHiddenCharacters(text: string): { text: string; removed: number } {
+  let removed = 0;
+  const out = text.split(/(\r\n|\r|\n)/).map(line => line.replace(HIDDEN, (c, at: number) => {
+    if (!suspiciousInvisible(line, at)) return c;
+    removed++; return "";
+  })).join("");
+  return { text: out, removed };
 }
 
 /** Scan one file. `path` uses forward slashes and is used to pick which rules apply. */
@@ -494,14 +803,14 @@ export function scan(text: string, path: string, options: ScanOptions = {}): Fin
     if (options.onlyLines && !options.onlyLines.has(line)) return;
     const own = ignoredRules(lines[line - 1] ?? ""), prev = ignoredRules(lines[line - 2] ?? "");
     for (const ig of [own, prev]) if (ig === "all" || ig?.has(rule.id)) return;
-    findings.push({ rule: rule.id, title: rule.title, severity: rule.severity, line, column, endColumn: column + Math.max(1, length), message, why: rule.why, fix: FIXES[rule.id] ?? "", snippet: visible(matched).slice(0, 200) });
+    findings.push({ rule: rule.id, title: rule.title, severity: rule.severity, line, column, endColumn: column + Math.max(1, length), message, why: rule.why, fix: FIXES[rule.id] ?? CUSTOM_FIXES.get(rule) ?? "", snippet: visible(matched).slice(0, 200) });
   };
-  for (const rule of RULES) {
+  for (const rule of [...RULES, ...compileCustomRules(options.customRules ?? []).rules]) {
     if (disabled.has(rule.id) || severityRank(rule.severity) < min) continue;
     if (rule.files && !rule.files.test(file)) continue;
     if (rule.skipFiles && rule.skipFiles.test(file)) continue;
     // Documentation isn't run, and often describes attacks: there only hidden characters and leaked keys matter.
-    if (DOCS.test(file) && !/(^|\/)requirements[\w.-]*\.txt$/i.test(file) && rule.id !== "trojan-source" && rule.id !== "secret") continue;
+    if (DOCS.test(file) && !rule.custom && !/(^|\/)requirements[\w.-]*\.txt$/i.test(file) && rule.id !== "trojan-source" && rule.id !== "secret") continue;
     if (rule.check) {
       for (const f of rule.check(lines, file)) add(rule, f.line, f.column, f.length, f.message, (lines[f.line - 1] ?? "").substr(f.column - 1, f.length));
       continue;
@@ -512,7 +821,7 @@ export function scan(text: string, path: string, options: ScanOptions = {}): Fin
       re.lastIndex = 0;
       // One finding per rule per line is enough: the first match that passes the rule's extra test.
       for (let m = re.exec(line); m; m = re.exec(line)) {
-        if (!rule.accept || rule.accept(m[0], lines, i)) { add(rule, i + 1, m.index + 1, m[0].length, rule.message ? rule.message(m[0]) : rule.title, m[0]); break; }
+        if (!rule.accept || rule.accept(m[0], lines, i, m.index)) { add(rule, i + 1, m.index + 1, m[0].length, rule.message ? rule.message(m[0]) : rule.title, m[0]); break; }
         if (m[0].length === 0) re.lastIndex++;
       }
     });

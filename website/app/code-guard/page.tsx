@@ -1,7 +1,7 @@
 // veyra-guard-ignore-file: this page shows a sample malicious script on purpose, to demonstrate Code Guard.
 import type {Metadata} from 'next';
 import Image from 'next/image';
-import {Bug,Check,Download,EyeOff,FileText,GitCommitHorizontal,GitPullRequest,KeyRound,Lock,Minus,PackageX,ShieldAlert,ShieldCheck,Terminal,Workflow,X,Zap} from 'lucide-react';
+import {Bug,Check,Cpu,Download,EyeOff,FileText,GitCommitHorizontal,GitPullRequest,KeyRound,Lock,Minus,PackageX,ShieldAlert,ShieldCheck,Skull,Terminal,Workflow,X,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {MoreExtensions} from '@/components/MoreExtensions';
@@ -16,8 +16,8 @@ const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
 
 export const metadata:Metadata={
   title:'Veyra Code Guard: Find Trojans, Backdoors and Supply-Chain Attacks',
-  description:'A free security reviewer for VS Code, git and GitHub. Checks every line for trojans, backdoors, typo-squatted packages and leaked keys, explains how to fix each one, grades your project A to F and creates a PDF security report.',
-  keywords:['malicious code detection','trojan source','backdoor','supply chain security','typosquatting','dependency confusion','security code review','PDF security report','pre-commit hook','GitHub Action','SARIF','VS Code security extension'],
+  description:'A free security reviewer for VS Code, git and GitHub. Checks every line, in any language, for trojans, backdoors, web shells, ransomware, typo-squatted packages and leaked keys, rescans as soon as you remove them, explains how to fix each one, grades your project A to F and creates a PDF security report.',
+  keywords:['malicious code detection','trojan source','backdoor','web shell detection','ransomware detection','keylogger','supply chain security','typosquatting','dependency confusion','security code review','PDF security report','pre-commit hook','GitHub Action','SARIF','VS Code security extension'],
   alternates:{canonical:'/code-guard'},
   openGraph:{url:'/code-guard',title:'Veyra Code Guard',description:'Every line checked for trojans and backdoors, with a fix for each and a PDF security report. Free for VS Code and GitHub.',images:[{url:'/code-guard-panel.webp',width:1400,height:860,alt:'The Code Guard panel in VS Code with a project graded F and its findings grouped by severity'}]},
 };
@@ -35,17 +35,19 @@ const SCAN=[
   {code:'const channel = "stable⟨U+202E⟩";',sev:'critical',label:'Trojan Source character'},
 ];
 const PLACES=[
-  {icon:ShieldCheck,title:'In your editor',copy:'Every file checked as you type, with a panel, a grade and quick fixes.'},
+  {icon:ShieldCheck,title:'In your editor',copy:'Every file checked as you type, and rescanned the moment you remove malicious code, with a panel, a grade and quick fixes.'},
   {icon:GitCommitHorizontal,title:'Before every commit',copy:'A pre-commit guard stops risky code before it leaves your machine.'},
   {icon:GitPullRequest,title:'On every pull request',copy:'Line comments, a grade and a failing check on GitHub.'},
   {icon:FileText,title:'In a PDF report',copy:'An audit-ready security report with every finding and its fix.'},
 ];
 const CATCHES=[
-  {icon:EyeOff,title:'Hidden in plain sight',copy:'Trojan Source characters, invisible characters, look-alike letters and code pushed off-screen.',n:5},
-  {icon:Bug,title:'Hidden code being run',copy:'eval of decoded strings, packed JavaScript, encoded PowerShell and Python exec tricks.',n:5},
-  {icon:Terminal,title:'Backdoors',copy:'Reverse shells, download-and-run commands, crypto miners, persistence and disabled defences.',n:6},
-  {icon:KeyRound,title:'Stolen and leaked secrets',copy:'Code that reads SSH keys, wallets or browser passwords; API keys committed by mistake.',n:4},
-  {icon:PackageX,title:'Supply-chain attacks',copy:'Typo-squatted packages, dependency confusion, poisoned install scripts, URL and unpinned dependencies.',n:7},
+  {icon:EyeOff,title:'Hidden in plain sight',copy:'Trojan Source characters, invisible characters, look-alike letters, code pushed off-screen and text spelled out in character codes.',n:7},
+  {icon:Bug,title:'Hidden code being run',copy:'eval of decoded strings in PHP, Ruby, Perl, Lua, .NET and more, packed JavaScript, encoded PowerShell, and code downloaded at run time.',n:6},
+  {icon:Terminal,title:'Backdoors',copy:'Web shells, reverse shells, download-and-run commands, crypto miners, persistence, backdoor logins and disabled defences.',n:8},
+  {icon:Skull,title:'Ransomware, wipers and spyware',copy:'Deleted backups and ransom notes, rm -rf / and disk wipers, keyloggers and clipboard crypto hijackers.',n:4},
+  {icon:Cpu,title:'Native and macro malware',copy:'Shellcode, process injection, executable memory, Office macro droppers and databases running commands.',n:5},
+  {icon:KeyRound,title:'Stolen and leaked secrets',copy:'Code that reads SSH keys, wallets or browser passwords, sends data to webhooks, or commits API keys by mistake.',n:6},
+  {icon:PackageX,title:'Supply-chain attacks',copy:'Typo-squatted packages, dependency confusion, poisoned install scripts, setup.py and build.rs code, URL and unpinned dependencies.',n:7},
   {icon:Workflow,title:'CI and workflow attacks',copy:'Untrusted text in GitHub workflows and pull_request_target jobs that run outsiders’ code.',n:2},
 ];
 const COMPARE:Array<[string,boolean|'partly',boolean|'partly',boolean]>=[
@@ -53,6 +55,8 @@ const COMPARE:Array<[string,boolean|'partly',boolean|'partly',boolean]>=[
   ['Trojan Source and invisible characters','partly',false,true],
   ['Obfuscated code being run',false,false,true],
   ['Reverse shells, miners, persistence',false,false,true],
+  ['Web shells, ransomware and keyloggers in any language',false,false,true],
+  ['Rescans as soon as malicious code is removed','partly',false,true],
   ['Typo-squatted packages',false,false,true],
   ['Explains how to fix every finding','partly','partly',true],
   ['Grade and PDF security report',false,false,true],
@@ -63,6 +67,9 @@ const FAQ=[
   {q:'What is in the PDF report?',a:'A cover with the grade, score and top risks; every finding with its location, the code around it, why it matters and how to fix it; and the method and rules used. It is ready to share with a client, a manager or an auditor.'},
   {q:'How does the pre-commit guard work?',a:'Run Install Pre-commit Guard once. Every git commit then checks only the lines you are committing and stops the commit if they add a high or critical finding. Skip it once with git commit --no-verify.'},
   {q:'How do I add it to GitHub?',a:'Add a workflow with actions/checkout and fcopensource/veyraeditor/extensions/code-guard. It reviews every pull request, and can also write the PDF report and send findings to the Security tab.'},
+  {q:'Which languages does it check?',a:'All of them. Every text file is read line by line, and the rules cover the tricks used in JavaScript, TypeScript, Python, PHP, Java, C#, C and C++, Go, Rust, Ruby, Perl, Lua, PowerShell, shell scripts, batch files, SQL, VBA macros, Dockerfiles, GitHub workflows and package manifests. 77 languages are recognised by name and listed in the report.'},
+  {q:'What happens when I remove the malicious code?',a:'The file is rescanned straight away and the warning disappears with the code. Every quick fix (delete the line, remove hidden characters) rescans and tells you what is left, and files changed by git or another program are rechecked too. On the command line, --watch does the same.'},
+  {q:'Can I add our own rules?',a:'Yes. Put your patterns, ignored paths and severities in a .veyra-guard.json file in your project. VS Code, the command line, the pre-commit guard and the GitHub Action all use it.'},
   {q:'Does it upload my code?',a:'No. Everything runs on your computer, or on your own GitHub Actions runner.'},
   {q:'Can it catch every attack?',a:'No tool can. Code Guard recognises the patterns attackers use; use it alongside careful review and dependency audits, not instead of them.'},
 ];
@@ -102,18 +109,18 @@ export default function CodeGuardPage(){
           <Image src="/code-guard-icon.png" width={132} height={132} alt="" priority/>
           <span className="cg-scanline"/>
         </div>
-        <span className="cg-kicker"><i/>NEW IN 1.1 · PDF REPORTS · PRE-COMMIT GUARD · GRADES</span>
+        <span className="cg-kicker"><i/>NEW IN 1.2 · ANY LANGUAGE · RESCANS AS YOU FIX · TEAM RULES</span>
         <h1>Every line. Every commit.<br/><em>Every pull request.</em></h1>
-        <p className="cg-lede">Veyra Code Guard reads your code the way an attacker writes it. It catches trojans, backdoors, typo-squatted packages and leaked keys, tells you exactly how to fix each one, and writes the security report for you.</p>
+        <p className="cg-lede">Veyra Code Guard reads your code the way an attacker writes it, in any language. It catches trojans, backdoors, web shells, ransomware, typo-squatted packages and leaked keys, tells you exactly how to fix each one, rescans the moment you remove them, and writes the security report for you.</p>
         <div className="live-actions">
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Zap size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <a className="secondary" href="#github"><GitPullRequest size={16}/>Add to GitHub</a>
         </div>
         <p className="live-micro">{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
         <div className="cg-stats">
-          <div><b>31</b><span>attack patterns</span></div>
-          <div><b>4</b><span>places it protects</span></div>
-          <div><b>&lt;4s</b><span>to check 778 files</span></div>
+          <div><b>45</b><span>attack patterns</span></div>
+          <div><b>77</b><span>languages recognised</span></div>
+          <div><b>&lt;3s</b><span>to check 808 files</span></div>
           <div><b>0</b><span>bytes uploaded</span></div>
         </div>
       </section>
@@ -193,7 +200,7 @@ export default function CodeGuardPage(){
       </section>
 
       <section className="content-section">
-        <header><span>WHAT IT CATCHES</span><h2>31 tricks attackers actually use.</h2></header>
+        <header><span>WHAT IT CATCHES</span><h2>45 tricks attackers actually use.</h2></header>
         <div className="cards">{CATCHES.map(c=><article className="card cg-catch" key={c.title}><c.icon/><h3>{c.title}<small>{c.n} rules</small></h3><p>{c.copy}</p></article>)}</div>
       </section>
 
@@ -214,7 +221,7 @@ export default function CodeGuardPage(){
             <li>In VS Code, open <strong>Extensions</strong> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd>) and search for <strong>Veyra Code Guard</strong>, or open it on the <a href={MARKETPLACE}>Visual Studio Marketplace</a>.</li>
             <li>Click the shield in the Activity Bar and press <strong>Scan Whole Workspace</strong>.</li>
           </ol>:<ol className="live-install">
-            <li><a href={VSIX}>Download the <code>.vsix</code></a> (70 KB).</li>
+            <li><a href={VSIX}>Download the <code>.vsix</code></a> (97 KB).</li>
             <li>In VS Code, press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> and run <strong>Extensions: Install from VSIX…</strong>, then choose the file.</li>
             <li>Click the shield in the Activity Bar and press <strong>Scan Whole Workspace</strong>.</li>
           </ol>}

@@ -1,5 +1,5 @@
 name: Veyra Code Guard
-description: Reviews every pull request line by line for trojans, backdoors, obfuscated code, leaked secrets and poisoned install scripts.
+description: Reviews every pull request line by line, in any language, for trojans, backdoors, web shells, ransomware, obfuscated code, leaked secrets and poisoned install scripts.
 author: FlightCoders
 branding:
   icon: shield
@@ -31,6 +31,14 @@ outputs:
     description: Number of suspicious lines found.
   critical:
     description: Number of critical findings.
+  grade:
+    description: The security grade, A to F.
+  score:
+    description: The score out of 100.
+  report:
+    description: Path of the PDF report, when report-pdf is set.
+  sarif:
+    description: Path of the SARIF file, when sarif is set.
 runs:
   using: node20
   main: action/index.js

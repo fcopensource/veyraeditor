@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Veyra Code Guard team settings",
+  "description": "Settings for Veyra Code Guard, shared by VS Code, the command line, the pre-commit guard and the GitHub Action.",
+  "type": "object",
+  "properties": {
+    "minSeverity": {
+      "description": "The lowest severity to report.",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "failOn": {
+      "description": "Fail the pre-commit guard, the command line and the GitHub check at this severity or above.",
+      "enum": ["low", "medium", "high", "critical", "never"]
+    },
+    "ignorePaths": {
+      "description": "Paths to skip, such as \"docs/**\" or \"*.min.js\".",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "disabledRules": {
+      "description": "Rule ids to turn off, such as \"raw-ip-url\". Run \"Veyra Code Guard: What It Looks For\" to see them all.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "customRules": {
+      "description": "Your team's own patterns, checked on every line of every matching file, in any language.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pattern"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[\\w-]+$", "description": "A short id, used in veyra-guard-ignore comments." },
+          "pattern": { "type": "string", "description": "A regular expression (JavaScript syntax) matched against each line." },
+          "flags": { "type": "string", "description": "Regular expression flags. Default: \"i\" (ignore case)." },
+          "severity": { "enum": ["low", "medium", "high", "critical"], "default": "high" },
+          "title": { "type": "string", "description": "A short name for the finding." },
+          "message": { "type": "string", "description": "What was found." },
+          "why": { "type": "string", "description": "Why it matters." },
+          "fix": { "type": "string", "description": "How to fix it." },
+          "files": {
+            "description": "Only check files matching these globs, such as \"src/**\" or \"*.php\".",
+            "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

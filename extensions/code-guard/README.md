@@ -4,16 +4,18 @@
 
 # Veyra Code Guard
 
-**A security reviewer that reads every line of code for trojans, backdoors and supply-chain attacks, tells you how to fix each one, and writes the security report for you.**
+**A security reviewer that reads every line of code, in any language, for trojans, backdoors, web shells, ransomware, spyware and supply-chain attacks, tells you how to fix each one, rescans the moment you remove it, and writes the security report for you.**
 
 Malicious code rarely looks malicious. It hides in an "update checker", a typo-squatted package, an install script, or a character you can't even see. Veyra Code Guard catches the tricks attackers actually use, **in your editor, before every commit and on every GitHub pull request**, and turns the result into a professional PDF report. By the makers of [Veyra Studio](https://veyraeditor.com).
 
-- 🛡️ **31 rules, every language:** Trojan Source, hidden code being run, backdoors, crypto miners, stolen credentials, leaked keys, typo-squatted packages, dependency confusion and GitHub workflow attacks.
+- 🛡️ **45 rules, any language:** Trojan Source, hidden code being run, web shells, backdoors, ransomware and wipers, keyloggers and clipboard hijackers, shellcode and process injection, Office macro droppers, crypto miners, stolen credentials, leaked keys, typo-squatted packages, dependency confusion and GitHub workflow attacks. PHP, Java, C#, C/C++, Go, Rust, Ruby, Python, JavaScript, PowerShell, shell, SQL, VBA and 60+ more.
+- ♻️ **Rescans as you fix:** delete a malicious line and its warning goes at once; every quick fix rescans and tells you what's left. Files changed by git or another program are rechecked too.
 - 🧭 **Tells you how to fix it:** every finding explains what was found, why it matters and exactly what to do.
 - 🅰️ **A security grade:** every project and pull request gets an A to F grade and a score out of 100.
 - 📄 **PDF security report:** one click creates an audit-ready report with a cover, executive summary, code excerpts and fixes, to share with clients, managers or auditors.
 - ⛔ **Pre-commit guard:** stops risky code before it's even committed.
 - 🔍 **GitHub pull request reviews,** plus your findings in GitHub's **Security** tab (SARIF).
+- 🧩 **Your own rules:** add your team's patterns and settings in `.veyra-guard.json`, used everywhere Code Guard runs.
 - 🔒 **Private:** everything runs on your machine or your own CI. No account, no upload, no telemetry.
 
 ---
@@ -26,7 +28,13 @@ Every file is checked as you open, edit and save it. Hover over a flagged line t
 
 <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/code-guard/media/readme/hover.png" alt="A hover on a flagged eval line explaining why decoding and running hidden code is dangerous and how to fix it, with the Problems panel below" width="100%">
 
-**Quick fixes:** remove hidden characters from a line, or mark a line as reviewed and safe.
+**Quick fixes:** delete the suspicious line, remove hidden characters from a line (or the whole file), remove code hidden off-screen, or mark a line as reviewed and safe.
+
+### Removed it? It's rescanned straight away
+
+When you delete malicious code, Code Guard checks the file again immediately, even with scanning while typing turned off, and the warning disappears as soon as the code does. Every quick fix rescans the file and says in the status bar what's left (`Code Guard rescanned: this file is clean`).
+
+Files changed **outside** the editor are watched too: code added by `git pull`, a package install or another program is checked as it lands, and findings for files you delete are cleared. Turn this off with `veyraGuard.watchFiles`.
 
 ## PDF security report
 
@@ -112,6 +120,11 @@ Outputs: `findings`, `critical`, `grade`, `score`, `report` and `sarif`.
 | 🛑 Critical | **Trojan Source** | Hidden text-direction characters that make code display differently from how it runs (CVE-2021-42574) |
 | 🛑 Critical | **Hidden code being run** | `eval(atob(…))`, `new Function(Buffer.from(…, 'base64'))`, packed JavaScript, `exec(base64.b64decode(…))` |
 | 🛑 Critical | **Download and run** | `curl … \| sh`, `iex (New-Object Net.WebClient).DownloadString(…)`, `certutil -urlcache`, `mshta http…` |
+| 🛑 Critical | **Web shells** | `eval($_POST[…])`, `system($_GET[…])`, `Execute(Request(…))`, `Runtime.exec(request.getParameter(…))`, `exec(req.query…)`, `os.system(request.args…)` |
+| 🛑 Critical | **Code downloaded and run** | `exec(requests.get(…).text)`, `eval(await (await fetch(…)).text())`, `loadstring(game:HttpGet(…))`, `pickle.loads` of downloaded data |
+| 🛑 Critical | **Ransomware and wipers** | Deleting shadow copies and backups, ransom notes, `rm -rf /` and `~`, `dd` over a disk, fork bombs, `format C:`, raw `PhysicalDrive` writes |
+| 🛑 Critical | **Native malware** | Metasploit / Cobalt Strike shellcode, clipboard crypto-address hijackers |
+| 🛑 Critical | **Office macros** | `AutoOpen` / `Workbook_Open` macros that run programs, VBScript droppers (`XMLHTTP` + `ADODB.Stream`) |
 | 🛑 Critical | **Backdoors** | Reverse shells, hidden or encoded PowerShell |
 | 🛑 Critical | **Crypto miners** | Mining pools (`stratum+tcp://`), XMRig and similar |
 | 🛑 Critical | **Turning off defences** | Disabling Windows Defender, the firewall or SELinux; wiping logs and shell history |
@@ -120,13 +133,40 @@ Outputs: `findings`, `critical`, `grade`, `score`, `report` and `sarif`.
 | 🔴 High | **Dependency confusion** | Extra package indexes and plain-http package sources |
 | 🔴 High | **Stealing data** | Reading SSH keys, cloud credentials, browser passwords or wallets; collecting every environment variable; sending data to webhooks, paste sites or tunnels |
 | 🔴 High | **Staying hidden** | Invisible characters, look-alike letters in names, code pushed far to the right, strings built from character codes |
-| 🔴 High | **Persistence** | Adding itself to cron, scheduled tasks, startup folders, the registry Run key or `~/.bashrc` |
+| 🔴 High | **Persistence** | Adding itself to cron, scheduled tasks, startup folders, the registry Run key or `~/.bashrc`; adding SSH keys, admin accounts or `ld.so.preload` |
+| 🔴 High | **Spyware** | Keyloggers (`SetWindowsHookEx`, `GetAsyncKeyState`, `pynput`) that save or send keys; process injection (`WriteProcessMemory`, `CreateRemoteThread`); writable-and-executable memory |
+| 🔴 High | **Install-time code** | `setup.py`, `build.rs` and `.pth` files that download, decode or run shells; `xp_cmdshell` and `COPY FROM PROGRAM` in SQL |
 | 🔴 High | **Leaked secrets** | AWS, GitHub, Slack, Stripe, Google, OpenAI and Anthropic keys, private keys (sample keys are recognised and skipped) |
 | 🔴 High | **Workflow injection** | `${{ github.event.issue.title }}` and other untrusted text inside a `run:` step |
-| 🟠 Medium | **Worth a second look** | Dependencies from URLs or git, bare IP addresses, large encoded blobs, turned-off certificate checks |
+| 🟠 Medium | **Worth a second look** | Dependencies from URLs or git, bare IP addresses, large encoded blobs, turned-off certificate checks, debugger and sandbox detection, hard-coded password checks |
 | 🔵 Low | **Install hooks and unpinned versions** | Any `postinstall` script; dependencies set to `*` or `latest` |
 
 Run **Veyra Code Guard: What It Looks For** to see every rule, with why it matters and how to fix it.
+
+## Team settings and your own rules
+
+Run **Veyra Code Guard: Create Team Settings File** to add `.veyra-guard.json` to your project (VS Code autocompletes it). The editor, the command line, the pre-commit guard and the GitHub Action all read it:
+
+```json
+{
+  "minSeverity": "low",
+  "failOn": "high",
+  "ignorePaths": ["docs/**", "test/fixtures/**"],
+  "disabledRules": ["raw-ip-url"],
+  "customRules": [
+    {
+      "id": "no-internal-hosts",
+      "pattern": "internal\\.example\\.com",
+      "severity": "medium",
+      "title": "Internal host name in code",
+      "fix": "Read the address from configuration instead.",
+      "files": ["src/**"]
+    }
+  ]
+}
+```
+
+A custom rule is a regular expression checked on every line of matching files, in any language. Its findings get a severity, appear in the panel, the report, SARIF and pull request reviews, and can be marked as reviewed like any other.
 
 ## The grade
 
@@ -142,7 +182,11 @@ node cli.js . --pdf report.pdf      # and write a PDF report
 node cli.js . --sarif out.sarif     # or SARIF
 node cli.js . --json                # or JSON for your own tools
 node cli.js --staged                # only what is staged for commit
+node cli.js . --fix                 # remove hidden characters, then rescan
+node cli.js . --watch               # keep checking as files change
 ```
+
+In watch mode, every change is rescanned: new findings are printed, and when you remove malicious code you see `evil.js rescanned: clean again (1 finding removed)` with the updated grade.
 
 ## When a finding is safe
 
@@ -163,6 +207,9 @@ const install = "irm https://example.com/install.ps1 | iex";
 | `veyraGuard.scanWhileTyping` | `true` | Check again shortly after you stop typing |
 | `veyraGuard.minSeverity` | `low` | The lowest severity to show |
 | `veyraGuard.disabledRules` | `[]` | Rule ids to turn off |
+| `veyraGuard.ignorePaths` | `[]` | Paths to skip, such as `docs/**` |
+| `veyraGuard.customRules` | `[]` | Your own patterns (see Team settings) |
+| `veyraGuard.watchFiles` | `true` | Check files changed outside the editor and clear findings for deleted files |
 
 ## Good to know
 

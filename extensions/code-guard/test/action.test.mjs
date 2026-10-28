@@ -186,3 +186,56 @@ test("the git hook checks the repository being committed, even inside a CI job",
   assert.match(r.stdout, /Commit blocked\./, "terminal output, not Action annotations");
   assert.match(r.stdout, /evil\.js:1/);
 });
+
+test("--fix removes hidden characters and rescans: what's left is reported after the fix", async () => {
+  const dir = workspaceWith({
+    "a.js": j("const access = 'user", "‮", "';\nconst is", "​", "Admin = false;\nconst team = '\u{1F469}‍\u{1F4BB}';\n"),
+    "b.js": j("const x = 1;", "⁦", "\nev", "al(at", "ob(p));\n"),
+  });
+  const r = await runCli(dir, ".", "--fix", "--json");
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.fixed, { removed: 3, files: 2 });
+  assert.equal(fs.readFileSync(path.join(dir, "a.js"), "utf8"), "const access = 'user';\nconst isAdmin = false;\nconst team = '\u{1F469}‍\u{1F4BB}';\n", "emoji joiners are kept");
+  assert.deepEqual(out.files.map(f => `${f.path}:${f.findings.map(x => x.rule)}`), ["b.js:eval-decoded"], "a.js is clean after the rescan; b.js still has its eval");
+  assert.equal(r.code, 1, "the remaining critical finding still fails");
+});
+
+test("--watch rescans a file when malicious code is removed, and when a file is deleted", async () => {
+  const dir = workspaceWith({ "evil.js": j("const ok = 1;\nev", "al(at", "ob(p));\n"), "net.js": j("fetch('http://203.0", ".113.9/x');\n") });
+  const env = { ...process.env }; for (const k of Object.keys(env)) if (k.startsWith("GITHUB_") || k.startsWith("INPUT_")) delete env[k];
+  const child = spawn(process.execPath, [cli, ".", "--watch"], { cwd: dir, env });
+  let stdout = ""; child.stdout.on("data", d => stdout += d);
+  const until = async (re, what) => { for (let i = 0; i < 100 && !re.test(stdout); i++) await new Promise(r => setTimeout(r, 100)); assert.match(stdout, re, what); };
+  try {
+    await until(/Watching/, "starts watching");
+    assert.match(stdout, /Grade D/);
+    fs.writeFileSync(path.join(dir, "evil.js"), "const ok = 1;\n");
+    await until(/evil\.js rescanned: clean again \(1 finding removed\)/, "reports the file is clean after the code is removed");
+    await until(/Grade A \(96\/100\)/, "the grade is updated: only the medium finding in net.js is left");
+    fs.writeFileSync(path.join(dir, "new.js"), j("ev", "al(at", "ob(q));\n"));
+    await until(/new\.js: 1 new finding/, "a new suspicious file is reported");
+    fs.rmSync(path.join(dir, "net.js"));
+    await until(/net\.js was deleted: 1 finding gone/, "a deleted file's findings go");
+  } finally { child.kill(); }
+});
+
+test("team settings in .veyra-guard.json: ignored paths, disabled rules, custom rules, fail-on", async () => {
+  const dir = workspaceWith({
+    ".veyra-guard.json": JSON.stringify({ ignorePaths: ["vendor/**"], disabledRules: ["raw-ip-url"], failOn: "medium", customRules: [{ id: "no-console-secrets", pattern: "console\\.log\\(.*token", severity: "medium", title: "Logs a token" }] }),
+    "src/a.js": j("fetch('http://203.0", ".113.9/x');\nconsole.log('token', token);\n"),
+    "vendor/lib.js": j("ev", "al(at", "ob(x));\n"),
+    "src/b.php": j("<?php ev", "al($_PO", "ST['c']); ?>\n"),
+  });
+  const r = await runCli(dir, ".", "--json");
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.files.map(f => `${f.path}:${f.findings.map(x => x.rule)}`), ["src/a.js:no-console-secrets", "src/b.php:webshell"]);
+  assert.equal(r.code, 1, "fails at medium, as the project asks");
+  assert.equal(out.languages.JavaScript, 1, "vendor/ is ignored, so only src/a.js");
+  assert.equal(out.languages.PHP, 1);
+  const sarifRun = await runCli(dir, ".", "--sarif", "out.sarif", "--json");
+  assert.equal(sarifRun.code, 1);
+  const sarif = JSON.parse(fs.readFileSync(path.join(dir, "out.sarif"), "utf8")).runs[0];
+  const custom = sarif.results.find(x => x.ruleId === "no-console-secrets");
+  assert.equal(sarif.tool.driver.rules[custom.ruleIndex].id, "no-console-secrets", "custom rules are described in SARIF too");
+  assert.match((await runCli(dir, "--help")).stdout, /--watch/);
+});

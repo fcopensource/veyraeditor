@@ -1,8 +1,8 @@
 {
   "name": "veyra-code-guard",
   "displayName": "Veyra Code Guard",
-  "description": "A security reviewer that checks every line for trojans, backdoors and supply-chain attacks, explains how to fix each one, grades your project A to F and creates a PDF security report. In VS Code, before every commit and on every GitHub pull request.",
-  "version": "1.1.0",
+  "description": "A security reviewer for code in any language. Checks every line for trojans, backdoors, web shells, ransomware, spyware and supply-chain attacks, rescans as soon as malicious code is removed, explains how to fix each finding, grades your project A to F and creates a PDF security report. In VS Code, before every commit and on every GitHub pull request.",
+  "version": "1.2.0",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
@@ -34,6 +34,10 @@
     "trojan",
     "trojan source",
     "backdoor",
+    "web shell",
+    "ransomware",
+    "keylogger",
+    "shellcode",
     "supply chain",
     "typosquatting",
     "code review",
@@ -89,6 +93,23 @@
         "category": "Veyra Code Guard"
       },
       {
+        "command": "veyraGuard.removeHiddenCharacters",
+        "title": "Remove Hidden Characters from This File",
+        "category": "Veyra Code Guard",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "veyraGuard.createConfig",
+        "title": "Create Team Settings File (.veyra-guard.json)",
+        "category": "Veyra Code Guard",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "veyraGuard.rescan",
+        "title": "Rescan File",
+        "category": "Veyra Code Guard"
+      },
+      {
         "command": "veyraGuard.listRules",
         "title": "What It Looks For",
         "category": "Veyra Code Guard",
@@ -106,6 +127,14 @@
         {
           "command": "veyraGuard.scanFile",
           "when": "editorIsOpen"
+        },
+        {
+          "command": "veyraGuard.removeHiddenCharacters",
+          "when": "editorIsOpen"
+        },
+        {
+          "command": "veyraGuard.rescan",
+          "when": "false"
         }
       ],
       "explorer/context": [
@@ -136,9 +165,14 @@
           "group": "more@1"
         },
         {
-          "command": "veyraGuard.clear",
+          "command": "veyraGuard.createConfig",
           "when": "view == veyraGuard.findings",
           "group": "more@2"
+        },
+        {
+          "command": "veyraGuard.clear",
+          "when": "view == veyraGuard.findings",
+          "group": "more@3"
         }
       ]
     },
@@ -179,6 +213,71 @@
           },
           "default": [],
           "markdownDescription": "Rule ids to turn off, such as `raw-ip-url` or `base64-blob`. Run **Veyra Code Guard: What It Looks For** to see them all."
+        },
+        "veyraGuard.watchFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check files that change on disk outside the editor (git pull, a package install, another program), and clear findings for files that are deleted."
+        },
+        "veyraGuard.ignorePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Paths to skip, such as `docs/**` or `*.min.js`. Teams can also list them in `.veyra-guard.json`."
+        },
+        "veyraGuard.customRules": {
+          "type": "array",
+          "default": [],
+          "markdownDescription": "Your own patterns, checked on every line in any language. Each needs an `id` and a `pattern` (a regular expression); `severity`, `title`, `message`, `why`, `fix` and `files` (globs) are optional. To share them with your team, the command line and the GitHub Action, put them in `.veyra-guard.json` instead.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "pattern"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "pattern": {
+                "type": "string"
+              },
+              "flags": {
+                "type": "string"
+              },
+              "severity": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "why": {
+                "type": "string"
+              },
+              "fix": {
+                "type": "string"
+              },
+              "files": {
+                "type": [
+                  "string",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -204,7 +303,13 @@
     "viewsWelcome": [
       {
         "view": "veyraGuard.findings",
-        "contents": "No suspicious code in the files checked so far.\n[$(search) Scan Whole Workspace](command:veyraGuard.scanWorkspace)\n[$(file-pdf) Create Security Report (PDF)](command:veyraGuard.createReport)\nStop risky code before it's committed:\n[$(git-commit) Install Pre-commit Guard](command:veyraGuard.installHook)\n[What it looks for](command:veyraGuard.listRules)"
+        "contents": "No suspicious code in the files checked so far.\n[$(search) Scan Whole Workspace](command:veyraGuard.scanWorkspace)\n[$(file-pdf) Create Security Report (PDF)](command:veyraGuard.createReport)\nStop risky code before it's committed:\n[$(git-commit) Install Pre-commit Guard](command:veyraGuard.installHook)\nShare settings and your own rules with your team:\n[$(settings-gear) Create Team Settings File](command:veyraGuard.createConfig)\n[What it looks for](command:veyraGuard.listRules)"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": ".veyra-guard.json",
+        "url": "./media/veyra-guard.schema.json"
       }
     ]
   },

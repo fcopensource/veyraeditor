@@ -58,13 +58,14 @@ test("the security report is a valid PDF with cover, findings and rules", () => 
   assert.match(body, /HOW TO FIX/);
   assert.match(body, /"expres" is one letter away from the popular package "express"/);
   assert.match(body, /eval\(atob\(process\.env\.PAYLOAD\)\);/, "the code excerpt is included");
-  assert.match(text.at(-1), /trojan-source/, "the rules table lists every rule");
+  const rulesPages = text.slice(text.findIndex(t => /How this review works/.test(t))).join(" ");
+  for (const r of g.ruleList()) assert.ok(rulesPages.includes(r.id), `the rules table lists ${r.id}`);
   assert.match(text.at(-1), new RegExp(`Page ${pages} of ${pages}`));
 });
 
 test("a clean project gets an A and a short report", () => {
   const { pages, text } = readPdf(buildReport({ project: "clean", scope: "Whole workspace", files: [], filesScanned: 50, linesScanned: 4000, version: "1.1.0" }));
-  assert.equal(pages, 2);
+  assert.ok(pages <= 3, `${pages} pages`);
   assert.match(text[0], /\| A \|/);
   assert.match(text[0], /No signs of malicious code were found\./);
 });

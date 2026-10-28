@@ -13,6 +13,8 @@ export interface ReportInput {
   version: string;
   generatedAt?: Date;
   repositoryUrl?: string;
+  /** Files checked per language, most first. */
+  languages?: Array<[string, number]>;
 }
 
 const C = {
@@ -173,6 +175,10 @@ export function buildReport(input: ReportInput): Buffer {
   y = newPage("How this review works");
   const p = page!;
   y = p.paragraph(M, y, CONTENT, `Veyra Code Guard ${input.version} read every line of ${input.filesScanned.toLocaleString("en-US")} files (${input.linesScanned.toLocaleString("en-US")} lines) in ${/^whole /i.test(input.scope) ? `the ${input.scope.toLowerCase()}` : /^staged/i.test(input.scope) ? `the ${input.scope.toLowerCase()}` : input.scope.toLowerCase()} and checked them against the ${ruleList().length} rules below. Build output, dependencies (node_modules) and virtual environments are skipped. Lines marked as reviewed with a veyra-guard-ignore comment are not reported.`, { size: 9.5, color: C.body }) + 6;
+  if (input.languages?.length) {
+    const list = input.languages.slice(0, 12).map(([l, n]) => `${l} (${n.toLocaleString("en-US")})`).join(", ") + (input.languages.length > 12 ? `, and ${input.languages.length - 12} more` : "");
+    y = p.paragraph(M, y, CONTENT, `Languages checked: ${list}. Every text file is read, whatever its language; these are the ones recognised by name.`, { size: 9.5, color: C.body }) + 6;
+  }
   y = p.paragraph(M, y, CONTENT, "The grade starts at 100 and loses 30 points per critical, 12 per high, 4 per medium and 1 per low finding. Any critical finding limits the grade to D.", { size: 9.5, color: C.body }) + 14;
   p.rect(M, y, CONTENT, 20, { fill: C.night, radius: 5 });
   p.text(M + 10, y + 13.5, "SEVERITY", { font: "bold", size: 7.5, color: C.mint, spacing: 0.8 });
