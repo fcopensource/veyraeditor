@@ -1,0 +1,112 @@
+/* BaazCyber Antivirus page */
+
+/* ── Hero ──────────────────────────────────────────────────── */
+.bc-page { --bc-blue: #2563eb; --bc-blue-lt: #3b82f6; --bc-cyan: #06b6d4; --bc-green: #22c55e; --bc-red: #ef4444; }
+
+.bc-hero {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 80px 24px 64px; gap: 20px;
+}
+.bc-shield-wrap {
+  position: relative; width: 120px; height: 120px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+}
+.bc-shield-wrap::before {
+  content: ''; position: absolute; inset: -16px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,.18) 0%, transparent 70%);
+  animation: bcpulse 3s ease-in-out infinite;
+}
+@keyframes bcpulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
+.bc-shield-wrap img { width: 120px; height: 120px; }
+.bc-kicker {
+  font-size: .72rem; font-weight: 700; letter-spacing: .12em; color: var(--bc-blue-lt);
+  display: flex; align-items: center; gap: 6px;
+}
+.bc-kicker i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--bc-green); }
+.bc-hero h1 { font-size: clamp(2rem,5vw,3rem); font-weight: 800; line-height: 1.1; max-width: 640px; margin: 0; }
+.bc-hero h1 em { color: var(--bc-blue-lt); font-style: normal; }
+.bc-lede { font-size: 1.1rem; color: var(--sub,#8892b0); max-width: 600px; margin: 0; line-height: 1.65; }
+.bc-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+.bc-actions a {
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px;
+  border-radius: 8px; font-weight: 600; font-size: .95rem; text-decoration: none; transition: all .15s;
+}
+.bc-actions .primary { background: var(--bc-blue); color: #fff; }
+.bc-actions .primary:hover { background: var(--bc-blue-lt); }
+.bc-actions .secondary { border: 1.5px solid rgba(255,255,255,.15); color: var(--text,#c8d0e8); }
+.bc-actions .secondary:hover { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.05); }
+.bc-micro { font-size: .78rem; color: var(--sub,#8892b0); }
+
+/* ── Stat row ──────────────────────────────────────────────── */
+.bc-stats {
+  display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;
+  padding: 32px 24px; border-top: 1px solid rgba(255,255,255,.06); border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.bc-stats div { text-align: center; }
+.bc-stats b { display: block; font-size: 1.6rem; font-weight: 800; color: var(--bc-blue-lt); }
+.bc-stats span { font-size: .78rem; color: var(--sub,#8892b0); }
+
+/* ── Feature cards ─────────────────────────────────────────── */
+.bc-features { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+.bc-features header { text-align: center; margin-bottom: 48px; }
+.bc-features header span { font-size: .72rem; font-weight: 700; letter-spacing: .1em; color: var(--bc-cyan); }
+.bc-features header h2 { font-size: clamp(1.5rem,3vw,2rem); font-weight: 700; margin: 8px 0 0; }
+.bc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px;
+}
+.bc-card {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px; padding: 28px 24px; transition: border-color .15s;
+}
+.bc-card:hover { border-color: rgba(37,99,235,.4); }
+.bc-card svg { width: 28px; height: 28px; stroke: var(--bc-blue-lt); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 16px; }
+.bc-card h3 { font-size: 1rem; font-weight: 700; margin: 0 0 8px; }
+.bc-card p { font-size: .88rem; color: var(--sub,#8892b0); margin: 0; line-height: 1.6; }
+
+/* ── How it scans ──────────────────────────────────────────── */
+.bc-how { padding: 72px 24px; background: rgba(255,255,255,.015); }
+.bc-how-inner { max-width: 900px; margin: 0 auto; }
+.bc-how header { text-align: center; margin-bottom: 48px; }
+.bc-how header span { font-size: .72rem; font-weight: 700; letter-spacing: .1em; color: var(--bc-green); }
+.bc-how header h2 { font-size: clamp(1.4rem,3vw,1.9rem); font-weight: 700; margin: 8px 0 0; }
+.bc-steps { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 24px; }
+.bc-step { display: flex; gap: 16px; align-items: flex-start; }
+.bc-step-num {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bc-blue); color: #fff; font-size: .8rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.bc-step-body h4 { font-size: .95rem; font-weight: 700; margin: 0 0 4px; }
+.bc-step-body p { font-size: .84rem; color: var(--sub,#8892b0); margin: 0; line-height: 1.5; }
+
+/* ── Catches ───────────────────────────────────────────────── */
+.bc-catches { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+.bc-catches header { text-align: center; margin-bottom: 48px; }
+.bc-catches header span { font-size: .72rem; font-weight: 700; letter-spacing: .1em; color: var(--bc-red); }
+.bc-catches header h2 { font-size: clamp(1.4rem,3vw,1.9rem); font-weight: 700; margin: 8px 0 0; }
+.bc-catch-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 16px; }
+.bc-catch {
+  padding: 20px; border: 1px solid rgba(255,255,255,.07); border-radius: 10px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.bc-catch svg { flex-shrink: 0; width: 22px; height: 22px; stroke: var(--bc-red); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin-top: 2px; }
+.bc-catch h4 { font-size: .9rem; font-weight: 700; margin: 0 0 4px; }
+.bc-catch p { font-size: .82rem; color: var(--sub,#8892b0); margin: 0; line-height: 1.5; }
+
+/* ── Download / install ────────────────────────────────────── */
+.bc-install { padding: 80px 24px; text-align: center; }
+.bc-install h2 { font-size: clamp(1.6rem,4vw,2.4rem); font-weight: 800; margin: 0 0 16px; }
+.bc-install p { color: var(--sub,#8892b0); margin: 0 auto 32px; max-width: 500px; font-size: 1rem; }
+
+/* ── FAQ ───────────────────────────────────────────────────── */
+.bc-faq { padding: 64px 24px; max-width: 740px; margin: 0 auto; }
+.bc-faq h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 32px; text-align: center; }
+.bc-faq details { border-bottom: 1px solid rgba(255,255,255,.08); }
+.bc-faq details summary {
+  padding: 18px 0; font-weight: 600; font-size: .95rem; cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.bc-faq details summary::after { content: '+'; font-size: 1.2rem; color: var(--sub,#8892b0); }
+.bc-faq details[open] summary::after { content: '−'; }
+.bc-faq details p { padding: 0 0 18px; color: var(--sub,#8892b0); font-size: .9rem; line-height: 1.65; margin: 0; }
