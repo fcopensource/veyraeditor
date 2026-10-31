@@ -1,0 +1,124 @@
+{
+  "name": "veyra-wrapped",
+  "displayName": "Veyra Wrapped: Your Year in Code",
+  "description": "Your Git history as a story to share: commits, lines written, your coding hours, longest streak, top languages and files, and your coding personality. Save a card for X or LinkedIn. Private: nothing leaves your computer.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/wrapped",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/wrapped"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "wrapped",
+    "year in review",
+    "git stats",
+    "commit stats",
+    "coding stats",
+    "git history",
+    "developer stats",
+    "contributions",
+    "streak",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#170d2e",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Wrapped runs git to read your history, so it needs a trusted workspace."
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "veyraWrapped.open",
+        "title": "Show My Year in Code",
+        "category": "Veyra Wrapped",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "veyraWrapped.openTeam",
+        "title": "Show the Team's Year in Code",
+        "category": "Veyra Wrapped",
+        "icon": "$(organization)"
+      }
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "command": "veyraWrapped.open",
+          "when": "scmProvider == git",
+          "group": "navigation@99"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Wrapped",
+      "properties": {
+        "veyraWrapped.period": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "thisYear",
+            "last12Months",
+            "allTime"
+          ],
+          "enumDescriptions": [
+            "Ask each time",
+            "From 1 January this year",
+            "The last 12 months",
+            "Every commit on the branch"
+          ],
+          "default": "ask",
+          "description": "Which part of your history to wrap."
+        },
+        "veyraWrapped.autoPlay": {
+          "type": "boolean",
+          "default": true,
+          "description": "Move to the next slide on its own, like a story."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -87,6 +87,7 @@ jobs:
           - { dir: pets, name: Pets }
           - { dir: codesnap, name: CodeSnap }
           - { dir: code-guard, name: Code Guard }
+          - { dir: wrapped, name: Wrapped }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}

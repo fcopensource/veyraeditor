@@ -28,6 +28,7 @@ export const VSCODE_EXTENSIONS = {
   pets: { id: "flightcoders.veyra-pets", folder: "pets", file: "veyra-pets", version: "1.0.0", listed: true },
   codesnap: { id: "flightcoders.veyra-codesnap", folder: "codesnap", file: "veyra-codesnap", version: "1.0.0", listed: true },
   codeGuard: { id: "flightcoders.veyra-code-guard", folder: "code-guard", file: "veyra-code-guard", version: "1.2.0", listed: true },
+  wrapped: { id: "flightcoders.veyra-wrapped", folder: "wrapped", file: "veyra-wrapped", version: "1.0.0", listed: false },
   apiClient: { id: "flightcoders.veyra-api-client", folder: "api-client", file: "veyra-api-client", version: "1.0.0", listed: true },
   mongodb: { id: "flightcoders.veyra-mongodb", folder: "mongodb", file: "veyra-mongodb", version: "1.0.0", listed: true },
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
