@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { Nav } from '@/components/Nav';
 import { Footer } from '@/components/Footer';
 import { absolute, jsonLd } from '@/lib/site';
@@ -9,9 +10,9 @@ const GITHUB_REPO = 'fcopensource/baazcyber';
 const GITHUB_RELEASES = `https://github.com/${GITHUB_REPO}/releases/latest`;
 
 export const metadata: Metadata = {
-  title: 'BaazCyber Antivirus: Real-Time Malware Protection for Windows',
+  title: 'BaazCyber Antivirus: Free Malware Scanner for Windows',
   description:
-    'BaazCyber Antivirus scans every file for trojans, backdoors, ransomware and malicious scripts, quarantines threats, and updates automatically. Free for Windows.',
+    'BaazCyber Antivirus scans your files for trojans, backdoors, web shells, ransomware and password stealers, explains every finding, quarantines threats and writes PDF security reports. Free for Windows.',
   keywords: [
     'antivirus', 'malware scanner', 'trojan detection', 'ransomware protection',
     'backdoor scanner', 'free antivirus windows', 'BaazCyber', 'baaz engine',
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
 const FEATURES = [
   {
     icon: <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-    title: 'Real-Time Protection',
-    copy: 'Scans files on demand or on a schedule. Quick Scan, Full Scan, or choose any folder.',
+    title: 'Six Ways to Scan',
+    copy: 'Smart Scan, Full Scan, any folder or USB drive, a single file, your Downloads, or the programs that start with Windows.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>,
@@ -42,13 +43,13 @@ const FEATURES = [
   },
   {
     icon: <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>,
-    title: 'Signature Database',
-    copy: 'Built-in hash database of known malware, updated with every release.',
+    title: 'PDF Security Reports',
+    copy: 'Save a branded report of any scan, with a security score, every finding and what to do next.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
-    title: 'Auto-Updates',
-    copy: 'New versions install silently in the background. You always have the latest protection.',
+    title: 'Signed Updates',
+    copy: 'BaazCyber checks for new versions when it starts and installs them with one click. Every update is cryptographically signed.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>,
@@ -58,8 +59,8 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: 1, title: 'Install', body: 'Download from the Microsoft Store or GitHub. No account required.' },
-  { n: 2, title: 'Scan', body: 'Hit Quick Scan for a fast check, Full Scan for the whole system, or pick any folder.' },
+  { n: 1, title: 'Install', body: 'Download the Windows installer. No account required.' },
+  { n: 2, title: 'Scan', body: 'Run a Smart Scan for a fast check, a Full Scan for the whole drive, or pick any folder or file.' },
   { n: 3, title: 'Review', body: 'See every threat with its severity, file path and the reason it was flagged.' },
   { n: 4, title: 'Quarantine', body: 'Move threats to the safe quarantine box with one click. Restore or delete anytime.' },
 ];
@@ -72,13 +73,13 @@ const CATCHES = [
   },
   {
     icon: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/></svg>,
-    title: 'Ransomware & wipers',
-    copy: 'File encryptors, backup deleters and disk wipers.',
+    title: 'Ransomware behaviour',
+    copy: 'File encryptors, deleted backups and scripts that switch off Windows Defender.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-    title: 'Keyloggers & spyware',
-    copy: 'Programs that steal passwords, clipboard data or browser history.',
+    title: 'Keyloggers & password stealers',
+    copy: 'Keyloggers, Mimikatz, and code that takes saved passwords, crypto wallets or SSH keys.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
@@ -87,8 +88,8 @@ const CATCHES = [
   },
   {
     icon: <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>,
-    title: 'Supply-chain attacks',
-    copy: 'Typo-squatted packages and poisoned install scripts.',
+    title: 'Web shells',
+    copy: 'PHP, ASP and JSP pages that run commands sent to a web server.',
   },
   {
     icon: <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
@@ -100,7 +101,8 @@ const CATCHES = [
 const FAQ = [
   { q: 'Is BaazCyber Antivirus free?', a: 'Yes. BaazCyber Antivirus is free to download and use. No subscription, no account required.' },
   { q: 'Does it upload my files?', a: 'No. Everything runs locally on your computer. Your files are never sent anywhere.' },
-  { q: 'How does it update?', a: 'The app checks for new releases automatically. A notification appears when an update is ready, and it installs with one click.' },
+  { q: 'How does it update?', a: 'BaazCyber checks for a new version each time it starts. When one is ready it asks you, then installs it with one click. Every update is cryptographically signed and verified before it installs.' },
+  { q: 'Does it protect my PC in real time?', a: 'Not yet. BaazCyber scans when you start a scan, so run it alongside Windows Defender, which provides real-time protection.' },
   { q: 'Does it catch zero-day malware?', a: 'BaazCyber uses heuristic analysis to catch unknown threats by behaviour — not just known signatures. It cannot catch every new threat, and should be used as one layer of your defence.' },
   { q: 'Can I scan a specific folder?', a: 'Yes. Choose Folder… from the main screen to scan any directory, including external drives.' },
   { q: 'What is the quarantine?', a: 'Quarantined files are moved to a safe folder, encoded so they cannot run, and catalogued. You can restore them if they were a false positive, or delete them permanently.' },
@@ -130,13 +132,13 @@ export default async function BaazCyberPage() {
         {/* Hero */}
         <section className="bc-hero">
           <div className="bc-shield-wrap">
-            <img src="/baazcyber-logo.png" alt="BaazCyber Antivirus" width={120} height={120} />
+            <Image src="/baazcyber-logo.png" alt="BaazCyber Antivirus" width={120} height={120} priority />
           </div>
-          <span className="bc-kicker"><i />FREE · WINDOWS · AUTO-UPDATES</span>
+          <span className="bc-kicker"><i />FREE · WINDOWS · SIGNED UPDATES</span>
           <h1>Your PC. <em>Protected.</em></h1>
           <p className="bc-lede">
-            BaazCyber Antivirus scans every file for trojans, backdoors, ransomware and malicious scripts,
-            quarantines what it finds, and keeps itself up to date automatically.
+            BaazCyber Antivirus scans your files for trojans, backdoors, web shells, ransomware and password
+            stealers, explains every finding in plain words, and quarantines what it finds.
           </p>
           <div className="bc-actions">
             <a className="primary" href={windowsUrl}>
@@ -155,10 +157,10 @@ export default async function BaazCyberPage() {
 
         {/* Stats */}
         <div className="bc-stats">
-          <div><b>45+</b><span>threat patterns</span></div>
-          <div><b>Real-time</b><span>heuristic engine</span></div>
+          <div><b>30+</b><span>detection rules</span></div>
+          <div><b>6</b><span>ways to scan</span></div>
           <div><b>0</b><span>bytes uploaded</span></div>
-          <div><b>Auto</b><span>updates</span></div>
+          <div><b>PDF</b><span>security reports</span></div>
         </div>
 
         {/* Features */}
@@ -230,7 +232,7 @@ export default async function BaazCyberPage() {
             <a className="secondary" href={GITHUB_RELEASES}>Release notes</a>
           </div>
           <p className="bc-micro" style={{ marginTop: 16 }}>
-            {version ? `Version ${version} · ` : ''}Built with Rust and Tauri · Open source on GitHub
+            {version ? `Version ${version} · ` : ''}Built with Rust and Tauri · Source on GitHub
           </p>
         </section>
 
