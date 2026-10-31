@@ -1,0 +1,21 @@
+/* Veyra Wrapped page: the story's own gradients on top of the shared extension page styles. */
+.wr-title em{background:linear-gradient(90deg,#ffd36b,#ff6fb5,#8f7bff);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:normal}
+.wr-card{position:relative;max-width:900px;margin:0 auto 24px;border-radius:22px;overflow:hidden;box-shadow:0 40px 100px #6d28d955,0 0 0 1px #ffffff1f}
+.wr-card img{display:block;width:100%;height:auto}
+.wr-card:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,#ffffff1f 50%,transparent 65%);transform:translateX(-100%);animation:wr-sheen 5s ease-in-out infinite}
+@keyframes wr-sheen{60%,100%{transform:translateX(100%)}}
+.wr-caption{text-align:center;color:var(--muted,#8b93a7);font-size:14px;margin:0 0 56px}
+.wr-slides{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.wr-slides figure{margin:0;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px #0007;border:1px solid #ffffff1a;transition:transform .25s}
+.wr-slides figure:hover{transform:translateY(-4px) rotate(-.4deg)}
+.wr-slides img{display:block;width:100%;height:auto}
+.wr-slides figcaption{padding:10px 14px;font-size:13px;color:var(--muted,#8b93a7);background:#0d0f14}
+.wr-personas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.wr-persona{padding:20px;border-radius:18px;border:1px solid #ffffff14;background:radial-gradient(120% 100% at 0% 0%,#ff6fb51a,transparent 55%),#0f1117}
+.wr-persona span{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ffd36b,#ff6fb5 55%,#7c6bff);color:#fff;margin-bottom:12px;box-shadow:0 10px 24px #ff6fb544}
+.wr-persona span svg{width:22px;height:22px}
+.wr-persona h3{margin:0 0 6px;font-size:16px}
+.wr-persona p{margin:0;font-size:13.5px;line-height:1.5;color:var(--muted,#8b93a7)}
+@media(max-width:900px){.wr-slides{grid-template-columns:1fr}.wr-personas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.wr-personas{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.wr-card:after{animation:none}}

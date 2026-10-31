@@ -90,6 +90,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/code-guard', icon: '/code-guard-icon.png', name: 'Code Guard', title: 'Veyra Code Guard', group: 'Write code', order: 17, tone: 'codeguard', platform: 'For VS Code and GitHub', updated: '2026-10-28',
     copy: 'Find trojans and backdoors in code', cta: 'Explore Code Guard',
     summary: 'A security reviewer that checks every line for trojans, backdoors and supply-chain attacks, shows how to fix each one, grades your project A to F and writes a PDF security report. In VS Code, before every commit and on GitHub.' }),
+  vs({ href: '/wrapped', icon: '/wrapped-icon.png', name: 'Wrapped', title: 'Veyra Wrapped', group: 'Just for fun', order: 18, tone: 'wrapped', updated: '2026-11-01', tag: 'New',
+    copy: 'Your year in code, as a story', cta: 'See your Wrapped',
+    summary: 'Your Git history as a story to share: commits, lines written, your coding hours, longest streak, top languages and your coding personality. Save a card for X or LinkedIn.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Veyra AI and Salesforce Studio. */
