@@ -1,0 +1,263 @@
+/* Veyra Studio's IDE look: a calm charcoal workbench with a main toolbar, tool-window stripes on both sides,
+   flat tabs with an accent underline and a compact status bar. Loaded last, so it refines the earlier layers. */
+.app {
+    --editor: #1e1f22;
+    --sidebar: #2b2d30;
+    --toolbar: #2b2d30;
+    --border: #1e1f22;
+    --line: #393b40;
+    --text: #dfe1e5;
+    --bright: #ffffff;
+    --muted: #868a91;
+    --hover: #393b40;
+    --accent: #3574f0;
+    --accent-soft: #2e436e;
+    --selection: #2e436e;
+    --card: #2b2d30;
+    --stripe-icon: #ced0d6;
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--toolbar)
+}
+
+.app.light {
+    --editor: #ffffff;
+    --sidebar: #f7f8fa;
+    --toolbar: #f7f8fa;
+    --border: #ebecf0;
+    --line: #dfe1e5;
+    --text: #1e1f22;
+    --bright: #000000;
+    --muted: #6c707e;
+    --hover: #dfe1e5;
+    --accent: #3574f0;
+    --accent-soft: #d4e2ff;
+    --selection: #d4e2ff;
+    --card: #ffffff;
+    --stripe-icon: #6c707e
+}
+
+.app button:focus-visible, .app input:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
+
+/* ── Main toolbar ─────────────────────────────── */
+.app .toolbar {
+    height: 40px;
+    padding: 0 8px 0 10px;
+    gap: 10px;
+    background: var(--toolbar);
+    box-shadow: none;
+    border-bottom: 1px solid var(--border)
+}
+.app .toolbar:after { display: none }
+.app .identity { display: flex; align-items: center; gap: 4px; min-width: 0 }
+.app .brand-gem { width: 28px; height: 28px; padding: 0; margin-right: 4px; border: 0; border-radius: 6px; background: none; box-shadow: none }
+.app .brand-gem img { width: 22px !important; height: 22px !important; filter: none }
+.app .project-widget, .app .vcs-widget {
+    height: 28px;
+    padding: 0 8px 0 6px;
+    gap: 7px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap
+}
+.app .vcs-widget { font-weight: 500 }
+.app .project-widget:hover, .app .vcs-widget:hover { background: var(--hover); color: var(--bright) }
+.app .project-widget > svg, .app .vcs-widget > svg { color: var(--muted) }
+.app .project-widget .workspace-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; color: inherit; font-size: 13px }
+.app .project-badge {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #fff;
+    background: linear-gradient(135deg, #3574f0, #7a5cff)
+}
+.app .vcs-widget .status-changes { min-width: 18px; height: 16px; padding: 0 5px; border-radius: 8px; font-size: 10px; display: grid; place-items: center; background: var(--line); color: var(--text) }
+
+.app .command-launch {
+    width: min(400px, 34vw);
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--editor);
+    box-shadow: none;
+    backdrop-filter: none;
+    color: var(--muted);
+    transform: none
+}
+.app .command-launch:hover { border-color: var(--accent); box-shadow: none; transform: none; background: var(--editor) }
+.app .command-launch kbd { border: 0; padding: 0 }
+
+.app .toolbar-actions { gap: 2px }
+.app .toolbar-actions .icon-button { width: 30px; height: 30px; padding: 0; border-radius: 6px; color: var(--stripe-icon) }
+.app .toolbar-actions .icon-button:hover { background: var(--hover); color: var(--bright) }
+.app .toolbar-actions .icon-button.selected { background: var(--accent-soft); color: var(--bright) }
+.app .run-widget { display: flex; align-items: center; gap: 2px; padding-right: 8px; margin-right: 6px; border-right: 1px solid var(--line) }
+.app .run-widget .run svg { color: #5fb865; fill: #5fb865 }
+.app .run-widget .debug svg { color: #5fb865 }
+.app .toolbar-actions .ai-toggle {
+    height: 28px;
+    padding: 0 10px;
+    margin-left: 6px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: transparent;
+    box-shadow: none;
+    color: var(--text);
+    font-weight: 500
+}
+.app .toolbar-actions .ai-toggle:hover, .app .toolbar-actions .ai-toggle.selected { background: var(--accent-soft); border-color: transparent; color: var(--bright); box-shadow: none }
+.app .toolbar-actions .account-button { height: 28px; border-radius: 6px; box-shadow: none }
+
+/* ── Tool-window stripes ──────────────────────── */
+.app .activity, .app .stripe-right {
+    flex: 0 0 40px;
+    width: 40px;
+    padding: 6px 0;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--toolbar)
+}
+.app .activity { border-right: 1px solid var(--border) }
+.app .stripe-right { border-left: 1px solid var(--border) }
+.app .activity > button, .app .stripe-right > button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    box-shadow: none;
+    color: var(--stripe-icon)
+}
+.app .activity > button:hover, .app .stripe-right > button:hover { background: var(--hover) }
+.app .activity > button.selected, .app .stripe-right > button.selected { background: var(--accent-soft); box-shadow: none; border: 0 }
+.app .activity > button.selected:before { display: none }
+.app .activity .prism-icon { width: 20px; height: 20px; filter: none; transform: none }
+.app .activity .prism-glow, .app .activity .prism-face:after { display: none }
+.app .activity .prism-face { inset: 0; border: 0; border-radius: 0; background: none !important; box-shadow: none !important; color: var(--stripe-icon) }
+.app .activity .prism-face svg, .app .stripe-right svg { filter: none; stroke-width: 1.7 }
+.app .activity > button.selected .prism-face, .app .stripe-right > button.selected { color: var(--bright) }
+.app.light .activity > button.selected .prism-face, .app.light .stripe-right > button.selected { color: var(--accent) }
+.app .activity .nav-spacer { flex: 1 }
+
+/* ── Tool windows ─────────────────────────────── */
+.app .sidebar { background: var(--sidebar); border-right: 1px solid var(--border) }
+.app .sidebar-heading {
+    height: 38px;
+    padding: 0 8px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text);
+    border-bottom: 0
+}
+.app .resize-handle { background: transparent }
+.app .resize-handle:hover { background: var(--accent) }
+
+/* ── Editor tabs ──────────────────────────────── */
+.app .tab-bar { height: 38px; background: var(--editor); border-bottom: 1px solid var(--line); box-shadow: none }
+.app .tab { height: 38px; background: transparent; border: 0; color: var(--muted); box-shadow: none }
+.app .tab:before { display: none }
+.app .tab:hover { background: transparent; color: var(--text) }
+.app .tab.active { background: transparent; color: var(--bright); box-shadow: none }
+.app .tab.active:after { content: ""; position: absolute; top: auto; left: 6px; right: 6px; bottom: 0; height: 2px; width: auto; border-radius: 2px 2px 0 0; background: var(--accent); box-shadow: none; opacity: 1 }
+.app.light .tab, .app.light .tab.active { background: transparent }
+.app .breadcrumbs { height: 30px; background: var(--editor); border-bottom: 1px solid var(--line); color: var(--muted) }
+.app .content, .app .editing-area { background: var(--editor) }
+
+/* ── Bottom tool window ───────────────────────── */
+.app .bottom-tabs { height: 36px; background: var(--sidebar); border-top: 1px solid var(--border); box-shadow: none }
+.app .bottom-tabs > button { height: 36px; border-radius: 0; background: transparent; color: var(--muted); border: 0; box-shadow: none; position: relative }
+.app .bottom-tabs > button:hover { background: transparent; color: var(--text) }
+.app .bottom-tabs > button.active { color: var(--bright); background: transparent }
+.app .bottom-tabs > button.active:after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 0; height: 2px; border-radius: 2px 2px 0 0; background: var(--accent) }
+.app .terminal-session-bar, .app .problems-panel { background: var(--sidebar) }
+
+/* ── Status bar ───────────────────────────────── */
+.app .statusbar { height: 26px; background: var(--toolbar); border-top: 1px solid var(--border); color: var(--muted); box-shadow: none }
+.app .statusbar button { border-radius: 4px; color: var(--muted) }
+.app .statusbar button:hover:not(:disabled) { background: var(--hover); color: var(--text) }
+.app .status-crumbs { display: flex; align-items: center; gap: 4px; padding: 0 8px; min-width: 0; overflow: hidden; white-space: nowrap; color: var(--text) }
+.app .status-crumbs > svg, .app .status-crumbs .crumb svg { color: var(--muted); flex: none }
+.app .status-crumbs .crumb { display: inline-flex; align-items: center; gap: 4px }
+.app .status-crumbs .crumb:last-child { color: var(--bright) }
+
+/* ── Welcome ──────────────────────────────────── */
+.app .welcome {
+    display: flex !important;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
+    padding: 0 !important;
+    overflow: auto;
+    background: var(--editor)
+}
+.app .welcome-nav { flex: 0 0 236px; display: flex; flex-direction: column; gap: 2px; padding: 18px 12px; background: var(--sidebar); border-right: 1px solid var(--line) }
+.app .welcome-brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 20px }
+.app .welcome-brand img { width: 38px; height: 38px }
+.app .welcome-brand span { display: flex; flex-direction: column; gap: 3px }
+.app .welcome-brand b { font-size: 14px; color: var(--bright) }
+.app .welcome-brand small { font-size: 11px; color: var(--muted) }
+.app .welcome-nav button { justify-content: flex-start; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; font-size: 13px; color: var(--text) }
+.app .welcome-nav button svg { color: var(--muted) }
+.app .welcome-nav button.selected { background: var(--accent-soft); color: var(--bright) }
+.app .welcome-nav button.selected svg { color: var(--bright) }
+.app.light .welcome-nav button.selected, .app.light .welcome-nav button.selected svg { color: var(--accent) }
+.app .welcome-main { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; padding: 48px 32px; text-align: center }
+.app .welcome-hero { display: flex !important; flex-direction: column; align-items: center; gap: 12px; margin: 0; padding: 0 }
+.app .welcome .hero-mark { width: 76px; height: 76px; display: grid; place-items: center; background: none; border: 0; box-shadow: none }
+.app .welcome .hero-mark img { width: 64px; height: 64px; filter: drop-shadow(0 10px 24px #0007) }
+.app .welcome h1 { margin: 6px 0 0; font-size: 22px; line-height: 1.3; font-weight: 600; letter-spacing: 0; color: var(--bright); background: none; -webkit-text-fill-color: currentColor }
+.app .welcome-hero p { margin: 0; max-width: 440px; font-size: 13px; line-height: 1.6; color: var(--muted) }
+.app .welcome-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px }
+.app .welcome-actions button { flex-direction: column; gap: 9px; width: 128px; padding: 6px 0; border-radius: 10px; background: none; color: var(--text) }
+.app .welcome-actions button:hover:not(:disabled) { background: none }
+.app .welcome-actions button > span { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 14px; background: var(--sidebar); border: 1px solid var(--line); color: var(--stripe-icon); transition: border-color .15s, background .15s }
+.app .welcome-actions button:hover > span { border-color: var(--accent); background: var(--hover); color: var(--bright) }
+.app .welcome-actions b { font-size: 13px; font-weight: 500 }
+.app .welcome-actions kbd { border: 0; padding: 0; font-size: 11px }
+.app .welcome-recent { width: min(440px, 100%); display: flex; flex-direction: column; gap: 8px; text-align: left }
+.app .welcome-recent > small { font-size: 11px; font-weight: 600; letter-spacing: .6px; color: var(--muted) }
+.app .welcome-recent button { justify-content: flex-start; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 8px; background: var(--sidebar); border: 1px solid var(--line); text-align: left }
+.app .welcome-recent button > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px }
+.app .welcome-recent b { color: var(--bright); font-size: 13px }
+.app .welcome-recent small { color: var(--muted) }
+.app .welcome-footer { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; margin: 0; padding: 0; border: 0; color: var(--muted) }
+.app .welcome-footer kbd { margin-right: 6px }
+
+/* ── Project tool window ──────────────────────── */
+.app .workspace-section { height: 30px; margin: 0 6px 2px; padding: 0 4px 0 6px; border: 0; border-radius: 4px; background: none; box-shadow: none; font-weight: 600; color: var(--text) }
+.app .workspace-section button { width: 24px; height: 24px; border-radius: 4px; color: var(--muted) }
+.app .creation-target { padding: 4px 12px 8px; margin: 0 0 4px; border-bottom: 1px solid var(--line) }
+.app .creation-target > span { font-size: 10px; letter-spacing: .4px }
+.app .creation-target strong { font: 500 11px Inter, "Segoe UI", sans-serif; color: var(--text) }
+.app .explorer-entry { margin: 0 6px; border-radius: 4px; transform: none !important; box-shadow: none !important; transition: background .1s }
+.app .explorer-entry:hover { background: var(--hover) }
+.app .explorer-entry.selected { background: var(--selection); box-shadow: none }
+.app .explorer-entry > .tree-row { height: 26px; font-size: 13px; gap: 6px }
+.app .tree-row.active { background: var(--selection); border-left-color: transparent; color: var(--bright) }
+.app .tree-children { border-left: 1px solid var(--line); border-image: none }
+.app .dimensional-icon { filter: none }
+.app .outline { border-top: 1px solid var(--line) }
+.app .outline-heading { letter-spacing: .4px; color: var(--muted) }
+
+/* ── Buttons ──────────────────────────────────── */
+.app .primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; box-shadow: none; font-weight: 600 }
+.app .primary:hover:not(:disabled) { background: #4682fa; border-color: #4682fa; color: #fff }
+.app .secondary { border-radius: 6px }

@@ -19,14 +19,34 @@ self.MonacoEnvironment = {
 loader.config({ monaco });
 monaco.editor.defineTheme("veyra", {
   base: "vs-dark", inherit: true,
+  // A calm IDE palette: orange keywords, green strings, cyan numbers, blue functions, grey comments.
   rules: [
-    { token: "comment", foreground: "657587", fontStyle: "italic" },
-    { token: "keyword", foreground: "C6A3F4" },
-    { token: "string", foreground: "A6D9AF" },
-    { token: "number", foreground: "E6B88F" },
-    { token: "type.identifier", foreground: "7BCCC6" },
+    { token: "", foreground: "BCBEC4" },
+    { token: "comment", foreground: "7A7E85", fontStyle: "italic" },
+    { token: "keyword", foreground: "CF8E6D" },
+    { token: "string", foreground: "6AAB73" },
+    { token: "string.escape", foreground: "CF8E6D" },
+    { token: "number", foreground: "2AACB8" },
+    { token: "regexp", foreground: "42C3D4" },
+    { token: "type.identifier", foreground: "C77DBB" },
+    { token: "identifier.function", foreground: "56A8F5" },
+    { token: "delimiter", foreground: "BCBEC4" },
+    { token: "tag", foreground: "D5B778" },
+    { token: "attribute.name", foreground: "BABABA" },
+    { token: "attribute.value", foreground: "6AAB73" },
+    { token: "metatag", foreground: "B3AE60" },
+    { token: "annotation", foreground: "B3AE60" },
   ],
-  colors: { "editor.background": "#171b22", "editor.foreground": "#D5DEEB", "editorLineNumber.foreground": "#485464", "editorLineNumber.activeForeground": "#B3C1D3", "editor.lineHighlightBackground": "#1D242E", "editor.selectionBackground": "#354659", "editorCursor.foreground": "#8EDAD0", "editorIndentGuide.background1": "#26303B", "editorWidget.background": "#202732", "editorWidget.border": "#344050" },
+  colors: {
+    "editor.background": "#1E1F22", "editor.foreground": "#BCBEC4",
+    "editorLineNumber.foreground": "#4B5059", "editorLineNumber.activeForeground": "#A1A3AB",
+    "editor.lineHighlightBackground": "#26282E", "editor.lineHighlightBorder": "#00000000",
+    "editor.selectionBackground": "#214283", "editor.inactiveSelectionBackground": "#2B3A55",
+    "editorCursor.foreground": "#CED0D6", "editorIndentGuide.background1": "#313438", "editorIndentGuide.activeBackground1": "#4B4E55",
+    "editorWidget.background": "#2B2D30", "editorWidget.border": "#43454A", "editorSuggestWidget.selectedBackground": "#2E436E",
+    "editorGutter.background": "#1E1F22", "scrollbarSlider.background": "#4D515866", "scrollbarSlider.hoverBackground": "#5A5E6599",
+    "editorBracketMatch.background": "#43454A", "editorBracketMatch.border": "#00000000",
+  },
 });
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   target: monaco.languages.typescript.ScriptTarget.ESNext,

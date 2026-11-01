@@ -97,7 +97,7 @@ test.beforeEach(async ({page})=>{
 test("offline editor, tab retention, save, close protection, search and settings",async({page})=>{
   const errors:string[]=[];page.on("pageerror",e=>{if(e.message!=="Canceled")errors.push(e.message);});
   await page.goto("/");
-  await expect(page.getByRole("heading",{name:"Room to create."})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Welcome to Veyra Studio"})).toBeVisible();
   await page.screenshot({path:"test-results/welcome.png"});
   await page.getByRole("button",{name:"Open a project",exact:false}).click();
   await page.locator('.tree-row[title="src"]').click();
