@@ -48,6 +48,8 @@ monaco.editor.defineTheme("veyra", {
     "editorBracketMatch.background": "#43454A", "editorBracketMatch.border": "#00000000",
   },
 });
+// Monaco measures character widths once; measure again when the bundled editor font has loaded.
+void document.fonts?.load("14px 'JetBrains Mono'").then(() => monaco.editor.remeasureFonts()).catch(() => {});
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
   target: monaco.languages.typescript.ScriptTarget.ESNext,
   module: monaco.languages.typescript.ModuleKind.ESNext,

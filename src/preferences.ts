@@ -9,7 +9,7 @@ export type Preferences = {
 };
 
 export const defaultPreferences: Preferences = {
-  fontSize: 14, fontFamily: "'Cascadia Code', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace", lineHeight: 24, ligatures: true,
+  fontSize: 14, fontFamily: "'JetBrains Mono', 'Cascadia Code', Menlo, Monaco, Consolas, monospace", lineHeight: 23, ligatures: true,
   tabSize: 2, insertSpaces: true, wrap: false, minimap: true, light: false,
   lineNumbers: "on", renderWhitespace: "selection", cursorStyle: "line", cursorBlinking: "smooth", smoothCaret: true,
   bracketGuides: true, stickyScroll: true, rulers: "",
@@ -17,8 +17,15 @@ export const defaultPreferences: Preferences = {
   terminalFontSize: 13, gitGutter: true,
 };
 
+/** Earlier defaults: someone who never changed them gets the new ones. */
+const OLD_DEFAULT_FONT = "'Cascadia Code', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace";
+
 export function readPreferences(): Preferences {
-  try { return { ...defaultPreferences, ...JSON.parse(localStorage.getItem("veyra.preferences") || "{}") }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem("veyra.preferences") || "{}");
+    if (saved.fontFamily === OLD_DEFAULT_FONT) { delete saved.fontFamily; if (saved.lineHeight === 24) delete saved.lineHeight; }
+    return { ...defaultPreferences, ...saved };
+  }
   catch { return { ...defaultPreferences }; }
 }
 

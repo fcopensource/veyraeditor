@@ -1,6 +1,6 @@
 /* Veyra Studio's IDE look: a calm charcoal workbench with a main toolbar, tool-window stripes on both sides,
    flat tabs with an accent underline and a compact status bar. Loaded last, so it refines the earlier layers. */
-.app {
+.app, .app:not(.extension-themed):not(.light) {
     --editor: #1e1f22;
     --sidebar: #2b2d30;
     --toolbar: #2b2d30;
@@ -261,3 +261,103 @@
 .app .primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; box-shadow: none; font-weight: 600 }
 .app .primary:hover:not(:disabled) { background: #4682fa; border-color: #4682fa; color: #fff }
 .app .secondary { border-radius: 6px }
+
+/* ══ Islands: the newest Android Studio look ═════════════════════════════════
+   The toolbar, stripes and status bar sit on a darker frame; the project view, editor, AI assistant and
+   bottom tool window float on it as rounded islands. */
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 100 800; font-display: swap; src: url("./assets/fonts/JetBrainsMono-wght.woff2") format("woff2") }
+@font-face { font-family: "JetBrains Mono"; font-style: italic; font-weight: 100 800; font-display: swap; src: url("./assets/fonts/JetBrainsMono-Italic-wght.woff2") format("woff2") }
+
+.app, .app:not(.extension-themed):not(.light) {
+    --frame: #141518;
+    --toolbar: #141518;
+    --sidebar: #1e1f22;
+    --editor: #1e1f22;
+    --card: #2b2d30;
+    --hover: #2b2d30;
+    --line: #2b2d30;
+    --border: var(--line);
+    --island-radius: 10px;
+    background: var(--frame)
+}
+.app.light {
+    --frame: #ebecf0;
+    --toolbar: #ebecf0;
+    --sidebar: #ffffff;
+    --editor: #ffffff;
+    --card: #f7f8fa;
+    --hover: #e8eaee;
+    --line: #ebecf0;
+    --border: var(--line)
+}
+
+.app .toolbar, .app .statusbar { background: var(--frame); border: 0 }
+.app .activity, .app .stripe-right { background: var(--frame); border: 0 }
+.app .workbench { background: var(--frame); gap: 0; padding-bottom: 6px }
+.app .sidebar { border: 0; border-radius: var(--island-radius); overflow: hidden }
+.app .resize-handle { flex: 0 0 6px; width: 6px; background: transparent; border-radius: 3px }
+.app .resize-handle:hover { background: var(--accent) }
+.app .content { border-radius: var(--island-radius); overflow: hidden; border: 0 }
+.app .activity + .content { margin-left: 0 }
+.app .ai-studio { margin-left: 6px; border: 0; border-radius: var(--island-radius); overflow: hidden; background: var(--sidebar) }
+.app .stripe-right { margin-left: 0 }
+.app .command-launch { background: var(--card); border-color: transparent }
+.app .command-launch:hover { border-color: var(--accent); background: var(--card) }
+.app .tab-bar, .app .breadcrumbs { border-bottom-color: var(--line) }
+
+/* The bottom tool window reads as its own island inside the editor column. */
+.app .bottom-tabs { border-top: 6px solid var(--frame); background: var(--sidebar) }
+.app .terminal-session-bar, .app .problems-panel, .app .terminal-panel { background: var(--sidebar) }
+
+/* ── Flat file icons ──────────────────────────── */
+.app .dimensional-icon { filter: none !important; transform: none !important }
+.app .dimensional-icon svg { filter: none !important }
+.app .explorer-entry:hover .dimensional-icon { transform: none }
+
+/* ── AI assistant: a calm tool window ─────────── */
+.app .ai-header { height: 38px; background: transparent; border-bottom: 1px solid var(--line); box-shadow: none }
+.app .ai-welcome { padding: 28px 18px 12px; gap: 10px; text-align: left; align-items: flex-start }
+.app .ai-welcome .ai-orb { position: static; display: block; width: 48px; height: 48px; margin: 0 0 6px; overflow: visible; background: none; box-shadow: none; filter: none; animation: none; transform: none }
+.app .ai-welcome .ai-orb svg { display: block; width: 48px; height: 48px }
+.app .ai-eyebrow { font-size: 11px; letter-spacing: .4px; color: var(--muted) }
+.app .ai-welcome h2 { margin: 0; font-size: 18px; line-height: 1.35; font-weight: 600; letter-spacing: 0; color: var(--bright); background: none; -webkit-text-fill-color: currentColor }
+
+.app .ai-welcome > p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--muted) }
+.app .ai-starters { width: 100%; gap: 6px }
+.app .ai-starters button { justify-content: flex-start; text-align: left; border-radius: 8px; background: var(--card); border: 1px solid transparent; box-shadow: none }
+.app .ai-starters button:hover:not(:disabled) { border-color: var(--accent); background: var(--card) }
+.app .ai-composer { border-radius: 10px; background: var(--card); border: 1px solid var(--line); box-shadow: none }
+.app .ai-composer:focus-within { border-color: var(--accent); box-shadow: none }
+
+/* ── Popups: Search Everywhere, menus and dialogs ─ */
+.app .overlay { background: #0008; backdrop-filter: none }
+.app .palette, .app .dialog, .app .explorer-context-menu, .app .tab-menu {
+    background: var(--card);
+    border: 1px solid #43454a;
+    border-radius: 10px;
+    box-shadow: 0 18px 50px #000a
+}
+.app.light .palette, .app.light .dialog, .app.light .explorer-context-menu, .app.light .tab-menu { border-color: #dfe1e5; box-shadow: 0 18px 50px #0003 }
+.app .palette-search { border-bottom: 1px solid var(--line) }
+.app .palette-search input { background: transparent; border: 0; font-size: 14px }
+.app .palette-results > button { border-radius: 6px; margin: 0 6px }
+.app .palette-results > button:hover:not(:disabled), .app .palette-results > button[aria-selected=true], .app .palette-results > button.selected { background: var(--selection); color: var(--bright) }
+.app .explorer-context-menu button, .app .tab-menu button { border-radius: 5px }
+.app .explorer-context-menu button:hover:not(:disabled), .app .tab-menu button:hover:not(:disabled) { background: var(--selection); color: var(--bright) }
+
+/* ── Scrollbars: thin and quiet ───────────────── */
+.app ::-webkit-scrollbar { width: 10px; height: 10px }
+.app ::-webkit-scrollbar-thumb { background: #4d515866; border-radius: 10px; border: 2px solid transparent; background-clip: padding-box }
+.app ::-webkit-scrollbar-thumb:hover { background-color: #5a5e6599 }
+.app ::-webkit-scrollbar-track, .app ::-webkit-scrollbar-corner { background: transparent }
+.app .sidebar-empty .primary, .app .sidebar-empty button.primary { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: none }
+.app .sidebar-empty .prism-glow { display: none }
+.app .ai-welcome .ai-orb img { display: block; width: 48px; height: 48px; filter: none }
+.app .primary, .app .sidebar-empty .primary { background: #3574f0; border-color: #3574f0; color: #fff }
+.app .primary:hover:not(:disabled), .app .sidebar-empty .primary:hover:not(:disabled) { background: #4682fa; border-color: #4682fa; color: #fff }
+.app input, .app textarea, .app select { border: 1px solid #43454a; border-radius: 6px; background: var(--editor) }
+.app.light input, .app.light textarea, .app.light select { border-color: #c9ccd6 }
+.app input:focus, .app textarea:focus, .app select:focus, .app input:focus-visible, .app textarea:focus-visible { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px #3574f033 }
+.app .palette-search input, .app .ai-composer textarea { border: 0; box-shadow: none; background: transparent }
+/* An extension colour theme takes over: the frame follows its title bar and the window its editor. */
+.app.extension-themed { --frame: var(--toolbar); background: var(--editor) }
