@@ -106,7 +106,7 @@ export default function Docs(){
           <p>AI is optional. Veyra&apos;s assistant uses <strong>Veyra AI</strong>, and all you need is a free Veyra account. There&apos;s no API key to paste.</p>
           <ol>
             <li><Link href="/register">Create a free Veyra account</Link> (or use the one you have).</li>
-            <li>In Veyra, open the AI panel with <kbd>Ctrl</kbd>+<kbd>L</kbd> (<kbd>⌘L</kbd> on macOS) and sign in with your email and password.</li>
+            <li>In Veyra, open the AI panel with the <strong>Veyra AI</strong> button in the top bar or <kbd>Ctrl</kbd>+<kbd>L</kbd> (<kbd>⌘L</kbd> on macOS) and sign in with your email and password.</li>
             <li>Start asking. Every account gets <strong>10 free Veyra AI requests in total</strong>, and the panel shows how many you have left. A request that fails isn&apos;t counted.</li>
           </ol>
           <h3>What you can do</h3>
