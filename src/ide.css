@@ -361,3 +361,56 @@
 .app .palette-search input, .app .ai-composer textarea { border: 0; box-shadow: none; background: transparent }
 /* An extension colour theme takes over: the frame follows its title bar and the window its editor. */
 .app.extension-themed { --frame: var(--toolbar); background: var(--editor) }
+
+/* ══ Matched to Android Studio (Islands Dark), colour for colour ═══════════════
+   Frame #25282d, islands #191a1e, active tab #38393d, selection #2b4371, current line #1f2024. */
+.app, .app:not(.extension-themed):not(.light) {
+    --frame: #25282d;
+    --toolbar: #25282d;
+    --sidebar: #191a1e;
+    --editor: #191a1e;
+    --card: #2b2d30;
+    --hover: #2e3035;
+    --line: #2b2d31;
+    --border: #2b2d31;
+    --selection: #2b4371;
+    --accent-soft: #2b4371;
+    --tab-active: #38393d;
+    --text: #dfe1e5;
+    --muted: #8f9094;
+    font-size: 13px
+}
+.app.light { --tab-active: #dfe1e5; --frame: #ebecf0; --toolbar: #ebecf0 }
+
+/* The toolbar carries the project's colour from the left, like Android Studio's project gradient. */
+.app .toolbar {
+    height: 44px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--project, #5a5d63) 34%, var(--frame)) 0%, color-mix(in srgb, var(--project, #5a5d63) 12%, var(--frame)) 28%, var(--frame) 58%)
+}
+.app.light .toolbar { background: linear-gradient(90deg, color-mix(in srgb, var(--project, #5a5d63) 22%, var(--frame)) 0%, var(--frame) 50%) }
+.app.extension-themed .toolbar { background: var(--toolbar) }
+.app .toolbar-spacer { flex: 1 }
+.app .project-badge { background: var(--project, #5a5d63); width: 22px; height: 22px; border-radius: 6px; font-size: 10.5px }
+.app .project-widget, .app .vcs-widget { font-size: 13.5px }
+.app .project-widget:hover, .app .vcs-widget:hover { background: #ffffff14 }
+.app .toolbar-actions .icon-button:hover { background: #ffffff14 }
+.app.light .project-widget:hover, .app.light .vcs-widget:hover, .app.light .toolbar-actions .icon-button:hover { background: #0000000f }
+
+/* Tabs: the open file is a rounded grey pill. */
+.app .tab-bar { height: 40px; align-items: center; padding-left: 4px }
+.app .tab { height: 30px; margin: 0 1px; border-radius: 6px; font-size: 13px }
+.app .tab.active { background: var(--tab-active) }
+.app .tab.active:after { display: none }
+.app .tab:hover:not(.active) { background: #ffffff0d }
+
+/* Selection, current line and hover inside the islands. */
+.app .explorer-entry:hover { background: #ffffff0d }
+.app .explorer-entry.selected, .app .tree-row.active { background: var(--selection) }
+.app .explorer-entry > .tree-row { height: 28px; font-size: 13.5px }
+.app .sidebar-heading { height: 42px; font-size: 13.5px }
+
+/* Status bar: compact, quiet, location on the left. */
+.app .statusbar { height: 28px; font-size: 12.5px }
+.app .statusbar .status-position { font-variant-numeric: tabular-nums }
+.app .brand-gem { flex: none; width: 26px; height: 26px; overflow: visible }
+.app .brand-gem img { display: block; width: 22px !important; height: 22px !important; max-width: none; object-fit: contain }

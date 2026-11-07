@@ -4,7 +4,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import "@xterm/xterm/css/xterm.css";
 
-const dark: ITheme = { background: "#1E1F22", foreground: "#BCBEC4", cursor: "#CED0D6", selectionBackground: "#214283" };
+const dark: ITheme = { background: "#191A1E", foreground: "#BCBEC4", cursor: "#CED0D6", selectionBackground: "#2B4371" };
 const light: ITheme = { background: "#fbfcfe", foreground: "#2b3a4f", cursor: "#277b6c", selectionBackground: "#cfe3f7", black: "#2b3a4f", white: "#8a96a8", brightWhite: "#5c6a7e", yellow: "#9a6b00", brightYellow: "#8a5d00" };
 
 /** Dispatch `veyra-terminal` with {sessionId, action} to control a session from outside (e.g. the Clear Terminal menu item). */

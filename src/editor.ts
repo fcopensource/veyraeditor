@@ -38,13 +38,13 @@ monaco.editor.defineTheme("veyra", {
     { token: "annotation", foreground: "B3AE60" },
   ],
   colors: {
-    "editor.background": "#1E1F22", "editor.foreground": "#BCBEC4",
-    "editorLineNumber.foreground": "#4B5059", "editorLineNumber.activeForeground": "#A1A3AB",
-    "editor.lineHighlightBackground": "#26282E", "editor.lineHighlightBorder": "#00000000",
-    "editor.selectionBackground": "#214283", "editor.inactiveSelectionBackground": "#2B3A55",
+    "editor.background": "#191A1E", "editor.foreground": "#BCBEC4",
+    "editorLineNumber.foreground": "#4B5059", "editorLineNumber.activeForeground": "#B3B4B8",
+    "editor.lineHighlightBackground": "#1F2024", "editor.lineHighlightBorder": "#00000000",
+    "editor.selectionBackground": "#2B4371", "editor.inactiveSelectionBackground": "#2B3A55",
     "editorCursor.foreground": "#CED0D6", "editorIndentGuide.background1": "#313438", "editorIndentGuide.activeBackground1": "#4B4E55",
     "editorWidget.background": "#2B2D30", "editorWidget.border": "#43454A", "editorSuggestWidget.selectedBackground": "#2E436E",
-    "editorGutter.background": "#1E1F22", "scrollbarSlider.background": "#4D515866", "scrollbarSlider.hoverBackground": "#5A5E6599",
+    "editorGutter.background": "#191A1E", "scrollbarSlider.background": "#4D515866", "scrollbarSlider.hoverBackground": "#5A5E6599",
     "editorBracketMatch.background": "#43454A", "editorBracketMatch.border": "#00000000",
   },
 });
