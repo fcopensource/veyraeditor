@@ -1,16 +1,19 @@
 <div align="center">
 
-<img src="public/veyra.png" alt="Veyra Studio" width="112" />
+<img src="public/veyra.png" alt="Veyra Studio" width="120" />
 
 # Veyra Studio
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=72E0C4&center=true&vCenter=true&width=820&lines=AI-native+desktop+code+editor.;Local-first.+Fast.+Focused.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.;Your+code.+Your+machine.+Your+AI.)](https://github.com/fcopensource/veyraeditor)
+### The lightweight VS Code alternative.
 
-### A fast, local-first code editor with Git, a real terminal, a Python debugger and Veyra AI built in.
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=7DA6F5&center=true&vCenter=true&width=820&lines=Same+editor.+Same+shortcuts.+Lighter+on+memory.;A+native+Rust+app.+No+bundled+browser.;Git%2C+terminal+and+Veyra+AI+built+in.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.)](https://veyraeditor.com)
 
-[![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=72E0C4)](https://github.com/fcopensource/veyraeditor/releases/latest)
+The Monaco editor you know from VS Code, in a fast native app that's a tenth of the download size.<br/>
+Git, a real terminal, a Python debugger and Veyra AI are built in. Free and open source.
+
+[![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=7DA6F5)](https://github.com/fcopensource/veyraeditor/releases/latest)
 [![Release build](https://img.shields.io/github/actions/workflow/status/fcopensource/veyraeditor/release.yml?label=build)](https://github.com/fcopensource/veyraeditor/actions/workflows/release.yml)
-[![Downloads](https://img.shields.io/github/downloads/fcopensource/veyraeditor/total?color=8B5CF6)](https://github.com/fcopensource/veyraeditor/releases)
+[![Downloads](https://img.shields.io/github/downloads/fcopensource/veyraeditor/total?color=A08CEC)](https://github.com/fcopensource/veyraeditor/releases)
 [![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-24C8D8)](#-download)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
 
@@ -20,42 +23,94 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-[**Download**](#-download) · [Features](#-features) · [Debugging](#-debugging) · [Live Server](#-live-server) · [AI Studio](#-ai-studio) · [Git](#-git-built-in) · [Build from source](#-build-from-source) · [Architecture](#-architecture) · [Roadmap](#-roadmap)
+**[⬇️ Download](#-download)** · [Website](https://veyraeditor.com) · [Veyra vs VS Code](#-veyra-vs-vs-code) · [What's new](#-whats-new-in-010) · [Features](#-features) · [AI Studio](#-ai-studio) · [Build from source](#-build-from-source) · [Roadmap](#-roadmap)
 
 </div>
 
----
+<br/>
 
 <p align="center">
-  <img src="public/ssfile.png" alt="Veyra Studio with the Explorer, editor and integrated terminal" width="100%" />
+  <img src="docs/screenshots/veyra-editor.png" alt="Veyra Studio 0.10: the project tree with colour-coded folders and language icons, a TypeScript file in the editor, Git changes and a PowerShell terminal" width="100%" />
 </p>
 
-## Why Veyra?
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/launch-screen.png" alt="The Veyra Studio launch screen" /><br/><sub><b>A launch screen</b> while Veyra starts</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/welcome.png" alt="The Veyra Studio Welcome screen" /><br/><sub><b>A calm first screen</b>: only Welcome until you open a project</sub></td>
+  </tr>
+</table>
 
-Most developers spend hours every day inside an editor. Veyra is built on the idea that this place should be **fast, local, calm and intelligent by default**:
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="docs/screenshots/veyra-ai.png" alt="The Veyra AI panel with a reply and a code card" height="520" /><br/><sub><b>Veyra AI</b>: code in cards, edits you review</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/git-panel.png" alt="The Git panel with a staged change and the commit graph" height="520" /><br/><sub><b>Git</b>: one colour per kind of change</sub></td>
+    <td valign="top">
 
-- **Native and light.** A Rust backend and the system webview instead of a bundled browser, so installers are 7–11 MB.
-- **Your files stay yours.** Veyra works directly on your local folders, saves atomically and never overwrites a file that changed on disk behind your back.
-- **AI where you need it, under your control.** Veyra AI is built in: sign in with a free Veyra account, no API key needed. Every AI edit is shown as a diff and is undoable. Nothing is applied or saved without you.
-- **Everything included.** Git, a real terminal, a debugger, workspace search, themes and a self-diagnosing health monitor work out of the box.
+### Built to feel like home
+
+- **Same editor as VS Code.** Monaco, IntelliSense, multi-cursor, the command palette and the shortcuts you already know.
+- **Lighter on memory.** One small Rust process and the web view built into your OS. No bundled Chromium, no Node.js runtime, no extension host.
+- **Small and quick.** The Windows installer is about 8 MB. VS Code's is about 100 MB.
+- **Everything included.** Git, a real terminal, Live Server, a Python debugger and Veyra AI work out of the box.
+- **Private by default.** No telemetry. Your code only leaves your machine when you send it to AI.
+
+</td>
+  </tr>
+</table>
+
+---
+
+## 🆚 Veyra vs VS Code
+
+Veyra is for developers who love VS Code's editor but not its weight.
+
+| | **Veyra Studio** | VS Code |
+| --- | --- | --- |
+| **Built with** | Rust + the system web view (Tauri) | Electron (bundled Chromium + Node.js) |
+| **Installer size** | ~8 MB on Windows, ~12 MB on macOS | ~100 MB |
+| **Memory** | Lighter: one Rust process plus the OS web view, no extension host | Heavier: its own browser engine, plus separate window, GPU and extension-host processes |
+| **Editor** | Monaco, the same engine | Monaco |
+| **Shortcuts** | VS Code's: `Ctrl+P`, `Ctrl+Shift+P`, `Ctrl+B` and more | — |
+| **Language tools** | TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue and Python in one click | Extensions |
+| **AI** | Veyra AI built in, free requests with a free account | GitHub Copilot (extension) |
+| **Telemetry** | None | On by default |
+| **Price** | Free, MIT licensed | Free |
+
+**Fair to know:** VS Code extensions that run their own code don't work in Veyra yet (themes and snippets from Open VSX do), and the debugger covers Python today. Both are on the [roadmap](#-roadmap). Want to see the memory difference on your own machine? Open the same project in both and compare them in Task Manager or Activity Monitor: [here's how](https://veyraeditor.com/blog/lightweight-vs-code-alternative-less-memory).
+
+---
+
+## 🎉 What's new in 0.10
+
+A complete redesign, inspired by Android Studio:
+
+- 🏝️ **Islands theme:** rounded panels, calmer colours and JetBrains Mono in the editor.
+- 🪟 **One title bar** on Windows and Linux, with the menu behind ☰ and built-in window buttons.
+- 🚀 **A launch screen**, and a calm first screen that shows only Welcome until you open a project.
+- 📁 **New file and folder icons:** folders coloured by role (source, tests, assets, build, config) and files with language badges.
+- 🌿 **Clearer Git colours:** blue for modified, green for added, red for deleted, violet for renamed, and labelled branches in the commit graph.
+- ✨ **A new Veyra AI:** a simpler logo, a redesigned panel, code cards with Copy, and a single message box.
+- 🔒 **Security updates** across the TLS libraries, the updater and the web content sanitiser.
+
+Full notes in the [changelog](CHANGELOG.md).
 
 ---
 
 ## 📥 Download
 
-Get the latest build from **[GitHub Releases](https://github.com/fcopensource/veyraeditor/releases/latest)**:
+**[Download the latest release](https://github.com/fcopensource/veyraeditor/releases/latest)**, or get it from **[veyraeditor.com](https://veyraeditor.com/download)**.
 
 | Platform | Installer | Notes |
 | --- | --- | --- |
-| **Windows** 10 / 11 | `Veyra.Studio_x.y.z_x64-setup.exe` or `.msi` | WebView2 is installed automatically if missing |
+| **Windows** 10 / 11 | [Microsoft Store](https://apps.microsoft.com/detail/XP8LKHC447THM1) (recommended) · `Veyra.Studio_x.y.z_x64-setup.exe` · `.msi` | WebView2 is installed automatically if missing |
 | **macOS** · Apple silicon | `Veyra.Studio_x.y.z_aarch64.dmg` | macOS 11 or newer |
 | **macOS** · Intel | `Veyra.Studio_x.y.z_x64.dmg` | macOS 11 or newer |
 | **Linux** | `.AppImage` (any distro) · `.deb` (Ubuntu/Debian) · `.rpm` (Fedora) | Requires WebKitGTK 4.1 |
 
-**Veyra updates itself.** Installed copies check for new versions on launch and every few hours, verify the download's signature, and offer a one-click **Update & restart**. You can also choose **Help → Check for Updates…**.
+**Veyra updates itself.** Installed copies check for new versions on launch and every few hours, verify the download's signature, and turn the top-right button into **Update** when a new version is ready. You can also choose **Help → Check for Updates…**.
 
 > [!NOTE]
-> Preview builds are not yet signed by Microsoft or Apple. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS** (v0.4.1+), drag the app to Applications, then **right-click → Open** the first time, or use **System Settings → Privacy & Security → Open Anyway**. On v0.4.0, if macOS says the app is *damaged*, run `xattr -cr "/Applications/Veyra Studio.app"` once.
+> The Microsoft Store version is signed and trusted by Windows. The GitHub installers are not yet signed by Microsoft or Apple. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS**, drag the app to Applications and open it once, then go to **System Settings → Privacy & Security → Open Anyway**.
 
 ---
 
@@ -76,7 +131,7 @@ Get the latest build from **[GitHub Releases](https://github.com/fcopensource/ve
 | **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
 | **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
 | **Veyra Live Server** | **Go Live** serves your folder with live reload; CSS updates without a reload. Built in, no Node.js needed. See [Live Server](#-live-server) |
-| **Customization** | Midnight and light themes, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
+| **Customization** | The Islands dark theme (inspired by Android Studio) and a light theme, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
 | **Updates** | Signed automatic updates on every platform |
 
 ---
@@ -114,7 +169,7 @@ The same Live Server is a VS Code extension in [`extensions/live-server`](extens
 
 ## 🧠 AI Studio
 
-Open it with **Ctrl/⌘ + L**, or select code and press **Ctrl/⌘ + K** to edit the selection with AI.
+Open it with the **Veyra AI** button in the top bar or **Ctrl/⌘ + L**, or select code and press **Ctrl/⌘ + K** to edit the selection with AI.
 
 **Veyra AI, no API key**
 - AI Studio uses **Veyra AI** only. Open the AI panel and sign in with your free [Veyra account](https://veyraeditor.com/register).
