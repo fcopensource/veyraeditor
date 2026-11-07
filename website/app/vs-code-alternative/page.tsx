@@ -1,22 +1,32 @@
 import type {Metadata} from 'next';
-import {OG_IMAGE} from '@/lib/site';
+import {OG_IMAGE,jsonLd,type QA} from '@/lib/site';
 import Link from 'next/link';
 import {Check,Feather,Keyboard,LockKeyhole,Sparkles} from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
-  title:'VS Code Alternative: Veyra vs VS Code vs Cursor',
-  description:'A fast, free VS Code or Cursor alternative? Compare Veyra with VS Code and Cursor: download size, built-in AI, privacy, extensions and languages.',
+  title:'Lightweight VS Code Alternative That Uses Less Memory',
+  description:'Veyra is a free, lightweight VS Code alternative: the same Monaco editor and shortcuts in a native Rust app with no bundled browser, so it is lighter on memory. Compare Veyra, VS Code and Cursor.',
   alternates:{canonical:'/vs-code-alternative'},
-  openGraph:{images:[OG_IMAGE],url:'/vs-code-alternative',title:'Veyra: a lightweight VS Code and Cursor alternative'},
-  keywords:['VS Code alternative','Cursor alternative','lightweight code editor','free AI code editor','open source code editor'],
+  openGraph:{images:[OG_IMAGE],url:'/vs-code-alternative',title:'Veyra: the lightweight VS Code alternative'},
+  keywords:['VS Code alternative','lightweight VS Code alternative','VS Code alternative low memory','VS Code uses too much memory','code editor that uses less RAM','low memory code editor','lightweight code editor','Cursor alternative','free AI code editor','Veyra'],
 };
+
+const FAQ:QA[]=[
+  {q:'Is Veyra a good VS Code alternative?',a:'Yes, if you want a lighter editor for web development and everyday coding. Veyra uses the same Monaco editor as VS Code with the same shortcuts and command palette, plus Git, a terminal, IntelliSense for TypeScript, ESLint, Prettier, Tailwind and Python, and Veyra AI built in.'},
+  {q:'Does Veyra use less memory than VS Code?',a:'Veyra is built to be lighter. VS Code is an Electron app that ships its own copy of Chromium and Node.js and runs several processes, including an extension host. Veyra is a native Rust app that uses the web view already built into your operating system and has no extension host, so there is less running for each window. You can compare both yourself in Task Manager or Activity Monitor with the same project open.'},
+  {q:'Why does VS Code use so much RAM?',a:'VS Code runs on Electron, so every window brings a Chromium browser engine and a Node.js runtime, and extensions run in a separate extension host process. Each language server you install adds more. That flexibility costs memory, which is why lighter editors like Veyra exist.'},
+  {q:'Can I use my VS Code shortcuts and themes in Veyra?',a:'Your shortcuts already work, because Veyra uses the same editor engine and key bindings (Ctrl+P, Ctrl+Shift+P, Ctrl+B and more). You can install themes and snippets from Open VSX inside Veyra.'},
+  {q:'Can Veyra run VS Code extensions?',a:'Not yet. Veyra installs themes and snippets from Open VSX and has the most popular language tools built in. Extensions that run their own code need an extension host, which is on the roadmap.'},
+  {q:'Is Veyra free?',a:'Yes. Veyra is free and open source (MIT) for Windows, macOS and Linux. Veyra AI includes free requests with a free Veyra account.'},
+];
 
 const ROWS:[string,string,string,string][]=[
   ['Price','Free','Free','Free tier, paid plans for AI'],
   ['Source code','Open source (MIT)','Open-source core, proprietary builds','Proprietary'],
   ['Built with','Rust + system web view (Tauri)','Electron','Electron (VS Code fork)'],
   ['Installer size','7–11 MB (Linux AppImage ~83 MB)','About 100 MB','Similar to VS Code'],
+  ['Memory','Lighter: one small Rust process plus the system web view; no bundled Chromium or Node.js, no extension host','Heavier: its own Chromium and Node.js, with separate processes for the window, GPU, extension host and more','Like VS Code, plus its AI features'],
   ['Telemetry','None','On by default, can be turned off','Collected, privacy mode available'],
   ['AI','Veyra AI built in, 10 free requests with a free account','GitHub Copilot','Cursor\'s own service'],
   ['AI edits reviewed as diffs','Always','Yes','Yes'],
@@ -27,12 +37,13 @@ const ROWS:[string,string,string,string][]=[
 ];
 
 export default function Compare(){
-  return <ContentPage path="/vs-code-alternative" crumb="VS Code alternative" kicker="COMPARE" title="A lighter VS Code alternative."
-    intro="Veyra keeps what developers love about VS Code (the Monaco editor, familiar shortcuts, real IntelliSense) in a native app a tenth of the size, with AI you control.">
+  const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:FAQ.map(item=>({'@type':'Question',name:item.q,acceptedAnswer:{'@type':'Answer',text:item.a}}))};
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(faq)}}/><ContentPage path="/vs-code-alternative" crumb="VS Code alternative" kicker="COMPARE" title="The lightweight VS Code alternative."
+    intro="Veyra keeps what developers love about VS Code (the Monaco editor, familiar shortcuts, real IntelliSense) in a native Rust app that's a tenth of the size and lighter on memory, with AI you control.">
 
     <section className="content-section">
       <div className="cards four">
-        <article className="card"><Feather/><h3>A tenth of the size</h3><p>No bundled browser. Veyra uses your system&apos;s web view and a Rust backend.</p></article>
+        <article className="card"><Feather/><h3>Light on memory</h3><p>No bundled browser and no extension host. Veyra uses your system&apos;s web view and a small Rust backend, at a tenth of the download size.</p></article>
         <article className="card"><Keyboard/><h3>Feels familiar</h3><p>Same editor engine, same shortcuts, same command palette. No relearning.</p></article>
         <article className="card"><Sparkles/><h3>AI without setup</h3><p>Veyra AI is built in. Sign in with a free account and get 10 free requests, with no API key and no subscription.</p></article>
         <article className="card"><LockKeyhole/><h3>Private by design</h3><p>No telemetry. Code is only sent where you send it, and you see exactly what.</p></article>
@@ -40,7 +51,7 @@ export default function Compare(){
     </section>
 
     <section className="content-section">
-      <header><span>SIDE BY SIDE</span><h2>Veyra, VS Code and Cursor compared</h2><p>A fair comparison as of October 2026. VS Code and Cursor are excellent editors; Veyra is for people who want something lighter and more private.</p></header>
+      <header><span>SIDE BY SIDE</span><h2>Veyra, VS Code and Cursor compared</h2><p>A fair comparison as of November 2026. VS Code and Cursor are excellent editors; Veyra is for people who want something lighter and more private.</p></header>
       <div className="table-wrap"><table>
         <thead><tr><th></th><th className="us">Veyra</th><th>VS Code</th><th>Cursor</th></tr></thead>
         <tbody>{ROWS.map(([label,us,code,cursor])=><tr key={label}><td>{label}</td><td className="us">{us}</td><td>{code}</td><td>{cursor}</td></tr>)}</tbody>
@@ -66,6 +77,12 @@ export default function Compare(){
       </div>
     </section>
 
+    <section className="content-section">
+      <header><span>QUESTIONS</span><h2>Switching from VS Code: common questions</h2></header>
+      <div className="live-faq">{FAQ.map(item=><details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}</div>
+      <p style={{marginTop:18}}>Read more: <Link href="/blog/lightweight-vs-code-alternative-less-memory">why Veyra uses less memory than VS Code</Link> and <Link href="/blog/moving-from-vs-code">moving from VS Code in ten minutes</Link>.</p>
+    </section>
+
     <ClosingCTA title="Try it alongside your current editor." copy="Veyra is free and installs in under a minute. Keep VS Code installed and see which one you reach for."/>
-  </ContentPage>;
+  </ContentPage></>;
 }

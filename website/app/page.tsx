@@ -51,13 +51,14 @@ export default async function Home() {
               <ArrowRight size={12} />
             </a>
             <h1>
-              Code at the
+              The lightweight
               <br />
-              <em>speed of thought.</em>
+              <em>VS Code alternative.</em>
             </h1>
             <p>
-              Veyra is a fast, local-first code editor with Git, a real terminal and Veyra AI
-              built in, so you can go from idea to shipped without leaving the window.
+              Veyra feels like VS Code (the same Monaco editor, the same shortcuts) but it&apos;s a native
+              Rust app with no bundled browser, so it&apos;s light on memory and quick to open. Git, a real
+              terminal and Veyra AI are built in.
             </p>
             <div className="hero-actions">
               <DownloadCTA />
@@ -77,7 +78,7 @@ export default async function Home() {
 
         <section className="what-is" data-reveal aria-labelledby="what-is-veyra">
           <span>// WHAT IS VEYRA?</span>
-          <h2 id="what-is-veyra">A free, open-source AI code editor that stays on your machine.</h2>
+          <h2 id="what-is-veyra">A free, lightweight VS Code alternative that stays on your machine.</h2>
           <p>
             <strong>Veyra</strong> (Veyra Studio) is a desktop code editor for <strong>Windows, macOS and Linux</strong>. It pairs
             the Monaco editor with a native Rust core, so it opens fast and its installers are small ({sizes.min && sizes.max ? `${sizes.min}–${sizes.max} MB` : "around 10 MB"} on Windows, macOS and Linux .deb/.rpm{sizes.appImage ? `; the self-contained AppImage is about ${sizes.appImage} MB` : ""}). Git, a real
@@ -87,6 +88,8 @@ export default async function Home() {
           </p>
           <div className="what-is-links">
             <Link href="/download">Download Veyra free</Link>
+            <Link href="/vs-code-alternative">Veyra vs VS Code</Link>
+            <Link href="/blog/lightweight-vs-code-alternative-less-memory">Why Veyra uses less memory</Link>
             <a href="https://github.com/fcopensource/veyraeditor">Source code on GitHub</a>
             <Link href="/changelog">What&apos;s new</Link>
           </div>

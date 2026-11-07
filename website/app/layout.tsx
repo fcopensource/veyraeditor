@@ -16,7 +16,7 @@ const mono=DM_Mono({subsets:['latin'],weight:['400','500'],variable:'--font-mono
 
 export const metadata:Metadata={
   metadataBase:new URL(SITE_URL),
-  title:{default:`Veyra: Free AI Code Editor for Windows, Mac & Linux`,template:'%s | Veyra'},
+  title:{default:`Veyra: Lightweight VS Code Alternative, Free AI Code Editor`,template:'%s | Veyra'},
   description:DESCRIPTION,
   applicationName:PRODUCT_NAME,
   keywords:KEYWORDS,
