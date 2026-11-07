@@ -3,6 +3,30 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.10.0
+
+**A new look, inspired by Android Studio**
+- A new dark theme with rounded "island" panels, softer colours and the JetBrains Mono font in the editor
+- One title bar on Windows and Linux: the menu sits behind ☰, and the window buttons are built in, so there are no more stacked bars
+- The top bar shows your project with its own colour, plus the current branch and the Run and Debug buttons
+- A launch screen while Veyra starts, and a calmer first screen: only the Welcome page until you open a project
+
+**Files and folders**
+- New flat file and folder icons: folders are coloured by what they hold (source, tests, assets, build output, settings), and files show their language at a glance
+- A cleaner project tree with a rounded selection, a Structure panel and a file path above the editor
+
+**Git**
+- One clear colour scheme everywhere: blue for modified, green for added, red for deleted and violet for renamed
+- The commit graph shows HEAD, local branches, remote branches and tags as separate labels
+
+**Veyra AI**
+- A new, simpler Veyra AI logo
+- A redesigned AI panel: it greets you by name, offers quick starters, shows code in replies as cards with a Copy button, and has a single message box with Ask/Edit, attachments and Send
+- Veyra AI now starts closed. Open it with the ✦ button or Ctrl/⌘+L
+
+**Security**
+- Updated components with security fixes, including the web content sanitiser, the TLS libraries and the updater
+
 ## 0.9.4
 
 **Live Server**

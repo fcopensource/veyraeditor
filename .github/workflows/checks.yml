@@ -15,6 +15,11 @@ on:
   pull_request:
     paths-ignore: ["website/**", "**.md", "docs/**"]
   workflow_call:
+    inputs:
+      app-only:
+        description: Run only the checks for the Veyra app (releases); VS Code extensions ship separately.
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -70,6 +75,7 @@ jobs:
 
   vscode-extension:
     name: VS Code extension (${{ matrix.name }})
+    if: ${{ !inputs.app-only }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -114,6 +120,7 @@ jobs:
   # Port Manager reads ports differently on each system (PowerShell/netstat, lsof, ss): test it on all of them.
   port-manager-platforms:
     name: Port Manager on ${{ matrix.os }}
+    if: ${{ !inputs.app-only }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -136,6 +143,7 @@ jobs:
   # Container Studio drives a real Docker engine here: containers, Compose, logs, errors, builds and cleanup.
   docker-extension:
     name: Container Studio with real Docker
+    if: ${{ !inputs.app-only }}
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -169,6 +177,7 @@ jobs:
   # Query Lens drives a real MongoDB server: explain plans, index suggestions that fix the scan, Index Doctor and schema drift.
   mongodb-extension:
     name: Query Lens with real MongoDB
+    if: ${{ !inputs.app-only }}
     runs-on: ubuntu-24.04
     services:
       mongodb:

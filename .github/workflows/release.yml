@@ -3,8 +3,8 @@
 #
 # Release:  bump the version (npm run release:version 0.5.0), commit, then
 #           git tag v0.5.0 && git push origin main v0.5.0
-# Gates:    the Checks workflow (tests, builds, dependency audits) runs first; nothing is built or
-#           uploaded unless every check passes.
+# Gates:    the app's checks (frontend, Rust, dependency audits) run first; nothing is built or
+#           uploaded unless they pass. VS Code extensions ship separately and are checked on every push.
 # Publish:  review the draft release on GitHub and click "Publish". Installed copies of Veyra
 #           only see the update once the release is published.
 name: Release
@@ -22,6 +22,8 @@ jobs:
   checks:
     name: Checks
     uses: ./.github/workflows/checks.yml
+    with:
+      app-only: true
 
   build:
     name: ${{ matrix.name }}
