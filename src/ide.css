@@ -493,3 +493,61 @@
 .app .explorer-entry, .app .explorer-entry.selected { border-left-color: transparent !important }
 .app .explorer-entry.selected { border-radius: 6px; margin-inline: 4px }
 .app .explorer-entry:not(.selected) > .tree-row.active { color: var(--bright) }
+
+/* ── Git: one calm palette (blue = modified, green = added, red = deleted, violet = renamed) ── */
+.app { --git-mod: #70aeff; --git-add: #73bd79; --git-del: #f75464; --git-ren: #b189f5; --git-new: #73bd79 }
+.app .git-letter, .app .scm-file > i { width: 17px; height: 17px; display: grid; place-items: center; border-radius: 4px; font: 700 10px 'JetBrains Mono', monospace; font-style: normal }
+.app .git-letter.git-M { color: var(--git-mod); background: color-mix(in srgb, var(--git-mod) 14%, transparent) }
+.app .git-letter.git-A, .app .git-letter.git-U { color: var(--git-add); background: color-mix(in srgb, var(--git-add) 14%, transparent) }
+.app .git-letter.git-D { color: var(--git-del); background: color-mix(in srgb, var(--git-del) 14%, transparent) }
+.app .git-letter.git-R { color: var(--git-ren); background: color-mix(in srgb, var(--git-ren) 14%, transparent) }
+.app .tree-row.git-M .git-badge, .app .tree-row.git-R .git-badge { color: var(--git-mod) }
+.app .tree-row.git-A .git-badge, .app .tree-row.git-U .git-badge { color: var(--git-add) }
+.app .tree-row.git-D .git-badge, .app .tree-row.git-D > span { color: var(--git-del) }
+.app .tree-row.git-M > span { color: var(--git-mod) }
+.app .tree-row.git-A > span, .app .tree-row.git-U > span { color: var(--git-add) }
+
+/* Panel surfaces */
+.app .source-control { padding: 0 10px 18px }
+.app .scm-file > span { font: 12px 'Inter', 'Segoe UI', sans-serif; color: var(--text) }
+.app .scm-change { border-radius: 6px }
+.app .scm-change:hover { background: #ffffff0d }
+.app .scm-actions button:hover { color: var(--bright); background: #ffffff12 }
+.app .scm-group > header { font-size: 10px; letter-spacing: .6px; color: var(--muted) }
+.app .scm-group > header b { background: #ffffff10; color: var(--text); font-weight: 600 }
+.app .github-card { background: #ffffff08; border: 1px solid #ffffff0f; border-radius: 10px }
+.app .github-card .online { background: var(--git-add); box-shadow: 0 0 0 3px color-mix(in srgb, var(--git-add) 22%, transparent) }
+.app .github-card > button { background: #3574f0; color: #fff }
+.app .repo-card { background: #ffffff05; border: 1px solid #ffffff0f; border-radius: 10px }
+.app .repo-card b { font: 11px 'JetBrains Mono', monospace; color: var(--text) }
+.app .repo-card small { padding: 1px 6px; border-radius: 4px; color: var(--git-add); background: color-mix(in srgb, var(--git-add) 14%, transparent); font-weight: 700; letter-spacing: .4px }
+.app .repo-card button { background: #ffffff0a; color: var(--muted) }
+.app .repo-card button:hover { background: #ffffff16; color: var(--bright) }
+.app .branch-button { color: var(--bright) }
+.app .branch-button b { font-weight: 600 }
+.app .source-control .git-heading > svg:first-child { color: #3574f0 }
+.app .no-upstream { padding: 1px 6px; border-radius: 4px; background: #e5a13a1c; color: #e5a13a; font-size: 10px }
+.app .sync-badge { background: #3574f0; color: #fff }
+.app .source-control textarea { background: #ffffff06; border: 1px solid #ffffff14; border-radius: 8px; font: 13px 'Inter', 'Segoe UI', sans-serif }
+.app .source-control textarea:focus { border-color: #3574f0; box-shadow: 0 0 0 3px #3574f033; outline: none }
+
+/* Commit button: solid when ready, quiet grey when not — never a washed-out blue */
+.app .scm-commit.primary { background: #3574f0; color: #fff; border: 0; border-radius: 7px; font-weight: 600 }
+.app .scm-commit.primary:hover:not(:disabled) { background: #4682fa }
+.app .scm-commit.primary:disabled { background: #ffffff0d; color: #6f737a; opacity: 1 }
+
+/* Commit graph: coloured lanes, clean rings, typed ref chips */
+.app .commit-graph > button { font-size: 10px; letter-spacing: .6px }
+.app .graph-list article { --lane: #3574f0 }
+.app .graph-rail i { width: 10px; height: 10px; border: 2px solid var(--lane); background: var(--sidebar, #191a1e); box-shadow: none }
+.app .graph-list article.graph-head .graph-rail i { background: var(--lane); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lane) 25%, transparent) }
+.app .graph-rail em { width: 2px; background: color-mix(in srgb, var(--lane) 55%, transparent) }
+.app .graph-list b { font-size: 12px; font-weight: 500; color: var(--bright) }
+.app .graph-list small { font-size: 11px; color: var(--muted) }
+.app .graph-list code, .app .scm-history code { color: #a8adbd; font: 11px 'JetBrains Mono', monospace }
+.app .graph-refs { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 3px }
+.app .graph-list .graph-refs label { margin: 0; padding: 1px 6px; border-radius: 4px; font: 600 10px 'JetBrains Mono', monospace; background: none; border: 1px solid transparent }
+.app .graph-list .graph-refs label.ref-head { color: #e5a13a; background: #e5a13a1f }
+.app .graph-list .graph-refs label.ref-local { color: #70aeff; background: #70aeff1f }
+.app .graph-list .graph-refs label.ref-remote { color: #b189f5; background: #b189f51f }
+.app .graph-list .graph-refs label.ref-tag { color: #73bd79; background: #73bd791f }
