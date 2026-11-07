@@ -551,3 +551,91 @@
 .app .graph-list .graph-refs label.ref-local { color: #70aeff; background: #70aeff1f }
 .app .graph-list .graph-refs label.ref-remote { color: #b189f5; background: #b189f51f }
 .app .graph-list .graph-refs label.ref-tag { color: #73bd79; background: #73bd791f }
+
+/* ── Veyra AI: simple, quiet and focused ─────────────────────────────── */
+.app .veyra-ai-mark { display: inline-block; flex-shrink: 0; filter: none !important; animation: none; transform: none !important; transition: none }
+.app .veyra-ai-mark.thinking { animation: ai-mark-breathe 1.6s ease-in-out infinite }
+@keyframes ai-mark-breathe { 50% { opacity: .45 } }
+@media (prefers-reduced-motion: reduce) { .app .veyra-ai-mark.thinking { animation: none } }
+.app .ai-toggle.selected .veyra-ai-mark { filter: none }
+
+.app .ai-header { height: 44px; padding: 0 8px 0 14px; border-bottom: 1px solid #ffffff0d; background: none }
+.app .ai-brand { gap: 8px; font-size: 13px }
+.app .ai-brand b { font-weight: 600; color: var(--bright); background: none; -webkit-text-fill-color: currentColor }
+.app .ai-brand small { padding: 1px 5px; border: 0; border-radius: 4px; background: #ffffff0f; color: var(--muted); font-size: 9px; font-weight: 600; letter-spacing: .5px }
+.app .ai-header button { width: 28px; height: 28px; border-radius: 6px; color: var(--muted) }
+.app .ai-header button:hover { background: #ffffff10; color: var(--bright) }
+
+/* Welcome */
+.app .ai-welcome { align-items: center; text-align: center; padding: 48px 20px 16px; gap: 10px }
+.app .ai-welcome .ai-orb { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 0 4px; border-radius: 14px; background: #ffffff08; border: 1px solid #ffffff10; box-shadow: none; animation: none }
+.app .ai-welcome .ai-orb::before, .app .ai-welcome .ai-orb::after { content: none }
+.app .ai-welcome .ai-orb svg { width: 28px; height: 28px }
+.app .ai-welcome h2 { font-size: 17px; font-weight: 600; color: var(--bright); background: none; -webkit-text-fill-color: currentColor }
+.app .ai-welcome > p { max-width: 260px; font-size: 12.5px; line-height: 1.55; color: var(--muted) }
+.app .ai-starters { display: flex; flex-direction: column; width: 100%; gap: 4px; margin-top: 14px }
+.app .ai-starters button { display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 10px; border: 1px solid #ffffff0d; border-radius: 9px; background: #ffffff05; text-align: left; box-shadow: none; transform: none }
+.app .ai-starters button:hover:not(:disabled) { background: #ffffff0c; border-color: #ffffff1a; transform: none }
+.app .ai-starters button > svg { flex-shrink: 0; width: 28px; height: 28px; padding: 6px; border-radius: 7px; background: #3574f01f; color: #7da6f5 }
+.app .ai-starters span { display: flex; flex-direction: column; gap: 1px; font-size: 12.5px; font-weight: 500; color: var(--text) }
+.app .ai-starters small { font-size: 11px; color: var(--muted); font-weight: 400 }
+
+/* Messages */
+.app .ai-messages { padding: 12px 14px }
+.app .ai-message { margin: 0 0 14px; border: 0; box-shadow: none; background: none; padding: 0 }
+.app .ai-message.user { margin-left: 28px; padding: 9px 12px; border-radius: 12px 12px 4px 12px; background: #2b4371 }
+.app .ai-message.user .ai-message-label { display: none }
+.app .ai-message.assistant .ai-message-label { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--muted); font-size: 11.5px }
+.app .ai-author { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text) }
+.app .ai-thinking { gap: 8px; padding: 4px 0; color: var(--muted); font-size: 12px; background: none; border: 0 }
+.app .ai-error { margin: 0 12px 8px; border: 1px solid #f7546433; border-radius: 8px; background: #f7546414; color: #ff9aa4 }
+
+/* Composer: one rounded box */
+.app .ai-composer { margin: 0 10px 10px; padding: 0; border: 0; background: none; box-shadow: none; border-radius: 0 }
+.app .ai-input { border: 1px solid #ffffff17; border-radius: 12px; background: #1f2024; transition: border-color .12s, box-shadow .12s }
+.app .ai-input:focus-within { border-color: #3574f0; box-shadow: 0 0 0 3px #3574f02e }
+.app .ai-input textarea { display: block; width: 100%; box-sizing: border-box; min-height: 64px; max-height: 220px; margin: 0; padding: 11px 12px 4px; border: 0 !important; outline: 0 !important; box-shadow: none !important; resize: none; background: none !important; color: var(--bright); font: 13px/1.5 'Inter', 'Segoe UI', sans-serif }
+.app .ai-input textarea::placeholder { color: #6f737a }
+.app .ai-input-bar { display: flex; align-items: center; gap: 6px; padding: 6px 6px 6px 8px }
+.app .ai-input-spacer { flex: 1 }
+.app .ai-input-bar .ai-compose-tabs { display: inline-flex; gap: 0; margin: 0; padding: 2px; border: 0; border-radius: 7px; background: #ffffff0a }
+.app .ai-input-bar .ai-compose-tabs button { height: 22px; gap: 4px; padding: 0 8px; border: 0; border-radius: 5px; background: none; color: var(--muted); font-size: 11.5px; box-shadow: none }
+.app .ai-input-bar .ai-compose-tabs button.active { background: #ffffff17; color: var(--bright) }
+.app .ai-input-bar .ai-context { display: inline-flex; align-items: center; gap: 4px; min-width: 0; margin: 0; padding: 0 6px; height: 26px; border: 0; border-radius: 6px; background: none; color: var(--muted) }
+.app .ai-input-bar .ai-context:hover { background: #ffffff0a; color: var(--text) }
+.app .ai-input-bar .ai-context select { min-width: 0; max-width: 118px; padding: 0; border: 0 !important; background: none !important; color: inherit; font-size: 11.5px; box-shadow: none !important; text-overflow: ellipsis }
+.app .ai-input-bar .ai-context select option { background: #2b2d30; color: var(--text) }
+.app .ai-send { width: 28px; height: 28px; flex-shrink: 0; display: grid; place-items: center; border: 0; border-radius: 8px; background: #3574f0; color: #fff; box-shadow: none }
+.app .ai-send:hover:not(:disabled) { background: #4682fa }
+.app .ai-send:disabled { background: #ffffff0f; color: #6f737a; opacity: 1 }
+.app .ai-compose-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 4px 0; font-size: 11px; color: var(--muted) }
+.app .ai-compose-meta .ai-model-name { display: inline; padding: 0; background: none; border: 0; color: var(--muted); font-size: 11px }
+.app .ai-compose-meta kbd { padding: 0; border: 0; background: none; color: #6f737a; font: 11px 'Inter', 'Segoe UI', sans-serif; box-shadow: none }
+.app .ai-transmission { margin: 3px 4px 0; padding: 0; font-size: 10.5px; color: #6f737a; background: none; border: 0; text-align: left }
+
+/* Account and sign-in */
+.app .ai-settings, .app .ai-account-bar { margin: 10px 12px 0; padding: 14px; border: 1px solid #ffffff10; border-radius: 12px; background: #ffffff05; box-shadow: none }
+.app .veyra-signin h3 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--bright) }
+.app .veyra-signin button.secondary:not(:disabled) { background: #3574f0; color: #fff; border: 0 }
+.app .veyra-usage { height: 4px; border-radius: 4px; background: #ffffff10 }
+.app .veyra-usage i { border-radius: 4px; background: #7da6f5; box-shadow: none }
+.app .ai-message pre { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; white-space: pre-wrap; word-break: break-word; color: var(--text); font: 12.5px/1.6 'JetBrains Mono', monospace }
+.app .ai-message.user pre { color: #e8ecf5; font: 13px/1.5 'Inter', 'Segoe UI', sans-serif }
+.app .ai-account-bar .ai-fine { margin: 8px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--muted) }
+.app .ai-review-button { margin-top: 8px; border: 1px solid #3574f066; border-radius: 7px; background: #3574f01a; color: #8fb3ff; box-shadow: none }
+.app .ai-review-button:hover { background: #3574f02e }
+.app .ai-text { display: flex; flex-direction: column; gap: 8px; color: var(--text); font: 13px/1.6 'Inter', 'Segoe UI', sans-serif }
+.app .ai-text > p { margin: 0; white-space: pre-wrap; word-break: break-word }
+.app .ai-code { margin: 0; overflow: hidden; border: 1px solid #ffffff10; border-radius: 8px; background: #141518 }
+.app .ai-code figcaption { padding: 5px 10px; border-bottom: 1px solid #ffffff0c; color: var(--muted); font: 11px 'Inter', 'Segoe UI', sans-serif }
+.app .ai-message .ai-code pre { padding: 9px 10px; overflow-x: auto; white-space: pre; font: 12px/1.55 'JetBrains Mono', monospace; color: #bcbec4 }
+.app .toolbar .ai-toggle, .app .toolbar .ai-toggle.selected { background: #ffffff0d !important; border: 1px solid #ffffff14 !important; color: var(--bright) !important; box-shadow: none !important; background-image: none !important }
+.app .toolbar .ai-toggle:hover { background: #ffffff17 !important }
+.app .toolbar .ai-toggle.selected { border-color: #7da6f566 !important }
+.app .stripe-right > button.selected { background: #ffffff12; color: var(--bright) }
+.app .veyra-signin p { font-size: 12px; line-height: 1.5; color: var(--muted) }
+.app .veyra-signin label { font-size: 12px; color: var(--text); gap: 5px }
+.app .veyra-signin input { height: 32px; font-size: 13px; border-radius: 7px }
+.app .veyra-signin button.secondary { height: 32px; font-size: 13px; border-radius: 7px }
+.app .veyra-signin .ai-fine, .app .veyra-signin .link-button { font-size: 12px }
+.app .veyra-signin .link-button { color: #7da6f5 }

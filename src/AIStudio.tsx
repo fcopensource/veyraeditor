@@ -1,11 +1,12 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
-import {ArrowUp,Check,Code2,Copy,FileCode2,FolderSearch,LogOut,MessageSquare,Plus,Square,UserRound,X} from 'lucide-react';
+import {ArrowUp,Check,Code2,Copy,FileCode2,Paperclip,FolderSearch,LogOut,MessageSquare,Plus,Square,UserRound,X} from 'lucide-react';
 import {VeyraAIMark} from './VeyraAIMark';
 import {animatePanel} from './motion';
 import {openUrl} from '@tauri-apps/plugin-opener';
 import {accountChanged} from './AccountButton';
 import {isSensitivePath,looksLikeSecret} from './privacy';
+import {isMac} from './platform';
 export type AISnapshot={root:string;path:string;original:string;start:number;end:number;content:string};
 export type AIProposal={snapshot:AISnapshot;replacement:string;model:string};
 type Message={role:'user'|'assistant';content:string;display?:string;proposal?:AIProposal};
@@ -111,17 +112,27 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
     {account&&!account.available&&<p className="ai-fine ai-notice">Veyra AI isn&apos;t switched on yet. Please check back soon.</p>}
     {usage}
     <div className="ai-messages" ref={list} aria-live="polite">
-      {!messages.length&&<div className="ai-welcome"><div className="ai-orb gem"><VeyraAIMark size={68}/></div><span className="ai-eyebrow">A SECOND PAIR OF EYES</span><h2>Think it.<br/>Build it.</h2><p>Talk through an idea, understand your code, or review a suggested change.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
-      {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':<span className="ai-author"><VeyraAIMark size={14}/>Veyra AI</span>}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div><pre>{message.display||message.content}</pre>{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
+      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><VeyraAIMark size={30}/></div><h2>How can I help?</h2><p>Ask about your project, understand a file, or have Veyra AI suggest an edit you review first.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
+      {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':<span className="ai-author"><VeyraAIMark size={14}/>Veyra AI</span>}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div>{message.role==='assistant'?<AIText text={message.content}/>:<pre>{message.display||message.content}</pre>}{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
       {busy&&<div className="ai-thinking" role="status"><VeyraAIMark size={18} className="thinking"/><span>Veyra AI is thinking…</span></div>}
     </div>
     {error&&<div className="ai-error" role="alert">{error}<button aria-label="Dismiss AI error" onClick={()=>setError('')}><X size={12}/></button></div>}
     <form className="ai-composer" onSubmit={e=>{e.preventDefault();void send();}}>
-      <div className="ai-compose-tabs"><button type="button" className={mode==='ask'?'active':''} disabled={busy} onClick={()=>setMode('ask')}><MessageSquare size={12}/>Ask</button><button type="button" className={mode==='edit'?'active':''} disabled={busy} onClick={()=>setMode('edit')}><Code2 size={12}/>Edit</button><kbd>⌘↵</kbd></div>
-      <label className="ai-context"><FileCode2 size={13}/><select aria-label="AI attachment" value={scope} disabled={busy} onChange={e=>setScope(e.target.value)}><option value="none">No file attached</option><option value="workspace">Smart workspace context</option><option value="file" disabled={!active}>Current file{active?' · '+active.split('/').pop():''}</option><option value="selection" disabled={!active}>Selected code</option></select></label>
-      <textarea ref={input} aria-label="Ask Veyra AI" value={prompt} maxLength={8000} onChange={e=>setPrompt(e.target.value)} placeholder={mode==='edit'?'Describe the change you want…':'Ask anything about your code…'} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();void send();}}}/>
-      <div className="ai-compose-footer"><span className="ai-model-name"><VeyraAIMark size={15}/>Veyra AI{account&&account.available?` · ${left} left`:''}</span>{busy?<button type="button" className="ai-send" aria-label="Stop AI request" onClick={()=>void stop()}><Square size={14}/></button>:<button className="ai-send" aria-label="Send to AI" disabled={!prompt.trim()||!account||!account.available||outOfRequests}><ArrowUp size={17}/></button>}</div>
+      <div className="ai-input">
+        <textarea ref={input} aria-label="Ask Veyra AI" value={prompt} maxLength={8000} onChange={e=>setPrompt(e.target.value)} placeholder={mode==='edit'?'Describe the change you want…':'Ask anything about your code…'} onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey)){e.preventDefault();void send();}}}/>
+        <div className="ai-input-bar"><div className="ai-compose-tabs"><button type="button" className={mode==='ask'?'active':''} disabled={busy} onClick={()=>setMode('ask')}><MessageSquare size={12}/>Ask</button><button type="button" className={mode==='edit'?'active':''} disabled={busy} onClick={()=>setMode('edit')}><Code2 size={12}/>Edit</button></div><label className="ai-context"><Paperclip size={13}/><select aria-label="AI attachment" value={scope} disabled={busy} onChange={e=>setScope(e.target.value)}><option value="none">No file attached</option><option value="workspace">Smart workspace context</option><option value="file" disabled={!active}>Current file{active?' · '+active.split('/').pop():''}</option><option value="selection" disabled={!active}>Selected code</option></select></label><span className="ai-input-spacer"/>{busy?<button type="button" className="ai-send" aria-label="Stop AI request" onClick={()=>void stop()}><Square size={14}/></button>:<button className="ai-send" aria-label="Send to AI" disabled={!prompt.trim()||!account||!account.available||outOfRequests}><ArrowUp size={17}/></button>}</div>
+      </div>
+      <div className="ai-compose-meta"><span className="ai-model-name">Veyra AI{account&&account.available?` · ${left} left`:''}</span><kbd>{isMac?'⌘':'Ctrl'} ↵ to send</kbd></div>
       <p className="ai-transmission">{outOfRequests?`You've used all ${account!.limit} free Veyra AI requests.`:`Sends this chat${scope==='none'?'':` + ${scope}`} to Veyra AI. Edits require review.`}</p>
     </form>
   </aside>;
+}
+
+/** Assistant replies: prose in the UI font, fenced code in its own card with the language on top. */
+function AIText({text}:{text:string}){
+  const parts=text.split(/(```[^\n]*\n[\s\S]*?(?:\n?```|$))/g).filter(part=>part.trim());
+  return <div className="ai-text">{parts.map((part,i)=>{
+    const code=part.match(/^```([^\n]*)\n([\s\S]*?)\n?(?:```)?$/);
+    return code?<figure key={i} className="ai-code">{code[1].trim()&&<figcaption>{code[1].trim()}</figcaption>}<pre>{code[2]}</pre></figure>:<p key={i}>{part.trim()}</p>;
+  })}</div>;
 }
