@@ -5,9 +5,55 @@
     <link rel="icon" type="image/png" href="/veyra.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Veyra</title>
+    <style>
+      /* Launch screen: shown by the HTML itself before any script runs, then faded out by main.tsx. */
+      html, body { margin: 0; background: #141518 }
+      #splash { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; background: radial-gradient(1200px 700px at 50% 45%, #1b1c21 0%, #141518 60%, #0f1013 100%); font-family: Inter, "Segoe UI", system-ui, sans-serif; color: #dfe1e5; transition: opacity .45s ease, visibility .45s; -webkit-user-select: none; user-select: none; cursor: default }
+      #splash.done { opacity: 0; visibility: hidden; pointer-events: none }
+      #splash .card { position: relative; width: min(620px, calc(100vw - 48px)); overflow: hidden; border-radius: 16px; background: #191a1e; border: 1px solid #ffffff12; box-shadow: 0 30px 80px #000a, 0 0 0 1px #00000060; animation: splash-in .6s cubic-bezier(.2, .8, .2, 1) both }
+      #splash .art { position: relative; height: 250px; overflow: hidden; background: #15161a }
+      #splash .art::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(#ffffff08 1px, transparent 1px), linear-gradient(90deg, #ffffff08 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at 70% 40%, #000 0%, transparent 75%) }
+      #splash .blob { position: absolute; border-radius: 50%; filter: blur(46px); opacity: .55 }
+      #splash .b1 { width: 300px; height: 220px; right: -40px; top: -60px; background: #3d5fd1; animation: splash-drift 9s ease-in-out infinite alternate }
+      #splash .b2 { width: 260px; height: 200px; right: 160px; top: 90px; background: #7a4fd0; opacity: .42; animation: splash-drift 11s ease-in-out infinite alternate-reverse }
+      #splash .b3 { width: 200px; height: 160px; right: 40px; bottom: -90px; background: #1f9a9a; opacity: .35; animation: splash-drift 13s ease-in-out infinite alternate }
+      #splash .code { position: absolute; right: 34px; top: 40px; display: grid; gap: 9px; opacity: .55 }
+      #splash .code i { display: block; height: 6px; border-radius: 3px; background: #ffffff26 }
+      #splash .code i:nth-child(1) { width: 120px; background: #cf8e6d66 } #splash .code i:nth-child(2) { width: 170px; margin-left: 18px }
+      #splash .code i:nth-child(3) { width: 90px; margin-left: 18px; background: #6aab7366 } #splash .code i:nth-child(4) { width: 140px; margin-left: 36px }
+      #splash .code i:nth-child(5) { width: 60px; margin-left: 18px; background: #56a8f566 } #splash .code i:nth-child(6) { width: 30px }
+      #splash .brand { position: absolute; left: 34px; bottom: 30px; display: flex; align-items: center; gap: 16px }
+      #splash .brand img { width: 60px; height: 60px; border-radius: 14px; filter: drop-shadow(0 8px 18px #0008) }
+      #splash .brand b { display: block; font-size: 30px; font-weight: 650; letter-spacing: -.6px; color: #f2f3f5 }
+      #splash .brand small { display: block; margin-top: 3px; font-size: 13px; color: #9a9ca3; letter-spacing: .1px }
+      #splash .foot { display: grid; gap: 12px; padding: 18px 34px 20px }
+      #splash .status { display: flex; justify-content: space-between; font-size: 12px; color: #8f9094 }
+      #splash .bar { position: relative; height: 3px; overflow: hidden; border-radius: 3px; background: #ffffff0d }
+      #splash .bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; border-radius: 3px; background: linear-gradient(90deg, transparent, #7da6f5, #a08cec, transparent); animation: splash-load 1.4s ease-in-out infinite }
+      #splash .legal { display: flex; justify-content: space-between; font-size: 11px; color: #5f6168 }
+      @keyframes splash-in { from { opacity: 0; transform: translateY(10px) scale(.985) } }
+      @keyframes splash-drift { to { transform: translate(-40px, 24px) scale(1.12) } }
+      @keyframes splash-load { to { left: 100% } }
+      @media (prefers-reduced-motion: reduce) { #splash .card, #splash .blob, #splash .bar::after { animation: none } #splash .bar::after { left: 0; width: 100%; opacity: .5 } }
+      @media (prefers-color-scheme: light) { html, body { background: #141518 } }
+    </style>
   </head>
 
   <body>
+    <div id="splash" role="status" aria-label="Starting Veyra Studio">
+      <div class="card">
+        <div class="art" aria-hidden="true">
+          <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+          <div class="code"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="brand"><img src="/veyra.png" alt="" /><span><b>Veyra Studio</b><small>Code, AI and your tools</small></span></div>
+        </div>
+        <div class="foot">
+          <div class="status"><span id="splash-status">Starting Veyra Studio…</span><span id="splash-version"></span></div>
+          <div class="bar"></div>
+          <div class="legal"><span>© 2026 FlightCoders</span><span>Powered by Veyra AI</span></div>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

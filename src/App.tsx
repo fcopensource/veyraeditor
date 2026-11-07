@@ -85,7 +85,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<string|null>(null);
   const [active, setActive] = useState("");
   const [panel, setPanel] = useState("files");
-  const [aiOpen,setAiOpen]=useState(true);
+  const [aiOpen,setAiOpen]=useState(false);
   const [aiIntent,setAiIntent]=useState(0);
   const [proposal,setProposal]=useState<AIProposal|null>(null);
   const [proposalError,setProposalError]=useState('');
@@ -112,9 +112,10 @@ export default function App() {
   } as CSSProperties:undefined;
   function changeExtensions(next:Extension[]){saveExtensions(next);setExtensions(next);}
   function changeExtensionTheme(theme:string){localStorage.setItem('veyra.extensionTheme',theme);setExtensionTheme(theme);}
-  const [sidebar, setSidebar] = useState(true);
+  // A clean start: with no folder open only the Welcome screen shows; the project view opens with a project.
+  const [sidebar, setSidebar] = useState(false);
   // The sidebar stays mounted while it slides closed, so it can animate out.
-  const [sidebarMounted, setSidebarMounted] = useState(true);
+  const [sidebarMounted, setSidebarMounted] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
   const sidebarOpen = useRef(true), sidebarStarted = useRef(false), panelStarted = useRef(false);
   const [sidebarWidth, setSidebarWidth] = useState(258);
@@ -484,6 +485,7 @@ export default function App() {
     if(sidebar){if(sidebarMounted&&sidebarRef.current)void animatePanel(sidebarRef.current,true,"left");else setSidebarMounted(true);return;}
     void animatePanel(sidebarRef.current,false,"left").then(()=>{if(!sidebarOpen.current)setSidebarMounted(false);});
   },[sidebar]);
+  useEffect(()=>{if(root)setSidebar(true);},[root]);
   useEffect(()=>{if(!panelStarted.current){panelStarted.current=true;return;}revealChildren(sidebarRef.current,":scope > :not(.sidebar-heading)");},[panel]);
   /** Live Server: serve the folder and open `path` (an HTML file) or the folder's index in the browser. */
   function openLive(path:string){if(!state.current.root){setStatus("Open a folder to use Live Server");return;}void goLive(path).then(info=>setStatus(`Live Server: ${info.page}`)).catch(report);}

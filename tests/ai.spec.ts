@@ -30,7 +30,7 @@ test.beforeEach(async({page},testInfo)=>{
     }},__TAURI_EVENT_PLUGIN_INTERNALS__:{unregisterListener:()=>{}}});
   });
 });
-async function openFile(page:Page){await page.goto('/');await expect(page.locator('.veyra-account')).toContainText('10 of 10 free requests left');await page.getByRole('button',{name:/Open a project/}).click();await page.locator('.tree-row[title="hello.ts"]').click();}
+async function openFile(page:Page){await page.goto('/');await page.getByRole('button',{name:'AI assistant tool window'}).click();await expect(page.locator('.veyra-account')).toContainText('10 of 10 free requests left');await page.getByRole('button',{name:/Open a project/}).click();await page.locator('.tree-row[title="hello.ts"]').click();}
 const send=(page:Page)=>page.getByLabel('Ask Veyra AI').press(process.platform==='darwin'?'Meta+Enter':'Control+Enter');
 
 test('AI edits require review, apply only to buffer, and undo works',async({page})=>{
@@ -66,7 +66,7 @@ test('Veyra AI is the only AI: no providers, models or API keys, and only attach
 });
 test('Veyra AI: once the 10 free requests are used, sending explains it instead of failing',async({page})=>{
   await page.addInitScript(()=>{(window as any).veyraAccount.used=9;});
-  await page.goto('/');
+  await page.goto('/');await page.getByRole('button',{name:'AI assistant tool window'}).click();
   await expect(page.locator('.veyra-account')).toContainText('1 of 10 free requests left');
   await page.getByLabel('Ask Veyra AI').fill('One more question');await send(page);
   await expect(page.locator('.ai-message.assistant')).toBeVisible();
@@ -100,7 +100,7 @@ test('smart workspace context retrieves relevant files and discloses what is sen
 });
 
 test('Veyra AI: sign in with a Veyra account, chat without an API key, see free requests, sign out',async({page})=>{
-  await page.goto('/');
+  await page.goto('/');await page.getByRole('button',{name:'AI assistant tool window'}).click();
   // Signed-out users are asked to sign in, never for an API key.
   await expect(page.getByRole('button',{name:'Sign in to Veyra AI'})).toBeVisible();
   await expect(page.getByLabel('AI API key')).toHaveCount(0);
@@ -122,7 +122,7 @@ test('Veyra AI: sign in with a Veyra account, chat without an API key, see free 
   await expect(page.getByRole('button',{name:'Sign in to Veyra AI'})).toBeVisible();
 });
 test('Veyra AI: attaching a secrets file needs a second, deliberate Send',async({page})=>{
-  await page.goto('/');
+  await page.goto('/');await page.getByRole('button',{name:'AI assistant tool window'}).click();
   await page.evaluate(()=>{(window as any).aiFiles['.env']='OPENAI_API_KEY=sk-proj-abcdefghijklmnopqrstuvwxyz0123456789ABCD\n';});
   await page.getByRole('button',{name:/Open a project/}).click();
   await page.locator('.tree-row[title=".env"]').click();
