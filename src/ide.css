@@ -446,3 +446,50 @@
 .app .window-controls button:hover:not(:disabled) { background: #ffffff14; color: var(--bright) }
 .app .window-controls button.close:hover:not(:disabled) { background: #e81123; color: #fff }
 .app.light .window-controls button:hover:not(:disabled) { background: #0000000f }
+
+/* ── Flat 16 px icons and a cleaner project tree ─ */
+.app .dimensional-icon { width: 16px; height: 16px; flex: 0 0 16px; display: inline-grid; place-items: center; margin: 0; padding: 0; background: none; border: 0; box-shadow: none; filter: none !important; transform: none !important }
+.app .dimensional-icon svg { width: 16px; height: 16px; filter: none !important; overflow: visible }
+.app .explorer-entry:hover .dimensional-icon, .app .dimensional-icon.is-open { transform: none !important }
+.app .explorer-entry > .tree-row { gap: 6px; padding-right: 8px }
+.app .explorer-entry > .tree-row > svg { color: var(--muted); flex: none; opacity: .85 }
+.app .tree-row .tree-indent { width: 12px; flex: none }
+.app .tree-children { margin-left: 18px; border-left: 1px solid #ffffff10 }
+.app.light .tree-children { border-left-color: #0000000f }
+.app .tree-children .tree-children { margin-left: 14px }
+.app .git-badge { font-style: normal; font-size: 10.5px; font-weight: 700; margin-left: auto; color: #6f9bff; background: none; border: 0; padding: 0 2px }
+.app .tree-row.git-A .git-badge, .app .tree-row.git-U .git-badge { color: #5fb865 }
+.app .tree-row.git-D .git-badge { color: #e06c75 }
+.app .tree-row.git-M > span, .app .tree-row.git-R > span { color: #6f9bff }
+.app .tree-row.git-A > span, .app .tree-row.git-U > span { color: #73bd79 }
+.app .git-dot { width: 6px; height: 6px; margin-left: auto; background: #6f9bff; box-shadow: none }
+.app .folder-actions button { width: 22px; height: 22px; border-radius: 4px; color: var(--muted) }
+
+/* The project root reads like a tree node: icon, bold name, location in grey. */
+.app .workspace-section > span { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13.5px; text-transform: none; letter-spacing: 0 }
+.app .workspace-section > span > svg { color: var(--muted); flex: none }
+.app .workspace-section b { font-weight: 600; color: var(--bright); white-space: nowrap }
+.app .workspace-section small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; color: var(--muted) }
+.app .outline-heading { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; color: var(--text) }
+.app .outline-heading span { font-weight: 400; color: var(--muted) }
+
+/* Breadcrumbs above the editor: chevrons, quiet until hovered. */
+.app .breadcrumbs .crumbs { display: flex; align-items: center; gap: 2px; min-width: 0; overflow: hidden; white-space: nowrap; font-size: 12.5px; color: var(--muted) }
+.app .breadcrumbs .crumbs > span { display: inline-flex; align-items: center; gap: 2px }
+.app .breadcrumbs .crumbs > span:last-child { color: var(--text) }
+.app .breadcrumbs .crumbs svg { color: #6f737a; margin: 0 2px }
+.app .breadcrumbs > button { opacity: .7 } .app .breadcrumbs > button:hover { opacity: 1 }
+
+/* Empty project view: a flat icon instead of a glossy tile. */
+.app .sidebar-empty .prism-icon { width: 44px; height: 44px; filter: none }
+.app .sidebar-empty .prism-face { inset: 0; background: none !important; box-shadow: none !important; color: var(--muted); border: 0 }
+.app .sidebar-empty .prism-face:after, .app .sidebar-empty .prism-glow { display: none }
+.app .sidebar-empty p { font-size: 13.5px; color: var(--text) }
+
+/* Tabs and lists share the flat icons. */
+.app .tab .dimensional-icon, .app .palette .dimensional-icon, .app .search-hit .dimensional-icon { width: 16px; height: 16px }
+
+/* Selection in the project tree: a rounded pill with no accent bar, as in the New UI */
+.app .explorer-entry, .app .explorer-entry.selected { border-left-color: transparent !important }
+.app .explorer-entry.selected { border-radius: 6px; margin-inline: 4px }
+.app .explorer-entry:not(.selected) > .tree-row.active { color: var(--bright) }
