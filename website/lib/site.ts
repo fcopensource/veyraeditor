@@ -55,11 +55,13 @@ export const SAME_AS = [
 ];
 /** The site-wide social preview image (app/opengraph-image.tsx), for pages that set their own openGraph. */
 export const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "Veyra: the fast, local-first AI code editor" };
-export const TAGLINE = "The fast, local-first AI code editor";
+export const TAGLINE = "The lightweight VS Code alternative";
 export const DESCRIPTION =
-  "Veyra is a free, open-source AI code editor for Windows, macOS and Linux. Fast and local-first, with Git, a real terminal, IntelliSense and Veyra AI built in.";
+  "Veyra is a free, lightweight VS Code alternative that is light on memory. The same Monaco editor and shortcuts in a native Rust app, with Git, a terminal and Veyra AI built in.";
 export const KEYWORDS = [
-  "Veyra", "Veyra Studio", "Veyra editor", "Veyra code editor", "AI code editor", "free code editor",
+  "Veyra", "Veyra Studio", "Veyra editor", "Veyra code editor", "lightweight VS Code alternative",
+  "VS Code alternative low memory", "low memory code editor", "code editor that uses less RAM", "lightweight code editor",
+  "AI code editor", "free code editor",
   "open source code editor", "VS Code alternative", "Cursor alternative", "local-first editor",
   "code editor for Windows", "code editor for Mac", "code editor for Linux", "Tauri editor", "Rust code editor",
 ];
