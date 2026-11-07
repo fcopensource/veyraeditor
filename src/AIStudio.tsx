@@ -1,6 +1,6 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {invoke} from '@tauri-apps/api/core';
-import {ArrowUp,Check,Code2,Copy,FileCode2,Paperclip,FolderSearch,LogOut,MessageSquare,Plus,Square,UserRound,X} from 'lucide-react';
+import {ArrowUp,Check,ChevronRight,Code2,Copy,FileCode2,Paperclip,FolderSearch,LogOut,MessageSquare,Plus,Square,UserRound,X} from 'lucide-react';
 import {VeyraAIMark} from './VeyraAIMark';
 import {animatePanel} from './motion';
 import {openUrl} from '@tauri-apps/plugin-opener';
@@ -112,9 +112,9 @@ export function AIStudio({root,active,visible,onClose,capture,onReview,intent}:{
     {account&&!account.available&&<p className="ai-fine ai-notice">Veyra AI isn&apos;t switched on yet. Please check back soon.</p>}
     {usage}
     <div className="ai-messages" ref={list} aria-live="polite">
-      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><VeyraAIMark size={30}/></div><h2>How can I help?</h2><p>Ask about your project, understand a file, or have Veyra AI suggest an edit you review first.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span></button></div></div>}
+      {!messages.length&&<div className="ai-welcome"><div className="ai-orb"><VeyraAIMark size={30}/></div><h2>{account?.name?<><small>Hi {account.name.split(' ')[0]}</small>How can I help?</>:'How can I help?'}</h2><p>Ask about your project, understand a file, or have Veyra AI suggest an edit you review first.</p><div className="ai-starters"><button onClick={()=>{setMode('ask');setScope('workspace');setPrompt('Explain how this project is structured and identify the most important files.');input.current?.focus();}}><FolderSearch size={15}/><span>Explore this workspace<small>Find relevant files automatically</small></span><ChevronRight size={15} className="ai-starter-go"/></button><button onClick={()=>{setMode('ask');setScope(active?'file':'none');setPrompt('Explain this code and suggest what to improve.');input.current?.focus();}}><MessageSquare size={15}/><span>Understand this file<small>Explain the important parts</small></span><ChevronRight size={15} className="ai-starter-go"/></button><button onClick={()=>{setMode('edit');setScope(active?'file':'none');setPrompt('Improve readability while preserving behavior.');input.current?.focus();}}><Code2 size={15}/><span>Make a thoughtful edit<small>Review every change first</small></span><ChevronRight size={15} className="ai-starter-go"/></button></div></div>}
       {messages.map((message,i)=><article className={'ai-message '+message.role} key={i}><div className="ai-message-label">{message.role==='user'?'You':<span className="ai-author"><VeyraAIMark size={14}/>Veyra AI</span>}{message.role==='assistant'&&<button aria-label="Copy AI response" onClick={()=>navigator.clipboard.writeText(message.content).then(()=>setCopied(i)).catch(()=>setError('Could not copy. Select the response text to copy it.'))}>{copied===i?<Check size={12}/>:<Copy size={12}/>}</button>}</div>{message.role==='assistant'?<AIText text={message.content}/>:<pre>{message.display||message.content}</pre>}{message.proposal&&<button className="ai-review-button" onClick={()=>onReview(message.proposal!)}><FileCode2 size={14}/>Review proposed edit</button>}</article>)}
-      {busy&&<div className="ai-thinking" role="status"><VeyraAIMark size={18} className="thinking"/><span>Veyra AI is thinking…</span></div>}
+      {busy&&<div className="ai-thinking" role="status"><VeyraAIMark size={16} className="thinking"/><span>Thinking</span><span className="ai-dots" aria-hidden="true"><i/><i/><i/></span></div>}
     </div>
     {error&&<div className="ai-error" role="alert">{error}<button aria-label="Dismiss AI error" onClick={()=>setError('')}><X size={12}/></button></div>}
     <form className="ai-composer" onSubmit={e=>{e.preventDefault();void send();}}>
@@ -133,6 +133,11 @@ function AIText({text}:{text:string}){
   const parts=text.split(/(```[^\n]*\n[\s\S]*?(?:\n?```|$))/g).filter(part=>part.trim());
   return <div className="ai-text">{parts.map((part,i)=>{
     const code=part.match(/^```([^\n]*)\n([\s\S]*?)\n?(?:```)?$/);
-    return code?<figure key={i} className="ai-code">{code[1].trim()&&<figcaption>{code[1].trim()}</figcaption>}<pre>{code[2]}</pre></figure>:<p key={i}>{part.trim()}</p>;
+    return code?<CodeCard key={i} language={code[1].trim()} code={code[2]}/>:<p key={i}>{part.trim()}</p>;
   })}</div>;
+}
+
+function CodeCard({language,code}:{language:string;code:string}){
+  const [copied,setCopied]=useState(false);
+  return <figure className="ai-code"><figcaption><span>{language||'code'}</span><button type="button" aria-label="Copy code" onClick={()=>void navigator.clipboard.writeText(code).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),1400);}).catch(()=>{})}>{copied?<Check size={12}/>:<Copy size={12}/>}{copied?'Copied':'Copy'}</button></figcaption><pre>{code}</pre></figure>;
 }
