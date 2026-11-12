@@ -12,6 +12,13 @@ async function until(check, what, ms = 30000) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 const step = name => console.log(`[suite] ${name}`);
+/** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+async function ask(command, ...args) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await vscode.commands.executeCommand(command, ...args); }
+    catch (error) { if (attempt >= 5 || !/Canceled/i.test(String(error && (error.message || error)))) throw error; await wait(300 * attempt); }
+  }
+}
 const label = i => (typeof i.label === "string" ? i.label : i.label.label);
 const ours = uri => vscode.languages.getDiagnostics(uri).filter(d => d.source === "Path IntelliSense Veyra");
 
@@ -27,7 +34,7 @@ async function steps() {
   assert.ok(extension, "extension is loaded");
   await extension.activate();
   const complete = async (uri, line, character) => {
-    const list = await vscode.commands.executeCommand("vscode.executeCompletionItemProvider", uri, new vscode.Position(line, character), undefined, 200);
+    const list = await ask("vscode.executeCompletionItemProvider", uri, new vscode.Position(line, character), undefined, 200);
     return list.items.filter(i => i.kind === vscode.CompletionItemKind.File || i.kind === vscode.CompletionItemKind.Folder);
   };
 
@@ -71,7 +78,7 @@ async function steps() {
   assert.equal(appDiags.find(d => appDoc.getText(d.range) === "./utils/helpr").message, 'Can\'t find "./utils/helpr". Did you mean "./utils/helper"?');
   assert.match(appDiags.find(d => appDoc.getText(d.range) === "@/utils/dat").message, /Did you mean "@\/utils\/date"\?/);
   const helpr = appDiags.find(d => appDoc.getText(d.range) === "./utils/helpr");
-  const actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", app, helpr.range);
+  const actions = await ask("vscode.executeCodeActionProvider", app, helpr.range);
   const fix = actions.find(a => a.title === 'Change to "./utils/helper"');
   assert.ok(fix, actions.map(a => a.title).join(" | "));
   await vscode.workspace.applyEdit(fix.edit);

@@ -10,6 +10,13 @@ async function until(check, what, ms = 60000) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 const step = name => console.log(`[suite] ${name}`);
+/** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+async function ask(command, ...args) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await vscode.commands.executeCommand(command, ...args); }
+    catch (error) { if (attempt >= 5 || !/Canceled/i.test(String(error && (error.message || error)))) throw error; await wait(300 * attempt); }
+  }
+}
 
 exports.run = async function run() {
   try { await steps(); console.log("[suite] all steps passed"); }
@@ -35,7 +42,7 @@ async function steps() {
   const codes = diagnostics.map(d => d.code);
   for (const code of ["pin-version", "maintainer", "apt-yes", "use-copy", "npm-ci", "dockerignore", "root-user"]) assert.ok(codes.includes(code), `finds ${code}, got ${codes}`);
   const maintainer = diagnostics.find(d => d.code === "maintainer");
-  const actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", dockerfile.uri, maintainer.range);
+  const actions = await ask("vscode.executeCodeActionProvider", dockerfile.uri, maintainer.range);
   const fix = actions.find(a => a.title === "Use LABEL maintainer");
   assert.ok(fix, `quick fix offered, got ${actions.map(a => a.title)}`);
   await vscode.workspace.applyEdit(fix.edit);
@@ -43,10 +50,10 @@ async function steps() {
   await until(() => !vscode.languages.getDiagnostics(dockerfile.uri).some(d => d.code === "maintainer"), "the fixed problem to go away");
 
   step("Buttons above the Dockerfile and the compose file");
-  const fileLenses = await vscode.commands.executeCommand("vscode.executeCodeLensProvider", dockerfile.uri);
+  const fileLenses = await ask("vscode.executeCodeLensProvider", dockerfile.uri);
   assert.deepEqual(fileLenses.map(l => l.command.title), ["▶ Build and Run", "Build Image"]);
   const compose = await vscode.workspace.openTextDocument(path.join(folder, "compose.yaml"));
-  const composeLenses = await vscode.commands.executeCommand("vscode.executeCodeLensProvider", compose.uri);
+  const composeLenses = await ask("vscode.executeCodeLensProvider", compose.uri);
   assert.deepEqual(composeLenses.map(l => l.command.title), ["▶ Compose Up", "Rebuild", "■ Down", "Logs", "▶ Up web", "▶ Up cache"]);
   assert.equal(composeLenses[4].range.start.line, 1);
 

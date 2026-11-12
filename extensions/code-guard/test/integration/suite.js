@@ -11,6 +11,13 @@ async function until(check, what, ms = 15000) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 const step = name => console.log(`[suite] ${name}`);
+/** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+async function ask(command, ...args) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await vscode.commands.executeCommand(command, ...args); }
+    catch (error) { if (attempt >= 5 || !/Canceled/i.test(String(error && (error.message || error)))) throw error; await wait(300 * attempt); }
+  }
+}
 
 exports.run = async function run() {
   try { await steps(); console.log("[suite] all steps passed"); }
@@ -40,7 +47,7 @@ async function steps() {
   const bidi = ours(danger).find(d => d.code === "trojan-source");
   // Quick fixes are computed in VS Code's main process, whose copy of the diagnostics arrives a moment after ours.
   // A request is cancelled when a newer one starts (the lightbulb asks too): treat that as "not yet".
-  const actionsAt = range => Promise.resolve(vscode.commands.executeCommand("vscode.executeCodeActionProvider", danger, range)).catch(() => []);
+  const actionsAt = range => Promise.resolve(ask("vscode.executeCodeActionProvider", danger, range)).catch(() => []);
   const remove = await until(async () => (await actionsAt(bidi.range)).find(a => a.title === "Remove the hidden characters on this line"), "the remove-hidden-characters quick fix");
   await vscode.workspace.applyEdit(remove.edit);
   assert.equal(editor.document.lineAt(0).text, "const access = 'user';");
@@ -85,7 +92,7 @@ async function steps() {
   step("The \"Delete line\" quick fix removes the code and rescans");
   await ed.edit(e => e.insert(new vscode.Position(1, 0), ["ev", "al(at", "ob(p));\n"].join("")));
   await until(() => ours(doc.uri).some(d => d.code === "eval-decoded"), "flag the new line");
-  const deleteFix = await until(async () => (await Promise.resolve(vscode.commands.executeCommand("vscode.executeCodeActionProvider", doc.uri, ours(doc.uri)[0].range)).catch(() => [])).find(a => a.title.startsWith("Delete line 2")), "the delete-line quick fix");
+  const deleteFix = await until(async () => (await Promise.resolve(ask("vscode.executeCodeActionProvider", doc.uri, ours(doc.uri)[0].range)).catch(() => [])).find(a => a.title.startsWith("Delete line 2")), "the delete-line quick fix");
   await vscode.workspace.applyEdit(deleteFix.edit);
   assert.equal(await vscode.commands.executeCommand(deleteFix.command.command, ...deleteFix.command.arguments), 0, "the rescan finds nothing left");
   assert.equal(doc.getText(), "let x = 1;\n");
