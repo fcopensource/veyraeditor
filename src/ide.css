@@ -730,3 +730,20 @@
 .app.light .support-dialog header small { color: #0f8a6c }
 .app.light .support-dialog h2 em { background: linear-gradient(100deg, #0f9f7f, #1192b0, #6b4fd8); -webkit-background-clip: text; background-clip: text }
 @media (prefers-reduced-motion: reduce) { .app .support-heart, .app .support-dialog { animation: none } }
+
+/* Error Lens, built in: the problem at the end of its line, and the line gently tinted. */
+.app .veyra-lens-text { pointer-events: none }
+.app .veyra-lens-text::after { margin-left: 2.5em; font-style: italic; opacity: .92; white-space: pre }
+.app .veyra-lens-text.error { color: #ff7b72 }
+.app .veyra-lens-text.warning { color: #e3b341 }
+.app .veyra-lens-text.info { color: #79c0ff }
+.app .veyra-lens-text.hint { color: #8b949e }
+.app .veyra-lens-line.error { background: #f8514914 }
+.app .veyra-lens-line.warning { background: #d2992212 }
+.app .veyra-lens-line.info { background: #388bfd0d }
+.app.light .veyra-lens-text.error { color: #cf222e }
+.app.light .veyra-lens-text.warning { color: #9a6700 }
+.app.light .veyra-lens-text.info { color: #0969da }
+.app.light .veyra-lens-line.error { background: #cf222e0d }
+.app.light .veyra-lens-line.warning { background: #9a67000b }
+.app.light .veyra-lens-line.info { background: #0969da08 }
