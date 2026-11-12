@@ -4,6 +4,19 @@ import { LspClient, type Host, type ServerOptions } from "./client";
 import { liveServer } from "../live";
 import liveServerIcon from "../assets/live-server.svg";
 import liveServerReadme from "../../extensions/live-server/README.md?raw";
+import { isNativeOn, setNativeOn, type NativeKey } from "../features/native";
+import errorLensIcon from "../../extensions/error-lens/media/icon.png";
+import errorLensReadme from "../../extensions/error-lens/README.md?raw";
+import autoRenameIcon from "../../extensions/auto-rename-tag/media/icon.png";
+import autoRenameReadme from "../../extensions/auto-rename-tag/README.md?raw";
+import pathIcon from "../../extensions/path-intellisense/media/icon.png";
+import pathReadme from "../../extensions/path-intellisense/README.md?raw";
+import npmIcon from "../../extensions/npm-intellisense/media/icon.png";
+import npmReadme from "../../extensions/npm-intellisense/README.md?raw";
+import todoIcon from "../../extensions/todo-tree/media/icon.png";
+import todoReadme from "../../extensions/todo-tree/README.md?raw";
+import gitGraphIcon from "../../extensions/git-graph/media/icon.png";
+import gitGraphReadme from "../../extensions/git-graph/README.md?raw";
 
 /* Web language tools: what VS Code's most-installed web extensions provide, run as language servers. */
 
@@ -11,8 +24,11 @@ export type Tool = ServerOptions & {
   description: string; publisher: string;
   /** server: a language server (Node.js); formatter: Prettier; debugger: a debug adapter (see src/debug);
       cli: a command-line app Veyra installs and opens in its terminal (Claude Code);
-      feature: built into Veyra itself, nothing to install (Live Server). */
-  kind: "server" | "formatter" | "debugger" | "cli" | "feature";
+      feature: built into Veyra itself, nothing to install (Live Server);
+      native: one of Veyra's own extensions rebuilt into Veyra, on by default and switched off in Extensions. */
+  kind: "server" | "formatter" | "debugger" | "cli" | "feature" | "native";
+  /** For native tools: their version (the extension's), and the Veyra window they open, if any. */
+  nativeVersion?: string; opens?: "todo" | "git";
   /** Open VSX / VS Code Marketplace ids this tool stands in for. */
   replaces: string[];
   /** Veyra's own products: their icon and README, instead of the marketplace extension's. */
@@ -81,6 +97,25 @@ export const TOOLS: Tool[] = [
     description: "Language support for .vue single-file components: template, script and style.",
     replaces: ["vue.volar", "Vue.volar", "octref.vetur"],
     initializationOptions: () => ({ typescript: { tsdk: `${toolsDir}/vue/node_modules/typescript/lib` }, vue: { hybridMode: false } }), settings: () => ({}) },
+  // Veyra's own extensions, built in (src/features). They stand in for themselves and for the popular originals.
+  { key: "error-lens", name: "Error Lens Veyra", publisher: "Veyra", kind: "native", nativeVersion: "1.0.0", languages: [], icon: errorLensIcon, readme: errorLensReadme,
+    description: "See errors and warnings right where they happen: the message at the end of the line and the line gently tinted. The line you're typing on waits for a pause.",
+    replaces: ["flightcoders.veyra-error-lens", "usernamehw.errorlens"] },
+  { key: "auto-rename-tag", name: "Auto Rename Tag Veyra", publisher: "Veyra", kind: "native", nativeVersion: "1.0.0", languages: ["html", "xml", "jsx", "tsx", "vue", "svelte"], icon: autoRenameIcon, readme: autoRenameReadme,
+    description: "Rename an HTML, XML or JSX tag and its closing tag changes with it, as you type. One undo puts both back.",
+    replaces: ["flightcoders.veyra-auto-rename-tag", "formulahendry.auto-rename-tag"] },
+  { key: "path-intellisense", name: "Path IntelliSense Veyra", publisher: "Veyra", kind: "native", nativeVersion: "1.0.0", languages: ["javascript", "typescript", "html", "css", "markdown"], icon: pathIcon, readme: pathReadme,
+    description: "Autocomplete file paths as you type them: imports, require, src, href, CSS url() and Markdown links.",
+    replaces: ["flightcoders.veyra-path-intellisense", "christian-kohler.path-intellisense"] },
+  { key: "npm-intellisense", name: "Veyra npm IntelliSense", publisher: "Veyra", kind: "native", nativeVersion: "1.0.1", languages: ["javascript", "typescript"], icon: npmIcon, readme: npmReadme,
+    description: "Autocomplete npm packages and Node built-ins in import and require, with versions, and catch imports whose package isn't in package.json.",
+    replaces: ["flightcoders.veyra-npm-intellisense", "christian-kohler.npm-intellisense"] },
+  { key: "todo-tree", name: "Todo Tree Veyra", publisher: "Veyra", kind: "native", nativeVersion: "1.0.0", languages: [], icon: todoIcon, readme: todoReadme, opens: "todo",
+    description: "Every TODO, FIXME, BUG and HACK in your project in one list, grouped by file and filterable by tag. In Veyra it's the TODO window in the bottom panel.",
+    replaces: ["flightcoders.veyra-todo-tree", "gruntfuggly.todo-tree"] },
+  { key: "git-graph", name: "Git Graph Veyra", publisher: "Veyra", kind: "native", nativeVersion: "1.0.0", languages: [], icon: gitGraphIcon, readme: gitGraphReadme, opens: "git",
+    description: "See your repository as a graph: every branch, merge and tag, with commit details. In Veyra it's the commit graph in Source Control.",
+    replaces: ["flightcoders.veyra-git-graph", "mhutchie.git-graph"] },
 ];
 export const toolFor = (extensionId: string) => TOOLS.find(tool => tool.replaces.some(id => id.toLowerCase() === extensionId.toLowerCase()));
 
@@ -99,6 +134,8 @@ export const onToolsChange = (listener: () => void) => { listeners.add(listener)
 export const environment = () => ({ node: nodeVersion, npm: npmAvailable, python: pythonVersion, pythonPath });
 
 export function toolState(key: string): ToolState {
+  const native = TOOLS.find(t => t.key === key && t.kind === "native");
+  if (native) { const on = isNativeOn(key as NativeKey); return { installed: true, version: native.nativeVersion || "", enabled: on, busy: false, error: "", running: on ? "running" : "off" }; }
   if (TOOLS.find(t => t.key === key)?.kind === "feature") return { installed: true, version: "", enabled: true, busy: false, error: "", running: liveServer() ? "running" : "off" };
   const client = clients.get(key), version = installed.get(key) || "";
   return { installed: !!version, version, enabled: enabled.has(key), busy: busy.has(key), error: client?.error || "",
@@ -191,10 +228,16 @@ export async function uninstallTool(key: string) {
   } finally { busy.delete(key); changed(); }
 }
 export async function setToolEnabled(key: string, on: boolean) {
+  if (TOOLS.find(t => t.key === key)?.kind === "native") { setNativeOn(key as NativeKey, on); changed(); return; }
   if (on) enabled.add(key); else enabled.delete(key);
   saveEnabled();
   if (!on) await clients.get(key)?.stop();
   ensureServers(); changed();
+}
+/** Opens the Veyra window a native tool lives in (Todo Tree: the TODO window, Git Graph: Source Control). */
+export function openNativeTool(key: string) {
+  const tool = TOOLS.find(t => t.key === key);
+  if (tool?.opens) window.dispatchEvent(new CustomEvent("veyra-menu", { detail: tool.opens === "todo" ? "view.todo" : "view.gitGraph" }));
 }
 export async function restartTool(key: string) { await clients.get(key)?.stop(); clients.delete(key); ensureServers(); }
 
