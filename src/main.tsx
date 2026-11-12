@@ -11,17 +11,17 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <App />,
 );
 
-/* The launch screen stays long enough to be seen in the desktop app (about 1.6 s from start),
+/* The launch screen stays long enough for its animation in the desktop app (about 2 s from start),
    and goes at once in a browser preview or test, where there is no real Tauri window. */
 const desktop = !!(window as { __TAURI_INTERNALS__?: { metadata?: unknown } }).__TAURI_INTERNALS__?.metadata;
 if (splash) {
   if (!desktop) splash.remove();
   else {
     const steps = ["Loading the editor…", "Preparing your workspace…", "Almost ready…"];
-    steps.forEach((text, i) => setTimeout(() => { if (status) status.textContent = text; }, 350 + i * 450));
+    steps.forEach((text, i) => setTimeout(() => { if (status) status.textContent = text; }, 400 + i * 550));
     requestAnimationFrame(() => setTimeout(() => {
       splash.classList.add("done");
       setTimeout(() => splash.remove(), 500);
-    }, Math.max(0, 1600 - performance.now())));
+    }, Math.max(0, 2000 - performance.now())));
   }
 }

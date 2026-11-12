@@ -722,3 +722,53 @@
 .app .ai-welcome { display: flex !important; flex-direction: column; align-items: center !important; width: 100%; box-sizing: border-box; text-align: center }
 .app .ai-welcome .ai-orb { margin: 0 auto 8px !important; display: grid !important; place-items: center }
 .app .ai-welcome > p { margin-inline: auto }
+
+/* ── Welcome: carries on from the launch screen. No logo; a greeting, the blinking cursor and real action cards ── */
+.app .welcome-brand { padding: 6px 10px 22px }
+.app .welcome-brand b { font-size: 15px; letter-spacing: -.2px }
+.app .welcome-main { position: relative; overflow: hidden; gap: 34px }
+.app:not(.light) .welcome-main {
+  background:
+    radial-gradient(620px 360px at 50% 30%, #4a38d61f, transparent 70%),
+    radial-gradient(520px 260px at 50% 92%, #3ddc8412, transparent 70%);
+}
+.app .welcome-main > * { position: relative }
+.app .welcome-greeting { font-size: 13px; font-weight: 600; letter-spacing: .4px; color: #3ddc84; animation: welcome-in .5s ease both }
+.app .welcome-hero h1 { display: inline-flex; align-items: center; gap: 2px; margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -.8px; color: var(--bright); animation: welcome-in .5s ease .06s both }
+.app .welcome-caret { display: inline-block; width: 3px; height: 30px; margin-left: 6px; border-radius: 2px; background: #3ddc84; box-shadow: 0 0 12px #3ddc8488; animation: welcome-caret 1.05s steps(1) infinite }
+.app .welcome-hero p { font-size: 14px; animation: welcome-in .5s ease .12s both }
+
+.app .welcome-actions { gap: 14px; animation: welcome-in .55s ease .18s both }
+.app .welcome-actions button {
+  position: relative; width: 200px; align-items: flex-start; text-align: left; gap: 4px; padding: 18px 18px 16px;
+  border-radius: 14px; background: color-mix(in srgb, var(--sidebar) 88%, transparent); border: 1px solid var(--line);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.app .welcome-actions button:hover:not(:disabled) {
+  transform: translateY(-3px); border-color: #6d5cf6aa; background: var(--sidebar);
+  box-shadow: 0 14px 34px #0006, 0 0 0 1px #6d5cf633;
+}
+.app .welcome-actions button > span {
+  width: 42px; height: 42px; margin-bottom: 10px; border-radius: 11px; border: 0;
+  background: linear-gradient(135deg, #6d5cf633, #3ddc8422); color: #b9b0ff;
+}
+.app .welcome-actions button:hover > span { background: linear-gradient(135deg, #6d5cf6, #3ddc84); color: #fff; border: 0 }
+.app .welcome-actions b { font-size: 14px; font-weight: 600; color: var(--bright) }
+.app .welcome-actions small { font-size: 12px; color: var(--muted) }
+.app .welcome-actions kbd { position: absolute; top: 18px; right: 16px; font-size: 11px; color: var(--muted); opacity: .8 }
+
+.app .welcome-recent { animation: welcome-in .55s ease .24s both }
+.app .welcome-recent button { border-radius: 12px; padding: 12px 14px; transition: border-color .16s ease, background .16s ease }
+.app .welcome-recent button:hover { border-color: #6d5cf6aa }
+.app .welcome-footer { gap: 18px; font-size: 12px; animation: welcome-in .55s ease .3s both }
+.app .welcome-footer kbd { padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line); background: var(--sidebar); color: var(--text) }
+
+.app.light .welcome-greeting { color: #1a9a5a }
+.app.light .welcome-actions button > span { background: linear-gradient(135deg, #6d5cf622, #3ddc8418); color: #5a48e8 }
+
+@keyframes welcome-in { from { opacity: 0; transform: translateY(6px) } }
+@keyframes welcome-caret { 50% { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) {
+  .app .welcome-main *, .app .welcome-caret { animation: none !important }
+  .app .welcome-actions button:hover:not(:disabled) { transform: none }
+}
