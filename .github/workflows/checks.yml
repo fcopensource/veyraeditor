@@ -107,6 +107,8 @@ jobs:
       - run: npm ci
       - name: Tests
         run: npm test
+      - name: Download VS Code for the integration test
+        run: node "$GITHUB_WORKSPACE/scripts/fetch-vscode.mjs"
       - name: Integration test in VS Code
         run: xvfb-run -a npm run test:integration
       - name: Package
@@ -162,6 +164,8 @@ jobs:
         run: npm test
       - name: Tests against real Docker
         run: npm run test:docker
+      - name: Download VS Code for the integration test
+        run: node "$GITHUB_WORKSPACE/scripts/fetch-vscode.mjs"
       - name: Integration test in VS Code, with real containers
         run: xvfb-run -a npm run test:integration
         env:
@@ -204,6 +208,8 @@ jobs:
         run: npm test
       - name: Tests against real MongoDB
         run: npm run test:mongo
+      - name: Download VS Code for the integration test
+        run: node "$GITHUB_WORKSPACE/scripts/fetch-vscode.mjs"
       - name: Integration test in VS Code, with a real database
         run: xvfb-run -a npm run test:integration
       - name: Package
