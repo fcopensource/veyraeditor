@@ -14,7 +14,6 @@ import {ExtensionsPanel} from "./ExtensionsPanel";
 import {ExtensionPage} from "./ExtensionPage";
 import {AccountButton} from "./AccountButton";
 import {Bug,Radio} from "lucide-react";
-import {VeyraAIMark} from "./VeyraAIMark";
 import {animatePanel,revealChildren} from "./motion";
 import {goLive,goOffline,isHtml,setLiveActive,stopLiveServer,useLiveServer} from "./live";
 import {DebugPanel,debugKeys,useDebugState} from "./DebugPanel";
@@ -25,7 +24,8 @@ import type {TerminalRequest} from "./lsp/tools";
 import {continueRun,isDebugging,restartDebugging,setDebugHost,startDebugging,stepInto,stepOut,stepOver,stopDebugging,debugState} from "./debug/session";
 import {ExtIcon,PAGE_PREFIX,targetId,type ExtensionTarget} from "./extensionUi";
 import {activateExtensions,installedExtensions,saveExtensions,themeId,type Extension} from "./extensions";
-import {AIStudio,type AISnapshot,type AIProposal} from './AIStudio';
+import {SupportDialog} from './SupportDialog';
+import {Heart} from "lucide-react";
 import {DimensionalIcon} from './DimensionalIcon';
 import {PrismIcon,type PrismTone} from './PrismIcon';
 import './studio.css';
@@ -111,10 +111,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<string|null>(null);
   const [active, setActive] = useState("");
   const [panel, setPanel] = useState("files");
-  const [aiOpen,setAiOpen]=useState(false);
-  const [aiIntent,setAiIntent]=useState(0);
-  const [proposal,setProposal]=useState<AIProposal|null>(null);
-  const [proposalError,setProposalError]=useState('');
+  const [supportOpen,setSupportOpen]=useState(false);
   const [extensions,setExtensions]=useState(installedExtensions);
   const [extensionTheme,setExtensionTheme]=useState(()=>localStorage.getItem('veyra.extensionTheme')||'');
   useEffect(()=>activateExtensions(extensions),[extensions]);
@@ -206,27 +203,6 @@ export default function App() {
     setInput(initial || ""); setModal({title,choices,detail,initial,input:initial!==undefined,resolve});
   });
   const answer = (value: string|null) => { modal?.resolve(value); setModal(null); };
-  function captureAI(scope:string):AISnapshot|null {
-    const current=state.current;const tab=current.tabs.find(t=>t.path===current.active);
-    if(!tab||!current.root)return null;
-    let start=0,end=tab.text.length;
-    if(scope==='selection'){
-      const model=editor.current?.getModel();const selection=editor.current?.getSelection();
-      if(!model||!selection||selection.isEmpty()||model.uri.toString()!==monaco.Uri.file(current.root+'/'+tab.path).toString())return null;
-      start=model.getOffsetAt(selection.getStartPosition());end=model.getOffsetAt(selection.getEndPosition());
-    }
-    return {root:current.root,path:tab.path,original:tab.text,start,end,content:tab.text.slice(start,end)};
-  }
-  function applyProposal(){
-    if(!proposal)return;const snapshot=proposal.snapshot;const current=state.current;
-    const tab=current.tabs.find(t=>t.path===snapshot.path);
-    const model=monaco.editor.getModel(monaco.Uri.file(snapshot.root+'/'+snapshot.path));
-    if(current.root!==snapshot.root||current.active!==snapshot.path||!tab||tab.text!==snapshot.original||!model||model.getValue()!==snapshot.original){setProposalError('The file or workspace changed after this request. Return to the original file and request a fresh edit. Your current work is preserved.');return;}
-    const replacement=snapshot.original.slice(0,snapshot.start)+proposal.replacement+snapshot.original.slice(snapshot.end);
-    model.pushStackElement();model.pushEditOperations([],[{range:model.getFullModelRange(),text:replacement}],()=>null);model.pushStackElement();
-    setTabs(all=>all.map(t=>t.path===snapshot.path?{...t,text:replacement}:t));setProposal(null);setStatus('AI edit applied to buffer · review and save with ⌘S');editor.current?.focus();
-  }
-  function editWithAI(){setAiOpen(true);setAiIntent(n=>n+1);}
 
   async function refresh(reveal?:unknown) {
     if (!state.current.root) return;
@@ -556,7 +532,7 @@ export default function App() {
   function stopLive(){void goOffline().then(()=>setStatus("Live Server stopped")).catch(report);}
   useEffect(()=>{setLiveActive(active);},[active]);
   const commands = [
-    {name:'Toggle AI assistant',shortcut:'⌘L',run:()=>setAiOpen(v=>!v)},{name:'Edit selection with AI',shortcut:'⌘K',run:editWithAI},
+    {name:'Support Veyra',shortcut:'',run:()=>setSupportOpen(true)},
     {name:"Open folder",shortcut:"⌘O",run:chooseFolder},
     {name:"Search everywhere",shortcut:"⇧⇧",run:searchEverywhere},{name:"Recent files",shortcut:"⌘E",run:recentFilesPalette},
     {name:"Show TODO",shortcut:"",run:()=>setBottom("todo")},
@@ -674,7 +650,7 @@ export default function App() {
     const key=(e:KeyboardEvent)=>{
       if(creation)return;
       if(/^F(5|9|10|11)$/.test(e.key)&&!e.altKey){e.preventDefault();e.stopPropagation();void debugKey(e);return;}
-      if(e.key==="Escape"){setPalette(null);setDiff(null);setProposal(null);setExplorerMenu(null);return;}
+      if(e.key==="Escape"){setPalette(null);setDiff(null);setSupportOpen(false);setExplorerMenu(null);return;}
       // File shortcuts (Delete, Ctrl/Cmd+A/C/X/V/D) apply only in the file tree, never while typing in a text field:
       // otherwise Backspace in the Extensions search or a commit message moved the selected file to the Trash (#2).
       const target=e.target as HTMLElement|null;
@@ -690,10 +666,8 @@ export default function App() {
         if(k==='v')void pasteInto(selectedEntry.directory?selectedEntry.path:(selectedEntry.path.includes('/')?selectedEntry.path.slice(0,selectedEntry.path.lastIndexOf('/')):''));
         if(k==='d')void duplicateEntry(selectedEntry);return;
       }
-      if(["s","o","p","n","b",",","w","l","k","e"].includes(k)&&!(k==="e"&&e.shiftKey)){e.preventDefault();e.stopPropagation();}
+      if(["s","o","p","n","b",",","w","e"].includes(k)&&!(k==="e"&&e.shiftKey)){e.preventDefault();e.stopPropagation();}
       if(k==="e"&&!e.shiftKey)recentFilesPalette();
-      if(k==='l')setAiOpen(v=>!v);
-      if(k==='k')editWithAI();
       if(k==="s")void (e.shiftKey?saveAll():saveTab());
       if(k==="o")void chooseFolder();
       if(k==="n")void create();
@@ -747,7 +721,6 @@ export default function App() {
     instance.onDidChangeCursorPosition(e=>{clearTimeout(cursorTimer.current);cursorTimer.current=window.setTimeout(()=>setPosition(e.position),80);});
     instance.addCommand(monaco.KeyMod.CtrlCmd|monaco.KeyCode.KeyS,()=>void saveTab());
     const debugging=attachDebugging(instance,()=>state.current.active);instance.onDidDispose(()=>debugging.dispose());
-    instance.addAction({id:'veyra.ai.edit',label:'Edit selection with Veyra AI',contextMenuGroupId:'navigation',contextMenuOrder:1,run:editWithAI});
     // Live Server, with the same shortcuts as Live Server for VS Code: Alt+L Alt+O to open, Alt+L Alt+C to stop.
     instance.addAction({id:'veyra.live.open',label:'Open with Live Server',precondition:'editorLangId == html',contextMenuGroupId:'navigation',contextMenuOrder:2,run:()=>openLive(state.current.active)});
     instance.addAction({id:'veyra.live.go',label:'Live Server: Go Live',keybindings:[monaco.KeyMod.chord(monaco.KeyMod.Alt|monaco.KeyCode.KeyL,monaco.KeyMod.Alt|monaco.KeyCode.KeyO)],run:()=>openLive(state.current.active)});
@@ -778,7 +751,7 @@ export default function App() {
         {root&&<button className="vcs-widget" title="Branch and commit" aria-label={"Branch "+(branchInfo.name||"none")} onClick={()=>{setPanel("git");setSidebar(true);void refreshGit();}}><GitBranch size={14}/><span>{branchInfo.name||"No branch"}</span>{decorations.files.size>0&&<span className="status-changes">{decorations.files.size}</span>}<ChevronDown size={13}/></button>}
       </div>
       <div className="toolbar-spacer" data-tauri-drag-region/>
-      <div className="toolbar-actions"><div className="run-widget"><button className="icon-button run" title={"Run and Debug · "+debugKeys.start} aria-label="Open the run and debug view" onClick={()=>{setPanel('debug');setSidebar(true);}}><Play size={16}/></button><button className="icon-button debug" title="Debug console" aria-label="Show the debug console" onClick={()=>setBottom("debug")}><Bug size={16}/></button></div><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className={'ai-toggle '+(aiOpen?'selected':'')} title={"Toggle AI assistant · "+keys("⌘L")} aria-label="Toggle AI assistant" onClick={()=>setAiOpen(!aiOpen)}><VeyraAIMark size={17}/>Veyra AI</button><button className="icon-button" title={"Search Everywhere · "+keys("⇧⌘P")} aria-label="Search files and commands" onClick={()=>openPalette("commands")}><Search size={17}/></button><button className={"icon-button "+(panel==="settings"&&sidebar?"selected":"")} title="Settings" aria-label="Open settings" onClick={()=>{setPanel("settings");setSidebar(true);}}><Settings2 size={17}/></button><AccountButton notify={setStatus} beforeInstall={()=>allowDiscard("Install update and restart?")}/></div>{customTitleBar&&<WindowControls/>}
+      <div className="toolbar-actions"><div className="run-widget"><button className="icon-button run" title={"Run and Debug · "+debugKeys.start} aria-label="Open the run and debug view" onClick={()=>{setPanel('debug');setSidebar(true);}}><Play size={16}/></button><button className="icon-button debug" title="Debug console" aria-label="Show the debug console" onClick={()=>setBottom("debug")}><Bug size={16}/></button></div><button className="icon-button" title={"Toggle sidebar · "+keys("⌘B")} onClick={()=>setSidebar(!sidebar)}><PanelLeft size={17}/></button><button className={"icon-button "+(bottom?"selected":"")} title="Toggle bottom panel" onClick={()=>bottom?setBottom(null):showTerminal()}><PanelBottom size={17}/></button><button className={"icon-button "+(split?"selected":"")} title="Split editor" onClick={()=>setSplit(!split)}><Columns2 size={17}/></button><button className="support-toggle" title="Support Veyra: Buy Me a Coffee or Stripe" aria-label="Support Veyra" onClick={()=>setSupportOpen(true)}><Heart size={15}/>Support</button><button className="icon-button" title={"Search Everywhere · "+keys("⇧⌘P")} aria-label="Search files and commands" onClick={()=>openPalette("commands")}><Search size={17}/></button><button className={"icon-button "+(panel==="settings"&&sidebar?"selected":"")} title="Settings" aria-label="Open settings" onClick={()=>{setPanel("settings");setSidebar(true);}}><Settings2 size={17}/></button><AccountButton notify={setStatus} beforeInstall={()=>allowDiscard("Install update and restart?")}/></div>{customTitleBar&&<WindowControls/>}
     </header>
     <div className="workbench">
       <nav className="activity" aria-label="Workspace panels">
@@ -816,7 +789,7 @@ export default function App() {
         <div className="editing-area">
           {activePage&&(()=>{const page=pages.find(item=>targetId(item)===activePage);return page&&<div className="page-overlay"><ExtensionPage key={activePage} target={page} items={extensions} onChange={changeExtensions} theme={effectiveTheme} onTheme={changeExtensionTheme} onOpen={openExtension}/></div>;})()}
           {diff!==null?<div className="diff-view"><div><GitBranch size={16}/><b>{diff.path}</b><small>HEAD ↔ Working tree</small><button title={diffInline?"Show side by side":"Show inline"} aria-label="Toggle inline diff" onClick={()=>setDiffInline(v=>!v)}>{diffInline?<Columns2 size={15}/>:<Rows2 size={15}/>}</button><button title="Open file" aria-label="Open file" onClick={()=>{const path=diff.path;setDiff(null);void openFile(path);}}><ExternalLink size={14}/></button><button title="Close diff" aria-label="Close diff" onClick={()=>setDiff(null)}><X size={16}/></button></div>{diff.original===diff.modified?<pre>No changes against HEAD.</pre>:<div className="diff-editor"><DiffEditor original={diff.original} modified={diff.modified} language={languageFor(diff.path)} theme={effectiveTheme||(preferences.light?"vs":"veyra")} options={{readOnly:true,renderSideBySide:!diffInline,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false,renderOverviewRuler:true}}/></div>}</div>:file?<div className="editor-splits">{[0,...(split?[1]:[])].map(index=><div className="monaco-pane" key={index}><Editor path={modelUri} keepCurrentModel language={languageFor(file.path)} value={file.text} theme={effectiveTheme||(preferences.light?"vs":"veyra")} onMount={mounted} onValidate={()=>setProblems(openMarkers())} onChange={text=>setTabs(all=>all.map(t=>t.path===file.path?{...t,text:text??""}:t))} options={editorOptions}/></div>)}</div>:<div className="welcome">
-            <aside className="welcome-nav" aria-label="Welcome"><div className="welcome-brand"><span><b>Veyra Studio</b><small>The lightweight VS Code alternative</small></span></div><button className="selected" onClick={chooseFolder}><Folder size={15}/>Projects</button><button onClick={()=>{setPanel("settings");setSidebar(true);}}><Settings2 size={15}/>Customize</button><button onClick={()=>{setPanel("extensions");setSidebar(true);}}><Puzzle size={15}/>Plugins</button><button onClick={()=>openPalette("commands")}><Keyboard size={15}/>Commands</button></aside>
+            <aside className="welcome-nav" aria-label="Welcome"><div className="welcome-brand"><span><b>Veyra Studio</b><small>The lightweight VS Code alternative</small></span></div><button className="selected" onClick={chooseFolder}><Folder size={15}/>Projects</button><button onClick={()=>{setPanel("settings");setSidebar(true);}}><Settings2 size={15}/>Customize</button><button onClick={()=>{setPanel("extensions");setSidebar(true);}}><Puzzle size={15}/>Plugins</button><button onClick={()=>openPalette("commands")}><Keyboard size={15}/>Commands</button><div className="welcome-nav-spacer"/><button className="welcome-support" onClick={()=>setSupportOpen(true)}><Heart size={15}/>Support Veyra</button></aside>
             <div className="welcome-main"><div className="welcome-hero"><span className="welcome-greeting"><i aria-hidden="true"/>{greeting()}</span><h1>Welcome to <em>Veyra Studio</em><i className="welcome-caret" aria-hidden="true"/></h1><p>Start from a blank file, open a project from your computer, or find any command.</p></div>
               <div className="welcome-actions"><button onClick={()=>create()}><span><FilePlus2 size={22}/></span><b>New file</b><small>Start from a blank page</small><kbd>{keys("⌘N")}</kbd></button><button onClick={chooseFolder}><span><FolderOpen size={22}/></span><b>Open a project</b><small>Any folder on your computer</small><kbd>{keys("⌘O")}</kbd></button><button onClick={()=>openPalette("commands")}><span><Command size={22}/></span><b>Find a command</b><small>Every action, one search</small><kbd>{keys("⇧⌘P")}</kbd></button></div>
               {root&&<div className="welcome-recent"><small>CURRENT PROJECT</small><button onClick={()=>openPalette("files")}><span className="project-badge">{projectName.replace(/[^a-z0-9]/gi,"").slice(0,2).toUpperCase()||"VS"}</span><span><b>{projectName}</b><small>{projectType+" · "+indexed.length+" indexed files"}</small></span><ArrowUpRight size={15}/></button></div>}
@@ -834,8 +807,7 @@ export default function App() {
         {bottom==="todo"&&<TodoPanel root={root} generation={0} openFile={(path,line,column)=>void openFile(path,line,column)} onCount={setTodoCount}/>}
         {bottom==="problems"&&<div className="problems-panel">{problems.length?problems.map((p,i)=><button key={i} onClick={()=>{const relative=p.resource.path.slice(root.length+1);void openFile(relative,p.startLineNumber);}}>{p.severity===8?<CircleX size={14}/>:<CircleAlert size={14}/>}<span>{p.message}</span><small>{baseName(p.resource.path)}:{p.startLineNumber}</small></button>):<div><CheckCheck size={18}/>No diagnostics reported for open files.</div>}</div>}
       </section>
-      <AIStudio root={root} active={active} visible={aiOpen} onClose={()=>setAiOpen(false)} capture={captureAI} onReview={value=>{setProposal(value);setProposalError('');}} intent={aiIntent}/>
-      <nav className="stripe-right" aria-label="Right tool windows"><button title={"Veyra AI · "+keys("⌘L")} aria-label="AI assistant tool window" className={aiOpen?"selected":""} onClick={()=>setAiOpen(!aiOpen)}><VeyraAIMark size={17}/></button><button title="Health monitor" aria-label="Health monitor" className={panel==='health'&&sidebar?'selected':''} onClick={()=>{setPanel('health');setSidebar(true);void checkHealth();}}><HeartPulse size={16}/></button></nav>
+      <nav className="stripe-right" aria-label="Right tool windows"><button title="Health monitor" aria-label="Health monitor" className={panel==='health'&&sidebar?'selected':''} onClick={()=>{setPanel('health');setSidebar(true);void checkHealth();}}><HeartPulse size={16}/></button></nav>
     </div>
     <footer className={"statusbar"+(debug.status==="starting"||debug.status==="running"||debug.status==="paused"?" debugging":"")}><span className="status-crumbs" aria-label="Location">{root?<><Folder size={12}/><span>{projectName}</span>{file&&!activePage&&file.path.split("/").map((part,i)=><span className="crumb" key={i}><ChevronRight size={11}/>{part}</span>)}</>:<span>Veyra Studio</span>}</span>{(branchInfo.ahead>0||branchInfo.behind>0)&&<button title={`${branchInfo.behind} to pull, ${branchInfo.ahead} to push`} onClick={()=>{setPanel("git");setSidebar(true);}}>{branchInfo.behind>0&&<><ArrowDown size={11}/>{branchInfo.behind}</>}{branchInfo.ahead>0&&<><ArrowUp size={11}/>{branchInfo.ahead}</>}</button>}<button className={"health-pill "+(health?.grade||"")} title={health?`Veyra health ${health.score}/100 · click for details`:"Checking Veyra health…"} aria-label="Open health monitor" onClick={()=>{setPanel("health");setSidebar(true);void checkHealth();}}><HeartPulse size={12}/>{health?health.score:"…"}</button><button onClick={()=>setBottom("problems")}><CircleX size={12}/>{problems.filter(p=>p.severity===8).length}<CircleAlert size={12}/>{problems.filter(p=>p.severity!==8).length}</button><span className="status-text">{busy?"Opening workspace…":status}</span>{root&&<button className={"live-pill"+(live?" on":"")} title={live?`Live Server is serving this folder at ${live.url} · click to stop`:"Start Live Server and open this page in your browser"} aria-label={live?"Stop Live Server":"Go Live"} onClick={()=>live?stopLive():openLive(state.current.active)}><Radio size={12}/>{live?`Port : ${live.port}`:"Go Live"}</button>}<span className="status-position" title={`Line ${position.lineNumber}, column ${position.column}`}>{position.lineNumber}:{position.column}</span>{file&&!activePage&&<span title="Line separator">{file.text.includes("\r\n")?"CRLF":"LF"}</span>}<span>UTF-8</span><span title="Indentation">{preferences.insertSpaces?`${preferences.tabSize} spaces`:"Tab"}</span><button onClick={()=>setPreferences(p=>({...p,wrap:!p.wrap}))} title="Toggle word wrap"><WrapText size={13}/></button><span>{file?languageFor(file.path):"Veyra"}</span><span className="status-ready"><i/>{countDirty?countDirty+" unsaved":"All saved"}</span></footer>
     <UpdateChecker manualCheck={updateCheck} notify={setStatus}/>
@@ -849,7 +821,7 @@ export default function App() {
     </div></>}
     {palette!==null&&<CommandPalette key={palette+"|"+(paletteScope||"")} scope={paletteScope} initial={palette} files={indexed} recentFiles={recentFiles} commands={paletteCommands} recentCommands={recentCommands} symbols={symbols} lineCount={editor.current?.getModel()?.getLineCount()||1} hasWorkspace={!!root} onOpenFile={path=>void openFile(path)} onGotoLine={gotoLine} onCommand={command=>{setRecentCommands(recent=>[command.id,...recent.filter(id=>id!==command.id)].slice(0,8));void command.run();}} onClose={()=>setPalette(null)}/>}
     {creation&&<CreateEntryDialog directory={creation.directory} parent={creation.parent} project={projectName} onCreate={createAt} onClose={()=>setCreation(null)}/>}
-    {proposal&&<div className="overlay ai-diff-overlay"><section className="ai-diff-dialog" role="dialog" aria-modal="true" aria-label="Review AI edit"><header><div><h2>Review AI edit</h2><small>{proposal.snapshot.path} · {proposal.model}</small></div><button aria-label="Close AI review" onClick={()=>setProposal(null)}><X size={17}/></button></header><div className="ai-diff-body"><DiffEditor original={proposal.snapshot.original} modified={proposal.snapshot.original.slice(0,proposal.snapshot.start)+proposal.replacement+proposal.snapshot.original.slice(proposal.snapshot.end)} language={languageFor(proposal.snapshot.path)} theme={effectiveTheme||(preferences.light?'vs':'veyra')} options={{readOnly:true,renderSideBySide:true,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false}}/></div>{proposalError&&<p role="alert">{proposalError}</p>}<footer><p>Applies to the editor buffer. ⌘Z to undo; ⌘S to save.</p><button className="secondary" onClick={()=>setProposal(null)}>Discard</button><button className="primary" onClick={applyProposal}>Apply edit</button></footer></section></div>}
+    {supportOpen&&<SupportDialog onClose={()=>setSupportOpen(false)} notify={setStatus}/>}
     {modal&&<div className="overlay"><form className="dialog" onSubmit={e=>{e.preventDefault();answer(modal.input?input:modal.choices.at(-1)!);}}><h2>{modal.title}</h2><p>{modal.detail}</p>{modal.input&&<input aria-label={modal.title} autoFocus value={input} onChange={e=>setInput(e.target.value)}/>}<div>{modal.choices.map((choice,i)=><button key={choice} type="button" className={i===modal.choices.length-1?"primary":"secondary"} onClick={()=>answer(choice==="Cancel"?null:modal.input?input:choice)}>{choice}</button>)}</div></form></div>}
   </main>;
 }

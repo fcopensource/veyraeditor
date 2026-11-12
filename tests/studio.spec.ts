@@ -124,3 +124,37 @@ test("TODO tool window groups comments by file and jumps to them", async ({ page
   await panel.locator(".todo-hit").click();
   await expect(page.getByRole("tab", { name: "api.ts" })).toBeVisible();
 });
+
+test("no AI anywhere: no AI button, panel, shortcuts or commands", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: /AI assistant|Veyra AI/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "Open a project", exact: false }).click();
+  await page.keyboard.press("Meta+l"); await page.keyboard.press("Meta+k");
+  await expect(page.locator(".ai-panel, .ai-studio, [aria-label*='AI']")).toHaveCount(0);
+  await page.keyboard.press("Meta+Shift+p");
+  await page.getByRole("textbox", { name: "Search commands or files" }).fill(">AI");
+  await expect(page.locator(".palette-row", { hasText: /\bAI\b/ })).toHaveCount(0);
+  const calls = await page.evaluate(() => (window as any).testCalls.map((c: any) => c.cmd));
+  expect(calls.filter((c: string) => c.startsWith("ai_"))).toEqual([]);
+});
+
+test("Support Veyra opens from the title bar, the Welcome page and the palette", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Support Veyra", exact: true }).first().click();
+  const dialog = page.getByRole("dialog", { name: "Support Veyra Studio" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator(".support-option")).toHaveCount(2);
+  await expect(dialog).toContainText("Buy me a coffee");
+  await expect(dialog).toContainText("Support with a card");
+  await expect(dialog).toContainText("never sees your card details");
+  await page.screenshot({ path: "test-results/support.png" });
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await page.locator(".welcome-support").click();
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await page.keyboard.press("Meta+Shift+p");
+  await page.getByRole("textbox", { name: "Search commands or files" }).fill(">support");
+  await page.keyboard.press("Enter");
+  await expect(dialog).toBeVisible();
+});

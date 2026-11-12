@@ -4,14 +4,13 @@ use std::{collections::HashMap, fs, io::{Read, Write}, path::{Component, Path, P
 use tauri::{Emitter, Manager, State, ipc::Channel};
 use tauri::menu::{MenuBuilder, MenuItem, SubmenuBuilder};
 use tauri_plugin_dialog::DialogExt;
-mod ai;
+mod account;
 mod cli;
 mod dap;
 mod health;
 mod live;
 mod live_server;
 mod lsp;
-mod privacy;
 
 const MAX_FILE: u64 = 5 * 1024 * 1024;
 #[derive(Default)]
@@ -29,8 +28,6 @@ struct SearchOptions { case_sensitive: bool, whole_word: bool, regex: bool, incl
 struct Branch { name: String, current: bool, upstream: String }
 #[derive(Serialize)]
 struct PlatformInfo { os: String, shell: String }
-#[derive(Serialize)]
-struct ContextFile { path: String, content: String, score: usize }
 #[derive(Serialize, Default)]
 struct GithubInfo { available: bool, authenticated: bool, login: String, name: String, avatar: String, repository: String, url: String, visibility: String, default_branch: String }
 type Result<T> = std::result::Result<T, String>;
@@ -325,45 +322,6 @@ async fn project_files(state: State<'_, Workspace>) -> Result<Vec<String>> {
     let root = root(&state)?;
     tauri::async_runtime::spawn_blocking(move || { let mut files = Vec::new(); index(&root, &root, &mut files, 0); files.sort(); files }).await.map_err(err)
 }
-fn relevant_context(root: &Path, query: &str, active: &str) -> Vec<ContextFile> {
-    let tokens: Vec<String> = query.split(|c: char| !c.is_alphanumeric() && c != '_' && c != '-')
-        .filter(|token| token.len() >= 3).take(16).map(str::to_lowercase).collect();
-    if tokens.is_empty() { return Vec::new(); }
-    let mut files=Vec::new();index(root,root,&mut files,0);
-    // Never pick secrets automatically: sensitive names, .gitignore'd files, or contents that look like credentials.
-    files.retain(|file|!privacy::is_sensitive_path(file));
-    files.truncate(3000);
-    let ignored=privacy::git_ignored(root,&files);
-    let active_extension=Path::new(active).extension().and_then(|value|value.to_str()).unwrap_or("");
-    let mut ranked=Vec::new();
-    for relative in files.into_iter().filter(|file|!ignored.contains(file)) {
-        let path=root.join(&relative);
-        let Ok(metadata)=fs::metadata(&path) else {continue};
-        if metadata.len()>256*1024 {continue;}
-        let Ok(text)=fs::read_to_string(&path) else {continue};
-        if text.contains('\0')||privacy::looks_like_secret(&text) {continue;}
-        let lower_path=relative.to_lowercase();let lower_text=text.to_lowercase();
-        let mut score=tokens.iter().map(|token|{
-            let path_score=if lower_path.contains(token){24}else{0};
-            path_score+lower_text.matches(token).count().min(8)
-        }).sum::<usize>();
-        if !active_extension.is_empty()&&Path::new(&relative).extension().and_then(|value|value.to_str())==Some(active_extension){score+=2;}
-        if relative==active {score+=8;}
-        if score>2 {
-            let content:String=text.chars().take(7000).collect();
-            ranked.push(ContextFile{path:relative,content,score});
-        }
-    }
-    ranked.sort_by(|a,b|b.score.cmp(&a.score).then_with(||a.path.cmp(&b.path)));
-    let mut bytes=0usize;
-    ranked.into_iter().filter(|item|{bytes+=item.content.len();bytes<=36*1024}).take(6).collect()
-}
-#[tauri::command]
-async fn ai_workspace_context(state:State<'_,Workspace>,query:String,active:String)->Result<Vec<ContextFile>>{
-    if query.len()>8000{return Err("AI context query is too large".into());}
-    let root=root(&state)?;
-    tauri::async_runtime::spawn_blocking(move||relevant_context(&root,&query,&active)).await.map_err(err)
-}
 fn glob_regex(glob: &str) -> Option<regex::Regex> {
     let glob = glob.trim().trim_start_matches("./").trim_end_matches('/');
     if glob.is_empty() { return None; }
@@ -633,7 +591,7 @@ fn quit(app: tauri::AppHandle, state: State<Workspace>) { state.dirty.store(fals
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default().manage(Workspace::default()).manage(ai::AiState::default()).manage(lsp::LspState::default()).manage(dap::DapState::default()).manage(live::LiveState::default())
+    tauri::Builder::default().manage(Workspace::default()).manage(account::AccountState::default()).manage(lsp::LspState::default()).manage(dap::DapState::default()).manage(live::LiveState::default())
         // Opens links (sign in, Live Server pages, extension homepages) in the default browser.
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
@@ -648,7 +606,7 @@ pub fn run() {
             Ok(())
         })
         .on_menu_event(|app,event|{let _=app.emit("menu-command",event.id().as_ref());})
-        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, ai_workspace_context, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, lsp::lsp_status, lsp::lsp_install, lsp::lsp_uninstall, lsp::lsp_start, lsp::lsp_send, lsp::lsp_stop, lsp::prettier_format, cli::claude_code_status, dap::dap_status, dap::dap_install, dap::dap_uninstall, dap::dap_start, dap::dap_send, dap::dap_stop, live::live_start, live::live_stop, live::live_status, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, ai::ai_chat, ai::ai_cancel, ai::veyra_sign_in, ai::veyra_account, ai::veyra_sign_out])
+        .invoke_handler(tauri::generate_handler![choose_folder, open_folder, platform_info, list_directory, read_file, read_file_base64, save_file, create_entry, rename_file, trash_file, copy_entry, duplicate_entry, reveal_in_finder, project_files, search_workspace, replace_in_files, git_status, git_diff, git_show, git_stage_all, git_unstage_all, git_discard_all, git_branches, git_switch, git_stash, git_file_history, health::health_check, lsp::lsp_status, lsp::lsp_install, lsp::lsp_uninstall, lsp::lsp_start, lsp::lsp_send, lsp::lsp_stop, lsp::prettier_format, cli::claude_code_status, dap::dap_status, dap::dap_install, dap::dap_uninstall, dap::dap_start, dap::dap_send, dap::dap_stop, live::live_start, live::live_stop, live::live_status, git_stage, git_unstage, git_discard, git_commit, git_log, git_graph, github_info, github_login, github_open, git_remote_action, terminal_start, terminal_write, terminal_resize, terminal_stop, set_dirty, quit, account::veyra_sign_in, account::veyra_account, account::veyra_sign_out])
         .on_window_event(|window, event| { if let tauri::WindowEvent::CloseRequested { api, .. } = event { if window.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_close(); let _ = window.emit("confirm-quit", ()); } } })
         .build(tauri::generate_context!()).expect("error while running Veyra")
         .run(|app, event| { if let tauri::RunEvent::ExitRequested { api, .. } = event { if app.state::<Workspace>().dirty.load(Ordering::SeqCst) { api.prevent_exit(); let _ = app.emit("confirm-quit", ()); } } });
@@ -666,20 +624,6 @@ mod tests {
             let crate_name = format!("tauri_plugin_{}", name.replace('-', "_"));
             assert!(source.contains(&format!(".plugin({crate_name}::")), "{crate_name} is used by the interface but not registered in run()");
         }
-    }
-    #[test] fn ai_context_never_includes_secrets() {
-        let dir = tempfile::tempdir().unwrap(); let base = dir.path().canonicalize().unwrap();
-        fs::create_dir_all(base.join("src")).unwrap(); fs::create_dir_all(base.join(".ssh")).unwrap(); fs::create_dir_all(base.join("config")).unwrap();
-        fs::write(base.join(".env"), "PAYMENT_KEY=payment-secret-value\n").unwrap();
-        fs::write(base.join(".ssh/id_rsa"), "-----BEGIN OPENSSH PRIVATE KEY-----\npayment\n").unwrap();
-        fs::write(base.join("config/server.pem"), "payment certificate\n").unwrap();
-        fs::write(base.join("src/settings.ts"), "export const payment = 'sk-proj-abcdefghijklmnopqrstuvwxyz0123456789ABCD';\n").unwrap();
-        fs::write(base.join("src/payment.ts"), "export function payment(amount: number) { return amount * 2; }\n").unwrap();
-        let context = relevant_context(&base, "how does payment work", "");
-        let paths: Vec<&str> = context.iter().map(|file| file.path.as_str()).collect();
-        assert_eq!(paths, ["src/payment.ts"], "only ordinary source is chosen");
-        let sent: String = context.iter().map(|file| file.content.as_str()).collect();
-        for secret in ["payment-secret-value", "PRIVATE KEY", "certificate", "sk-proj-"] { assert!(!sent.contains(secret), "{secret} leaked into AI context"); }
     }
     #[test] fn traversal_and_overwrite_are_rejected() {
         let dir = tempfile::tempdir().unwrap(); let base = dir.path().canonicalize().unwrap();
@@ -748,19 +692,6 @@ mod tests {
         let base = a.path().canonicalize().unwrap();
         assert!(destination(&base, "escape/file").is_err());
         assert!(checked(&base, "escape").is_err());
-    }
-    #[test] fn workspace_context_prefers_relevant_files_and_stays_bounded() {
-        let dir=tempfile::tempdir().unwrap();let base=dir.path().canonicalize().unwrap();
-        fs::create_dir(base.join("src")).unwrap();
-        fs::write(base.join("src/auth.ts"),"export function authenticateUser() { return verifyToken(); }").unwrap();
-        fs::write(base.join("src/colors.ts"),"export const blue = '#00f';").unwrap();
-        fs::write(base.join("README.md"),"Authentication uses signed tokens.").unwrap();
-        let result=relevant_context(&base,"how does authentication verify token work?","src/auth.ts");
-        assert!(!result.is_empty());
-        assert_eq!(result[0].path,"src/auth.ts");
-        assert!(result.iter().all(|file|file.content.len()<=7000));
-        assert!(result.iter().map(|file|file.content.len()).sum::<usize>()<=36*1024);
-        assert!(!result.iter().any(|file|file.path=="src/colors.ts"));
     }
     #[test] fn globs_follow_editor_conventions() {
         let ts = glob_list("*.ts, docs");

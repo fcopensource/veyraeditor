@@ -6,7 +6,7 @@ import { installUpdate, useUpdate } from "./updater";
 
 const SITE = "https://veyraeditor.com";
 type Account = { name: string; email: string };
-/** Tell the title bar the Veyra account changed (signed in or out in the AI panel). */
+/** Tell the title bar the Veyra account changed (signed in or out elsewhere). */
 export const accountChanged = () => window.dispatchEvent(new Event("veyra-account"));
 
 /**

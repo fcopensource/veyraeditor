@@ -310,8 +310,6 @@
 .settings label.setting-wide { display: grid; justify-content: stretch }
 .settings .setting-text { width: 100%; font-size: 11px }
 .settings-reset { gap: 6px; margin-top: 18px }
-
-/* ---- AI inline completion status ---- */
 .statusbar .inline-ai { color: var(--accent) }
 .statusbar .inline-ai.busy { animation: inline-ai 1.2s ease-in-out infinite }
 .statusbar .inline-ai.paused { color: #e2c08d }
@@ -452,8 +450,6 @@
 .tab-menu i { height: 1px; margin: 4px 6px; background: var(--border) }
 .app.light .tab { background: color-mix(in srgb, var(--sidebar) 96%, #000) }
 .app.light .tab.active { background: var(--editor) }
-
-/* ---------- Veyra AI account (AI panel) ---------- */
 .veyra-account { margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in srgb, var(--accent) 6%, var(--sidebar)) }
 .veyra-account-head { display: flex; align-items: center; gap: 10px }
 .veyra-account-head > span:nth-child(2) { display: grid; flex: 1; min-width: 0 }
