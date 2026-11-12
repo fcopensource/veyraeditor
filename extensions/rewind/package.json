@@ -1,0 +1,72 @@
+{
+  "name": "veyra-rewind",
+  "displayName": "Veyra Rewind: Time Travel for Your Code",
+  "description": "Every file's history, without commits: scrub a timeline to see any file at any moment, play back how it evolved, find code you deleted, restore deleted files and name checkpoints. Automatic, offline, private.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/rewind",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/rewind" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other", "Visualization", "SCM Providers"],
+  "keywords": ["local history", "history", "time travel", "undo", "restore", "backup", "timeline", "snapshot", "recover deleted file", "checkpoint", "diff", "veyra"],
+  "galleryBanner": { "color": "#0b1416", "theme": "dark" },
+  "capabilities": { "untrustedWorkspaces": { "supported": true }, "virtualWorkspaces": false },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "veyraRewind.open", "title": "Rewind This File", "category": "Rewind", "icon": "$(history)" },
+      { "command": "veyraRewind.checkpoint", "title": "Take a Checkpoint…", "category": "Rewind", "icon": "$(bookmark)" },
+      { "command": "veyraRewind.compare", "title": "Compare With a Past Version…", "category": "Rewind" },
+      { "command": "veyraRewind.restore", "title": "Restore a Past Version…", "category": "Rewind" },
+      { "command": "veyraRewind.findDeleted", "title": "Find Deleted Code…", "category": "Rewind", "icon": "$(search)" },
+      { "command": "veyraRewind.restoreDeletedFile", "title": "Restore a Deleted File…", "category": "Rewind" },
+      { "command": "veyraRewind.clearFile", "title": "Delete History for This File", "category": "Rewind" },
+      { "command": "veyraRewind.showStorage", "title": "Show History Storage", "category": "Rewind" }
+    ],
+    "keybindings": [
+      { "command": "veyraRewind.open", "key": "ctrl+alt+z", "mac": "cmd+alt+z", "when": "editorTextFocus" },
+      { "command": "veyraRewind.checkpoint", "key": "ctrl+alt+s", "mac": "cmd+alt+s", "when": "editorTextFocus" }
+    ],
+    "menus": {
+      "editor/title": [ { "command": "veyraRewind.open", "when": "resourceScheme == file", "group": "navigation@90" } ],
+      "editor/context": [ { "command": "veyraRewind.open", "when": "resourceScheme == file", "group": "z_rewind@1" }, { "command": "veyraRewind.checkpoint", "when": "resourceScheme == file", "group": "z_rewind@2" } ],
+      "explorer/context": [ { "command": "veyraRewind.open", "when": "resourceScheme == file && !explorerResourceIsFolder", "group": "7_rewind@1" }, { "command": "veyraRewind.restoreDeletedFile", "when": "explorerResourceIsFolder", "group": "7_rewind@2" } ],
+      "commandPalette": [ { "command": "veyraRewind.open", "when": "resourceScheme == file" } ]
+    },
+    "configuration": {
+      "title": "Rewind",
+      "properties": {
+        "veyraRewind.enabled": { "type": "boolean", "default": true, "description": "Keep history of the files you open, edit and save." },
+        "veyraRewind.captureInterval": { "type": "number", "default": 30, "minimum": 5, "description": "While you type, keep a snapshot at most this often, in seconds. Saves are always kept." },
+        "veyraRewind.maxSnapshotsPerFile": { "type": "number", "default": 500, "minimum": 10, "description": "The most snapshots kept per file. Checkpoints are always kept." },
+        "veyraRewind.maxAgeDays": { "type": "number", "default": 30, "minimum": 1, "description": "Snapshots older than this are cleaned up. Checkpoints are always kept." },
+        "veyraRewind.maxFileSizeKB": { "type": "number", "default": 1024, "minimum": 16, "description": "Files larger than this aren't tracked." },
+        "veyraRewind.exclude": { "type": "array", "items": { "type": "string" }, "default": [], "markdownDescription": "Glob patterns of files to leave alone, on top of dependencies, build output, lock files and minified files. For example `**/*.log`." },
+        "veyraRewind.statusBar": { "type": "boolean", "default": true, "description": "Show how many snapshots the current file has in the status bar." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs test/store.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

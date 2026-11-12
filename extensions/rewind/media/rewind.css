@@ -1,0 +1,75 @@
+/* Rewind panel: follows the VS Code theme; the accent is Veyra's mint. */
+:root { --mint: #3ddcb0; --accent: var(--vscode-textLink-foreground, #3ddcb0); --line: var(--vscode-panel-border, #8883); --muted: var(--vscode-descriptionForeground, #999); }
+* { box-sizing: border-box }
+body { margin: 0; padding: 0 0 40px; color: var(--vscode-foreground); background: var(--vscode-editor-background); font: 13px/1.5 var(--vscode-font-family, system-ui, sans-serif) }
+button { font: inherit; color: var(--vscode-button-secondaryForeground, inherit); background: var(--vscode-button-secondaryBackground, #8882); border: 1px solid transparent; border-radius: 6px; padding: 5px 11px; cursor: pointer }
+button:hover:not(:disabled) { background: var(--vscode-button-secondaryHoverBackground, #8884) }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: 2px }
+button:disabled { opacity: .5; cursor: default }
+button.primary { color: var(--vscode-button-foreground); background: var(--vscode-button-background) }
+button.primary:hover:not(:disabled) { background: var(--vscode-button-hoverBackground) }
+button.link { padding: 2px 4px; background: none; color: var(--accent) }
+button.link:hover { text-decoration: underline; background: none }
+
+.logo { width: 34px; height: 34px; flex: none; border-radius: 10px; background: conic-gradient(from 200deg, #3ddcb0, #4cb8f2, #8a6cff, #3ddcb0); position: relative; box-shadow: 0 6px 18px #3ddcb033 }
+.logo::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 2.5px solid #0b1416; border-left-color: transparent; transform: rotate(-30deg) }
+.logo::after { content: ""; position: absolute; left: 15px; top: 10px; width: 2.5px; height: 8px; background: #0b1416; border-radius: 2px; box-shadow: 3px 6px 0 -0.2px #0b1416 }
+
+.top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px; background: var(--vscode-editor-background); border-bottom: 1px solid var(--line) }
+.title { display: flex; align-items: center; gap: 12px; min-width: 0 }
+.title h1 { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px }
+.title small { color: var(--muted) }
+.gone { font-style: normal; font-size: 11px; padding: 1px 7px; border-radius: 9px; color: var(--vscode-errorForeground); border: 1px solid currentColor }
+.actions { display: flex; gap: 6px; flex-wrap: wrap }
+
+.timeline { display: flex; align-items: center; gap: 12px; padding: 20px 18px 14px }
+.play { width: 34px; height: 34px; padding: 0; border-radius: 50%; color: #0b1416; background: var(--mint); font-size: 12px; flex: none }
+.play:hover:not(:disabled) { background: #6fe9c7 }
+.play.on { background: #f2c46d }
+.speed { background: var(--vscode-dropdown-background); color: var(--vscode-dropdown-foreground); border: 1px solid var(--vscode-dropdown-border, transparent); border-radius: 6px; padding: 4px }
+.track { position: relative; flex: 1; height: 34px }
+.rail { position: absolute; left: 0; right: 0; top: 16px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #3ddcb055, #8a6cff55) }
+.tick { position: absolute; top: 11px; width: 12px; height: 12px; margin-left: -6px; padding: 0; border-radius: 50%; background: var(--vscode-editor-background); border: 2px solid var(--muted); z-index: 1 }
+.tick.r-saved { border-color: var(--mint) }
+.tick.r-checkpoint, .tick.named { border-color: #f2c46d; background: #f2c46d; border-radius: 3px; transform: rotate(45deg) }
+.tick.r-before { border-color: #ff7b72 }
+.tick.current { width: 16px; height: 16px; top: 9px; margin-left: -8px; background: var(--mint); border-color: var(--mint); box-shadow: 0 0 0 4px #3ddcb033 }
+.track input[type=range] { position: absolute; inset: 0; width: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 2 }
+.timeline:has(.tick:only-of-type) .track input { pointer-events: none }
+
+.moment { padding: 0 18px 12px; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid var(--line) }
+.moment > div:first-child { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px }
+.moment b { font-size: 15px }
+.reason { padding: 1px 8px; border-radius: 9px; background: #3ddcb01f; color: var(--mint); font-size: 12px }
+.stats { font-family: var(--vscode-editor-font-family, monospace); font-size: 12px }
+.muted { color: var(--muted); font-size: 12px }
+.chip { padding: 1px 8px; border-radius: 9px; background: #f2c46d26; color: #f2c46d; font-size: 12px }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.tabs { margin-left: auto; display: flex; gap: 2px; padding: 2px; border-radius: 8px; background: #8881 }
+.tabs button { padding: 3px 10px; background: none; border-radius: 6px; color: var(--muted) }
+.tabs button.on { background: var(--vscode-button-secondaryBackground, #8883); color: var(--vscode-foreground) }
+
+main { padding: 14px 18px }
+.legend { margin: 0 0 12px; color: var(--muted); font-size: 12px }
+.legend .del { color: var(--vscode-gitDecoration-deletedResourceForeground, #ff7b72); font-weight: 600 }
+.legend .add { color: var(--vscode-gitDecoration-addedResourceForeground, #3fb950); font-weight: 600 }
+.hunk { margin-bottom: 14px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.hunk header { display: flex; justify-content: space-between; align-items: center; padding: 4px 10px; font-size: 12px; color: var(--muted); background: #8881 }
+pre { margin: 0; font: 12.5px/1.6 var(--vscode-editor-font-family, monospace); overflow-x: auto }
+.line { display: flex; white-space: pre; min-width: max-content }
+.line .no { width: 44px; flex: none; padding-right: 8px; text-align: right; color: var(--vscode-editorLineNumber-foreground, #888); user-select: none }
+.line .sign { width: 16px; flex: none; user-select: none; color: var(--muted) }
+.line code { font: inherit; padding-right: 16px }
+.line.add { background: var(--vscode-diffEditor-insertedLineBackground, #3fb95024) }
+.line.del { background: var(--vscode-diffEditor-removedLineBackground, #ff7b7224) }
+.line.add .sign { color: var(--vscode-gitDecoration-addedResourceForeground, #3fb950) }
+.line.del .sign { color: var(--vscode-gitDecoration-deletedResourceForeground, #ff7b72) }
+.version { border: 1px solid var(--line); border-radius: 8px; padding: 6px 0 }
+.version .line.focus { background: #f2c46d2e; box-shadow: inset 3px 0 0 #f2c46d }
+
+.empty { padding: 30px; text-align: center; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 6px }
+.empty.same b { color: var(--vscode-foreground) }
+.empty.big { padding: 80px 30px; gap: 12px }
+.empty.big h1 { margin: 6px 0 0; font-size: 18px; color: var(--vscode-foreground) }
+.empty.big p { max-width: 380px; margin: 0 }
+@media (prefers-reduced-motion: no-preference) { .tick.current { transition: left .25s ease } }

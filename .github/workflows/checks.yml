@@ -94,6 +94,7 @@ jobs:
           - { dir: codesnap, name: CodeSnap }
           - { dir: code-guard, name: Code Guard }
           - { dir: wrapped, name: Wrapped }
+          - { dir: rewind, name: Rewind }
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
