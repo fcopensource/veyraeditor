@@ -41,6 +41,8 @@ import {UpdateChecker} from './UpdateChecker';
 import {TabBar} from './TabBar';
 import {CommandPalette,type PaletteCommand} from './CommandPalette';
 import {SearchPanel} from './SearchPanel';
+import {TodoPanel} from './TodoPanel';
+import {ListTodo} from "lucide-react";
 import {SettingsPanel} from './SettingsPanel';
 import {readPreferences,rulerColumns} from './preferences';
 import {isWindows,keys,quoteForShell,revealLabel} from './platform';
@@ -75,6 +77,21 @@ function greeting(now = new Date()) {
 }
 
 /** Each project gets one of these by name: its badge, and a tint across the main toolbar. */
+type RecentProject = { path: string; name: string; opened: number };
+const RECENT_PROJECTS_KEY = "veyra.recentProjects";
+function loadRecentProjects(): RecentProject[] {
+  try { const list = JSON.parse(localStorage.getItem(RECENT_PROJECTS_KEY) || "[]"); return Array.isArray(list) ? list.filter(p => p && typeof p.path === "string").slice(0, 12) : []; } catch { return []; }
+}
+function saveRecentProjects(list: RecentProject[]) { try { localStorage.setItem(RECENT_PROJECTS_KEY, JSON.stringify(list.slice(0, 12))); } catch { /* storage full or blocked */ } }
+function projectColor(name: string) { return PROJECT_COLORS[[...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % PROJECT_COLORS.length]; }
+function projectInitials(name: string) { return name.replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase() || "VS"; }
+function timeAgo(when: number, now = Date.now()) {
+  const minutes = Math.round((now - when) / 60000);
+  if (minutes < 1) return "just now"; if (minutes < 60) return minutes + " min ago";
+  const hours = Math.round(minutes / 60); if (hours < 24) return hours + " h ago";
+  const days = Math.round(hours / 24); if (days < 7) return days === 1 ? "yesterday" : days + " days ago";
+  return new Date(when).toLocaleDateString();
+}
 const PROJECT_COLORS = ["#c48a1c", "#3d8bd9", "#4a9b5c", "#9a5fd1", "#d0605c", "#2a9d95", "#c2569a"];
 
 export default function App() {
@@ -128,7 +145,9 @@ export default function App() {
   const sidebarRef = useRef<HTMLElement>(null);
   const sidebarOpen = useRef(true), sidebarStarted = useRef(false), panelStarted = useRef(false);
   const [sidebarWidth, setSidebarWidth] = useState(258);
-  const [bottom, setBottom] = useState<"terminal"|"problems"|"debug"|null>(null);
+  const [bottom, setBottom] = useState<"terminal"|"problems"|"todo"|"debug"|null>(null);
+  const [todoCount, setTodoCount] = useState<number|null>(null);
+  const [recentProjects, setRecentProjects] = useState<RecentProject[]>(loadRecentProjects);
   const [terminals, setTerminals] = useState<Array<{id:number;name:string}>>([]);
   const [activeTerminal, setActiveTerminal] = useState<number|null>(null);
   const terminalSequence = useRef(1);
@@ -153,6 +172,9 @@ export default function App() {
   const [searchSeed, setSearchSeed] = useState({text:"",n:0});
   // null = closed; otherwise the palette's initial text ("" for files, ">" for commands).
   const [palette, setPalette] = useState<string|null>(null);
+  // Which flavour of the files palette is open: Search Everywhere (double Shift) or Recent Files (Ctrl+E).
+  const [paletteScope, setPaletteScope] = useState<"everywhere"|"recent"|undefined>(undefined);
+  useEffect(()=>{ if(palette===null) setPaletteScope(undefined); },[palette]);
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
   const [recentCommands, setRecentCommands] = useState<string[]>([]);
   const [shellName, setShellName] = useState(isWindows?"pwsh":"zsh");
@@ -282,12 +304,25 @@ export default function App() {
     try {
       const selected = await invoke<string|null>("choose_folder");
       if (!selected) return;
+      await adoptWorkspace(selected);
+    } catch(e) { report(e); } finally { setBusy(false); }
+  }
+  /** Reopen a project from the Recent Projects list, no dialog. A folder that has gone is dropped from the list. */
+  async function openRecentProject(path:string) {
+    if (busy || path===root || !await allowDiscard("Switch workspace?")) return;
+    setBusy(true);
+    try { await adoptWorkspace(await invoke<string>("open_folder",{path})); }
+    catch(e) { setRecentProjects(list=>list.filter(item=>item.path!==path)); report(e); } finally { setBusy(false); }
+  }
+  async function adoptWorkspace(selected:string) {
+    {
       stopLiveServer();setTerminals([]);setActiveTerminal(null);setRoot(selected); state.current.root=selected;
       setSelectedFolder("");setSelectedPath("");setSelectedPaths(new Set());setCreation(null);
       setTabs([]); setActive(""); setTree({}); setIndexed([]); setRecentFiles([]); setDiff(null);
       void stopLanguageServers();resetProjectModels();monaco.editor.getModels().forEach(model=>model.dispose());
+      setTodoCount(null);
       await refresh(); setStatus("Opened " + baseName(selected));
-    } catch(e) { report(e); } finally { setBusy(false); }
+    }
   }
   function openExtension(target:ExtensionTarget){
     const id=targetId(target);
@@ -456,7 +491,27 @@ export default function App() {
     try{const current=state.current;setHealth(await runHealth({root:current.root,openFiles:current.tabs.length+backgroundModels.size,unsaved:current.tabs.filter(dirty).length,errorMarkers:openMarkers().filter(m=>m.severity===8).length}));}
     finally{setHealthRunning(false);}
   }
-  function openPalette(mode:"commands"|"files") { setPalette(mode==="commands"?">":""); }
+  function openPalette(mode:"commands"|"files") { setPaletteScope(undefined); setPalette(mode==="commands"?">":""); }
+  function searchEverywhere() { setPaletteScope("everywhere"); setPalette(""); }
+  function recentFilesPalette() { setPaletteScope("recent"); setPalette(""); }
+  useEffect(()=>{
+    if(!root) return;
+    setRecentProjects(list=>[{path:root,name:baseName(root),opened:Date.now()},...list.filter(item=>item.path.toLowerCase()!==root.toLowerCase())].slice(0,12));
+  },[root]);
+  useEffect(()=>saveRecentProjects(recentProjects),[recentProjects]);
+  // Search Everywhere: tap Shift twice, like Android Studio. Any other key in between cancels it.
+  const lastShift=useRef(0);
+  useEffect(()=>{
+    const down=(e:KeyboardEvent)=>{ if(e.key!=="Shift") lastShift.current=0; };
+    const up=(e:KeyboardEvent)=>{
+      if(e.key!=="Shift"||e.ctrlKey||e.metaKey||e.altKey) return;
+      const now=performance.now();
+      if(now-lastShift.current<400){ lastShift.current=0; if(!creation) searchEverywhere(); }
+      else lastShift.current=now;
+    };
+    window.addEventListener("keydown",down,true);window.addEventListener("keyup",up,true);
+    return()=>{window.removeEventListener("keydown",down,true);window.removeEventListener("keyup",up,true);};
+  });
   /** Open the search panel, seeding it with the editor selection like VS Code does. */
   function openSearch(){
     const model=editor.current?.getModel(),selection=editor.current?.getSelection();
@@ -502,7 +557,10 @@ export default function App() {
   useEffect(()=>{setLiveActive(active);},[active]);
   const commands = [
     {name:'Toggle AI assistant',shortcut:'⌘L',run:()=>setAiOpen(v=>!v)},{name:'Edit selection with AI',shortcut:'⌘K',run:editWithAI},
-    {name:"Open folder",shortcut:"⌘O",run:chooseFolder},{name:"New file",shortcut:"⌘N",run:()=>create()},
+    {name:"Open folder",shortcut:"⌘O",run:chooseFolder},
+    {name:"Search everywhere",shortcut:"⇧⇧",run:searchEverywhere},{name:"Recent files",shortcut:"⌘E",run:recentFilesPalette},
+    {name:"Show TODO",shortcut:"",run:()=>setBottom("todo")},
+    ...recentProjects.filter(item=>item.path!==root).slice(0,8).map(item=>({name:"Open recent project: "+item.name,shortcut:"",run:()=>openRecentProject(item.path)})),{name:"New file",shortcut:"⌘N",run:()=>create()},
     {name:"Save file",shortcut:"⌘S",run:()=>saveTab()},{name:"Save all",shortcut:"⇧⌘S",run:saveAll},
     {name:"Find in file",shortcut:"⌘F",run:()=>editor.current?.getAction("actions.find")?.run()},
     {name:"Replace in file",shortcut:"⌥⌘F",run:()=>editor.current?.getAction("editor.action.startFindReplaceAction")?.run()},
@@ -632,7 +690,8 @@ export default function App() {
         if(k==='v')void pasteInto(selectedEntry.directory?selectedEntry.path:(selectedEntry.path.includes('/')?selectedEntry.path.slice(0,selectedEntry.path.lastIndexOf('/')):''));
         if(k==='d')void duplicateEntry(selectedEntry);return;
       }
-      if(["s","o","p","n","b",",","w","l","k"].includes(k)){e.preventDefault();e.stopPropagation();}
+      if(["s","o","p","n","b",",","w","l","k","e"].includes(k)&&!(k==="e"&&e.shiftKey)){e.preventDefault();e.stopPropagation();}
+      if(k==="e"&&!e.shiftKey)recentFilesPalette();
       if(k==='l')setAiOpen(v=>!v);
       if(k==='k')editWithAI();
       if(k==="s")void (e.shiftKey?saveAll():saveTab());
@@ -761,12 +820,18 @@ export default function App() {
             <div className="welcome-main"><div className="welcome-hero"><span className="welcome-greeting"><i aria-hidden="true"/>{greeting()}</span><h1>Welcome to <em>Veyra Studio</em><i className="welcome-caret" aria-hidden="true"/></h1><p>Start from a blank file, open a project from your computer, or find any command.</p></div>
               <div className="welcome-actions"><button onClick={()=>create()}><span><FilePlus2 size={22}/></span><b>New file</b><small>Start from a blank page</small><kbd>{keys("⌘N")}</kbd></button><button onClick={chooseFolder}><span><FolderOpen size={22}/></span><b>Open a project</b><small>Any folder on your computer</small><kbd>{keys("⌘O")}</kbd></button><button onClick={()=>openPalette("commands")}><span><Command size={22}/></span><b>Find a command</b><small>Every action, one search</small><kbd>{keys("⇧⌘P")}</kbd></button></div>
               {root&&<div className="welcome-recent"><small>CURRENT PROJECT</small><button onClick={()=>openPalette("files")}><span className="project-badge">{projectName.replace(/[^a-z0-9]/gi,"").slice(0,2).toUpperCase()||"VS"}</span><span><b>{projectName}</b><small>{projectType+" · "+indexed.length+" indexed files"}</small></span><ArrowUpRight size={15}/></button></div>}
-              <div className="welcome-footer"><span><kbd>{keys("⌘P")}</kbd> Jump to file</span><span><kbd>{keys("⌘B")}</kbd> Toggle the project view</span><span><kbd>{keys("⌘S")}</kbd> Save your work</span></div></div>
+              {recentProjects.filter(item=>item.path!==root).length>0&&<div className="welcome-projects"><div className="welcome-projects-head"><small>RECENT PROJECTS</small><button onClick={()=>setRecentProjects(list=>list.filter(item=>item.path===root))}>Clear</button></div>
+                {recentProjects.filter(item=>item.path!==root).slice(0,6).map(item=><div key={item.path} className="welcome-project" style={{"--project":projectColor(item.name)} as CSSProperties}>
+                  <button disabled={busy} onClick={()=>void openRecentProject(item.path)} title={item.path}><span className="project-badge">{projectInitials(item.name)}</span><span><b>{item.name}</b><small>{item.path}</small></span><em>{timeAgo(item.opened)}</em></button>
+                  <button className="welcome-project-remove" title="Remove from Recent Projects" aria-label={"Remove "+item.name+" from Recent Projects"} onClick={()=>setRecentProjects(list=>list.filter(p=>p.path!==item.path))}><X size={13}/></button>
+                </div>)}</div>}
+              <div className="welcome-footer"><span><kbd>⇧⇧</kbd> Search everywhere</span><span><kbd>{keys("⌘E")}</kbd> Recent files</span><span><kbd>{keys("⌘P")}</kbd> Jump to file</span><span><kbd>{keys("⌘S")}</kbd> Save your work</span></div></div>
           </div>}
         </div>
-        {bottom&&<div className="bottom-tabs"><button className={bottom==="terminal"?"active":""} onClick={showTerminal}><TerminalSquare size={13}/>Terminal {terminals.length>0&&<span>{terminals.length}</span>}</button><button className={bottom==="problems"?"active":""} onClick={()=>setBottom("problems")}><CircleAlert size={13}/>Problems <span>{problems.length}</span></button><button className={bottom==="debug"?"active":""} onClick={()=>setBottom("debug")}><Bug size={13}/>Debug Console</button><div/><small>{bottom==="terminal"?"Independent shells in your workspace":bottom==="debug"?"Program output and expressions":"Diagnostics for open files"}</small>{bottom==="terminal"&&<button title={"New terminal · "+keys("⌃⇧`")} onClick={newTerminal}><Plus size={15}/></button>}<button title="Hide panel" onClick={()=>setBottom(null)}><X size={14}/></button></div>}
+        {bottom&&<div className="bottom-tabs"><button className={bottom==="terminal"?"active":""} onClick={showTerminal}><TerminalSquare size={13}/>Terminal {terminals.length>0&&<span>{terminals.length}</span>}</button><button className={bottom==="problems"?"active":""} onClick={()=>setBottom("problems")}><CircleAlert size={13}/>Problems <span>{problems.length}</span></button><button className={bottom==="todo"?"active":""} onClick={()=>setBottom("todo")}><ListTodo size={13}/>TODO {todoCount!==null&&<span>{todoCount}</span>}</button><button className={bottom==="debug"?"active":""} onClick={()=>setBottom("debug")}><Bug size={13}/>Debug Console</button><div/><small>{bottom==="terminal"?"Independent shells in your workspace":bottom==="debug"?"Program output and expressions":bottom==="todo"?"TODO, FIXME and HACK comments across the project":"Diagnostics for open files"}</small>{bottom==="terminal"&&<button title={"New terminal · "+keys("⌃⇧`")} onClick={newTerminal}><Plus size={15}/></button>}<button title="Hide panel" onClick={()=>setBottom(null)}><X size={14}/></button></div>}
         {terminals.length>0&&root&&<div className={"terminal-workbench "+(bottom!=="terminal"?"hidden":"")}><div className="terminal-session-bar"><div>{terminals.map(item=><button key={item.id} className={item.id===activeTerminal?"active":""} onClick={()=>setActiveTerminal(item.id)} onDoubleClick={()=>renameTerminal(item.id)}><TerminalSquare size={13}/><span>{item.name}</span><i onClick={event=>{event.stopPropagation();closeTerminal(item.id)}}><X size={11}/></i></button>)}</div><button title="New terminal" onClick={newTerminal}><Plus size={15}/></button><button title="Rename active terminal" disabled={activeTerminal===null} onClick={()=>activeTerminal!==null&&renameTerminal(activeTerminal)}><Pencil size={13}/></button><button title="Kill active terminal" disabled={activeTerminal===null} onClick={()=>activeTerminal!==null&&closeTerminal(activeTerminal)}><Trash2 size={13}/></button></div><div className="terminal-panel"><Suspense fallback={null}>{terminals.map(item=><div key={item.id} className={item.id===activeTerminal?"terminal-session active":"terminal-session"}><Terminal root={root} sessionId={item.id} active={item.id===activeTerminal} fontSize={preferences.terminalFontSize} lightTheme={selectedTheme?themeLight:preferences.light}/></div>)}</Suspense></div></div>}
         {bottom==="debug"&&<DebugConsole/>}
+        {bottom==="todo"&&<TodoPanel root={root} generation={0} openFile={(path,line,column)=>void openFile(path,line,column)} onCount={setTodoCount}/>}
         {bottom==="problems"&&<div className="problems-panel">{problems.length?problems.map((p,i)=><button key={i} onClick={()=>{const relative=p.resource.path.slice(root.length+1);void openFile(relative,p.startLineNumber);}}>{p.severity===8?<CircleX size={14}/>:<CircleAlert size={14}/>}<span>{p.message}</span><small>{baseName(p.resource.path)}:{p.startLineNumber}</small></button>):<div><CheckCheck size={18}/>No diagnostics reported for open files.</div>}</div>}
       </section>
       <AIStudio root={root} active={active} visible={aiOpen} onClose={()=>setAiOpen(false)} capture={captureAI} onReview={value=>{setProposal(value);setProposalError('');}} intent={aiIntent}/>
@@ -782,7 +847,7 @@ export default function App() {
       {!explorerMenu.entry.directory&&isHtml(explorerMenu.entry.path)&&<><button role="menuitem" onClick={()=>{const path=explorerMenu.entry.path;setExplorerMenu(null);openLive(path);}}><Radio size={14}/>Open with Live Server <kbd>Alt+L O</kbd></button><i/></>}
       <button role="menuitem" disabled={selectedEntries.length>1} onClick={()=>void renameEntry(explorerMenu.entry)}><Pencil size={14}/>Rename <kbd>↵</kbd></button><button role="menuitem" disabled={selectedEntries.length>1} onClick={()=>void revealEntry(explorerMenu.entry)}><ExternalLink size={14}/>{revealLabel}</button><button role="menuitem" className="danger" onClick={()=>void trashEntries(selectedEntries.length?selectedEntries:[explorerMenu.entry])}><Trash2 size={14}/>Move {selectedEntries.length>1?`${selectedEntries.length} items`:'to Trash'}</button>
     </div></>}
-    {palette!==null&&<CommandPalette initial={palette} files={indexed} recentFiles={recentFiles} commands={paletteCommands} recentCommands={recentCommands} symbols={symbols} lineCount={editor.current?.getModel()?.getLineCount()||1} hasWorkspace={!!root} onOpenFile={path=>void openFile(path)} onGotoLine={gotoLine} onCommand={command=>{setRecentCommands(recent=>[command.id,...recent.filter(id=>id!==command.id)].slice(0,8));void command.run();}} onClose={()=>setPalette(null)}/>}
+    {palette!==null&&<CommandPalette key={palette+"|"+(paletteScope||"")} scope={paletteScope} initial={palette} files={indexed} recentFiles={recentFiles} commands={paletteCommands} recentCommands={recentCommands} symbols={symbols} lineCount={editor.current?.getModel()?.getLineCount()||1} hasWorkspace={!!root} onOpenFile={path=>void openFile(path)} onGotoLine={gotoLine} onCommand={command=>{setRecentCommands(recent=>[command.id,...recent.filter(id=>id!==command.id)].slice(0,8));void command.run();}} onClose={()=>setPalette(null)}/>}
     {creation&&<CreateEntryDialog directory={creation.directory} parent={creation.parent} project={projectName} onCreate={createAt} onClose={()=>setCreation(null)}/>}
     {proposal&&<div className="overlay ai-diff-overlay"><section className="ai-diff-dialog" role="dialog" aria-modal="true" aria-label="Review AI edit"><header><div><h2>Review AI edit</h2><small>{proposal.snapshot.path} · {proposal.model}</small></div><button aria-label="Close AI review" onClick={()=>setProposal(null)}><X size={17}/></button></header><div className="ai-diff-body"><DiffEditor original={proposal.snapshot.original} modified={proposal.snapshot.original.slice(0,proposal.snapshot.start)+proposal.replacement+proposal.snapshot.original.slice(proposal.snapshot.end)} language={languageFor(proposal.snapshot.path)} theme={effectiveTheme||(preferences.light?'vs':'veyra')} options={{readOnly:true,renderSideBySide:true,automaticLayout:true,minimap:{enabled:false},scrollBeyondLastLine:false}}/></div>{proposalError&&<p role="alert">{proposalError}</p>}<footer><p>Applies to the editor buffer. ⌘Z to undo; ⌘S to save.</p><button className="secondary" onClick={()=>setProposal(null)}>Discard</button><button className="primary" onClick={applyProposal}>Apply edit</button></footer></section></div>}
     {modal&&<div className="overlay"><form className="dialog" onSubmit={e=>{e.preventDefault();answer(modal.input?input:modal.choices.at(-1)!);}}><h2>{modal.title}</h2><p>{modal.detail}</p>{modal.input&&<input aria-label={modal.title} autoFocus value={input} onChange={e=>setInput(e.target.value)}/>}<div>{modal.choices.map((choice,i)=><button key={choice} type="button" className={i===modal.choices.length-1?"primary":"secondary"} onClick={()=>answer(choice==="Cancel"?null:modal.input?input:choice)}>{choice}</button>)}</div></form></div>}

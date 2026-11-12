@@ -793,3 +793,56 @@
 .app.light .welcome-greeting { color: #0f8a6c; border-color: #0f8a6c33; background: #0f8a6c0d }
 .app.light .welcome-greeting i { background: #0f8a6c; box-shadow: none }
 .app.light .welcome-hero h1 em { background: linear-gradient(100deg, #0f9f7f, #1192b0, #6b4fd8); -webkit-background-clip: text; background-clip: text }
+
+/* Recent Projects on the Welcome page, Android Studio style: one click reopens a project. */
+.app .welcome-projects { width: min(560px, 100%); display: flex; flex-direction: column; gap: 4px; text-align: left; position: relative; z-index: 1; animation: welcome-in .5s .2s both }
+.app .welcome-projects-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 4px }
+.app .welcome-projects-head small { font: 600 10.5px/1 "JetBrains Mono", Consolas, monospace; letter-spacing: 1.6px; color: var(--muted) }
+.app .welcome-projects-head button { height: 22px; padding: 0 8px; border: 0; background: transparent; box-shadow: none; color: var(--muted); font-size: 11.5px }
+.app .welcome-projects-head button:hover { color: #68f4d1; background: transparent }
+.app .welcome-project { position: relative; display: flex }
+.app .welcome-project > button:first-child { flex: 1; min-width: 0; justify-content: flex-start; gap: 12px; height: auto; padding: 9px 40px 9px 10px; border-radius: 9px; border: 1px solid transparent; background: transparent; box-shadow: none; text-align: left }
+.app .welcome-project > button:first-child:hover:not(:disabled) { background: color-mix(in srgb, var(--project) 10%, var(--sidebar)); border-color: color-mix(in srgb, var(--project) 35%, transparent) }
+.app .welcome-project .project-badge { width: 30px; height: 30px; border-radius: 8px; font-size: 11.5px; flex: none; color: #fff; display: grid; place-items: center; font-weight: 700; box-shadow: inset 0 1px 0 #ffffff33, 0 4px 12px color-mix(in srgb, var(--project) 35%, transparent) }
+.app .welcome-project > button:first-child > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px }
+.app .welcome-project b { color: var(--bright); font-size: 13px; font-weight: 600 }
+.app .welcome-project small { color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.app .welcome-project em { font-style: normal; font-size: 11px; color: var(--muted); flex: none }
+.app .welcome-project-remove { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; padding: 0; border: 0; background: transparent; box-shadow: none; color: var(--muted); opacity: 0; border-radius: 6px }
+.app .welcome-project:hover .welcome-project-remove, .app .welcome-project-remove:focus-visible { opacity: 1 }
+.app .welcome-project:hover em { visibility: hidden }
+.app .welcome-project-remove:hover { color: var(--bright); background: #ffffff14 }
+.app.light .welcome-project-remove:hover { background: #0000000f }
+
+/* TODO tool window */
+.app .todo-panel { height: 220px; flex-shrink: 0; display: flex; flex-direction: column; background: var(--sidebar); overflow: hidden }
+.app .todo-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 10px; border-bottom: 1px solid var(--border) }
+.app .todo-toolbar > div { flex: 1 }
+.app .todo-toolbar small { color: var(--muted); font-size: 11.5px; margin-right: 4px }
+.app .todo-toolbar button { height: 24px; padding: 0 9px; gap: 6px; border-radius: 12px; border: 1px solid var(--border); background: transparent; box-shadow: none; color: var(--muted); font-size: 11.5px }
+.app .todo-toolbar button span { font-size: 10.5px; opacity: .8 }
+.app .todo-toolbar button.active { color: var(--bright); border-color: #68f4d166; background: #68f4d114 }
+.app .todo-toolbar button:last-child { width: 26px; padding: 0; border-color: transparent }
+.app .todo-toolbar .spin { animation: todo-spin .9s linear infinite }
+@keyframes todo-spin { to { transform: rotate(360deg) } }
+.app .todo-list { flex: 1; overflow: auto; padding: 4px 0 8px }
+.app .todo-empty { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 28px; color: var(--muted) }
+.app .todo-empty svg { color: #68f4d1 }
+.app .todo-file-head, .app .todo-hit { width: 100%; height: 24px; justify-content: flex-start; gap: 6px; padding: 0 12px; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--text); text-align: left; font-size: 12.5px }
+.app .todo-file-head:hover, .app .todo-hit:hover { background: #ffffff0d }
+.app.light .todo-file-head:hover, .app.light .todo-hit:hover { background: #0000000a }
+.app .todo-file-head b { font-weight: 600; color: var(--bright) }
+.app .todo-file-head small { flex: 1; min-width: 0; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.app .todo-file-head > span { color: var(--muted); font-size: 11px }
+.app .todo-hit { padding-left: 46px }
+.app .todo-hit > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.app .todo-hit > small { color: var(--muted); font: 11px "JetBrains Mono", Consolas, monospace }
+.app .todo-hit em, .app .todo-toolbar button[data-tag] { font-style: normal }
+.app .todo-hit em { flex: none; padding: 1px 6px; border-radius: 4px; font: 700 10px/1.5 "JetBrains Mono", Consolas, monospace; letter-spacing: .4px; color: #68f4d1; background: #68f4d11a }
+.app .todo-hit em[data-tag="FIXME"], .app .todo-hit em[data-tag="BUG"] { color: #ff7b72; background: #ff7b721a }
+.app .todo-hit em[data-tag="HACK"], .app .todo-hit em[data-tag="XXX"] { color: #f2c46d; background: #f2c46d1a }
+.app.light .todo-hit em { color: #0f8a6c; background: #0f8a6c14 }
+.app.light .todo-hit em[data-tag="FIXME"], .app.light .todo-hit em[data-tag="BUG"] { color: #c4352b; background: #c4352b12 }
+.app.light .todo-hit em[data-tag="HACK"], .app.light .todo-hit em[data-tag="XXX"] { color: #9a6700; background: #9a670012 }
+/* The Welcome page scrolls instead of clipping when the window is short or a tool window is open. */
+.app .welcome-main { overflow-y: auto; justify-content: safe center }
