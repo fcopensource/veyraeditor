@@ -41,6 +41,9 @@ export function activate(context: vscode.ExtensionContext) {
           const back = returnTo;
           returnTo = undefined;
           if (back) await vscode.window.showTextDocument(back.document, { viewColumn: back.viewColumn, preserveFocus: false, selection: back.selection });
+          // A selection made while this snap was in progress was held back: snap it now.
+          const next = pending; pending = undefined;
+          if (next && !next.selection.isEmpty && snapKey(next) !== lastSnap) { clearTimeout(timer); timer = setTimeout(() => snap(next), 300); }
           break;
         }
         case "setting": await config().update(m.key, m.value, vscode.ConfigurationTarget.Global); break;
@@ -98,6 +101,8 @@ export function activate(context: vscode.ExtensionContext) {
   }
   const snapKey = (e: vscode.TextEditor) => `${e.document.uri}|${e.selection.start.line}:${e.selection.start.character}-${e.selection.end.line}:${e.selection.end.character}|${e.document.version}`;
   let returnTo: vscode.TextEditor | undefined;
+  /** A selection change that arrived while a snap was in progress, snapped once it finishes. */
+  let pending: vscode.TextEditor | undefined;
   let lastSnap = "";
 
   let timer: NodeJS.Timeout | undefined;
@@ -112,7 +117,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeTextEditorSelection(e => {
       if (e.textEditor.document.uri.scheme === "output") return;
       editor = e.textEditor;
-      if (!panel?.visible || !config().get("liveUpdate", true) || e.selections[0].isEmpty || returnTo || snapKey(e.textEditor) === lastSnap) return;
+      if (!panel?.visible || !config().get("liveUpdate", true) || e.selections[0].isEmpty || snapKey(e.textEditor) === lastSnap) return;
+      if (returnTo) { pending = e.textEditor; return; } // busy: checked again once the snap finishes (its own selection is restored by then)
       clearTimeout(timer);
       timer = setTimeout(() => snap(e.textEditor), 600);
     }),

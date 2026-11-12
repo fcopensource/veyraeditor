@@ -55,8 +55,8 @@ async function steps() {
   assert.ok(width > 600 && height > 300, `${width}x${height}`);
 
   step("Live: changing the selection updates the snap");
-  await vscode.window.showTextDocument(editor.document, { viewColumn: editor.viewColumn });
-  editor.selection = new vscode.Selection(7, 0, 7, 20); // line 8
+  const live = await vscode.window.showTextDocument(editor.document, { viewColumn: editor.viewColumn });
+  live.selection = new vscode.Selection(7, 0, 7, 20); // line 8, through the editor that is showing now
   await until(async () => { const s = await probe(); return s?.firstLine === 8 && s.lines === 1; }, "the live update");
   await until(async () => (await vscode.env.clipboard.readText()) === "something I copied earlier", "the clipboard after a live update");
 

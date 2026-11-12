@@ -45,7 +45,8 @@ test("production CSP: the editor works with zero violations and injection is blo
   await page.locator('.tree-row[title="src/app.ts"]').click();
   // Monaco renders with syntax colours (its workers and styles are allowed).
   await expect(page.locator(".monaco-editor .view-lines span[class^=mtk]").first()).toBeVisible();
-  expect(await page.locator(".monaco-editor .view-lines span[class^=mtk]").evaluateAll(spans => new Set(spans.map(s => getComputedStyle(s).color)).size)).toBeGreaterThan(2);
+  // Colouring finishes a moment after the first line appears, so wait for it rather than reading it once.
+  await expect.poll(() => page.locator(".monaco-editor .view-lines span[class^=mtk]").evaluateAll(spans => new Set(spans.map(s => getComputedStyle(s).color)).size)).toBeGreaterThan(2);
   // The TypeScript worker answers (worker-src).
   await page.locator(".monaco-editor textarea").first().focus();
   await page.keyboard.press("Control+End"); await page.keyboard.type("\ngre");
