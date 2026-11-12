@@ -429,7 +429,7 @@ test("autocomplete: language snippets and cross-file TypeScript, without AI requ
   await page.keyboard.press('Control+Space');
   await expect(page.getByRole('option',{name:/toUpperCase/}).first()).toBeVisible({timeout:15000});
   await page.keyboard.press('Escape');
-  // 3. No AI ghost text: Veyra AI's free requests are only spent when you send a message.
+  // 3. No ghost text: Veyra has no AI features.
   await page.keyboard.press('Meta+End');
   await page.keyboard.type('\nfunction add(a: number, b: number) {\n');
   await page.waitForTimeout(1500);
@@ -504,7 +504,7 @@ test("title-bar button: Sign in, your name once signed in, Update when one is re
   await expect(button).toHaveText("Sign in");
   await button.click();
   expect(await page.evaluate(()=>(window as any).buttonCalls.find((c:any)=>c.cmd==="plugin:opener|open_url")?.args.url)).toBe("https://veyraeditor.com/login?next=/dashboard");
-  // Signing in (e.g. in the AI panel) shows your name.
+  // Signing in on veyraeditor.com shows your name.
   await page.evaluate(()=>{(window as any).account={name:"Ada Lovelace",email:"ada@example.com"};window.dispatchEvent(new Event("veyra-account"));});
   await expect(button).toHaveText(/Ada/);
   // An update turns it into "Update"…

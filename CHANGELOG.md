@@ -3,6 +3,25 @@
 The section for each version becomes its GitHub release notes and the "What's new" text in the
 in-app update prompt. Headings must be `## <version>`.
 
+## 0.11.0
+
+**A new launch screen**
+- Veyra now opens with a hummingbird hovering under a night sky while "Veyra Studio" types itself out, in the colours of veyraeditor.com
+- A friendlier Welcome page that greets you by the time of day
+
+**Work faster, Android Studio style**
+- Recent Projects on the Welcome page: reopen any project in one click, no folder dialog
+- Search Everywhere: tap Shift twice to search files and actions in one place
+- Recent Files: Ctrl/⌘+E jumps between the files you opened in this project
+- A new TODO window in the bottom panel lists every TODO, FIXME and HACK comment in your project, grouped by file. Click one to jump to it
+
+**Veyra is now a pure code editor**
+- All AI features have been removed: the Veyra AI panel and button, Ctrl/⌘+L, Ctrl/⌘+K and "Edit selection with AI". Your code never leaves your computer
+- Signing in to your Veyra account still works
+
+**Support Veyra**
+- Veyra stays free, with no ads and no tracking. A new ♡ Support button lets you back the project if you'd like to (payment options are coming soon)
+
 ## 0.10.0
 
 **A new look, inspired by Android Studio**

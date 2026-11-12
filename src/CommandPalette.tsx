@@ -10,9 +10,11 @@ type Symbol = { name: string; line: number; kind?: string };
 type Props = {
   initial: string; files: string[]; recentFiles: string[]; commands: PaletteCommand[]; recentCommands: string[];
   symbols: Symbol[]; lineCount: number; pick?: QuickPick | null; hasWorkspace: boolean;
+  /** "everywhere" mixes files and actions (double Shift); "recent" lists only recently opened files (Ctrl+E). */
+  scope?: "everywhere" | "recent";
   onOpenFile: (path: string) => void; onGotoLine: (line: number, column?: number) => void; onCommand: (command: PaletteCommand) => void; onClose: () => void;
 };
-type Row = { key: string; icon: ReactNode; label: string; indices: number[]; detail?: string; hint?: string; group?: string; run: () => void };
+type Row = { key: string; icon: ReactNode; label: string; indices: number[]; detail?: string; hint?: string; group?: string; file?: boolean; run: () => void };
 
 function highlight(text: string, indices: number[]) {
   if (!indices.length) return text;
@@ -53,23 +55,34 @@ export function CommandPalette(props: Props) {
       { prefix: "", label: "Go to file" }, { prefix: ">", label: "Show and run commands" }, { prefix: "@", label: "Go to symbol in editor" }, { prefix: ":", label: "Go to line / column" },
     ].map(item => ({ key: "help" + item.prefix, icon: <HelpCircle size={14}/>, label: `${item.prefix || "…"}  ${item.label}`, indices: [], run: () => { setValue(item.prefix); setSelected(0); } }));
     const recent = props.recentFiles.filter(path => props.files.includes(path));
-    const pool = query ? props.files : [...recent, ...props.files.filter(path => !recent.includes(path))];
-    return rank(pool, query, path => path, 80).map(({ item, indices }, i) => {
+    const scope = props.scope;
+    const pool = scope === "recent" ? recent : query ? props.files : [...recent, ...props.files.filter(path => !recent.includes(path))];
+    const fileRows: Row[] = rank(pool, query, path => path, scope === "everywhere" ? 40 : 80).map(({ item, indices }, i) => {
       const slash = item.lastIndexOf("/"), name = item.slice(slash + 1);
       return {
-        key: item, icon: <DimensionalIcon path={item}/>, label: item, indices, detail: slash > 0 ? item.slice(0, slash) : undefined,
-        hint: name, group: !query && recent.length && i === 0 ? "recently opened" : !query && recent.length && i === recent.length ? "files" : undefined,
+        key: item, icon: <DimensionalIcon path={item}/>, label: item, indices, detail: slash > 0 ? item.slice(0, slash) : undefined, file: true,
+        hint: name, group: scope === "recent" ? undefined : scope === "everywhere" && i === 0 ? (query ? "files" : recent.length ? "recently opened" : "files") : !query && recent.length && i === 0 ? "recently opened" : !query && recent.length && i === recent.length ? "files" : undefined,
         run: close(() => props.onOpenFile(item)),
       };
     });
-  }, [mode, query, pick, props.files, props.recentFiles, props.commands, props.recentCommands, props.symbols, props.lineCount]);
+    if (scope !== "everywhere") return fileRows;
+    // Search Everywhere: files first, then matching actions. With an empty query, recent files then recent actions.
+    const recentActions = props.recentCommands.map(id => props.commands.find(c => c.id === id)).filter((c): c is PaletteCommand => !!c);
+    const actions = query ? rank(props.commands, query, c => (c.category ? c.category + ": " : "") + c.name, 20) : recentActions.map(item => ({ item, indices: [] as number[] }));
+    const files = query ? fileRows : fileRows.slice(0, Math.max(recent.length, 8));
+    return [...files, ...actions.map(({ item, indices }, i) => ({
+      key: "cmd:" + item.id, icon: <Command size={14}/>, label: (item.category ? item.category + ": " : "") + item.name, indices, hint: keys(item.shortcut || ""),
+      group: i === 0 ? (query ? "actions" : "recent actions") : undefined,
+      run: () => { props.onClose(); props.onCommand(item); },
+    }))];
+  }, [mode, query, pick, props.scope, props.files, props.recentFiles, props.commands, props.recentCommands, props.symbols, props.lineCount]);
 
   useEffect(() => setSelected(0), [mode, query]);
   useEffect(() => { list.current?.querySelector(".palette-row.selected")?.scrollIntoView({ block: "nearest" }); }, [selected]);
 
-  const label = mode === "pick" ? pick!.title : mode === "commands" ? "COMMANDS" : mode === "line" ? "GO TO LINE" : mode === "symbols" ? "SYMBOLS IN EDITOR" : mode === "help" ? "AVAILABLE PREFIXES" : "WORKSPACE FILES";
-  const placeholder = mode === "pick" ? pick!.placeholder || "Select an option" : props.initial === ">" ? "Type a command…" : "Search files by name (append : to go to a line, @ for symbols, > for commands)";
-  const empty = mode === "symbols" ? "No symbols found in this editor." : mode === "files" && !props.hasWorkspace ? "Open a workspace first." : "No matching results.";
+  const label = mode === "pick" ? pick!.title : mode === "commands" ? "COMMANDS" : mode === "line" ? "GO TO LINE" : mode === "symbols" ? "SYMBOLS IN EDITOR" : mode === "help" ? "AVAILABLE PREFIXES" : props.scope === "everywhere" ? "SEARCH EVERYWHERE" : props.scope === "recent" ? "RECENT FILES" : "WORKSPACE FILES";
+  const placeholder = mode === "pick" ? pick!.placeholder || "Select an option" : props.initial === ">" ? "Type a command…" : props.scope === "everywhere" ? "Search files and actions everywhere" : props.scope === "recent" ? "Filter recently opened files" : "Search files by name (append : to go to a line, @ for symbols, > for commands)";
+  const empty = mode === "symbols" ? "No symbols found in this editor." : mode === "files" && props.scope === "recent" ? "No files opened yet in this project." : mode === "files" && !props.hasWorkspace && props.scope !== "everywhere" ? "Open a workspace first." : "No matching results.";
 
   return <div className="overlay" onMouseDown={props.onClose}>
     <div className="palette" role="dialog" aria-label="Command palette" onMouseDown={e => e.stopPropagation()}>
@@ -90,12 +103,12 @@ export function CommandPalette(props: Props) {
         {rows.map((row, i) => <div key={row.key}>
           {row.group && <div className="palette-group">{row.group}</div>}
           <button role="option" aria-selected={i === selected} className={"palette-row" + (i === selected ? " selected" : "")} onMouseMove={() => i !== selected && setSelected(i)} onClick={row.run}>
-            {row.icon}<span>{mode === "files" ? <>{highlight(row.hint || row.label, row.indices.map(n => n - (row.label.length - (row.hint || row.label).length)).filter(n => n >= 0))}{row.detail && <small>{row.detail}</small>}</> : <>{highlight(row.label, row.indices)}{row.detail && <small>{row.detail}</small>}</>}</span>
-            {row.hint && mode !== "files" ? <kbd>{row.hint}</kbd> : mode === "files" ? <ArrowUpRight size={13}/> : null}
+            {row.icon}<span>{row.file ? <>{highlight(row.hint || row.label, row.indices.map(n => n - (row.label.length - (row.hint || row.label).length)).filter(n => n >= 0))}{row.detail && <small>{row.detail}</small>}</> : <>{highlight(row.label, row.indices)}{row.detail && <small>{row.detail}</small>}</>}</span>
+            {row.file ? <ArrowUpRight size={13}/> : row.hint ? <kbd>{row.hint}</kbd> : null}
           </button></div>)}
         {!rows.length && <p>{empty}</p>}
       </div>
-      <div className="palette-footer">↑↓ to navigate · Enter to select · Esc to close{mode === "files" && " · type ? for help"}</div>
+      <div className="palette-footer">↑↓ to navigate · Enter to select · Esc to close{mode === "files" && (props.scope === "everywhere" ? " · double Shift to reopen" : props.scope === "recent" ? " · type to filter" : " · type ? for help")}</div>
     </div>
   </div>;
 }
