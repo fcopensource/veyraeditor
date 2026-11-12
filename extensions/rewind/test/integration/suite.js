@@ -22,7 +22,8 @@ async function steps() {
   const folder = vscode.workspace.workspaceFolders[0].uri.fsPath;
   const extension = vscode.extensions.getExtension("flightcoders.veyra-rewind");
   assert.ok(extension, "extension is loaded");
-  const { store, panels } = await extension.activate();
+  const rewind = await extension.activate();
+  const { store, panels } = rewind;
   const file = path.join(folder, "cart.js");
   const entries = async () => (await store.history(file)).entries;
   const edit = async (editor, text) => { await editor.edit(b => b.replace(new vscode.Range(0, 0, editor.document.lineCount, 0), text)); };
@@ -56,19 +57,16 @@ async function steps() {
   const first = (await entries())[0];
   const contents = await vscode.workspace.openTextDocument(vscode.Uri.from({ scheme: "veyra-rewind", path: `/${first.hash}/cart.js` }));
   assert.equal(contents.getText(), original, "snapshots open as read-only documents for the diff editor");
-  const quickPick = vscode.window.showQuickPick;
-  vscode.window.showQuickPick = async items => (await items).find(item => item.entry && item.entry.id === first.id);
-  try { await vscode.commands.executeCommand("veyraRewind.restore"); } finally { vscode.window.showQuickPick = quickPick; }
+  // The Rewind panel has focus here: commands still know which file they're about.
+  assert.ok(panels.get(file).panel.active || vscode.window.activeTextEditor, "the panel or the file is focused");
+  await rewind.restore(file, first);
+  await vscode.window.showTextDocument(editor.document);
   await until(() => editor.document.getText() === original, "the restored text");
   await vscode.commands.executeCommand("undo");
   await until(() => editor.document.getText() === "module.exports = {};\n", "undo of the restore");
 
   step("Find Deleted Code finds the removed function, not lines still in the file");
-  const input = vscode.window.showInputBox, pick = vscode.window.showQuickPick;
-  let offered = [];
-  vscode.window.showInputBox = async () => "total";
-  vscode.window.showQuickPick = async items => { offered = await items; return undefined; };
-  try { await vscode.commands.executeCommand("veyraRewind.findDeleted"); } finally { vscode.window.showInputBox = input; vscode.window.showQuickPick = pick; }
+  const offered = await rewind.searchDeleted("total");
   assert.ok(offered.some(item => item.label === "function total(items) {"), `found the deleted function (${offered.map(i => i.label).join(" | ")})`);
   assert.ok(!offered.some(item => item.label.startsWith("module.exports = {}")), "lines still in the file aren't listed");
 
@@ -80,8 +78,9 @@ async function steps() {
   const removal = new vscode.WorkspaceEdit(); removal.deleteFile(vscode.Uri.file(notes));
   await vscode.workspace.applyEdit(removal);
   await until(() => !fs.existsSync(notes), "the deletion");
-  vscode.window.showQuickPick = async items => (await items).find(item => item.label === "notes.md");
-  try { await vscode.commands.executeCommand("veyraRewind.restoreDeletedFile"); } finally { vscode.window.showQuickPick = pick; }
+  const gone = (await rewind.deletedFiles()).find(item => item.label === "notes.md");
+  assert.ok(gone, "notes.md is listed as deleted");
+  await rewind.restore(gone.history.path, gone.history.entries.at(-1));
   await until(() => fs.existsSync(notes) && fs.readFileSync(notes, "utf8") === "# Notes\n", "the restored file");
 
   step("Dependencies are never tracked");

@@ -170,10 +170,13 @@ class RewindPanel {
 }
 
 // ---------- Commands ----------
+/** The file a command is about: the one it was run on, the active editor's, the focused Rewind panel's, or a visible editor's. */
 function fileFrom(arg?: vscode.Uri): string | undefined {
   if (arg instanceof vscode.Uri && arg.scheme === "file") return arg.fsPath;
   const document = vscode.window.activeTextEditor?.document;
-  return document && document.uri.scheme === "file" ? document.uri.fsPath : undefined;
+  if (document?.uri.scheme === "file") return document.uri.fsPath;
+  for (const [file, panel] of panels) if (panel.panel.active) return file;
+  return vscode.window.visibleTextEditors.find(editor => editor.document.uri.scheme === "file")?.document.uri.fsPath;
 }
 
 async function pickSnapshot(file: string, title: string): Promise<Entry | undefined> {
@@ -185,50 +188,56 @@ async function pickSnapshot(file: string, title: string): Promise<Entry | undefi
   return pick?.entry;
 }
 
-/** "Find Deleted Code": text that was in a file's history but isn't in the file today. */
-async function findDeleted(context: vscode.ExtensionContext) {
-  const query = await vscode.window.showInputBox({ title: "Rewind: Find Deleted Code", prompt: "Search everything you ever had in a file, but deleted. Case-insensitive unless you type capitals.", placeHolder: "calculateTotal" });
-  if (!query?.trim()) return;
-  type Item = vscode.QuickPickItem & { file: string; entry: Entry; line: number };
-  const items = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Rewind: searching history for “${query}”…` }, async () => {
-    const found: Item[] = [], now = Date.now();
-    for (const history of await store.all()) {
-      const current = await currentText(history.path);
-      const still = current === undefined ? new Set<string>() : lineSet(current);
-      const seen = new Set<string>();
-      for (const entry of [...history.entries].reverse()) {
-        const text = await store.read(entry.hash).catch(() => "");
-        for (const hit of findLines(text, query.trim(), still, 30)) {
-          const key = hit.text.trim();
-          if (seen.has(key)) continue;
-          seen.add(key);
-          found.push({ label: key.length > 120 ? key.slice(0, 117) + "…" : key, description: `${path.basename(history.path)}:${hit.line} · ${relativeTime(entry.t, now)}`,
-            detail: current === undefined ? `${vscode.workspace.asRelativePath(history.path)} (file deleted)` : vscode.workspace.asRelativePath(history.path), file: history.path, entry, line: hit.line });
-        }
-        if (found.length >= 300) break;
+export type DeletedCode = vscode.QuickPickItem & { file: string; entry: Entry; line: number };
+/** Text that was in a file's history but isn't in the file today, newest first, one result per distinct line. */
+export async function searchDeleted(query: string, limit = 300): Promise<DeletedCode[]> {
+  const found: DeletedCode[] = [], now = Date.now();
+  for (const history of await store.all()) {
+    const current = await currentText(history.path);
+    const still = current === undefined ? new Set<string>() : lineSet(current);
+    const seen = new Set<string>();
+    for (const entry of [...history.entries].reverse()) {
+      const text = await store.read(entry.hash).catch(() => "");
+      for (const hit of findLines(text, query, still, 30)) {
+        const key = hit.text.trim();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        found.push({ label: key.length > 120 ? key.slice(0, 117) + "…" : key, description: `${path.basename(history.path)}:${hit.line} · ${relativeTime(entry.t, now)}`,
+          detail: current === undefined ? `${vscode.workspace.asRelativePath(history.path)} (file deleted)` : vscode.workspace.asRelativePath(history.path), file: history.path, entry, line: hit.line });
       }
-      if (found.length >= 300) break;
+      if (found.length >= limit) return found;
     }
-    return found;
-  });
+  }
+  return found;
+}
+
+async function findDeleted(context: vscode.ExtensionContext) {
+  const query = (await vscode.window.showInputBox({ title: "Rewind: Find Deleted Code", prompt: "Search everything you ever had in a file, but deleted. Case-insensitive unless you type capitals.", placeHolder: "calculateTotal" }))?.trim();
+  if (!query) return;
+  const items = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Rewind: searching history for “${query}”…` }, () => searchDeleted(query));
   if (!items.length) { vscode.window.showInformationMessage(`Rewind found no deleted code matching “${query}”. Code that's still in its file isn't listed.`); return; }
   const pick = await vscode.window.showQuickPick(items, { title: `Deleted code matching “${query}” (${items.length})`, matchOnDescription: true, matchOnDetail: true });
   if (pick) RewindPanel.show(context, pick.file, { id: pick.entry.id, line: pick.line });
 }
 
-async function restoreDeletedFile() {
-  type Item = vscode.QuickPickItem & { history: FileHistory };
-  const items: Item[] = [], now = Date.now();
+export type DeletedFile = vscode.QuickPickItem & { history: FileHistory };
+/** Files Rewind has history for that no longer exist, most recently seen first. */
+export async function deletedFiles(): Promise<DeletedFile[]> {
+  const items: DeletedFile[] = [], now = Date.now();
   for (const history of await store.all()) {
     if (await currentText(history.path) !== undefined) continue;
     const last = history.entries.at(-1)!;
     items.push({ label: path.basename(history.path), description: `deleted · last seen ${relativeTime(last.t, now)}`, detail: vscode.workspace.asRelativePath(history.path), history });
   }
+  return items;
+}
+
+async function restoreDeletedFile() {
+  const items = await deletedFiles();
   if (!items.length) { vscode.window.showInformationMessage("Rewind has no deleted files to bring back."); return; }
   const pick = await vscode.window.showQuickPick(items, { title: "Rewind: Restore a Deleted File", matchOnDetail: true });
-  if (!pick) return;
-  const latest = [...pick.history.entries].reverse().find(e => e.reason !== "delete") ?? pick.history.entries.at(-1)!;
-  await restore(pick.history.path, latest);
+  // The newest snapshot is the file as it was just before it was deleted.
+  if (pick) await restore(pick.history.path, pick.history.entries.at(-1)!);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -305,7 +314,7 @@ export function activate(context: vscode.ExtensionContext) {
   for (const document of vscode.workspace.textDocuments) void capture(document, "open");
   void updateStatus();
   setTimeout(() => void store.collect(), 60_000).unref?.();
-  return { store, panels };
+  return { store, panels, restore, compare, searchDeleted, deletedFiles };
 }
 
 export function deactivate() {}
