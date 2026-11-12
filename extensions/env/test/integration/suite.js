@@ -13,6 +13,15 @@ async function until(check, what, ms = 30000) {
 }
 const step = name => console.log(`[suite] ${name}`);
 /** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+/**
+ * The quick fixes offered at a range, once one matching `wanted` is there. VS Code gives a provider the problems it has on
+ * file, which can trail the extension's own list by a moment, so a fix that isn't offered yet is asked for again.
+ */
+async function fixes(uri, range, wanted) {
+  let last = [];
+  return until(async () => { last = (await ask("vscode.executeCodeActionProvider", uri, range)) || []; return last.some(wanted) ? last : undefined; },
+    `a quick fix at ${uri.path} (offered: ${last.map(a => a.title).join(" | ") || "none"})`);
+}
 async function ask(command, ...args) {
   for (let attempt = 1; ; attempt++) {
     try { return await vscode.commands.executeCommand(command, ...args); }
@@ -47,7 +56,7 @@ async function steps() {
   step("Quick fix: remove the spaces around =");
   const envDoc = await vscode.workspace.openTextDocument(env);
   const spaces = ours(env).find(d => d.code === "spaces");
-  let actions = await ask("vscode.executeCodeActionProvider", env, spaces.range);
+  let actions = await fixes(env, spaces.range, a => a.title.startsWith("Remove the spaces"));
   await vscode.workspace.applyEdit(actions.find(a => a.title.startsWith("Remove the spaces")).edit);
   assert.equal(envDoc.lineAt(4).text, "API_KEY=abc123");
   await envDoc.save();
@@ -57,11 +66,10 @@ async function steps() {
   await vscode.workspace.openTextDocument(staging);
   await until(() => codes(staging).includes("committed"), "the committed error");
   assert.equal(ours(staging).find(d => d.code === "committed").severity, vscode.DiagnosticSeverity.Error);
-  actions = await ask("vscode.executeCodeActionProvider", staging, ours(staging)[0].range);
-  assert.ok(actions.some(a => a.title === "Stop tracking .env.staging in git and ignore it"));
+  actions = await fixes(staging, ours(staging).find(d => d.code === "committed").range, a => a.title === "Stop tracking .env.staging in git and ignore it");
 
   step("Add .env to .gitignore");
-  actions = await ask("vscode.executeCodeActionProvider", env, ours(env).find(d => d.code === "not-ignored").range);
+  actions = await fixes(env, ours(env).find(d => d.code === "not-ignored").range, a => a.title === "Add .env to .gitignore");
   const add = actions.find(a => a.title === "Add .env to .gitignore");
   await vscode.commands.executeCommand(add.command.command, ...add.command.arguments);
   assert.match(fs.readFileSync(path.join(folder, ".gitignore"), "utf8"), /^node_modules\n\n?# Env files with secrets \(Veyra Env\)\n\.env\n$/);
@@ -82,7 +90,7 @@ async function steps() {
 
   step("Quick fix: add the missing variable to .env");
   const missing = appDiags.find(d => app.getText(d.range) === "MISSING_ONE");
-  actions = await ask("vscode.executeCodeActionProvider", app.uri, missing.range);
+  actions = await fixes(app.uri, missing.range, a => a.title === "Add MISSING_ONE to .env");
   const addVar = actions.find(a => a.title === "Add MISSING_ONE to .env");
   assert.ok(addVar, `actions: ${actions.map(a => a.title)}`);
   await vscode.commands.executeCommand(addVar.command.command, ...addVar.command.arguments);
@@ -133,7 +141,7 @@ async function steps() {
 
   step("Ignoring a variable that is set elsewhere");
   const pyMissing = ours(py.uri)[0];
-  actions = await ask("vscode.executeCodeActionProvider", py.uri, pyMissing.range);
+  actions = await fixes(py.uri, pyMissing.range, a => a.title.startsWith("Never report PY_MISSING"));
   const ignore = actions.find(a => a.title.startsWith("Never report PY_MISSING"));
   await vscode.commands.executeCommand(ignore.command.command, ...ignore.command.arguments);
   await until(() => !ours(py.uri).length, "PY_MISSING to stop being reported");

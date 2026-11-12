@@ -73,7 +73,25 @@ class Index {
     if (todos.length) this.files.set(key, { uri, path, todos }); else this.files.delete(key);
     if (before !== JSON.stringify(todos)) this.changed.fire();
   }
-  remove(uri: vscode.Uri) { if (this.files.delete(uri.toString())) this.changed.fire(); }
+  /**
+   * Something was created: a file is read; a folder has its files read, since on some systems the watcher reports a new
+   * folder but not the files written into it a moment later.
+   */
+  async created(uri: vscode.Uri) {
+    let type: vscode.FileType;
+    try { type = (await vscode.workspace.fs.stat(uri)).type; } catch { return; }
+    if (!(type & vscode.FileType.Directory)) return this.update(uri);
+    const globs = this.excludeGlobs();
+    const uris = await vscode.workspace.findFiles(new vscode.RelativePattern(uri, "**/*"), globs.length ? `{${globs.join(",")}}` : null, config().get<number>("maxFiles", 5000));
+    for (const file of uris) await this.update(file);
+  }
+  /** A file or a whole folder is gone. */
+  remove(uri: vscode.Uri) {
+    const key = uri.toString(), inside = key.endsWith("/") ? key : key + "/";
+    let removed = this.files.delete(key);
+    for (const other of [...this.files.keys()]) if (other.startsWith(inside)) { this.files.delete(other); removed = true; }
+    if (removed) this.changed.fire();
+  }
   get count() { let n = 0; this.files.forEach(f => (n += f.todos.length)); return n; }
 }
 
@@ -222,7 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
   const watcher = vscode.workspace.createFileSystemWatcher("**/*");
   context.subscriptions.push(
     view, highlights, watcher,
-    watcher.onDidCreate(uri => soon(uri, () => index.update(uri))),
+    watcher.onDidCreate(uri => soon(uri, () => void index.created(uri))),
     watcher.onDidChange(uri => soon(uri, () => index.update(uri))),
     watcher.onDidDelete(uri => index.remove(uri)),
     vscode.workspace.onDidChangeTextDocument(e => {
