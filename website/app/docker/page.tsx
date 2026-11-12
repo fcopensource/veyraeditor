@@ -135,6 +135,6 @@ export default function DockerPage(){
         <p className="live-note" style={{marginTop:12}}>Docker is a trademark of Docker, Inc. Veyra Container Studio is an independent extension and is not made or endorsed by Docker, Inc.</p>
       </section>
 
-      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
+      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Search Everywhere built in."/>
     </div></main><Footer/></>;
 }

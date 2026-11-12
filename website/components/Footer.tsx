@@ -6,7 +6,7 @@ export function Footer(){
   return <footer className="site-footer">
     <div className="footer-brand">
       <Link className="brand" href="/"><span><Image src="/veyra-96.png" width={30} height={30} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
-      <p>A fast, local-first code editor with Git, a real terminal and AI built in.</p>
+      <p>A fast, local-first code editor with Git, a real terminal and Search Everywhere built in. No AI, no tracking.</p>
     </div>
     <div><strong>Product</strong><Link href="/download">Veyra Studio</Link><Link href="/pdf">Veyra PDF</Link><Link href="/salesforce-studio">Salesforce Studio</Link><Link href="/features">Features</Link><Link href="/download">Download</Link><Link href="/changelog">Changelog</Link><Link href="/roadmap">Roadmap</Link></div>
     <div className="footer-extensions"><strong>VS Code extensions</strong><div style={{gridTemplateRows:`repeat(${Math.ceil(EXTENSIONS.length/2)},auto)`}}>{[...EXTENSIONS].sort((a,b)=>a.name.localeCompare(b.name)).map(item=><Link key={item.href} href={item.href}>{item.name}</Link>)}</div><Link className="footer-all" href="/extensions">All extensions →</Link></div>

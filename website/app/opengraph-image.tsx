@@ -3,13 +3,13 @@ import {join} from 'node:path';
 import {ImageResponse} from 'next/og';
 
 // The card shown when veyraeditor.com is shared on X, LinkedIn, Slack, WhatsApp and in some search results.
-export const alt='Veyra: the fast, local-first AI code editor for Windows, macOS and Linux';
+export const alt='Veyra: the fast, local-first code editor for Windows, macOS and Linux';
 export const size={width:1200,height:630};
 export const contentType='image/png';
 
 export default async function OpenGraphImage(){
   const logo=`data:image/png;base64,${(await readFile(join(process.cwd(),'public','logo-512.png'))).toString('base64')}`;
-  const code=['async function ship(idea) {','  const plan = await veyra.ai.plan(idea);','  const patch = await plan.write({ review: true });','  return deploy(patch); // 42 tests passed','}'];
+  const code=['async function ship(idea) {','  const patch = await veyra.write(idea);','  await veyra.git.commit(patch);','  return deploy(patch); // 42 tests passed','}'];
   return new ImageResponse(
     <div style={{width:'100%',height:'100%',display:'flex',background:'radial-gradient(circle at 80% 20%, #12304a 0%, #06080d 55%)',color:'#edf5f5',padding:'64px 72px',fontFamily:'sans-serif'}}>
       <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between',width:'58%'}}>
@@ -18,7 +18,7 @@ export default async function OpenGraphImage(){
           <div style={{display:'flex',flexDirection:'column'}}><span style={{fontSize:40,fontWeight:800}}>Veyra</span><span style={{fontSize:18,letterSpacing:6,color:'#68f4d1'}}>STUDIO</span></div>
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:18}}>
-          <span style={{fontSize:64,fontWeight:800,lineHeight:1.02,letterSpacing:-2}}>The fast, local-first AI code editor</span>
+          <span style={{fontSize:64,fontWeight:800,lineHeight:1.02,letterSpacing:-2}}>The fast, local-first code editor</span>
           <span style={{fontSize:26,color:'#9aa7b4'}}>Free & open source · Windows · macOS · Linux</span>
         </div>
         <span style={{fontSize:22,color:'#68f4d1'}}>veyraeditor.com</span>

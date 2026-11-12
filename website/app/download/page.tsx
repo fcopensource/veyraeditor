@@ -8,7 +8,7 @@ import {checksums,installers,latestRelease,RELEASES_URL} from '@/lib/releases';
 import {MS_STORE_URL} from '@/lib/site';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 
-export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free AI code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux. Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{images:[OG_IMAGE],url:'/download',title:'Download Veyra: free AI code editor'}};
+export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free lightweight code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux. Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{images:[OG_IMAGE],url:'/download',title:'Download Veyra: free lightweight code editor'}};
 export const revalidate=300;
 
 type Link={label:string;href?:string;size?:number};
