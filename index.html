@@ -11,14 +11,14 @@
       html, body { margin: 0; background: #07081a }
       #splash { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; display: grid; place-items: center;
         background: radial-gradient(900px 620px at 50% 42%, #1a1d52 0%, #0d0f2c 45%, #07081a 100%);
-        font-family: Inter, "Segoe UI", system-ui, sans-serif; color: #e8eaf2; -webkit-user-select: none; user-select: none; cursor: default;
+        font-family: Inter, "Segoe UI", system-ui, sans-serif; color: #edf5f5; -webkit-user-select: none; user-select: none; cursor: default;
         transition: opacity .55s ease, visibility .55s }
       #splash.done { opacity: 0; visibility: hidden; pointer-events: none }
 
       /* sky */
       #splash .sky { position: absolute; inset: 0; pointer-events: none }
       #splash .aurora { position: absolute; left: 50%; top: 58%; width: 760px; height: 300px; transform: translate(-50%, -50%);
-        background: radial-gradient(closest-side, #3ddc8424, transparent 70%); filter: blur(10px); animation: splash-breathe 5s ease-in-out infinite }
+        background: radial-gradient(closest-side, #68f4d11f, transparent 70%); filter: blur(10px); animation: splash-breathe 5s ease-in-out infinite }
       #splash .halo { position: absolute; left: 50%; top: 44%; width: 520px; height: 520px; transform: translate(-50%, -50%);
         background: radial-gradient(closest-side, #6d5cf62e, transparent 72%) }
 
@@ -32,21 +32,27 @@
       #splash .trail { stroke-dasharray: 46 400; animation: splash-trail 1.6s ease-out .2s both }
 
       #splash .word { display: flex; align-items: center; height: 72px; margin-top: -26px }
-      #splash .word span { display: inline-block; font-size: 56px; font-weight: 700; letter-spacing: -1.6px; color: #ffffff; opacity: 0;
+      #splash .word span { display: inline-block; font-size: 56px; font-weight: 700; letter-spacing: -1.6px; color: #edf5f5; opacity: 0;
         animation: splash-type .01s linear both }
       #splash .word .sp { width: .28em }
-      #splash .word .studio { color: #b9b0ff; font-weight: 600 }
-      #splash .caret { width: 5px; height: 54px; margin-left: 6px; border-radius: 3px; background: #3ddc84; box-shadow: 0 0 18px #3ddc8499;
+      /* "Studio" in the website's headline gradient (mint, cyan, lavender), spread across its six letters */
+      #splash .word .studio { color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff) 0 0 / 600% 100%; -webkit-background-clip: text; background-clip: text }
+      #splash .word .studio:nth-of-type(8) { background-position: 20% 0 } #splash .word .studio:nth-of-type(9) { background-position: 40% 0 }
+      #splash .word .studio:nth-of-type(10) { background-position: 60% 0 } #splash .word .studio:nth-of-type(11) { background-position: 80% 0 }
+      #splash .word .studio:nth-of-type(12) { background-position: 100% 0 }
+      #splash .caret { width: 5px; height: 54px; margin-left: 6px; border-radius: 3px; background: #68f4d1; box-shadow: 0 0 18px #68f4d199;
         animation: splash-caret 1s steps(1) infinite }
-      #splash .tagline { margin: -6px 0 0; font-size: 16px; letter-spacing: .2px; color: #9da3c2; opacity: 0; animation: splash-fade .6s ease 1.25s both }
+      #splash .tagline em { font-style: normal; font-weight: 600; color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff); -webkit-background-clip: text; background-clip: text }
+      #splash .tagline { margin: -6px 0 0; font-size: 17px; letter-spacing: .2px; color: #9aa7b4; opacity: 0; animation: splash-fade .6s ease 1.25s both }
 
       /* bottom */
       #splash .foot { position: absolute; left: 50%; bottom: 46px; width: min(460px, calc(100vw - 48px)); transform: translateX(-50%); display: grid; gap: 12px }
       #splash .bar { position: relative; height: 2px; overflow: hidden; border-radius: 2px; background: #ffffff12 }
       #splash .bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%; border-radius: 2px;
-        background: linear-gradient(90deg, transparent, #8f7dff, #3ddc84, transparent); animation: splash-load 1.2s ease-in-out infinite }
-      #splash .meta { display: flex; justify-content: space-between; font-size: 12px; color: #7d83a3 }
-      #splash .legal { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 11px; color: #4d5274; letter-spacing: .3px }
+        background: linear-gradient(90deg, transparent, #68f4d1, #4cdcf2, #9673ff, transparent); animation: splash-load 1.2s ease-in-out infinite }
+      #splash .meta { display: flex; justify-content: space-between; font: 500 11px "JetBrains Mono", Consolas, monospace; letter-spacing: .4px; color: #84919f }
+      #splash .meta #splash-status { color: #68f4d1cc }
+      #splash .legal { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 10px "JetBrains Mono", Consolas, monospace; color: #46515e; letter-spacing: 1.6px; text-transform: uppercase }
 
       @keyframes splash-rise { from { opacity: 0; transform: translateY(10px) } }
       @keyframes splash-arrive { 0% { opacity: 0; transform: translate(-90px, 26px) rotate(-8deg) } 70% { opacity: 1 } 100% { transform: none } }
@@ -122,7 +128,7 @@
             <span style="animation-delay: .55s">V</span><span style="animation-delay: .61s">e</span><span style="animation-delay: .67s">y</span><span style="animation-delay: .73s">r</span><span style="animation-delay: .79s">a</span><span class="sp" style="animation-delay: .85s">&nbsp;</span><span class="studio" style="animation-delay: .9s">S</span><span class="studio" style="animation-delay: .96s">t</span><span class="studio" style="animation-delay: 1.02s">u</span><span class="studio" style="animation-delay: 1.08s">d</span><span class="studio" style="animation-delay: 1.14s">i</span><span class="studio" style="animation-delay: 1.2s">o</span><i class="caret"></i>
           </div>
         </div>
-        <p class="tagline">The lightweight VS Code alternative</p>
+        <p class="tagline">The lightweight <em>VS Code alternative</em></p>
       </div>
 
       <div class="foot">

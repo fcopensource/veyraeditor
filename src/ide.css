@@ -772,3 +772,24 @@
   .app .welcome-main *, .app .welcome-caret { animation: none !important }
   .app .welcome-actions button:hover:not(:disabled) { transform: none }
 }
+
+/* Welcome text in the website's colours: mint eyebrow, gradient headline, mint cursor, mint/cyan/violet icons */
+.app .welcome-greeting {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid #68f4d12b; border-radius: 20px; background: #68f4d10a;
+  color: #68f4d1; font: 500 10.5px "JetBrains Mono", Consolas, monospace; letter-spacing: 2px; text-transform: uppercase;
+}
+.app .welcome-greeting i { width: 6px; height: 6px; border-radius: 50%; background: #68f4d1; box-shadow: 0 0 10px #68f4d1 }
+.app .welcome-hero h1 em { font-style: normal; color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff); -webkit-background-clip: text; background-clip: text; padding-left: .25em }
+.app .welcome-caret { background: #68f4d1; box-shadow: 0 0 12px #68f4d188 }
+.app:not(.light) .welcome-hero p { color: #9aa7b4 }
+.app:not(.light) .welcome-main {
+  background: radial-gradient(640px 380px at 50% 28%, #13233455, transparent 70%), radial-gradient(520px 260px at 50% 92%, #68f4d10f, transparent 70%);
+}
+.app .welcome-actions button:nth-child(1) > span { background: #68f4d11a; color: #68f4d1 }
+.app .welcome-actions button:nth-child(2) > span { background: #4cdcf21a; color: #4cdcf2 }
+.app .welcome-actions button:nth-child(3) > span { background: #9673ff1f; color: #b79bff }
+.app .welcome-actions button:hover > span { background: linear-gradient(120deg, #dffff7, #80efd5); color: #07100e }
+.app .welcome-actions button:hover:not(:disabled) { border-color: #68f4d14d; box-shadow: 0 14px 34px #0006, 0 0 0 1px #68f4d11f }
+.app.light .welcome-greeting { color: #0f8a6c; border-color: #0f8a6c33; background: #0f8a6c0d }
+.app.light .welcome-greeting i { background: #0f8a6c; box-shadow: none }
+.app.light .welcome-hero h1 em { background: linear-gradient(100deg, #0f9f7f, #1192b0, #6b4fd8); -webkit-background-clip: text; background-clip: text }
