@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Apple, ArrowRight, Braces, Check, Command, FolderGit2, Github, HeartPulse, KeyRound,
-  LockKeyhole, Monitor, Wrench, RefreshCw, Sparkles, Terminal, TerminalSquare, Zap,
+  ListTodo, LockKeyhole, Monitor, Search, Wrench, RefreshCw, Sparkles, Terminal, TerminalSquare, Zap,
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -23,14 +23,14 @@ const features = [
   { icon: Braces, title: "A serious editor", copy: "Monaco at the core: IntelliSense, multi-cursor editing, a built-in Python debugger and 80+ languages, wrapped in a native, lightweight shell." },
   { icon: FolderGit2, title: "Git you can see", copy: "Live gutter markers, file-tree badges and side-by-side diffs. Stage, commit, amend, switch branches, stash and sync in a click." },
   { icon: TerminalSquare, title: "A real terminal", copy: "PowerShell, zsh or bash on a native PTY, with multiple sessions and one-key \"run this file\", right beside your code." },
-  { icon: Sparkles, title: "AI with boundaries", copy: "Veyra AI is built in: sign in with a free account. You choose the context, and every edit is a diff you approve and can undo." },
+  { icon: Search, title: "Search Everywhere", copy: "Tap Shift twice to find any file or action. Ctrl+E jumps back to recent files, and Recent Projects reopen in one click." },
   { icon: Wrench, title: "Real IntelliSense", copy: "One-click TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue and Python: the language servers behind VS Code's favourite extensions." },
-  { icon: KeyRound, title: "Secrets stay out of AI", copy: "Veyra warns before sending files that look like secrets, and smart context never includes .env files, keys or gitignored files." },
+  { icon: ListTodo, title: "A TODO window", copy: "Every TODO, FIXME and HACK comment in your project, grouped by file and colour-coded. Click one to jump straight to it." },
   { icon: HeartPulse, title: "Self-diagnosing", copy: "A live health score watches responsiveness, memory, errors, Git and your toolchain, with a fix for every warning." },
   { icon: RefreshCw, title: "Always current", copy: "Signed automatic updates on every platform. A new version is one click away and never interrupts unsaved work." },
-  { icon: LockKeyhole, title: "Local by default", copy: "Your projects never leave your machine unless you send them. Atomic saves guard every file you touch." },
+  { icon: LockKeyhole, title: "Private by design", copy: "No AI, no telemetry, no tracking. Your code never leaves your machine, and atomic saves guard every file you touch." },
 ];
-const aiHighlights = ["Veyra AI", "Free account", "10 free requests", "No API key", "Ask · Edit · Explain"];
+const flowHighlights = ["Shift Shift", "Ctrl+E", "Recent Projects", "TODO window", "Command palette"];
 
 export default async function Home() {
   const release = await latestRelease();
@@ -58,7 +58,7 @@ export default async function Home() {
             <p>
               Veyra feels like VS Code (the same Monaco editor, the same shortcuts) but it&apos;s a native
               Rust app with no bundled browser, so it&apos;s light on memory and quick to open. Git, a real
-              terminal and Veyra AI are built in.
+              terminal and fast search are built in, with no AI and no tracking.
             </p>
             <div className="hero-actions">
               <DownloadCTA />
@@ -82,9 +82,9 @@ export default async function Home() {
           <p>
             <strong>Veyra</strong> (Veyra Studio) is a desktop code editor for <strong>Windows, macOS and Linux</strong>. It pairs
             the Monaco editor with a native Rust core, so it opens fast and its installers are small ({sizes.min && sizes.max ? `${sizes.min}–${sizes.max} MB` : "around 10 MB"} on Windows, macOS and Linux .deb/.rpm{sizes.appImage ? `; the self-contained AppImage is about ${sizes.appImage} MB` : ""}). Git, a real
-            terminal, project-wide IntelliSense and an <strong>AI assistant</strong> are built in. Sign in with a free Veyra account to use
-            Veyra AI, with no API key needed. Every AI change is a diff you approve, and your code
-            never leaves your computer unless you send it.
+            terminal, project-wide IntelliSense and Android Studio-style navigation (Search Everywhere, Recent Files and a TODO window)
+            are built in. Veyra is a pure code editor with <strong>no AI and no telemetry</strong>, so your code
+            never leaves your computer.
           </p>
           <div className="what-is-links">
             <Link href="/download">Download Veyra free</Link>
@@ -110,8 +110,8 @@ export default async function Home() {
             <div className="screen">
               <Image src="/editor.webp" fill sizes="(max-width: 900px) 96vw, 1100px" alt="The Veyra editor with explorer, code and terminal" />
             </div>
-            <div className="float-card left"><Zap size={16} /><span><b>Veyra AI built in</b><small>10 free requests, no API key</small></span></div>
-            <div className="float-card right"><Check size={16} /><span><b>All changes reviewed</b><small>You stay in control</small></span></div>
+            <div className="float-card left"><Zap size={16} /><span><b>Search Everywhere</b><small>Tap Shift twice</small></span></div>
+            <div className="float-card right"><Check size={16} /><span><b>Your code stays local</b><small>No AI, no telemetry</small></span></div>
             <div className="float-card bottom"><HeartPulse size={16} /><span><b>Health 98 / 100</b><small>Everything running smoothly</small></span></div>
           </div>
         </section>
@@ -156,31 +156,31 @@ export default async function Home() {
 
         <section id="ai" className="intelligence" data-reveal>
           <div>
-            <span>VEYRA INTELLIGENCE</span>
-            <h2>AI that works<br /><em>at your pace.</em></h2>
+            <span>NEW IN 0.11</span>
+            <h2>Find anything<br /><em>in a heartbeat.</em></h2>
             <p>
-              Ask questions across your workspace, understand unfamiliar code and turn intent into a
-              reviewable edit. Sign in with a free Veyra account and get 10 free requests, with no API key.
+              The navigation Android Studio users love, now in Veyra. Jump to any file or action, hop between
+              recent files, reopen projects in one click and keep track of every TODO in your code.
             </p>
             <ul>
-              <li><Check />Smart workspace context, and you see exactly what's sent</li>
-              <li><Check />Every edit is a diff you apply and can undo</li>
-              <li><Check />No API keys in the app, and secret-looking files are flagged before sending</li>
+              <li><Check />Search Everywhere: tap Shift twice for files and actions in one search</li>
+              <li><Check />Recent Files with Ctrl/⌘+E, and Recent Projects on the Welcome page</li>
+              <li><Check />A TODO window that lists every TODO, FIXME and HACK, grouped by file</li>
             </ul>
-            <div className="provider-cloud">{aiHighlights.map(name => <span key={name}>{name}</span>)}</div>
+            <div className="provider-cloud">{flowHighlights.map(name => <span key={name}>{name}</span>)}</div>
           </div>
           <div className="ai-demo">
-            <header><Sparkles size={15} />VEYRA AI <b>FREE</b></header>
-            <div className="bubble user">Make this parser handle empty input safely.</div>
-            <div className="bubble ai"><i /><p>I found the parsing boundary in <code>src/parser.ts</code>. I can add an early return and a focused test.</p><span>2 files in context</span></div>
+            <header><Search size={15} />SEARCH EVERYWHERE <b>⇧⇧</b></header>
+            <div className="bubble user">parser</div>
+            <div className="bubble ai"><i /><p><code>src/parser.ts</code> · <code>tests/parser.test.ts</code> · Format document</p><span>Files and actions, one search</span></div>
             <div className="diff">
-              <small>PROPOSED EDIT</small>
+              <small>TODO WINDOW · 3 ITEMS</small>
               <pre>
-                <del>- const tokens = scan(input);</del>{"\n"}
-                <ins>+ if (!input.trim()) return [];</ins>{"\n"}
-                <ins>+ const tokens = scan(input);</ins>
+                <ins>TODO  split the lexer into tokens.ts</ins>{"\n"}
+                <ins>FIXME handle empty input</ins>{"\n"}
+                <ins>HACK  retry twice on timeout</ins>
               </pre>
-              <footer><button>Discard</button><button>Apply edit</button></footer>
+              <footer><button>Recent files · Ctrl+E</button><button>Jump to TODO</button></footer>
             </div>
           </div>
         </section>
@@ -188,7 +188,7 @@ export default async function Home() {
         <section className="manifesto" data-reveal>
           <span>ONE WINDOW · EVERY IDEA</span>
           <h2>Stay inside the work.</h2>
-          <p>Files, terminal, source control, intelligent context and the final diff, arranged as one continuous instrument.</p>
+          <p>Files, search, terminal, source control and the final diff, arranged as one continuous instrument.</p>
           <div className="signal-line"><i /><i /><i /><i /><i /></div>
         </section>
 

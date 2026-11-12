@@ -30,7 +30,7 @@ export interface Product {
 export type Group = 'Write code' | 'Run and test' | 'Project' | 'Just for fun' | 'Apps and AI';
 
 export const APPS: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>[] = [
-  { href: '/download', icon: '/veyra-96.png', name: 'Veyra Studio', copy: 'The fast, free AI code editor' },
+  { href: '/download', icon: '/veyra-96.png', name: 'Veyra Studio', copy: 'The fast, free lightweight code editor' },
   { href: '/pdf', icon: '/veyra-96.png', name: 'Veyra PDF', copy: 'Edit, sign and merge PDFs offline', tag: 'New' },
   { href: '/salesforce-studio', icon: '/salesforce-studio-icon.png', name: 'Salesforce Studio', copy: 'LWC, Apex and Aura in your browser' },
 ];
@@ -95,12 +95,9 @@ export const EXTENSIONS: Product[] = [
     summary: 'Your Git history as a story to share: commits, lines written, your coding hours, longest streak, top languages and your coding personality. Save a card for X or LinkedIn.' }),
 ];
 
-/** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Veyra AI and Salesforce Studio. */
+/** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
 export const ORIGINALS: Product[] = [
   ...EXTENSIONS,
-  { href: '/docs#ai', icon: '/veyra-ai.svg', name: 'Veyra AI', title: 'Veyra AI', group: 'Apps and AI', order: 0, tone: 'ai', platform: 'Built into Veyra',
-    copy: 'Ask, explain and edit with AI', cta: 'Set up Veyra AI',
-    summary: 'Ask about your code, explain it, or edit with AI and review every change as a diff. Sign in with a free account: 10 free requests, no API key.' },
   { href: '/salesforce-studio', icon: '/salesforce-studio-icon.png', name: 'Salesforce Studio', title: 'Salesforce Studio', group: 'Apps and AI', order: 0.5, tone: 'salesforce', platform: 'For Chrome, Edge & Firefox',
     copy: 'LWC, Apex and Aura in your browser', cta: 'Explore Salesforce Studio',
     summary: 'Your org’s code, open in seconds. Edit LWC, Aura, Apex and Visualforce from any Salesforce tab, and save to your org with Ctrl+S.' },

@@ -7,26 +7,26 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'About Veyra: an Open-Source, Local-First Code Editor',
-  description:'Why Veyra exists: a fast, private, open-source code editor with AI you control. Our principles, how Veyra is built, and how to get in touch or contribute.',
+  description:'Why Veyra exists: a fast, private, open-source code editor with no AI and no tracking. Our principles, how Veyra is built, and how to get in touch or contribute.',
   alternates:{canonical:'/about'},
   openGraph:{images:[OG_IMAGE],url:'/about',title:'About Veyra'},
 };
 
 export default function About(){
   return <ContentPage path="/about" crumb="About" kicker="ABOUT" title="An editor that respects your work."
-    intro="Veyra started with a simple idea: a code editor should be fast, private and yours, and AI should help you without taking over.">
+    intro="Veyra started with a simple idea: a code editor should be fast, private and yours.">
 
     <section className="content-section split">
       <div>
         <span className="kicker">WHY VEYRA</span>
         <h2>Small, fast and in your hands.</h2>
-        <p>Modern editors have grown heavy, and AI tools increasingly decide what gets sent where. Veyra takes a different path: a native app that downloads in seconds, starts instantly, and treats your code as yours.</p>
+        <p>Modern editors have grown heavy, and more and more of them send your code to the cloud. Veyra takes a different path: a native app that downloads in seconds, starts instantly, and treats your code as yours.</p>
         <p>We build on proven open technology (the Monaco editor, the Language Server Protocol, Tauri and Rust) so developers get a familiar, reliable experience without the weight.</p>
       </div>
       <div className="visual" aria-hidden="true">
         <small>veyra · principles.md</small>
         <b>1.</b> Your code stays on your machine.<br/>
-        <b>2.</b> AI is optional, visible and reviewable.<br/>
+        <b>2.</b> No AI, no telemetry, no tracking.<br/>
         <b>3.</b> Fast to download, fast to open.<br/>
         <b>4.</b> Familiar for VS Code users.<br/>
         <b>5.</b> Open source, built in public.
@@ -37,7 +37,7 @@ export default function About(){
       <header><span>PRINCIPLES</span><h2>What we won&apos;t compromise on</h2></header>
       <div className="cards">
         <article className="card"><LockKeyhole/><h3>Privacy first</h3><p>No telemetry, no tracking, no account required. Your projects never touch our servers.</p></article>
-        <article className="card"><Eye/><h3>Transparent AI</h3><p>You choose the context, you see exactly what&apos;s sent, and every AI edit is a diff you approve.</p></article>
+        <article className="card"><Eye/><h3>Nothing hidden</h3><p>No AI and no telemetry: Veyra never sends your code anywhere, and every line of its source is on GitHub.</p></article>
         <article className="card"><Feather/><h3>Lightweight</h3><p>A Rust core and your system&apos;s web view keep Veyra around a tenth of the size of typical editors.</p></article>
       </div>
     </section>

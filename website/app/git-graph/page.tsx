@@ -108,6 +108,6 @@ export default function GitGraphPage(){
         <MoreExtensions current="/git-graph"/>
       </section>
 
-      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
+      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Search Everywhere built in."/>
     </div></main><Footer/></>;
 }

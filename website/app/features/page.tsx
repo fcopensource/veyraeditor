@@ -3,27 +3,27 @@ import {OG_IMAGE} from '@/lib/site';
 import Link from 'next/link';
 import {
   ArrowRight, Braces, Check, Command, FolderGit2, HeartPulse, KeyRound, LayoutPanelLeft, LockKeyhole,
-  Puzzle, RefreshCw, Search, Sparkles, TerminalSquare, Wrench,
+  History, ListTodo, Puzzle, RefreshCw, Search, Sparkles, TerminalSquare, Wrench,
 } from 'lucide-react';
 import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
-  title:'Features: Editor, IntelliSense, Git, Terminal & AI',
-  description:'Everything in Veyra, the free AI code editor: Monaco editing, IntelliSense, ESLint, Prettier, built-in Git, a real terminal, Veyra AI and Live Server.',
+  title:'Features: Editor, IntelliSense, Git, Terminal & Search',
+  description:'Everything in Veyra, the free lightweight code editor: Monaco editing, IntelliSense, ESLint, Prettier, built-in Git, a real terminal, Search Everywhere, a TODO window and Live Server.',
   alternates:{canonical:'/features'},
-  openGraph:{images:[OG_IMAGE],url:'/features',title:'Veyra features: a complete, local-first AI code editor'},
+  openGraph:{images:[OG_IMAGE],url:'/features',title:'Veyra features: a complete, local-first code editor'},
 };
 
 const Item=({children}:{children:React.ReactNode})=><li><Check/><span>{children}</span></li>;
 
 export default function Features(){
   return <ContentPage path="/features" crumb="Features" kicker="FEATURES" title="Everything you need. Nothing in the way."
-    intro="Veyra brings the editing power of VS Code, real language intelligence, Git, a terminal and AI into one fast native app that keeps your code on your machine.">
+    intro="Veyra brings the editing power of VS Code, real language intelligence, Git and a terminal into one fast native app that keeps your code on your machine.">
 
     <div className="stats">
       <div><b>7–11 MB</b><span>Windows, macOS, .deb/.rpm installers</span></div>
       <div><b>80+</b><span>languages highlighted</span></div>
-      <div><b>10</b><span>free Veyra AI requests with a free account</span></div>
+      <div><b>⇧⇧</b><span>Search Everywhere, like Android Studio</span></div>
       <div><b>0</b><span>telemetry or tracking</span></div>
     </div>
 
@@ -101,23 +101,15 @@ export default function Features(){
       <div className="cards">
         <article className="card"><FolderGit2/><h3>Git you can see</h3><p>Gutter markers, file badges and side-by-side diffs. Stage, commit, amend, switch branches, stash, pull and push in a click, with history at hand.</p></article>
         <article className="card"><TerminalSquare/><h3>A real terminal</h3><p>PowerShell, zsh or bash on a native PTY. Multiple sessions and one-key &quot;run this file&quot;, right beside your code.</p></article>
-        <article className="card"><Sparkles/><h3>AI with boundaries</h3><p>Ask, explain, and edit with <kbd>Ctrl</kbd>+<kbd>K</kbd> using Veyra AI. You choose the context, and every change is a diff you approve.</p></article>
+        <article className="card"><ListTodo/><h3>TODO window</h3><p>Every TODO, FIXME, HACK and BUG comment in your project, grouped by file and filterable by tag. Click one to jump straight to the line.</p></article>
         <article className="card"><RefreshCw/><h3>Live Server</h3><p>Go Live serves your folder and reloads the browser on save, with CSS applied instantly. Built in, and available for VS Code too.</p></article>
         <article className="card"><LayoutPanelLeft/><h3>Calm and smooth</h3><p>The sidebar and panels slide open and closed, and switching views eases in. If your system asks to reduce motion, Veyra stays still.</p></article>
-        <article className="card"><Search/><h3>Find anything</h3><p>Fuzzy file search, project-wide text search and a command palette that reaches every action and setting.</p></article>
+        <article className="card"><Search/><h3>Search Everywhere</h3><p>Tap <kbd>Shift</kbd> twice to search files and actions at once, plus project-wide text search and a command palette for every setting.</p></article>
         <article className="card"><Puzzle/><h3>Extensions</h3><p>Browse Open VSX with real icons and ratings. Every extension opens in its own tab with README, features, changelog and versions.</p></article>
         <article className="card"><HeartPulse/><h3>Self-diagnosing</h3><p>A live health score watches responsiveness, memory, errors, Git and your toolchain, and tells you how to fix each warning.</p></article>
-        <article className="card"><KeyRound/><h3>Secrets stay out of AI</h3><p>Veyra warns before sending files that look like secrets, and smart context never includes .env files, keys or gitignored files.</p></article>
+        <article className="card"><History/><h3>Recent Projects &amp; Files</h3><p>Reopen any project from the Welcome page in one click, and press <kbd>Ctrl</kbd>+<kbd>E</kbd> to hop between the files you opened.</p></article>
         <article className="card"><RefreshCw/><h3>Always current</h3><p>Signed automatic updates. When one is ready, the button in the top-right corner lights up: one click, and you're on the new version.</p></article>
-        <article className="card"><LockKeyhole/><h3>Local by default</h3><p>Your projects never leave your machine unless you send them to Veyra AI. No telemetry, ever.</p></article>
-      </div>
-    </section>
-
-    <section className="content-section">
-      <header><img src="/veyra-ai.svg" width={56} height={56} alt="Veyra AI" style={{display:'block',marginBottom:14,filter:'drop-shadow(0 6px 16px #7d8cf033)'}}/><span>AI</span><h2>AI that works the moment you sign in.</h2><p><strong>Veyra AI</strong> is built in: sign in with your free Veyra account and start asking, with no API key. Every account gets 10 free Veyra AI requests, and a request that fails isn&apos;t counted.</p></header>
-      <div className="cards two">
-        <article className="card"><Command/><h3>Review every change</h3><ul><li><Check/>AI edits arrive as a diff you accept or reject</li><li><Check/>Stale proposals can never overwrite newer edits</li><li><Check/>Undo works exactly as you expect</li></ul></article>
-        <article className="card"><Braces/><h3>Context you can see</h3><ul><li><Check/>Smart workspace context finds relevant files</li><li><Check/>Veyra shows exactly what will be sent</li><li><Check/>Code is sent only when you send a message, and only what you attach</li></ul></article>
+        <article className="card"><LockKeyhole/><h3>Local by default</h3><p>Your projects never leave your machine. No AI, no telemetry, ever.</p></article>
       </div>
     </section>
 

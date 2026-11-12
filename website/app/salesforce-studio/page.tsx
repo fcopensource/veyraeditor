@@ -138,6 +138,6 @@ export default async function SalesforceStudioPage(){
         <p className="sfs-legal">Salesforce Studio is a product of Veyra / Flightcoders, free to use under its <a href={`${GITHUB}/blob/main/LICENSE`}>License Agreement</a> and <Link href="/salesforce-studio/privacy">Privacy Policy</Link>. It is not affiliated with or endorsed by Salesforce, Inc. Salesforce, Lightning and Visualforce are trademarks of Salesforce, Inc.</p>
       </section>
 
-      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Veyra AI built in."/>
+      <ClosingCTA title="Made by the Veyra team." copy="Veyra Studio is a fast, free code editor with Live Server, Python debugging and Search Everywhere built in."/>
     </div></main><Footer/></>;
 }

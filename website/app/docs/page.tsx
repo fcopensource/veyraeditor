@@ -7,14 +7,14 @@ import {GITHUB_URL} from '@/lib/site';
 
 export const metadata:Metadata={
   title:'Documentation: Getting Started with Veyra',
-  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the shortcuts, set up language tools and Veyra AI, and fix common problems.',
+  description:'Install Veyra on Windows, macOS or Linux, open your first project, learn the shortcuts, set up language tools, and fix common problems.',
   alternates:{canonical:'/docs'},
   openGraph:{images:[OG_IMAGE],url:'/docs',title:'Veyra documentation: getting started'},
 };
 
 const SECTIONS=[
   ['install','Install'],['first-project','Your first project'],['shortcuts','Keyboard shortcuts'],['language-tools','Language tools'],['debugging','Debugging'],['live-server','Live Server'],
-  ['ai','Set up Veyra AI'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
+  ['navigate','Find anything'],['git','Git'],['extensions','Extensions & themes'],['updates','Updates'],['troubleshooting','Troubleshooting'],['source','Build from source'],
 ] as const;
 
 const SHORTCUTS:[string,string,string][]=[
@@ -22,7 +22,7 @@ const SHORTCUTS:[string,string,string][]=[
   ['Find / replace in file','Ctrl+F / Ctrl+Alt+F','⌘F / ⌥⌘F'],['Search in all files','Ctrl+Shift+F','⇧⌘F'],['Go to line','Ctrl+G','⌃G'],
   ['Go to symbol','Ctrl+Shift+O','⇧⌘O'],['Format document','Shift+Alt+F','⇧⌥F'],['Toggle word wrap','Alt+Z','⌥Z'],
   ['Toggle sidebar','Ctrl+B','⌘B'],['Open terminal / new terminal','Ctrl+` / Ctrl+Shift+`','⌃` / ⌃⇧`'],['Source control','Ctrl+Shift+G','⌃⇧G'],
-  ['AI assistant','Ctrl+L','⌘L'],['Edit selection with AI','Ctrl+K','⌘K'],['Open folder / new file','Ctrl+O / Ctrl+N','⌘O / ⌘N'],['Settings','Ctrl+,','⌘,'],
+  ['Search Everywhere','Shift Shift','⇧⇧'],['Recent files','Ctrl+E','⌘E'],['Open folder / new file','Ctrl+O / Ctrl+N','⌘O / ⌘N'],['Settings','Ctrl+,','⌘,'],
 ];
 
 const Note=({warn,children}:{warn?:boolean;children:React.ReactNode})=><div className={'callout'+(warn?' warn':'')}>{warn?<TriangleAlert/>:<Info/>}<p>{children}</p></div>;
@@ -102,20 +102,14 @@ export default function Docs(){
           <Note>Live Server uses port <strong>5500</strong>, or the next free port. It only accepts connections from your own computer. Using VS Code too? Install <strong>Veyra Live Server</strong> from the <a href="https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server">Visual Studio Marketplace</a>, or search for it in VS Code&apos;s Extensions view. More on the <Link href="/live-server">Veyra Live Server page</Link>.</Note>
         </section>
 
-        <section id="ai"><h2>Set up Veyra AI</h2>
-          <p>AI is optional. Veyra&apos;s assistant uses <strong>Veyra AI</strong>, and all you need is a free Veyra account. There&apos;s no API key to paste.</p>
-          <ol>
-            <li><Link href="/register">Create a free Veyra account</Link> (or use the one you have).</li>
-            <li>In Veyra, open the AI panel with the <strong>Veyra AI</strong> button in the top bar or <kbd>Ctrl</kbd>+<kbd>L</kbd> (<kbd>⌘L</kbd> on macOS) and sign in with your email and password.</li>
-            <li>Start asking. Every account gets <strong>10 free Veyra AI requests in total</strong>, and the panel shows how many you have left. A request that fails isn&apos;t counted.</li>
-          </ol>
-          <h3>What you can do</h3>
+        <section id="navigate"><h2>Find anything</h2>
+          <p>Veyra brings Android Studio-style navigation to a lightweight editor.</p>
           <ul>
-            <li><strong>Ask</strong> about your code. Attach the current file, a selection or smart workspace context, and Veyra shows exactly which files are included.</li>
-            <li><strong>Edit with AI</strong> (<kbd>Ctrl</kbd>+<kbd>K</kbd>): describe a change and review it as a diff before it&apos;s applied. Applied edits can be undone.</li>
-            <li><strong>Explain</strong> the selected code in plain language.</li>
+            <li><strong>Search Everywhere</strong>: tap <kbd>Shift</kbd> twice to search files and actions in one place. Typing a capital letter never triggers it.</li>
+            <li><strong>Recent files</strong>: <kbd>Ctrl</kbd>+<kbd>E</kbd> (<kbd>⌘E</kbd> on macOS) lists the files you opened in this project, newest first.</li>
+            <li><strong>Recent projects</strong>: the Welcome page remembers the projects you open. Click one to reopen it without a folder dialog, or hover and click ✕ to remove it.</li>
+            <li><strong>TODO window</strong>: open the bottom panel and choose <strong>TODO</strong>, or run <em>Show TODO</em> from the command palette. It lists every TODO, FIXME, HACK, XXX and BUG comment, grouped by file; click one to jump to it.</li>
           </ul>
-          <Note>Your code is sent to Veyra AI only when you send a message, and only what you attach. Veyra warns before sending files that look like secrets, and smart context never includes <code>.env</code> files, keys or gitignored files. Sign out anytime from the AI panel.</Note>
         </section>
 
         <section id="git"><h2>Git</h2>
