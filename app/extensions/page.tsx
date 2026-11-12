@@ -68,7 +68,7 @@ export default function Extensions(){
 
       {/* Veyra originals: searchable, grouped and paged, built from lib/products.ts */}
       <section className="ext-section" id="made-by-veyra">
-        <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2><p>{EXTENSIONS.length} free extensions for VS Code, plus Veyra AI and Salesforce Studio. Search them, or pick a group.</p></header>
+        <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2><p>{EXTENSIONS.length} free extensions for VS Code, plus Salesforce Studio. Search them, or pick a group.</p></header>
         <OriginalsBrowser/>
       </section>
 

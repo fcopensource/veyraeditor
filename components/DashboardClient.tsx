@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';
 import {
   ArrowRight,BookOpen,Check,ChevronDown,Download,FolderOpen,KeyRound,Laptop,LoaderCircle,LogOut,Monitor,Pencil,Puzzle,
-  ShieldCheck,Sparkles,Trash2,UserRound,X,
+  Search,ShieldCheck,Sparkles,Trash2,UserRound,X,
 } from 'lucide-react';
 import {Markdown} from '@/components/Markdown';
 
@@ -94,12 +94,11 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
   const {user,ai,devices}=data;
   const first=user.name.trim().split(/\s+/)[0]||'there';
   const days=user.createdAt?Math.max(1,Math.ceil((Date.now()-new Date(user.createdAt).getTime())/86400000)):1;
-  const aiPercent=ai.limit?Math.min(100,Math.round(ai.used/ai.limit*100)):0;
   const steps=[
     {done:devices.length>0||ai.used>0,title:'Download and install Veyra',detail:'Native on Windows, macOS and Linux. It updates itself.',href:'/download',icon:Download},
     {done:devices.length>0,title:'Open a project',detail:'Ctrl+O (⌘O) opens any folder on your computer.',href:'/docs#first-project',icon:FolderOpen},
     {done:false,title:'Turn on language tools',detail:'Extensions → Built-in web tools: TypeScript, ESLint, Prettier…',href:'/extensions',icon:Puzzle},
-    {done:devices.length>0,title:'Sign in to Veyra AI',detail:'AI panel → Veyra AI → sign in with this account.',href:'/docs#ai',icon:Sparkles},
+    {done:false,title:'Find anything',detail:'Tap Shift twice for Search Everywhere, Ctrl+E for recent files.',href:'/docs#navigate',icon:Search},
   ];
   const doneCount=steps.filter(s=>s.done).length;
   const welcome=params.get('welcome')?'Your account is ready. Let\'s get you set up.':params.get('password')?'Your new password is saved.':'';
@@ -125,23 +124,13 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
 
     {/* At a glance */}
     <section className="account-stats" aria-label="At a glance">
-      <div><Sparkles size={16}/><b>{ai.available?`${ai.used}/${ai.limit}`:'—'}</b><span>Veyra AI requests used</span></div>
+      <div><ShieldCheck size={16}/><b>0</b><span>AI, ads or trackers</span></div>
       <div><Laptop size={16}/><b>{devices.length}</b><span>Device{devices.length===1?'':'s'} signed in</span></div>
       <div><UserRound size={16}/><b>{days}</b><span>Day{days===1?'':'s'} with Veyra</span></div>
       <div><Monitor size={16}/><b>{version?`v${version}`:'—'}</b><span>Latest{publishedAt?` · ${date(publishedAt)}`:''}</span></div>
     </section>
 
     <div className="account-grid">
-      {/* Veyra AI */}
-      <section className="account-card ai-card">
-        <header><span className="account-card-icon violet"><img src="/veyra-ai.svg" width={22} height={22} alt=""/></span><div><h2>Veyra AI</h2><p>Chat about your code in Veyra, no API key needed.</p></div></header>
-        {ai.available?<>
-          <div className="usage-ring" style={{['--p' as string]:aiPercent}}><div><b>{Math.max(0,ai.limit-ai.used)}</b><span>free left</span></div></div>
-          <p className="account-fine">{ai.used} of {ai.limit} free requests used{ai.tokens?` · ${ai.tokens.toLocaleString()} tokens`:''}</p>
-        </>:<p className="account-fine">Veyra AI is being switched on. You'll see your free requests here.</p>}
-        <ol className="account-howto"><li>Open Veyra and click <b>Veyra AI</b> (top right)</li><li>Sign in with <b>{user.email}</b></li><li>Ask anything about your code</li></ol>
-      </section>
-
       {/* Get started */}
       <section className="account-card">
         <header><span className="account-card-icon mint"><BookOpen size={17}/></span><div><h2>Get started</h2><p>{doneCount} of {steps.length} done</p></div></header>
@@ -197,7 +186,7 @@ export function DashboardClient({version,publishedAt,downloads,notes}:{version:s
     <section className={'account-danger'+(danger?' open':'')}>
       <button className="danger-toggle" aria-expanded={danger} onClick={()=>setDanger(v=>!v)}><Trash2 size={14}/>Delete account<ChevronDown size={14}/></button>
       {danger&&<form className="auth-form delete-form" onSubmit={deleteAccount}>
-        <p>Permanently removes your account, signs out every device and stops Veyra AI. Veyra on your computer keeps working. This can't be undone.</p>
+        <p>Permanently removes your account, signs out every device. Veyra on your computer keeps working. This can't be undone.</p>
         <label>Confirm with your password<input type="password" required autoComplete="current-password" value={deletePassword} onChange={event=>setDeletePassword(event.target.value)}/></label>
         {deleteError&&<p className="form-error" role="alert">{deleteError}</p>}
         <div><button type="button" className="secondary" onClick={()=>{setDanger(false);setDeletePassword('');setDeleteError('');}}>Cancel</button><button className="danger-button">Delete my account</button></div>

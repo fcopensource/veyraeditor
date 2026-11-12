@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, FileCode2, GitBranch, HeartPulse, Play, Sparkles, TerminalSquare } from "lucide-react";
 
 /* A scripted, three-act tour of Veyra: write with autocomplete,
-   review an AI edit as a diff, then run the tests in the terminal. */
+   review your change as a Git diff, then run the tests in the terminal. */
 
 type Step =
   | { kind: "type"; text: string }
@@ -39,7 +39,7 @@ const TERMINAL = [
 ];
 const ACTS = [
   { id: "write", label: "Write", icon: FileCode2, blurb: "Autocomplete and IntelliSense as you type" },
-  { id: "review", label: "Review", icon: Sparkles, blurb: "Every AI edit arrives as a diff you approve" },
+  { id: "review", label: "Review", icon: GitBranch, blurb: "See every change as a Git diff before you commit" },
   { id: "run", label: "Run", icon: TerminalSquare, blurb: "A real terminal, right beside your code" },
 ] as const;
 
@@ -125,7 +125,7 @@ export function LiveIDE() {
       <div className="live-copy">
         <span>// SEE IT WORK</span>
         <h2>From idea to <em>shipped</em>,<br />in one window.</h2>
-        <p>Write with intelligent completions, review every AI change as a diff, and run your tests, all without leaving Veyra.</p>
+        <p>Write with intelligent completions, review every change as a diff, and run your tests, all without leaving Veyra.</p>
         <div className="act-list" role="tablist" aria-label="Veyra workflow demo">
           {ACTS.map((item, index) => {
             const ActIcon = item.icon;
@@ -143,7 +143,7 @@ export function LiveIDE() {
       <div className="ide-window">
         <header>
           <div className="dots"><i /><i /><i /></div>
-          <span><Icon size={13} /> {act === 0 ? "src / parser.ts" : act === 1 ? "Review AI edit · parser.ts" : "Terminal · pwsh"}</span>
+          <span><Icon size={13} /> {act === 0 ? "src / parser.ts" : act === 1 ? "Source control · parser.ts" : "Terminal · pwsh"}</span>
           <b className="health"><HeartPulse size={12} /> 98</b>
         </header>
         <div className="ide-body">
@@ -167,12 +167,12 @@ export function LiveIDE() {
           )}
           {act === 1 && (
             <div className="ide-review">
-              <div className="ai-bubble"><Sparkles size={14} /><p>Empty input crashed the lexer. I trim the input and return early. Here is the change:</p></div>
+              <div className="ai-bubble"><GitBranch size={14} /><p>1 file changed: empty input no longer crashes the lexer. Review the diff, then stage and commit.</p></div>
               <pre className="review-diff">
                 {DIFF.slice(0, diffShown).map((line, i) => <div key={i} className={line.tone}><b>{line.tone === "add" ? "+" : line.tone === "del" ? "−" : " "}</b>{highlight(line.text)}</div>)}
               </pre>
               <div className={"review-actions" + (applied ? " applied" : "")}>
-                {applied ? <><Check size={14} />Applied to the buffer · Ctrl/⌘Z to undo</> : <><button>Discard</button><button className={diffShown === DIFF.length ? "pulse" : ""}>Apply edit</button></>}
+                {applied ? <><Check size={14} />Committed to main · ready to push</> : <><button>Discard</button><button className={diffShown === DIFF.length ? "pulse" : ""}>Stage & commit</button></>}
               </div>
             </div>
           )}
@@ -184,7 +184,7 @@ export function LiveIDE() {
           )}
         </div>
         <div className="ide-status">
-          <span><GitBranch size={12} /> main {act === 0 ? "· 1 modified" : act === 1 ? "· AI edit pending" : "↑1"}</span>
+          <span><GitBranch size={12} /> main {act === 0 ? "· 1 modified" : act === 1 ? "· 1 change to commit" : "↑1"}</span>
           <span>{act === 2 && terminal === TERMINAL.length ? <><Check size={12} /> 42 tests passed</> : act === 0 ? <><Sparkles size={12} /> IntelliSense</> : <><Play size={12} /> Ready</>}</span>
           <span>TypeScript · UTF-8</span>
         </div>

@@ -16,7 +16,7 @@ const mono=DM_Mono({subsets:['latin'],weight:['400','500'],variable:'--font-mono
 
 export const metadata:Metadata={
   metadataBase:new URL(SITE_URL),
-  title:{default:`Veyra: Lightweight VS Code Alternative, Free AI Code Editor`,template:'%s | Veyra'},
+  title:{default:`Veyra: Lightweight VS Code Alternative, Free Code Editor`,template:'%s | Veyra'},
   description:DESCRIPTION,
   applicationName:PRODUCT_NAME,
   keywords:KEYWORDS,
@@ -48,7 +48,7 @@ export default async function RootLayout({children}:{children:React.ReactNode}){
         downloadUrl:absolute('/download'),installUrl:MS_STORE_URL,releaseNotes:absolute('/changelog'),
         image:absolute('/opengraph-image'),screenshot:absolute('/editor.png'),license:'https://opensource.org/licenses/MIT',isAccessibleForFree:true,
         offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@id':absolute('/#organization')},
-        featureList:['Veyra AI assistant with reviewable AI edits','Project-wide IntelliSense','Built-in Git with diffs and branches','Integrated terminal','Signed automatic updates']},
+        featureList:['Search Everywhere, Recent Files and a TODO window','Project-wide IntelliSense','Built-in Git with diffs and branches','Integrated terminal','Signed automatic updates']},
     ],
   };
   return <html lang="en" className={`${sans.variable} ${mono.variable}`}>
