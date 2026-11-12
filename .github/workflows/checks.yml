@@ -26,8 +26,30 @@ permissions:
   contents: read
 
 jobs:
+  # Works out what this push or pull request touched, so only the affected checks run
+  # (scripts/changed-checks.mjs). A change to the checks themselves, or a run by hand, runs everything.
+  changes:
+    name: What changed
+    runs-on: ubuntu-22.04
+    outputs:
+      app: ${{ steps.plan.outputs.app }}
+      extensions: ${{ steps.plan.outputs.extensions }}
+      docker: ${{ steps.plan.outputs.docker }}
+      mongodb: ${{ steps.plan.outputs.mongodb }}
+      port-manager: ${{ steps.plan.outputs.port-manager }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: plan
+        run: node scripts/changed-checks.mjs
+        env:
+          APP_ONLY: ${{ inputs.app-only }}
+
   frontend:
     name: Frontend (TypeScript, build, Playwright)
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -53,6 +75,8 @@ jobs:
 
   rust:
     name: Rust (tests, clippy)
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -75,26 +99,14 @@ jobs:
 
   vscode-extension:
     name: VS Code extension (${{ matrix.name }})
-    if: ${{ !inputs.app-only }}
+    needs: changes
+    if: ${{ !inputs.app-only && needs.changes.outputs.extensions != '[]' }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { dir: live-server, name: Live Server }
-          - { dir: port-manager, name: Port Manager }
-          - { dir: env, name: Env }
-          - { dir: path-intellisense, name: Path IntelliSense }
-          - { dir: document-viewer, name: Document Viewer }
-          - { dir: git-graph, name: Git Graph }
-          - { dir: error-lens, name: Error Lens }
-          - { dir: todo-tree, name: Todo Tree }
-          - { dir: auto-rename-tag, name: Auto Rename Tag }
-          - { dir: pets, name: Pets }
-          - { dir: codesnap, name: CodeSnap }
-          - { dir: code-guard, name: Code Guard }
-          - { dir: wrapped, name: Wrapped }
-          - { dir: rewind, name: Rewind }
+        # Only the extensions this change touched (the full list is in scripts/changed-checks.mjs).
+        include: ${{ fromJSON(needs.changes.outputs.extensions) }}
     defaults:
       run:
         working-directory: extensions/${{ matrix.dir }}
@@ -123,7 +135,8 @@ jobs:
   # Port Manager reads ports differently on each system (PowerShell/netstat, lsof, ss): test it on all of them.
   port-manager-platforms:
     name: Port Manager on ${{ matrix.os }}
-    if: ${{ !inputs.app-only }}
+    needs: changes
+    if: ${{ !inputs.app-only && needs.changes.outputs.port-manager == 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -146,7 +159,8 @@ jobs:
   # Container Studio drives a real Docker engine here: containers, Compose, logs, errors, builds and cleanup.
   docker-extension:
     name: Container Studio with real Docker
-    if: ${{ !inputs.app-only }}
+    needs: changes
+    if: ${{ !inputs.app-only && needs.changes.outputs.docker == 'true' }}
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -182,7 +196,8 @@ jobs:
   # Query Lens drives a real MongoDB server: explain plans, index suggestions that fix the scan, Index Doctor and schema drift.
   mongodb-extension:
     name: Query Lens with real MongoDB
-    if: ${{ !inputs.app-only }}
+    needs: changes
+    if: ${{ !inputs.app-only && needs.changes.outputs.mongodb == 'true' }}
     runs-on: ubuntu-24.04
     services:
       mongodb:
@@ -223,6 +238,8 @@ jobs:
 
   dependencies:
     name: Dependency advisories
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
