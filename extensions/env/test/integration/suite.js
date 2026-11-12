@@ -12,6 +12,13 @@ async function until(check, what, ms = 30000) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 const step = name => console.log(`[suite] ${name}`);
+/** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+async function ask(command, ...args) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await vscode.commands.executeCommand(command, ...args); }
+    catch (error) { if (attempt >= 5 || !/Canceled/i.test(String(error && (error.message || error)))) throw error; await wait(300 * attempt); }
+  }
+}
 const ours = uri => vscode.languages.getDiagnostics(uri).filter(d => d.source === "Veyra Env");
 const codes = uri => ours(uri).map(d => d.code);
 
@@ -40,7 +47,7 @@ async function steps() {
   step("Quick fix: remove the spaces around =");
   const envDoc = await vscode.workspace.openTextDocument(env);
   const spaces = ours(env).find(d => d.code === "spaces");
-  let actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", env, spaces.range);
+  let actions = await ask("vscode.executeCodeActionProvider", env, spaces.range);
   await vscode.workspace.applyEdit(actions.find(a => a.title.startsWith("Remove the spaces")).edit);
   assert.equal(envDoc.lineAt(4).text, "API_KEY=abc123");
   await envDoc.save();
@@ -50,11 +57,11 @@ async function steps() {
   await vscode.workspace.openTextDocument(staging);
   await until(() => codes(staging).includes("committed"), "the committed error");
   assert.equal(ours(staging).find(d => d.code === "committed").severity, vscode.DiagnosticSeverity.Error);
-  actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", staging, ours(staging)[0].range);
+  actions = await ask("vscode.executeCodeActionProvider", staging, ours(staging)[0].range);
   assert.ok(actions.some(a => a.title === "Stop tracking .env.staging in git and ignore it"));
 
   step("Add .env to .gitignore");
-  actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", env, ours(env).find(d => d.code === "not-ignored").range);
+  actions = await ask("vscode.executeCodeActionProvider", env, ours(env).find(d => d.code === "not-ignored").range);
   const add = actions.find(a => a.title === "Add .env to .gitignore");
   await vscode.commands.executeCommand(add.command.command, ...add.command.arguments);
   assert.match(fs.readFileSync(path.join(folder, ".gitignore"), "utf8"), /^node_modules\n\n?# Env files with secrets \(Veyra Env\)\n\.env\n$/);
@@ -75,7 +82,7 @@ async function steps() {
 
   step("Quick fix: add the missing variable to .env");
   const missing = appDiags.find(d => app.getText(d.range) === "MISSING_ONE");
-  actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", app.uri, missing.range);
+  actions = await ask("vscode.executeCodeActionProvider", app.uri, missing.range);
   const addVar = actions.find(a => a.title === "Add MISSING_ONE to .env");
   assert.ok(addVar, `actions: ${actions.map(a => a.title)}`);
   await vscode.commands.executeCommand(addVar.command.command, ...addVar.command.arguments);
@@ -83,7 +90,7 @@ async function steps() {
   await until(() => !ours(app.uri).some(d => app.getText(d.range) === "MISSING_ONE"), "the warning to go");
 
   step("Autocomplete after process.env., with secret values hidden");
-  const list = await vscode.commands.executeCommand("vscode.executeCompletionItemProvider", app.uri, new vscode.Position(4, 25));
+  const list = await ask("vscode.executeCompletionItemProvider", app.uri, new vscode.Position(4, 25));
   const labels = list.items.map(i => (typeof i.label === "string" ? i.label : i.label.label));
   for (const k of ["DATABASE_URL", "STRIPE_SECRET_KEY", "PORT", "OLD_ONLY"]) assert.ok(labels.includes(k), `suggests ${k}: ${labels}`);
   const stripe = list.items.find(i => i.label.label === "STRIPE_SECRET_KEY");
@@ -91,11 +98,11 @@ async function steps() {
   assert.equal(list.items.find(i => i.label.label === "PORT").detail, "3000", "plain values are shown");
 
   step("Hover and Go to Definition");
-  const hovers = await vscode.commands.executeCommand("vscode.executeHoverProvider", app.uri, new vscode.Position(0, 26));
+  const hovers = await ask("vscode.executeHoverProvider", app.uri, new vscode.Position(0, 26));
   const hoverText = hovers.flatMap(h => h.contents.map(c => (typeof c === "string" ? c : c.value))).join("\n");
   assert.match(hoverText, /\*\*DATABASE_URL\*\*/);
   assert.ok(!hoverText.includes("s3cret"), "the password is not shown in the hover");
-  const defs = await vscode.commands.executeCommand("vscode.executeDefinitionProvider", app.uri, new vscode.Position(0, 26));
+  const defs = await ask("vscode.executeDefinitionProvider", app.uri, new vscode.Position(0, 26));
   assert.equal(defs.length, 1);
   assert.equal(path.basename((defs[0].uri ?? defs[0].targetUri).fsPath), ".env");
   assert.equal((defs[0].range ?? defs[0].targetRange).start.line, 1);
@@ -126,7 +133,7 @@ async function steps() {
 
   step("Ignoring a variable that is set elsewhere");
   const pyMissing = ours(py.uri)[0];
-  actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", py.uri, pyMissing.range);
+  actions = await ask("vscode.executeCodeActionProvider", py.uri, pyMissing.range);
   const ignore = actions.find(a => a.title.startsWith("Never report PY_MISSING"));
   await vscode.commands.executeCommand(ignore.command.command, ...ignore.command.arguments);
   await until(() => !ours(py.uri).length, "PY_MISSING to stop being reported");

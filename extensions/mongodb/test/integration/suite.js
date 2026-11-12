@@ -11,7 +11,14 @@ async function until(check, what, ms = 60000) {
   throw new Error(`Timed out waiting for ${what}`);
 }
 const step = name => console.log(`[suite] ${name}`);
-const titles = async uri => ((await vscode.commands.executeCommand("vscode.executeCodeLensProvider", uri, 50)) ?? []).map(l => l.command?.title ?? "");
+/** Asks a language feature (quick fixes, completions…). VS Code cancels these when the editor is busy, so a cancelled request is asked again. */
+async function ask(command, ...args) {
+  for (let attempt = 1; ; attempt++) {
+    try { return await vscode.commands.executeCommand(command, ...args); }
+    catch (error) { if (attempt >= 5 || !/Canceled/i.test(String(error && (error.message || error)))) throw error; await wait(300 * attempt); }
+  }
+}
+const titles = async uri => ((await ask("vscode.executeCodeLensProvider", uri, 50)) ?? []).map(l => l.command?.title ?? "");
 const tabs = () => vscode.window.tabGroups.all.flatMap(g => g.tabs).map(t => t.label);
 
 exports.run = async function run() {
@@ -65,7 +72,7 @@ async function steps() {
   step("The slow query is in Problems, with quick fixes");
   const diag = await until(() => vscode.languages.getDiagnostics(orders).find(d => d.code === "slow-query"), "the slow-query problem");
   assert.equal(diag.range.start.line, 2);
-  const actions = await vscode.commands.executeCommand("vscode.executeCodeActionProvider", orders, diag.range);
+  const actions = await ask("vscode.executeCodeActionProvider", orders, diag.range);
   assert.ok(actions.some(a => a.title === "Create index { customerId: 1, createdAt: -1 } on orders"), actions.map(a => a.title).join(" | "));
   assert.ok(actions.some(a => a.title === "Copy the index as code"));
 
