@@ -11,6 +11,7 @@ import { LiveIDE } from "@/components/LiveIDE";
 import { DownloadCTA } from "@/components/DownloadCTA";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ScrollBird } from "@/components/ScrollBird";
+import "./flightcoders/flightcoders.css";
 import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
@@ -257,6 +258,15 @@ export default async function Home() {
             <DownloadCTA />
             <a className="secondary" href="https://github.com/fcopensource/veyraeditor"><Github size={16} />View source</a>
           </div>
+        </section>
+
+        <section className="fc-band" data-reveal aria-labelledby="hire-title">
+          <div>
+            <span>FLIGHTCODERS · WORK WITH US</span>
+            <h2 id="hire-title">Need a developer tool, app or extension built?</h2>
+            <p>The team behind Veyra builds VS Code extensions, desktop apps, browser extensions and web apps for you.</p>
+          </div>
+          <Link className="fc-primary" href="/flightcoders#start">Start a project <ArrowRight size={16} /></Link>
         </section>
       </main>
       <Footer />

@@ -16,7 +16,7 @@ import './extensions.css';
 
 export const metadata:Metadata={
   title:'Extensions: Live Server, ESLint, Prettier & More',
-  description:`${EXTENSIONS.length} free Veyra extensions for VS Code, including ${[...EXTENSIONS].sort((a,b)=>b.order-a.order).slice(0,6).map(p=>p.title).join(', ')}, plus ESLint, Prettier, Tailwind and Python built into Veyra Studio.`,
+  description:'Free VS Code extensions by Veyra: Live Server, Rewind local history, Error Lens, Git Graph, Docker, MongoDB and more. Fast, private and open source.',
   alternates:{canonical:'/extensions'},
   openGraph:{images:[OG_IMAGE],url:'/extensions',title:'Veyra extensions: your favourite tools, built in'},
 };

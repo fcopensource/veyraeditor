@@ -6,7 +6,7 @@ import {ContentPage} from '@/components/ContentPage';
 import {allPosts,formatDate} from '@/lib/blog';
 
 export const metadata:Metadata={
-  title:'Blog: Guides, AI Coding and Engineering',
+  title:'Blog: VS Code Guides, Tips and Engineering',
   description:'Guides, product news and engineering notes from the Veyra team: switching from VS Code, TypeScript setup, privacy and how Veyra is built.',
   alternates:{canonical:'/blog',types:{'application/rss+xml':'/blog/rss.xml'}},
   openGraph:{images:[OG_IMAGE],url:'/blog',title:'The Veyra blog'},
