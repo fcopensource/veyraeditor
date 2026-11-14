@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/rewind/media/readme/changes.png" alt="The Rewind panel for cart.js: a timeline with five snapshots and a checkpoint named Before tax support, and the lines that were there two hours ago and are gone now in red, with the lines added since in green" width="100%">
+  <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/rewind/media/readme/demo.gif" alt="Rewind in action: scrubbing back through a file's history finds a deleted function in red, shows the whole file as it was, then Play replays the file's story to now" width="100%">
 </p>
 
 # Veyra Rewind: Time Travel for Your Code

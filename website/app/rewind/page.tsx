@@ -68,7 +68,7 @@ export default function RewindPage(){
         <p className="live-micro"><Installs id={EXT.id}/>{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
       </section>
 
-      <section className="pm-shot"><img src="/rewind-changes.png" alt="The Rewind panel for cart.js: a timeline with a checkpoint, and the lines deleted since then in red with the lines added since in green" width={1000} height={640}/></section>
+      <section className="pm-shot"><img src="/rewind-demo.gif" alt="Rewind in action: scrubbing back through a file's history finds a deleted function in red, then Play replays the file's story to now" width={720} height={420}/></section>
 
       <section className="content-section">
         <header><span>FEATURES</span><h2>The undo button you always wanted.</h2></header>

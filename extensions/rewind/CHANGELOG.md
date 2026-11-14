@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- A short demo at the top of the Marketplace page.
+
 ## 1.0.0
 
 First release.

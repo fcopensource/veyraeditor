@@ -23,7 +23,7 @@ export const VSCODE_EXTENSIONS = {
   documentViewer: { id: "flightcoders.veyra-document-viewer", folder: "document-viewer", file: "veyra-document-viewer", version: "1.0.0", listed: true },
   gitGraph: { id: "flightcoders.veyra-git-graph", folder: "git-graph", file: "veyra-git-graph", version: "1.0.0", listed: true },
   errorLens: { id: "flightcoders.veyra-error-lens", folder: "error-lens", file: "veyra-error-lens", version: "1.0.0", listed: true },
-  rewind: { id: "flightcoders.veyra-rewind", folder: "rewind", file: "veyra-rewind", version: "1.0.0", listed: true },
+  rewind: { id: "flightcoders.veyra-rewind", folder: "rewind", file: "veyra-rewind", version: "1.0.1", listed: true },
   todoTree: { id: "flightcoders.veyra-todo-tree", folder: "todo-tree", file: "veyra-todo-tree", version: "1.0.0", listed: true },
   autoRenameTag: { id: "flightcoders.veyra-auto-rename-tag", folder: "auto-rename-tag", file: "veyra-auto-rename-tag", version: "1.0.0", listed: true },
   pets: { id: "flightcoders.veyra-pets", folder: "pets", file: "veyra-pets", version: "1.0.0", listed: true },

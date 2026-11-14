@@ -2,7 +2,7 @@
   "name": "veyra-rewind",
   "displayName": "Veyra Rewind: Time Travel for Your Code",
   "description": "Every file's history, without commits: scrub a timeline to see any file at any moment, play back how it evolved, find code you deleted, restore deleted files and name checkpoints. Automatic, offline, private.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "flightcoders",
   "author": { "name": "Flight Coders" },
   "license": "MIT",

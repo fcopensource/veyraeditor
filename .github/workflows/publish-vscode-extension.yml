@@ -12,7 +12,7 @@ on:
       extension:
         description: Which extension
         type: choice
-        options: [live-server, port-manager]
+        options: [api-client, auto-rename-tag, code-guard, codesnap, docker, document-viewer, env, error-lens, git-graph, live-server, mcp-studio, mongodb, npm-intellisense, path-intellisense, pets, port-manager, rewind, todo-tree, wrapped]
         default: live-server
       target:
         description: Where to publish
@@ -39,7 +39,16 @@ jobs:
       - run: npm ci
       - name: Server tests
         run: npm test
+      - name: Does it have an integration test?
+        id: it
+        run: |
+          has=$(node -p "Boolean(require('./package.json').scripts['test:integration'])")
+          echo "has=$has" >> "$GITHUB_OUTPUT"
+      - name: Download VS Code for the integration test
+        if: steps.it.outputs.has == 'true'
+        run: node "$GITHUB_WORKSPACE/scripts/fetch-vscode.mjs"
       - name: Integration test in VS Code
+        if: steps.it.outputs.has == 'true'
         run: xvfb-run -a npm run test:integration
       - name: Package
         id: package
