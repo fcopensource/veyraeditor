@@ -5,6 +5,7 @@ import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
 import '../live-server/live-server.css';
@@ -64,7 +65,7 @@ export default function RewindPage(){
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Zap size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <a className="secondary" href="#install"><Zap size={16}/>How to install</a>
         </div>
-        <p className="live-micro">{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
+        <p className="live-micro"><Installs id={EXT.id}/>{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
       </section>
 
       <section className="pm-shot"><img src="/rewind-changes.png" alt="The Rewind panel for cart.js: a timeline with a checkpoint, and the lines deleted since then in red with the lines added since in green" width={1000} height={640}/></section>

@@ -6,6 +6,7 @@ import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
 import '../live-server/live-server.css';
@@ -65,7 +66,7 @@ export default function MongoPage(){
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Zap size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <Link className="secondary" href="/mongodb/docs"><BookOpen size={16}/>Read the guide</Link>
         </div>
-        <p className="live-micro">{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
+        <p className="live-micro"><Installs id={EXT.id}/>{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
       </section>
 
       <section className="pm-shot"><img src="/mongodb-lens.webp" alt="Lenses above four MongoDB queries: a full collection scan with a Create index button, two that use an index, and an in-memory sort" width={1600} height={820}/></section>
