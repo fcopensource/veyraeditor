@@ -12,7 +12,7 @@ on:
       extension:
         description: Which extension
         type: choice
-        options: [api-client, auto-rename-tag, code-guard, codesnap, docker, document-viewer, env, error-lens, git-graph, live-server, mcp-studio, mongodb, npm-intellisense, path-intellisense, pets, port-manager, rewind, todo-tree, wrapped]
+        options: [api-client, auto-rename-tag, code-guard, codesnap, docker, document-viewer, env, error-lens, garden, git-graph, live-server, mcp-studio, mongodb, npm-intellisense, path-intellisense, pets, port-manager, rewind, todo-tree, wrapped]
         default: live-server
       target:
         description: Where to publish

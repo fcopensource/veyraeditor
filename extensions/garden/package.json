@@ -1,0 +1,74 @@
+{
+  "name": "veyra-garden",
+  "displayName": "Code Garden Veyra",
+  "description": "Your coding grows a living garden in VS Code. Saving waters it, commits make flowers bloom, fixing errors brings butterflies, and coding streaks unlock rare plants. Collect all nine.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/garden",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/garden" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "keywords": ["garden", "code garden", "fun", "game", "streak", "productivity", "cozy", "plants", "flowers", "coding streak", "gamification", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "views": {
+      "explorer": [{ "type": "webview", "id": "veyraGarden.view", "name": "Code Garden", "icon": "media/leaf.svg" }]
+    },
+    "commands": [
+      { "command": "veyraGarden.openPanel", "title": "Open in a Bigger Panel", "category": "Code Garden", "icon": "$(screen-full)" },
+      { "command": "veyraGarden.snapshot", "title": "Save a Snapshot to Share…", "category": "Code Garden", "icon": "$(device-camera)" },
+      { "command": "veyraGarden.herbarium", "title": "Show My Collection", "category": "Code Garden", "icon": "$(book)" },
+      { "command": "veyraGarden.chooseSeed", "title": "Choose the Next Seed…", "category": "Code Garden", "icon": "$(sparkle)" },
+      { "command": "veyraGarden.reset", "title": "Start a New Garden…", "category": "Code Garden" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraGarden.herbarium", "when": "view == veyraGarden.view", "group": "navigation@1" },
+        { "command": "veyraGarden.chooseSeed", "when": "view == veyraGarden.view", "group": "navigation@2" },
+        { "command": "veyraGarden.snapshot", "when": "view == veyraGarden.view", "group": "navigation@3" },
+        { "command": "veyraGarden.openPanel", "when": "view == veyraGarden.view", "group": "9_more@1" },
+        { "command": "veyraGarden.reset", "when": "view == veyraGarden.view", "group": "9_more@9" }
+      ]
+    },
+    "configuration": {
+      "title": "Code Garden Veyra",
+      "properties": {
+        "veyraGarden.sky": {
+          "type": "string", "enum": ["auto", "day", "night"],
+          "enumDescriptions": ["Follows your clock: sunrise, day, sunset and night", "Always a sunny day", "Always a starry night"],
+          "default": "auto", "description": "The sky over your garden."
+        },
+        "veyraGarden.statusBar": { "type": "boolean", "default": true, "description": "Show your garden and coding streak in the status bar." },
+        "veyraGarden.notifications": { "type": "boolean", "default": true, "description": "Tell me when a new plant is unlocked or my streak grows." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "node build.mjs",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

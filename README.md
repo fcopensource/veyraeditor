@@ -136,6 +136,7 @@ The team behind Veyra (FlightCoders) also makes free extensions for VS Code, Cur
 | Extension | What it does |
 | --- | --- |
 | [**Veyra Rewind**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-rewind) | Local history and time travel for every file; find code you deleted |
+| [**Code Garden Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-garden) | A garden that grows while you code: saves water it, commits make flowers bloom |
 | [**Veyra Live Server**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server) | Live reload on save; CSS updates without a reload |
 | [**Error Lens Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-error-lens) | Errors and warnings at the end of their lines |
 | [**Auto Rename Tag Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-auto-rename-tag) | Rename an HTML, XML or JSX tag and its pair follows |
