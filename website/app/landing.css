@@ -158,3 +158,23 @@
 @media(max-width:860px){.faq{grid-template-columns:1fr;gap:26px;margin-bottom:90px}.what-is{padding:70px 18px 50px}.what-is p{font-size:15px}}
 
 .code-universe{opacity:0;transition:opacity 1.2s ease}.code-universe.ready{opacity:1}
+
+/* The Veyra hummingbird flying down the home page as you scroll (components/ScrollBird.tsx). */
+.scroll-bird{position:fixed;top:0;right:clamp(10px,3.2vw,56px);z-index:40;width:clamp(48px,5.6vw,84px);height:clamp(48px,5.6vw,84px);pointer-events:none;opacity:0;transition:opacity .6s ease;will-change:transform;filter:drop-shadow(0 10px 22px #4c3be059) drop-shadow(0 0 18px #3ddc8426)}
+.scroll-bird.ready{opacity:1}
+.scroll-bird svg{display:block;overflow:visible;animation:sb-hover 2.4s ease-in-out infinite}
+.scroll-bird .sb-wing{transform-box:fill-box;animation:sb-flap .12s ease-in-out infinite alternate}
+.scroll-bird .sb-left{transform-origin:100% 100%}
+.scroll-bird .sb-right{transform-origin:0% 100%}
+.scroll-bird.diving .sb-wing{animation-duration:.2s}
+.scroll-bird.landed .sb-wing{animation-duration:.3s}
+.scroll-bird .sb-trail{position:absolute;left:-6px;top:58%;width:42%;height:2px;border-radius:2px;background:linear-gradient(270deg,#68f4d1aa,transparent);opacity:0;transform:rotate(-58deg);transform-origin:right center;transition:opacity .3s}
+.scroll-bird.diving .sb-trail{opacity:.8}
+@keyframes sb-flap{from{transform:scale(1,1)}to{transform:scale(.84,.5)}}
+@keyframes sb-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.scroll-bird svg,.scroll-bird .sb-wing{animation:none}}
+@media (max-width:640px){.scroll-bird{opacity:.9}}
+@media print{.scroll-bird{display:none}}
+
+/* Real downloads in the hero. */
+.hero-meta .hero-downloads{color:var(--mint);font-weight:700}

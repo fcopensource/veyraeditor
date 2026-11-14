@@ -41,7 +41,7 @@ function drawEditor(ctx:CanvasRenderingContext2D,typed:number,phase:'typing'|'gh
   ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(8,8,W-16,52);
   ['#ff5f57','#febc2e','#28c840'].forEach((c,i)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(40+i*24,34,7,0,Math.PI*2);ctx.fill();});
   ctx.font=`500 20px ${mono}`;ctx.fillStyle='#9aa7b4';ctx.textAlign='center';ctx.fillText('ship.ts — Veyra Studio',W/2,41);ctx.textAlign='left';
-  ctx.fillStyle=MINT;ctx.fillText('✦ AI',W-90,41);
+  ctx.fillStyle=MINT;ctx.fillText('⇧⇧ Search',W-130,41);
   // Code
   const top=104,lh=46,left=118;let start=0,caret=null as {x:number,y:number}|null;
   const count=Math.floor(typed);

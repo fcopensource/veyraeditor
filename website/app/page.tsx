@@ -10,11 +10,13 @@ import { CodeUniverse } from "@/components/CodeUniverse";
 import { LiveIDE } from "@/components/LiveIDE";
 import { DownloadCTA } from "@/components/DownloadCTA";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { ScrollBird } from "@/components/ScrollBird";
 import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
 import { allPosts, formatDate } from "@/lib/blog";
 import { EXTENSIONS } from "@/lib/products";
+import { compact, extensionName, installsLabel, roundedDown, stats } from "@/lib/stats";
 
 export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
@@ -36,9 +38,12 @@ export default async function Home() {
   const release = await latestRelease();
   const version = release?.version ? `v${release.version}` : "preview";
   const sizes = installerSizes(release);
+  const numbers = await stats();
+  const downloads = roundedDown(numbers.total);
   return (
     <>
       <Nav />
+      <ScrollBird />
       <ScrollReveal />
       <main className="landing">
         <section className="hero hero-universe">
@@ -68,6 +73,7 @@ export default async function Home() {
               </a>
             </div>
             <div className="hero-meta">
+              {downloads >= 100 && <span className="hero-downloads"><Check size={13} /> {compact(downloads)}+ downloads</span>}
               <span><Check size={13} /> Free & open source</span>
               <span><Check size={13} /> {sizes.label}</span>
               <span><Check size={13} /> Auto-updates</span>
@@ -201,7 +207,7 @@ export default async function Home() {
             {[...EXTENSIONS].sort((x, y) => y.order - x.order).slice(0, 3).map(p => (
               <Link key={p.href} href={p.href} className={`new-card tone-${p.tone}`}>
                 <Image src={p.icon} width={56} height={56} alt="" />
-                <div><small>{p.group}</small><h3>{p.title}</h3><p>{p.copy}</p></div>
+                <div><small>{p.group}{installsLabel(numbers.perExtension[extensionName(p.href)]) ? ` · ${installsLabel(numbers.perExtension[extensionName(p.href)])}` : ""}</small><h3>{p.title}</h3><p>{p.copy}</p></div>
                 <ArrowRight className="new-arrow" size={16} />
               </Link>
             ))}
