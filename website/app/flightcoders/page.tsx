@@ -7,7 +7,7 @@ import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {LeadForm} from '@/components/LeadForm';
 import {EXTENSIONS} from '@/lib/products';
-import {absolute,jsonLd,OG_IMAGE} from '@/lib/site';
+import {absolute,jsonLd} from '@/lib/site';
 import '../live-server/live-server.css';
 import './flightcoders.css';
 
@@ -16,7 +16,10 @@ export const metadata:Metadata={
   description:'FlightCoders, the team behind Veyra Studio, builds VS Code and JetBrains extensions, desktop apps, browser extensions, web apps and Salesforce solutions. Tell us about your project.',
   keywords:['hire VS Code extension developer','custom VS Code extension','JetBrains plugin development','Tauri desktop app development','browser extension development','Salesforce developer','developer tools agency','FlightCoders'],
   alternates:{canonical:'/flightcoders'},
-  openGraph:{url:'/flightcoders',title:'FlightCoders: we build developer tools people use',description:'VS Code extensions, desktop apps, browser extensions and web apps, from the team behind Veyra Studio.',images:[OG_IMAGE]},
+  openGraph:{url:'/flightcoders',title:'FlightCoders: we build the tools developers love',description:'VS Code extensions, desktop apps, browser extensions and web apps, from the team behind Veyra Studio.',images:[{url:'/brand/flightcoders/social.png',width:1200,height:630,alt:'FlightCoders: we build the tools developers love'}]},
+  twitter:{card:'summary_large_image',images:['/brand/flightcoders/social.png']},
+  // The FlightCoders f/c mark as this page's icon.
+  icons:{icon:[{url:'/brand/flightcoders/favicon-32.png',sizes:'32x32',type:'image/png'},{url:'/brand/flightcoders/icon-192.png',sizes:'192x192',type:'image/png'}],apple:'/brand/flightcoders/apple-icon-180.png'},
 };
 
 const SERVICES=[
@@ -49,7 +52,7 @@ const FAQ=[
 
 export default function FlightCodersPage(){
   const org={
-    '@context':'https://schema.org','@type':'ProfessionalService',name:'FlightCoders',url:absolute('/flightcoders'),image:absolute('/veyra-96.png'),
+    '@context':'https://schema.org','@type':'ProfessionalService',name:'FlightCoders',url:absolute('/flightcoders'),image:absolute('/brand/flightcoders/icon-192.png'),logo:absolute('/brand/flightcoders/icon-192.png'),
     description:'FlightCoders builds VS Code and JetBrains extensions, desktop apps, browser extensions, web apps and Salesforce solutions.',
     areaServed:'Worldwide',knowsAbout:['VS Code extensions','JetBrains plugins','Tauri','Rust','React','Next.js','Browser extensions','Salesforce'],
     makesOffer:SERVICES.map(s=>({'@type':'Offer',itemOffered:{'@type':'Service',name:s.title,description:s.copy}})),
@@ -61,6 +64,7 @@ export default function FlightCodersPage(){
     <main className="page-shell fc-page">
       <section className="fc-hero">
         <div className="fc-glow" aria-hidden="true"/>
+        <img className="fc-logo" src="/brand/flightcoders/mark.svg" width={112} height={112} alt="FlightCoders"/>
         <span className="fc-kicker"><i/>FLIGHTCODERS · THE TEAM BEHIND VEYRA</span>
         <h1>We build the tools <em>developers love.</em></h1>
         <p>VS Code extensions, desktop apps, browser extensions and web apps, built by the people who ship Veyra Studio and {EXTENSIONS.length} extensions of their own. Tell us what you need; we reply within one business day.</p>
