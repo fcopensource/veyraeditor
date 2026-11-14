@@ -13,6 +13,7 @@ const links=[
   {href:'/blog',label:'Blog'},
   {href:'/download',label:'Download'},
   {href:'/changelog',label:'Changelog'},
+  {href:'/flightcoders',label:'Hire us'},
   {href:'https://github.com/fcopensource/veyraeditor',label:'GitHub',external:true},
 ];
 

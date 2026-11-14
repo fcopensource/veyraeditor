@@ -9,7 +9,7 @@ import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
   title:'Features: Editor, IntelliSense, Git, Terminal & Search',
-  description:'Everything in Veyra, the free lightweight code editor: Monaco editing, IntelliSense, ESLint, Prettier, built-in Git, a real terminal, Search Everywhere, a TODO window and Live Server.',
+  description:'Veyra Studio features: Monaco editing, IntelliSense, ESLint, Prettier, built-in Git, a real terminal, Search Everywhere and Live Server. Free.',
   alternates:{canonical:'/features'},
   openGraph:{images:[OG_IMAGE],url:'/features',title:'Veyra features: a complete, local-first code editor'},
 };
