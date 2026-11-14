@@ -7,6 +7,7 @@ import {Footer} from '@/components/Footer';
 import {checksums,installers,latestRelease,RELEASES_URL} from '@/lib/releases';
 import {MS_STORE_URL} from '@/lib/site';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {compact,stats} from '@/lib/stats';
 
 export const metadata:Metadata={title:'Download Veyra for Windows, macOS & Linux',description:'Download Veyra, the free lightweight code editor, for Windows 10/11, macOS (Apple silicon and Intel) and Linux. Small installers with signed automatic updates.',alternates:{canonical:'/download'},openGraph:{images:[OG_IMAGE],url:'/download',title:'Download Veyra: free lightweight code editor'}};
 export const revalidate=300;
@@ -32,9 +33,10 @@ export default async function DownloadPage(){
   const release=await latestRelease();
   const files=installers(release);
   const sums=checksums(release);
+  const downloads=(await stats()).app;
   const asset=(file?:{browser_download_url:string;size:number})=>({href:file?.browser_download_url,size:file?.size});
   return <><Nav/><Breadcrumbs items={[{name:'Download',path:'/download'}]}/><main className="page-shell">
-    <div className="page-head"><span>{release?`VERSION ${release.version}`:'PUBLIC PREVIEW'}</span><h1>Meet your new workspace.</h1><p>Veyra runs natively on Windows, macOS and Linux, and keeps itself up to date automatically.</p></div>
+    <div className="page-head"><span>{release?`VERSION ${release.version}`:'PUBLIC PREVIEW'}</span><h1>Meet your new workspace.</h1><p>Veyra runs natively on Windows, macOS and Linux, and keeps itself up to date automatically.</p>{downloads>0&&<p className="download-count"><Download size={14} aria-hidden="true"/>{compact(downloads)} downloads of Veyra Studio</p>}</div>
     <div className="download-grid platforms">
       <Platform icon={<Monitor className="platform"/>} name="Windows" detail="Windows 10 and 11 · 64-bit" store={MS_STORE_URL} primary={{label:'Download installer (.exe)',...asset(files.windows)}} others={[{label:'MSI package',...asset(files.windowsMsi)}]} requirements={['Windows 10 or newer','WebView2 (installed automatically)']}/>
       <Platform icon={<Apple className="platform"/>} name="macOS" detail="Apple silicon and Intel" primary={{label:'Apple silicon (.dmg)',...asset(files.macArm)}} others={[{label:'Intel Mac (.dmg)',...asset(files.macIntel)}]} requirements={['macOS 11 or newer']}/>

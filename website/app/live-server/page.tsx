@@ -8,6 +8,7 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {latestRelease,RELEASES_URL} from '@/lib/releases';
 import {absolute,jsonLd} from '@/lib/site';
+import {Installs} from '@/components/Installs';
 
 /** The VS Code edition on the Visual Studio Marketplace. */
 const MARKETPLACE='https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server';
@@ -75,7 +76,7 @@ export default async function LiveServerPage(){
           <Link className="primary" href="/download"><Download size={16}/>Get Veyra: it&apos;s built in</Link>
           <a className="secondary" href={MARKETPLACE}><Code2 size={16}/>Get it for VS Code</a>
         </div>
-        <p className="live-micro">VS Code edition on the Visual Studio Marketplace · flightcoders.veyra-live-server · Free · MIT</p>
+        <p className="live-micro"><Installs id="flightcoders.veyra-live-server"/>VS Code edition on the Visual Studio Marketplace · flightcoders.veyra-live-server · Free · MIT</p>
       </section>
 
       <section className="live-demo" aria-label="How a CSS change looks">
