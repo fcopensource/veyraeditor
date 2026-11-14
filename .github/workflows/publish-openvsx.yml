@@ -1,0 +1,82 @@
+# Publishes every Veyra VS Code extension to Open VSX (open-vsx.org), the registry used by Cursor, Windsurf,
+# VSCodium, Gitpod, Eclipse Theia and other VS Code-compatible editors.
+# Run it from Actions → "Publish all to Open VSX" → Run workflow.
+#
+# Setup (once): sign in at https://open-vsx.org with GitHub, sign the Publisher Agreement, create an access token
+# (Settings → Access Tokens), and add it as the repository secret OVSX_PAT. The flightcoders namespace is created on
+# the first run. A version that's already on Open VSX is skipped, so running this again only publishes what's new.
+name: Publish all to Open VSX
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Only these extensions (folder names, comma-separated). Empty = all of them."
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    name: Extensions to publish
+    runs-on: ubuntu-22.04
+    outputs:
+      dirs: ${{ steps.list.outputs.dirs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        env:
+          ONLY: ${{ inputs.only }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const only = (process.env.ONLY || "").split(",").map(s => s.trim()).filter(Boolean);
+            const dirs = fs.readdirSync("extensions").filter(d => fs.existsSync(`extensions/${d}/package.json`) && (!only.length || only.includes(d)));
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `dirs=${JSON.stringify(dirs)}\n`);
+            console.log(dirs.join("\n"));
+          '
+      - name: Create the flightcoders namespace (once)
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then echo "::error::Add the OVSX_PAT secret first (see the top of this workflow)."; exit 1; fi
+          npx --yes ovsx@1.2.0 create-namespace flightcoders -p "$OVSX_PAT" || echo "The namespace already exists."
+
+  publish:
+    name: ${{ matrix.dir }}
+    needs: list
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        dir: ${{ fromJSON(needs.list.outputs.dirs) }}
+    defaults:
+      run:
+        working-directory: extensions/${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Find or build the .vsix
+        id: vsix
+        run: |
+          name=$(node -p "require('./package.json').name"); version=$(node -p "require('./package.json').version")
+          echo "name=$name" >> "$GITHUB_OUTPUT"; echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ -f "release/$name-$version.vsix" ]; then
+            echo "path=release/$name-$version.vsix" >> "$GITHUB_OUTPUT"
+          else
+            npm ci && npm run package
+            echo "path=dist/$name-$version.vsix" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish (skipped when this version is already there)
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' "https://open-vsx.org/api/flightcoders/${{ steps.vsix.outputs.name }}/${{ steps.vsix.outputs.version }}")
+          if [ "$status" = "200" ]; then echo "${{ steps.vsix.outputs.name }} ${{ steps.vsix.outputs.version }} is already on Open VSX."; exit 0; fi
+          npx --yes ovsx@1.2.0 publish "${{ steps.vsix.outputs.path }}" -p "$OVSX_PAT"
+          echo "### Published ${{ steps.vsix.outputs.name }} ${{ steps.vsix.outputs.version }}: https://open-vsx.org/extension/flightcoders/${{ steps.vsix.outputs.name }}" >> "$GITHUB_STEP_SUMMARY"
