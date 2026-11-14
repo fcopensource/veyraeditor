@@ -142,7 +142,7 @@ export default async function PortManagerPage(){
 
       <section className="content-section">
         <header><span>ALSO FOR JETBRAINS</span><h2>Using IntelliJ, WebStorm or PyCharm?</h2></header>
-        <p className="live-note">The same port manager is available for every JetBrains IDE: <Link href="/jetbrains">Port Manager Veyra for JetBrains IDEs</Link>.</p>
+        <p className="live-note">The same port manager is available for every JetBrains IDE: <Link href="/jetbrains/port-manager">Port Manager Veyra for JetBrains IDEs</Link>.</p>
       </section>
 
       <section className="content-section">
