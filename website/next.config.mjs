@@ -14,7 +14,8 @@ const config = {
   // website's own images are production-ready, so serve them directly.
   images: {
     unoptimized: true,
-    remotePatterns: [{ protocol: "https", hostname: "avatars.githubusercontent.com" }],
+    // Extension icons from the shared catalog: flightcoders.com and the Marketplace CDN.
+    remotePatterns: [{ protocol: "https", hostname: "avatars.githubusercontent.com" }, { protocol: "https", hostname: "flightcoders.com" }, { protocol: "https", hostname: "**.gallerycdn.vsassets.io" }],
   },
   // The AI gateway reads its app profiles at runtime: ship them with the API routes.
   outputFileTracingIncludes: { "/api/v1/**": ["./content/ai-apps/**"] },

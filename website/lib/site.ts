@@ -35,7 +35,7 @@ export const VSCODE_EXTENSIONS = {
   env: { id: "flightcoders.veyra-env", folder: "env", file: "veyra-env", version: "1.0.0", listed: true },
   docker: { id: "flightcoders.veyra-docker", folder: "docker", file: "veyra-docker", version: "1.0.0", listed: true },
   mcpStudio: { id: "flightcoders.veyra-mcp-studio", folder: "mcp-studio", file: "veyra-mcp-studio", version: "1.0.0", listed: true },
-  garden: { id: "flightcoders.veyra-garden", folder: "garden", file: "veyra-garden", version: "1.0.0", listed: false },
+  garden: { id: "flightcoders.veyra-garden", folder: "garden", file: "veyra-garden", version: "1.0.0", listed: true },
   npmIntelliSense: { id: "flightcoders.veyra-npm-intellisense", folder: "npm-intellisense", file: "veyra-npm-intellisense", version: "1.0.0", listed: true },
 } as const;
 export const marketplaceUrl = (id: string) => `https://marketplace.visualstudio.com/items?itemName=${id}`;
