@@ -52,3 +52,27 @@ lib/veyra-products.ts ─┘
 | --- | --- | --- | --- |
 | veyraeditor.com | `CATALOG_URL` | `https://flightcoders.com/api/catalog` | Where to read the list from |
 | veyraeditor.com | `CATALOG_REVALIDATE` | `600` | How often to check it, in seconds |
+
+## One admin panel for both websites
+
+**flightcoders.com/admin** manages veyraeditor.com too:
+
+- **Project requests:** one inbox for the project forms on both sites, with a website badge, statuses, private notes,
+  reply by email and one CSV export.
+- **Users:** a flightcoders.com | veyraeditor.com switch. For Veyra accounts: search, sign out everywhere (including
+  Veyra Studio devices) and delete.
+- **Overview:** both sites' numbers side by side, and the product catalog.
+- **Products:** the shared extension list (above).
+
+It works through a private API on veyraeditor.com (`/api/admin/overview`, `/api/admin/leads`, `/api/admin/users`) that
+answers only requests carrying the shared key, and returns 404 to everyone else.
+
+**Setup (once):** create a long random secret (at least 32 characters, for example the output of
+`openssl rand -hex 32`) and add it as `VEYRA_ADMIN_KEY` to **both** Node.js apps in hPanel, then redeploy both.
+Until then the admin shows a note that veyraeditor.com isn't connected, and everything else works as before.
+
+## Extension pages follow the Marketplace
+
+Each hand-written extension page (for example `/pets`) takes its install button and version from the catalog: once an
+extension is on the Marketplace its page links there and shows the Marketplace's latest version. `website/lib/site.ts`
+only matters for extensions that aren't published yet (their `.vsix` download).

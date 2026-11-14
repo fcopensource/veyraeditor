@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.pathIntelliSense;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.pathIntelliSense;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Path IntelliSense for VS Code: File Path Autocomplete',
@@ -42,7 +43,8 @@ const FAQ=[
   {q:'Is it the same as the Path Intellisense extension?',a:'It is an independent extension, written from scratch and inspired by the classic Path Intellisense. It adds checks for broken paths, project-aware import extensions, package.json imports and image previews.'},
 ];
 
-export default function PathIntelliSensePage(){
+export default async function PathIntelliSensePage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Path IntelliSense Veyra',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/path-intellisense'),image:absolute('/path-intellisense-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,
