@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="FlightCoders">
+  <defs>
+    <linearGradient id="mf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb02e"/><stop offset=".48" stop-color="#ff4f6d"/><stop offset="1" stop-color="#9b3dff"/></linearGradient>
+    <linearGradient id="ms" x1="236" y1="378" x2="292" y2="138" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#9b3dff"/><stop offset=".55" stop-color="#ff4f6d"/><stop offset="1" stop-color="#ffb02e"/></linearGradient>
+    <linearGradient id="mi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151733"/><stop offset="1" stop-color="#0b0c16"/></linearGradient>
+    <radialGradient id="mg" cx=".3" cy=".18" r=".75"><stop offset="0" stop-color="#ffffff" stop-opacity=".10"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+  </defs>
+    <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#mf)"/>
+    <rect x="48" y="48" width="416" height="416" rx="84" fill="url(#mi)"/>
+    <rect x="48" y="48" width="416" height="416" rx="84" fill="url(#mg)"/>
+    <rect x="49.5" y="49.5" width="413" height="413" rx="82.5" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="3"/>
+    
+  <g transform="translate(-22 -10)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="44">
+    <path d="M152 356 V214 Q152 160 206 160 H214" stroke="#ffffff"/>
+    <path d="M120 238 H204" stroke="#ffffff"/>
+    <path d="M236 378 L292 138" stroke="url(#ms)"/>
+    <path d="M436 236 A68 68 0 1 0 436 340" stroke="#ffffff"/>
+  </g></svg>
