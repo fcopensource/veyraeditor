@@ -1,20 +1,22 @@
 <div align="center">
 
-<img src="public/veyra.png" alt="Veyra Studio" width="120" />
+<img src="public/veyra.png" alt="Veyra Studio logo" width="112" />
 
 # Veyra Studio
 
-### The lightweight VS Code alternative.
+### A free, lightweight VS Code alternative: the same editor, a fraction of the weight.
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=7DA6F5&center=true&vCenter=true&width=820&lines=Same+editor.+Same+shortcuts.+Lighter+on+memory.;A+native+Rust+app.+No+bundled+browser.;Git%2C+terminal+and+Veyra+AI+built+in.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.)](https://veyraeditor.com)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=22&duration=2600&pause=800&color=68F4D1&center=true&vCenter=true&width=820&lines=Same+editor.+Same+shortcuts.+Lighter+on+memory.;A+native+Rust+app.+No+bundled+browser.;No+AI.+No+telemetry.+Your+code+stays+yours.;Windows+%E2%80%A2+macOS+%E2%80%A2+Linux.)](https://veyraeditor.com)
 
-The Monaco editor you know from VS Code, in a fast native app that's a tenth of the download size.<br/>
-Git, a real terminal, a Python debugger and Veyra AI are built in. Free and open source.
+Veyra Studio is an open-source **code editor for Windows, macOS and Linux** built on **Monaco** (the editor inside VS Code)
+in a native **Rust + Tauri** app. Installers are **7–12 MB**, it starts fast, and Git, a real terminal, IntelliSense,
+a Python debugger, Live Server and Android Studio-style navigation are built in. No AI, no telemetry, no account.
 
-[![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=7DA6F5)](https://github.com/fcopensource/veyraeditor/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/fcopensource/veyraeditor?label=release&color=68F4D1)](https://github.com/fcopensource/veyraeditor/releases/latest)
 [![Release build](https://img.shields.io/github/actions/workflow/status/fcopensource/veyraeditor/release.yml?label=build)](https://github.com/fcopensource/veyraeditor/actions/workflows/release.yml)
-[![Downloads](https://img.shields.io/github/downloads/fcopensource/veyraeditor/total?color=A08CEC)](https://github.com/fcopensource/veyraeditor/releases)
-[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-24C8D8)](#-download)
+[![Downloads](https://img.shields.io/github/downloads/fcopensource/veyraeditor/total?color=9673FF)](https://github.com/fcopensource/veyraeditor/releases)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-4CDCF2)](#-download)
+[![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-available-0078D4?logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/XP8LKHC447THM1)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
 
 [![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://tauri.app/)
@@ -23,40 +25,34 @@ Git, a real terminal, a Python debugger and Veyra AI are built in. Free and open
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-**[⬇️ Download](#-download)** · [Website](https://veyraeditor.com) · [Veyra vs VS Code](#-veyra-vs-vs-code) · [What's new](#-whats-new-in-010) · [Features](#-features) · [AI Studio](#-ai-studio) · [Build from source](#-build-from-source) · [Roadmap](#-roadmap)
+**[⬇️ Download](#-download)** · [Website](https://veyraeditor.com) · [Veyra vs VS Code](#-veyra-vs-vs-code) · [What's new](#-whats-new-in-011) · [Features](#-features) · [Extensions](#-extensions-by-the-veyra-team) · [FAQ](#-faq) · [Build from source](#-build-from-source)
 
 </div>
 
 <br/>
 
 <p align="center">
-  <img src="docs/screenshots/veyra-editor.png" alt="Veyra Studio 0.10: the project tree with colour-coded folders and language icons, a TypeScript file in the editor, Git changes and a PowerShell terminal" width="100%" />
+  <img src="docs/screenshots/veyra-editor.png" alt="Veyra Studio, a lightweight VS Code alternative: a TypeScript project with the file tree, Git badges, an Error Lens message at the end of a line and the TODO window listing TODO, FIXME and HACK comments" width="100%" />
 </p>
 
 <table>
   <tr>
-    <td width="50%" align="center"><img src="docs/screenshots/launch-screen.png" alt="The Veyra Studio launch screen" /><br/><sub><b>A launch screen</b> while Veyra starts</sub></td>
-    <td width="50%" align="center"><img src="docs/screenshots/welcome.png" alt="The Veyra Studio Welcome screen" /><br/><sub><b>A calm first screen</b>: only Welcome until you open a project</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/launch-screen.png" alt="The Veyra Studio launch screen with the hummingbird mascot" /><br/><sub><b>The hummingbird</b> launch screen</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/welcome.png" alt="The Veyra Studio Welcome page with Recent Projects" /><br/><sub><b>Recent Projects</b>: reopen any project in one click</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="docs/screenshots/search-everywhere.png" alt="Search Everywhere in Veyra Studio, opened by tapping Shift twice" /><br/><sub><b>Search Everywhere</b>: tap Shift twice</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/extensions.png" alt="Veyra Studio's Extensions panel with Error Lens and other extensions built in" /><br/><sub><b>Extensions built in</b>: nothing to install</sub></td>
   </tr>
 </table>
 
-<table>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/veyra-ai.png" alt="The Veyra AI panel with a reply and a code card" height="520" /><br/><sub><b>Veyra AI</b>: code in cards, edits you review</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/git-panel.png" alt="The Git panel with a staged change and the commit graph" height="520" /><br/><sub><b>Git</b>: one colour per kind of change</sub></td>
-    <td valign="top">
-
-### Built to feel like home
+## 💡 Why Veyra?
 
 - **Same editor as VS Code.** Monaco, IntelliSense, multi-cursor, the command palette and the shortcuts you already know.
-- **Lighter on memory.** One small Rust process and the web view built into your OS. No bundled Chromium, no Node.js runtime, no extension host.
-- **Small and quick.** The Windows installer is about 8 MB. VS Code's is about 100 MB.
-- **Everything included.** Git, a real terminal, Live Server, a Python debugger and Veyra AI work out of the box.
-- **Private by default.** No telemetry. Your code only leaves your machine when you send it to AI.
-
-</td>
-  </tr>
-</table>
+- **Lighter on memory.** One small Rust process and the web view built into your OS: no bundled Chromium, no Node.js runtime, no extension host.
+- **Small and quick.** Installers are 7–12 MB on Windows, macOS and Linux (`.deb`/`.rpm`). VS Code's are about 100 MB.
+- **Everything included.** Git, a real terminal, Live Server, a Python debugger and popular extensions work out of the box.
+- **Private.** No AI, no telemetry, no account needed. Your code never leaves your computer.
 
 ---
 
@@ -67,30 +63,28 @@ Veyra is for developers who love VS Code's editor but not its weight.
 | | **Veyra Studio** | VS Code |
 | --- | --- | --- |
 | **Built with** | Rust + the system web view (Tauri) | Electron (bundled Chromium + Node.js) |
-| **Installer size** | ~8 MB on Windows, ~12 MB on macOS | ~100 MB |
-| **Memory** | Lighter: one Rust process plus the OS web view, no extension host | Heavier: its own browser engine, plus separate window, GPU and extension-host processes |
+| **Installer size** | 7–12 MB (the self-contained Linux AppImage is larger) | ~100 MB |
+| **Memory** | Lighter: one Rust process plus the OS web view | Heavier: its own browser engine, plus window, GPU and extension-host processes |
 | **Editor** | Monaco, the same engine | Monaco |
-| **Shortcuts** | VS Code's: `Ctrl+P`, `Ctrl+Shift+P`, `Ctrl+B` and more | — |
-| **Language tools** | TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue and Python in one click | Extensions |
-| **AI** | Veyra AI built in, free requests with a free account | GitHub Copilot (extension) |
+| **Shortcuts** | VS Code's, plus Android Studio's **Shift Shift** and **Ctrl+E** | VS Code's |
+| **Built in** | Git, terminal, Live Server, Error Lens, Todo Tree, Git Graph, path & npm IntelliSense | Git and terminal; the rest are extensions |
+| **AI** | None: a pure code editor | GitHub Copilot |
 | **Telemetry** | None | On by default |
 | **Price** | Free, MIT licensed | Free |
 
-**Fair to know:** VS Code extensions that run their own code don't work in Veyra yet (themes and snippets from Open VSX do), and the debugger covers Python today. Both are on the [roadmap](#-roadmap). Want to see the memory difference on your own machine? Open the same project in both and compare them in Task Manager or Activity Monitor: [here's how](https://veyraeditor.com/blog/lightweight-vs-code-alternative-less-memory).
+**Fair to know:** VS Code extensions that run their own code don't work in Veyra yet (themes and snippets from Open VSX do, and the most popular extensions are built in), and the debugger covers Python today. Both are on the [roadmap](#-roadmap). See the memory difference yourself: open the same project in both and compare them in Task Manager or Activity Monitor ([how](https://veyraeditor.com/blog/lightweight-vs-code-alternative-less-memory)).
 
 ---
 
-## 🎉 What's new in 0.10
+## 🎉 What's new in 0.11
 
-A complete redesign, inspired by Android Studio:
-
-- 🏝️ **Islands theme:** rounded panels, calmer colours and JetBrains Mono in the editor.
-- 🪟 **One title bar** on Windows and Linux, with the menu behind ☰ and built-in window buttons.
-- 🚀 **A launch screen**, and a calm first screen that shows only Welcome until you open a project.
-- 📁 **New file and folder icons:** folders coloured by role (source, tests, assets, build, config) and files with language badges.
-- 🌿 **Clearer Git colours:** blue for modified, green for added, red for deleted, violet for renamed, and labelled branches in the commit graph.
-- ✨ **A new Veyra AI:** a simpler logo, a redesigned panel, code cards with Copy, and a single message box.
-- 🔒 **Security updates** across the TLS libraries, the updater and the web content sanitiser.
+- 🐦 **A hummingbird launch screen** and a friendlier Welcome page.
+- 📂 **Recent Projects** on the Welcome page: reopen any project in one click.
+- 🔍 **Search Everywhere**: tap **Shift** twice to search files and actions in one place.
+- 🕘 **Recent Files** with **Ctrl/⌘ + E**.
+- ✅ **A TODO window** listing every TODO, FIXME and HACK comment, grouped by file.
+- 🧩 **Popular extensions built in**: Error Lens, Auto Rename Tag, Path IntelliSense, npm IntelliSense, Todo Tree and Git Graph, with nothing to install.
+- 🔒 **A pure code editor**: all AI features were removed. Your code never leaves your computer.
 
 Full notes in the [changelog](CHANGELOG.md).
 
@@ -98,7 +92,7 @@ Full notes in the [changelog](CHANGELOG.md).
 
 ## 📥 Download
 
-**[Download the latest release](https://github.com/fcopensource/veyraeditor/releases/latest)**, or get it from **[veyraeditor.com](https://veyraeditor.com/download)**.
+**[Download the latest release](https://github.com/fcopensource/veyraeditor/releases/latest)**, or get it from **[veyraeditor.com/download](https://veyraeditor.com/download)**.
 
 | Platform | Installer | Notes |
 | --- | --- | --- |
@@ -107,7 +101,7 @@ Full notes in the [changelog](CHANGELOG.md).
 | **macOS** · Intel | `Veyra.Studio_x.y.z_x64.dmg` | macOS 11 or newer |
 | **Linux** | `.AppImage` (any distro) · `.deb` (Ubuntu/Debian) · `.rpm` (Fedora) | Requires WebKitGTK 4.1 |
 
-**Veyra updates itself.** Installed copies check for new versions on launch and every few hours, verify the download's signature, and turn the top-right button into **Update** when a new version is ready. You can also choose **Help → Check for Updates…**.
+**Veyra updates itself.** Installed copies check for new versions, verify the download's signature, and turn the top-right button into **Update** when one is ready.
 
 > [!NOTE]
 > The Microsoft Store version is signed and trusted by Windows. The GitHub installers are not yet signed by Microsoft or Apple. On **Windows**, SmartScreen may show *"Windows protected your PC"*: choose **More info → Run anyway**. On **macOS**, drag the app to Applications and open it once, then go to **System Settings → Privacy & Security → Open Anyway**.
@@ -119,84 +113,40 @@ Full notes in the [changelog](CHANGELOG.md).
 | Area | What you get |
 | --- | --- |
 | **Editor** | Monaco (the editor behind VS Code): syntax highlighting for 80+ languages, multi-cursor, find & replace, formatting, sticky scroll, minimap |
-| **Language tools** | One-click IntelliSense from the same language servers VS Code uses: TypeScript/JavaScript, ESLint, Prettier, Tailwind CSS, Emmet, Svelte, Vue and **Python (Pyright)** |
-| **Debugger** | Python debugging like VS Code: gutter breakpoints, step over/into/out, variables, watch, call stack and a Debug Console. See [Debugging](#-debugging) |
-| **Explorer** | Real local folders, nested create, rename, copy/cut/paste, duplicate, drag-and-drop, multi-select, move to Trash/Recycle Bin, reveal in Finder/File Explorer |
-| **Tabs & navigation** | Multiple tabs with preserved unsaved buffers, Quick Open, command palette, workspace text search, symbol outline, Problems panel |
-| **Terminal** | Real shells via a native PTY: PowerShell on Windows, your login shell on macOS/Linux. Multiple named sessions, plus "Run active file" |
-| **Git** | Change markers in the gutter, file-tree badges, side-by-side diffs, branches, sync, stash, amend, history. See [Git, built in](#-git-built-in) |
-| **AI Studio** | Chat, explain, and reviewed edits with Veyra AI. Sign in with a free Veyra account: 10 free requests, no API key. See [AI Studio](#-ai-studio) |
-| **Health monitor** | A live 0–100 score in the status bar, plus a panel checking the backend, UI responsiveness, memory, errors, Git and shell, with a fix hint for each problem |
-| **Safe saving** | Atomic writes, detection of external changes, protection against silently overwriting files edited elsewhere, confirmation before closing unsaved work |
-| **Extensions** | Open VSX marketplace with real icons, ratings and a full page per extension. Themes and snippets install directly; popular extensions (ESLint, Prettier, Volar, Python Debugger, **Claude Code** and more) install Veyra's built-in equivalent |
-| **Claude Code** | Anthropic's coding agent installs with its official installer and opens in your project's terminal in one click |
-| **Veyra Live Server** | **Go Live** serves your folder with live reload; CSS updates without a reload. Built in, no Node.js needed. See [Live Server](#-live-server) |
-| **Customization** | The Islands dark theme (inspired by Android Studio) and a light theme, Open VSX themes & snippets or VSIX import, font size, word wrap, minimap, resizable panels, split view |
+| **Navigation** | Search Everywhere (**Shift Shift**), Recent Files (**Ctrl/⌘ + E**), Recent Projects, Quick Open, command palette, go to symbol and line |
+| **Language tools** | One-click IntelliSense from the language servers VS Code uses: TypeScript/JavaScript, ESLint, Prettier, Tailwind CSS, Emmet, Svelte, Vue and **Python (Pyright)** |
+| **Built-in extensions** | Error Lens, Auto Rename Tag, Path IntelliSense, npm IntelliSense, Todo Tree, Git Graph and Live Server, each switchable in Extensions |
+| **Debugger** | Python debugging like VS Code: breakpoints, stepping, variables, watch, call stack and a Debug Console |
+| **Explorer** | Real local folders, nested create, rename, copy/paste, duplicate, drag-and-drop, multi-select, move to Trash, reveal in Finder/File Explorer |
+| **Terminal** | Real shells via a native PTY: PowerShell on Windows, your login shell on macOS/Linux. Multiple named sessions and "Run active file" |
+| **Git** | Gutter markers, file-tree badges, side-by-side diffs, staging, commits, branches, sync, stash, history and a commit graph |
+| **TODO window** | Every TODO, FIXME, HACK, XXX and BUG comment in the project, grouped by file and filterable by tag |
+| **Health monitor** | A live 0–100 score with checks for responsiveness, memory, errors, Git and your toolchain, each with a fix |
+| **Safe saving** | Atomic writes and protection against overwriting files changed elsewhere |
+| **Extensions** | Open VSX marketplace with icons, ratings and a page per extension; themes and snippets install directly |
+| **Customization** | A dark Islands theme inspired by Android Studio, a light theme, fonts, word wrap, minimap, resizable panels, split view |
 | **Updates** | Signed automatic updates on every platform |
 
 ---
 
-## 🐞 Debugging
+## 🧩 Extensions by the Veyra team
 
-Open **Run and Debug** (the bug icon) and click **Install** once. Veyra installs Microsoft's `debugpy` into its own app folder, never into your project.
+The team behind Veyra (FlightCoders) also makes free extensions for VS Code, Cursor and VSCodium. Several are built into Veyra Studio.
 
-- Click beside a line number (or press **F9**) to set a breakpoint, then press **F5** to debug the open Python file.
-- Step over (**F10**), into (**F11**) and out (**Shift + F11**); continue (**F5**), restart, or stop (**Shift + F5**).
-- Inspect **Variables** to any depth, add **Watch** expressions, switch frames in the **Call stack**, and evaluate code in the **Debug Console**.
-- Breakpoints follow your edits and are remembered per project. Your project's `.venv` is used automatically.
+| Extension | What it does |
+| --- | --- |
+| [**Veyra Rewind**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-rewind) | Local history and time travel for every file; find code you deleted |
+| [**Veyra Live Server**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server) | Live reload on save; CSS updates without a reload |
+| [**Error Lens Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-error-lens) | Errors and warnings at the end of their lines |
+| [**Auto Rename Tag Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-auto-rename-tag) | Rename an HTML, XML or JSX tag and its pair follows |
+| [**Pets Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-pets) | A cat, dog, fox, bunny or panda that lives in your editor |
+| [**Veyra Container Studio**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-docker) | Docker containers, images, volumes and Compose |
+| [**Veyra Query Lens**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-mongodb) | An index advisor for the MongoDB queries in your code |
+| [**Git Graph Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-git-graph) | Your repository as a graph |
+| [**Todo Tree Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-todo-tree) | Every TODO in your project, in one tree |
+| [**Veyra Port Manager**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-port-manager) | See and free the ports your dev servers use |
 
-Requires Python 3.8 or newer. Node.js and TypeScript debugging is next.
-
----
-
-## 📡 Live Server
-
-<img src="extensions/live-server/media/icon.png" width="72" align="right" alt="Veyra Live Server">
-
-**Veyra Live Server: save, see it, instantly.** More at [veyraeditor.com/live-server](https://veyraeditor.com/live-server).
-
-Click **Go Live** in the status bar (or right-click an HTML file → **Open with Live Server**, or press **Alt+L Alt+O**). Veyra serves your folder at `http://127.0.0.1:5500` and opens the page in your browser.
-
-- Saving HTML or JavaScript reloads the page; saving CSS swaps the stylesheet in place, without a reload.
-- Folders without an `index.html` show a file listing.
-- Built into Veyra in Rust: nothing to install and no Node.js needed. It listens on `127.0.0.1` only and never serves files outside the folder.
-
-**Also for VS Code.** Veyra also makes [**Veyra Port Manager**](extensions/port-manager) for VS Code: every port in use and the app behind it, with one-click Open, Copy and Stop (`flightcoders.veyra-port-manager`).
-
-The same Live Server is a VS Code extension in [`extensions/live-server`](extensions/live-server), sharing the browser script with Veyra. Install it from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server) or search for **Veyra Live Server** in VS Code's Extensions view (ID `flightcoders.veyra-live-server`). Each Veyra release also attaches `veyra-live-server-<version>.vsix` for offline installs.
-
----
-
-## 🧠 AI Studio
-
-Open it with the **Veyra AI** button in the top bar or **Ctrl/⌘ + L**, or select code and press **Ctrl/⌘ + K** to edit the selection with AI.
-
-**Veyra AI, no API key**
-- AI Studio uses **Veyra AI** only. Open the AI panel and sign in with your free [Veyra account](https://veyraeditor.com/register).
-- Every account gets **10 free Veyra AI requests in total**. A request that fails isn't counted.
-- Requests go to veyraeditor.com, which forwards them to the AI provider. The provider key lives only on that server and never reaches the app.
-- The app keeps only a revocable sign-in token, in a private file in Veyra's app data folder. Sign out anytime from the AI panel.
-
-**You stay in control**
-- AI only sees the conversation plus what you explicitly attach: the current file, a selection, or *Smart workspace context*. Veyra picks the relevant files and shows you which ones were sent.
-- Proposed edits open in a side-by-side diff. Applying updates the editor buffer only. Undo with **Ctrl/⌘ + Z**; nothing is saved until you save.
-- Files that look like secrets trigger a warning before they are sent, and smart context never includes `.env` files, keys or gitignored files.
-- AI never runs commands or writes files on its own.
-
----
-
-## 🌿 Git, built in
-
-- **Gutter markers:** green for added lines, blue for modified, red for deletions. They update live as you type, against `HEAD`.
-- **Explorer badges:** `M` modified · `U` untracked · `A` added · `D` deleted · `R` renamed, plus a dot on folders containing changes.
-- **Side-by-side diff** against `HEAD` for any changed file, with an inline toggle.
-- **Stage / unstage / discard** per file or all at once. Discarding never deletes untracked files.
-- **Commit** with **Ctrl/⌘ + Enter**, or **amend** the last commit.
-- **Branches:** switch or create from the branch picker.
-- **Sync:** ahead/behind counts in the panel and status bar, with one-click pull + push.
-- **Stash / Pop**, **file history** for the active file, and a **commit graph**.
-- **GitHub:** sign in with the GitHub CLI, fetch/pull/push, and open the repository on github.com.
-- Status refreshes automatically every 10 seconds and whenever you return to the window.
+See all of them at **[veyraeditor.com/extensions](https://veyraeditor.com/extensions)**.
 
 ---
 
@@ -206,23 +156,41 @@ Shortcuts follow your platform: **Ctrl** on Windows/Linux, **⌘** on macOS.
 
 | Shortcut | Action |
 | --- | --- |
-| `Ctrl/⌘ + P` | Quick Open (go to file) |
-| `Ctrl/⌘ + Shift + P` | Command palette |
+| `Shift` `Shift` | Search Everywhere: files and actions |
+| `Ctrl/⌘ + E` | Recent files |
+| `Ctrl/⌘ + P` · `Ctrl/⌘ + Shift + P` | Quick Open · Command palette |
 | `Ctrl/⌘ + O` · `Ctrl/⌘ + N` | Open folder · New file |
 | `Ctrl/⌘ + S` · `Ctrl/⌘ + Shift + S` | Save · Save all |
-| `Ctrl/⌘ + W` | Close editor |
 | `Ctrl/⌘ + F` · `Ctrl/⌘ + Shift + F` | Find in file · Search workspace |
 | `Ctrl/⌘ + D` · `Ctrl/⌘ + Shift + L` | Add next occurrence · Select all occurrences |
-| `Alt + ↑/↓` · `Alt + Shift + ↑/↓` | Move line · Copy line |
 | `F12` · `Shift + F12` · `Ctrl + G` | Go to definition · References · Line |
 | `Ctrl/⌘ + B` | Toggle sidebar |
 | ``Ctrl + ` `` · ``Ctrl + Shift + ` `` | Terminal · New terminal |
-| `Ctrl + Alt + N` | Run active file |
-| `F5` · `Shift + F5` | Start or continue debugging · Stop |
-| `F9` · `F10` · `F11` · `Shift + F11` | Toggle breakpoint · Step over · Step into · Step out |
-| `Alt + L` `Alt + O` · `Alt + L` `Alt + C` | Open with Live Server · Stop Live Server |
-| `Ctrl/⌘ + L` · `Ctrl/⌘ + K` | Toggle AI · Edit selection with AI |
+| `F5` · `Shift + F5` · `F9` · `F10` · `F11` | Debug · Stop · Breakpoint · Step over · Step into |
+| `Alt + L` `Alt + O` | Open with Live Server |
 | `Ctrl/⌘ + ,` | Settings |
+
+---
+
+## ❓ FAQ
+
+**Is Veyra Studio free?**
+Yes. It's free and open source under the MIT license, with no account, no paid tier and no telemetry.
+
+**Is Veyra a VS Code fork?**
+No. Veyra uses Monaco, the editor component inside VS Code, in its own native app built with Rust and Tauri. That's why it's so much smaller.
+
+**Can I use my VS Code extensions?**
+Themes and snippets from Open VSX install directly, and the most popular extensions (ESLint, Prettier, Tailwind, Live Server, Error Lens, Todo Tree, Git Graph and more) are built in. Extensions that run their own code need an extension host, which is on the roadmap.
+
+**Does Veyra have AI?**
+No. Since version 0.11 Veyra is a pure code editor: your code never leaves your computer.
+
+**Which languages does it support?**
+Syntax highlighting for 80+ languages, and full IntelliSense for JavaScript, TypeScript, HTML, CSS, Tailwind, Vue, Svelte and Python.
+
+**How do I move from VS Code?**
+Your shortcuts already work. See [moving from VS Code](https://veyraeditor.com/blog/moving-from-vs-code).
 
 ---
 
@@ -234,7 +202,7 @@ Shortcuts follow your platform: **Ctrl** on Windows/Linux, **⌘** on macOS.
 git clone https://github.com/fcopensource/veyraeditor.git
 cd veyraeditor
 npm ci
-npm run tauri dev       # full desktop app with native filesystem, Git and terminal
+npm run tauri dev       # the desktop app with native filesystem, Git and terminal
 ```
 
 The first Rust build compiles about 450 crates and takes a few minutes; after that, launches take seconds. `npm run dev` starts only the web UI, so native features won't work there.
@@ -243,13 +211,7 @@ The first Rust build compiles about 450 crates and takes a few minutes; after th
 > If the first build runs out of memory (common with 8–16 GB of RAM), compile one crate at a time:
 > `CARGO_BUILD_JOBS=1 npm run tauri dev` (PowerShell: `$env:CARGO_BUILD_JOBS=1; npm run tauri dev`).
 
-**Production installers** for your own OS:
-
-```bash
-npm run tauri build     # output: src-tauri/target/release/bundle/
-```
-
-Official multi-platform releases are built by GitHub Actions. See **[docs/RELEASING.md](docs/RELEASING.md)**: one command bumps the version, and pushing a tag builds and publishes signed installers and updates for every OS.
+**Production installers** for your own OS: `npm run tauri build` (output in `src-tauri/target/release/bundle/`). Official multi-platform releases are built by GitHub Actions: see **[docs/RELEASING.md](docs/RELEASING.md)**.
 
 ---
 
@@ -262,7 +224,7 @@ flowchart LR
       Explorer[Explorer & Search]
       SCM[Source Control]
       Term[xterm.js Terminal]
-      AI[AI Studio]
+      Built[Built-in extensions]
       Health[Health Monitor]
     end
 
@@ -270,38 +232,34 @@ flowchart LR
     Rust --> FS[Scoped filesystem<br/>atomic saves]
     Rust --> Git[git / gh CLI]
     Rust --> PTY[Native PTY<br/>PowerShell · zsh · bash]
-    Rust --> VeyraAI[Veyra AI<br/>veyraeditor.com]
-    Rust --> Tools[Language servers<br/>debugpy · Claude Code]
+    Rust --> Tools[Language servers<br/>debugpy]
+    Rust --> Live[Live Server]
     Rust --> Updater[Signed updater]
-    Updater --> Releases[(GitHub Releases<br/>or your server)]
+    Updater --> Releases[(GitHub Releases)]
 ```
 
-**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco · xterm.js · portable-pty · Vite 7 · Playwright
+**Stack:** Tauri 2 · Rust · React 19 · TypeScript · Monaco · xterm.js · portable-pty · Vite · Playwright
 
 ```text
 veyraeditor/
 ├── src/                     React UI
 │   ├── App.tsx              Workbench: explorer, tabs, editor, panels, status bar
-│   ├── AIStudio.tsx         Veyra AI chat, sign-in, reviewed edits
-│   ├── DebugPanel.tsx       Run and Debug view   (debug/: DAP client, breakpoints)
-│   ├── ExtensionsPanel.tsx  Marketplace, built-in tools   (lsp/: language clients)
+│   ├── CommandPalette.tsx   Search Everywhere, Recent Files, commands, symbols
+│   ├── features/            Built-in extensions: Error Lens, Auto Rename Tag, Path & npm IntelliSense
+│   ├── TodoPanel.tsx        The TODO window
+│   ├── ExtensionsPanel.tsx  Marketplace and built-in tools   (lsp/: language clients)
+│   ├── DebugPanel.tsx       Run and Debug   (debug/: DAP client, breakpoints)
 │   ├── SourceControl.tsx    Git panel
-│   ├── HealthPanel.tsx      Health monitor UI   (health.ts: scoring)
-│   ├── UpdateBanner.tsx     Auto-update prompt
 │   └── Terminal.tsx         xterm.js terminal sessions
-├── src-tauri/               Rust backend
-│   └── src/
-│       ├── lib.rs           Filesystem, search, Git, terminal, menus
-│       ├── ai.rs            Veyra AI client and sign-in
-│       ├── lsp.rs           Language servers: install and stdio bridge
-│       ├── dap.rs           Debug adapter (debugpy): install and session bridge
-│       ├── cli.rs           Command-line tools such as Claude Code
-│       ├── live_server.rs   Live Server: static server, file watching, live reload
-│       └── health.rs        Native health checks
-├── extensions/live-server/  Veyra Live Server for VS Code (shares the live reload script)
-├── website/                 Next.js product site, download page, update endpoint
-├── .github/workflows/       Cross-platform release pipeline
-├── docs/                    Studio guide, release guide
+├── src-tauri/src/           Rust backend
+│   ├── lib.rs               Filesystem, search, Git, terminal, menus
+│   ├── lsp.rs · dap.rs      Language servers and the Python debugger
+│   ├── live_server.rs       Live Server: static server, file watching, live reload
+│   ├── account.rs           Optional veyraeditor.com sign-in
+│   └── health.rs            Native health checks
+├── extensions/              The Veyra team's VS Code extensions
+├── website/                 veyraeditor.com (Next.js)
+├── .github/workflows/       Checks, releases and extension publishing
 └── tests/                   Playwright UI tests (mocked native IPC)
 ```
 
@@ -316,18 +274,18 @@ npx playwright test                 # UI regression suite
 cd src-tauri && cargo test --lib    # native unit tests
 ```
 
-The Playwright suite drives the real UI against mocked native IPC: editing, saving, explorer operations, search, Git staging and committing, AI review flows, extensions and the health monitor. Rust tests cover path-traversal and symlink protection, save conflicts, search/replace and glob rules, Veyra AI request handling and Git safety.
+The Playwright suite drives the real UI against mocked native IPC: editing, saving, the explorer, search, Git, the built-in extensions, Search Everywhere and the TODO window. Rust tests cover path-traversal and symlink protection, save conflicts, search rules and Git safety. Every extension is also tested inside real VS Code on each change.
 
 ---
 
 ## 🔐 Privacy & security
 
-- **Local-first:** native file operations are scoped to the folder you open, and symbolic links that escape the workspace are rejected.
-- **Safe writes:** atomic saves; Veyra refuses to overwrite a file that changed on disk and keeps your edits in the editor.
-- **No API keys in the app:** the AI provider key stays on the veyraeditor.com server. The app keeps only a revocable Veyra sign-in token in a private file in its app data folder, never in project files or browser storage.
-- **AI boundaries:** only the conversation and what you explicitly attach is sent, and only when you send a message. Files that look like secrets trigger a warning first, and smart context never includes `.env` files, keys or gitignored files.
-- **Signed updates:** every update is verified against the public key built into the app before it is installed.
+- **Local only:** no AI and no telemetry. File operations are scoped to the folder you open, and symbolic links that escape the workspace are rejected.
+- **Safe writes:** atomic saves; Veyra refuses to overwrite a file that changed on disk and keeps your edits.
+- **Signed updates:** every update is verified against the public key built into the app before it's installed.
 - **Terminal:** shells run with your normal user permissions. Only run commands you trust.
+
+Found a security issue? See [veyraeditor.com/security](https://veyraeditor.com/security).
 
 ---
 
@@ -335,38 +293,29 @@ The Playwright suite drives the real UI against mocked native IPC: editing, savi
 
 **Shipped**
 - [x] Monaco editor, explorer, tabs, workspace search, command palette
+- [x] Search Everywhere, Recent Files, Recent Projects and a TODO window
 - [x] Real multi-session terminal (PowerShell / zsh / bash)
-- [x] Full Git workflow: gutter markers, diffs, staging, commits, branches, sync, stash
-- [x] AI Studio with Veyra AI (free account, 10 free requests) and reviewed edits
-- [x] Open VSX themes & snippets, VSIX import
-- [x] Health monitor
+- [x] Full Git workflow: gutter markers, diffs, staging, commits, branches, sync, stash, graph
 - [x] Language servers: TypeScript, ESLint, Prettier, Tailwind, Emmet, Svelte, Vue, Python
 - [x] Python debugger: breakpoints, stepping, variables, watch, Debug Console
-- [x] Extension pages with icons, ratings and versions; Claude Code built in
-- [x] Live Server with live CSS reload, built in and as a VS Code extension
-- [x] Windows, macOS and Linux installers with signed auto-updates
-
-**In progress** (built, being integrated into the workbench)
-- [ ] Command palette 2.0: fuzzy matching, `>` `:` `@` prefixes, keyboard navigation
-- [ ] Search panel 2.0: regex, match case/word, include/exclude globs, replace across files
-- [ ] Searchable settings: auto save, format on save, tab size, rulers and more
-- [ ] Markdown preview, independent split-editor groups, session restore
+- [x] Built-in Error Lens, Auto Rename Tag, Path & npm IntelliSense, Todo Tree, Git Graph, Live Server
+- [x] Windows, macOS and Linux installers with signed auto-updates, and the Microsoft Store
 
 **Next**
 - [ ] Node.js / TypeScript debugging
 - [ ] Rust, Go and C/C++ language servers
-- [ ] Multi-file AI plans
+- [ ] More of the Veyra team's extensions built in
 - [ ] Code-signed Windows and notarized macOS builds
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome. Fork the repository, create a focused branch, run the relevant tests and open a pull request with a clear explanation. For UI changes, screenshots help a lot; for native filesystem behavior, regression tests are especially valuable.
+Contributions are welcome: fork the repository, create a focused branch, run the relevant tests and open a pull request with a clear explanation. Screenshots help a lot for UI changes; regression tests are especially valuable for filesystem behaviour. Please never commit credentials, signing keys, private data, dependency folders or build artifacts.
 
-Please never commit credentials, signing keys, private workspace data, dependency folders or build artifacts.
+## 💼 Need something built?
 
----
+Veyra is made by **[FlightCoders](https://veyraeditor.com/flightcoders)**. We build VS Code and JetBrains extensions, desktop apps, browser extensions, web apps and Salesforce solutions. **[Tell us about your project →](https://veyraeditor.com/flightcoders#start)**
 
 ## 📄 License
 
@@ -376,9 +325,9 @@ Veyra Studio is released under the [MIT License](LICENSE). Copyright © 2026 Vik
 
 ---
 
-**Your code. Your machine. Your AI.**
+**Your code. Your machine. Nothing else.**
 
-If Veyra is useful to you, consider giving the repository a ⭐
+If Veyra is useful to you, please give the repository a ⭐: it helps other developers find it.
 
 [Back to top](#veyra-studio)
 

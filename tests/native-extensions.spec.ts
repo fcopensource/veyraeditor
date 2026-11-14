@@ -73,7 +73,7 @@ test("Error Lens shows problems at the end of their line, and npm IntelliSense f
   await openFile(page, "src/main.ts");
   // One message per line with a problem, the most severe first: line 2 has TypeScript's error plus npm IntelliSense's warning (hints are left out, as in the VS Code extension).
   await expect(page.locator(".veyra-lens-text")).toHaveCount(3, { timeout: 15000 });
-  await expect(page.locator(".veyra-lens-line.error")).toHaveCount(3);
+  await expect(page.locator(".veyra-lens-line.lens-error")).toHaveCount(3);
   // The message is drawn by CSS (::after), the way VS Code draws extension decorations.
   const messages = async () => page.locator(".veyra-lens-text").evaluateAll(spans => spans.map(span => getComputedStyle(span, "::after").content));
   await expect.poll(messages).toEqual(expect.arrayContaining([expect.stringContaining("Type 'string' is not assignable to type 'number'")]));

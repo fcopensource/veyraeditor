@@ -5,6 +5,7 @@ import { monaco } from "../editor";
 import { byLine, filterProblems, formatMessage, hiddenWhileTyping, type Problem, type Severity } from "../../extensions/error-lens/src/model";
 import { isNativeOn, onNativeChange } from "./native";
 
+// Class names are prefixed (lens-warning, not warning): Veyra has unrelated global styles for .warning and .error.
 const NAMES = ["error", "warning", "info", "hint"] as const;
 const FILTERS = { severities: new Set(["error", "warning", "info"]), excludeSources: [] as string[], excludeMessages: [] as RegExp[] };
 const TYPING_DELAY = 600;
@@ -55,12 +56,12 @@ function render(model: monaco.editor.ITextModel) {
     const lineNumber = entry.line + 1;
     if (lineNumber > model.getLineCount()) continue;
     const name = NAMES[entry.top.severity];
-    decorations.push({ range: new monaco.Range(lineNumber, 1, lineNumber, 1), options: { isWholeLine: true, className: `veyra-lens-line ${name}`, stickiness: 1 } });
+    decorations.push({ range: new monaco.Range(lineNumber, 1, lineNumber, 1), options: { isWholeLine: true, className: `veyra-lens-line lens-${name}`, stickiness: 1 } });
     if (hiddenWhileTyping("hideCurrentLine", entry.line, lastEdit.get(key), now, TYPING_DELAY)) continue;
     const end = model.getLineMaxColumn(lineNumber);
     if (end <= 1) continue; // an empty line has no character to hang the message on; its tint still shows
     decorations.push({ range: new monaco.Range(lineNumber, end - 1, lineNumber, end), options: {
-      afterContentClassName: `veyra-lens-text ${name} ${messageClass(formatMessage("{message}", entry, 200))}`,
+      afterContentClassName: `veyra-lens-text lens-${name} ${messageClass(formatMessage("{message}", entry, 200))}`,
       hoverMessage: { value: entry.all.map(p => `**${NAMES[p.severity]}**: ${p.message}${p.source ? ` _(${p.source})_` : ""}`).join("\n\n") },
       stickiness: 1,
     } });

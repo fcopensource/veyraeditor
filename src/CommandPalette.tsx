@@ -103,7 +103,7 @@ export function CommandPalette(props: Props) {
         {rows.map((row, i) => <div key={row.key}>
           {row.group && <div className="palette-group">{row.group}</div>}
           <button role="option" aria-selected={i === selected} className={"palette-row" + (i === selected ? " selected" : "")} onMouseMove={() => i !== selected && setSelected(i)} onClick={row.run}>
-            {row.icon}<span>{row.file ? <>{highlight(row.hint || row.label, row.indices.map(n => n - (row.label.length - (row.hint || row.label).length)).filter(n => n >= 0))}{row.detail && <small>{row.detail}</small>}</> : <>{highlight(row.label, row.indices)}{row.detail && <small>{row.detail}</small>}</>}</span>
+            {row.icon}<span>{row.file ? <><span className="palette-match">{highlight(row.hint || row.label, row.indices.map(n => n - (row.label.length - (row.hint || row.label).length)).filter(n => n >= 0))}</span>{row.detail && <small>{row.detail}</small>}</> : <><span className="palette-match">{highlight(row.label, row.indices)}</span>{row.detail && <small>{row.detail}</small>}</>}</span>
             {row.file ? <ArrowUpRight size={13}/> : row.hint ? <kbd>{row.hint}</kbd> : null}
           </button></div>)}
         {!rows.length && <p>{empty}</p>}
