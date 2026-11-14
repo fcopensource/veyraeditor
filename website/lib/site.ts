@@ -58,7 +58,7 @@ export const SAME_AS = [
 export const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: "Veyra: the fast, local-first code editor" };
 export const TAGLINE = "The lightweight VS Code alternative";
 export const DESCRIPTION =
-  "Veyra is a free, lightweight VS Code alternative that is light on memory. The same Monaco editor and shortcuts in a native Rust app, with Git, a terminal and Search Everywhere built in. No AI, no tracking.";
+  "Veyra Studio is a free, lightweight VS Code alternative: the same editor and shortcuts in a fast native app with Git and a terminal. No AI, no tracking.";
 export const KEYWORDS = [
   "Veyra", "Veyra Studio", "Veyra editor", "Veyra code editor", "lightweight VS Code alternative",
   "VS Code alternative low memory", "low memory code editor", "code editor that uses less RAM", "lightweight code editor",

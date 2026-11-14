@@ -16,7 +16,7 @@ const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
 
 export const metadata:Metadata={
   title:'Veyra Rewind for VS Code: Local History and Time Travel for Every File',
-  description:'Every version of every file, without a commit. Scrub a timeline, play back how a file evolved, find code you deleted, restore deleted files and name checkpoints. Free, offline and private.',
+  description:'Free VS Code extension for local history: scrub every version of a file, find code you deleted, restore deleted files and name checkpoints. Offline.',
   keywords:['VS Code local history','recover deleted code','restore deleted file VS Code','file history','undo history','time travel','checkpoint','VS Code extension'],
   alternates:{canonical:'/rewind'},
   openGraph:{url:'/rewind',title:'Veyra Rewind: time travel for your code',description:'Every version of every file, without a commit. Free for VS Code.',images:[{url:'/rewind-changes.png',width:1000,height:640,alt:'The Rewind panel with a timeline of snapshots and the lines deleted since then'}]},

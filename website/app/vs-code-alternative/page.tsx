@@ -6,7 +6,7 @@ import {ClosingCTA,ContentPage} from '@/components/ContentPage';
 
 export const metadata:Metadata={
   title:'Lightweight VS Code Alternative That Uses Less Memory',
-  description:'Veyra is a free, lightweight VS Code alternative: the same Monaco editor and shortcuts in a native Rust app with no bundled browser, so it is lighter on memory. Compare Veyra, VS Code and Cursor.',
+  description:'Veyra Studio is a free, lightweight VS Code alternative: the same Monaco editor and shortcuts in a native Rust app that uses less memory. Compare it here.',
   alternates:{canonical:'/vs-code-alternative'},
   openGraph:{images:[OG_IMAGE],url:'/vs-code-alternative',title:'Veyra: the lightweight VS Code alternative'},
   keywords:['VS Code alternative','lightweight VS Code alternative','VS Code alternative low memory','VS Code uses too much memory','code editor that uses less RAM','low memory code editor','lightweight code editor','Cursor alternative','code editor without AI','Veyra'],

@@ -31,6 +31,46 @@ export async function sendPasswordReset(to:string,name:string,link:string){
   });
 }
 
+/* ---------- FlightCoders project enquiries ---------- */
+type LeadMail = { name: string; email: string; company: string; service: string; budget: string; timeline: string; message: string; source: string };
+/** Where enquiries go: LEADS_EMAIL (one address, or several separated by commas). Unset = enquiries are only stored. */
+export const leadsInbox = () => (process.env.LEADS_EMAIL || "").split(",").map(a => a.trim()).filter(Boolean);
+
+/** Tells the team about a new enquiry. Reply goes straight to the person who asked. */
+export async function sendLeadNotification(lead: LeadMail, id: number) {
+  const rows: [string, string][] = [["Name", lead.name], ["Email", lead.email], ["Company", lead.company || "—"], ["Wants", lead.service], ["Budget", lead.budget || "—"], ["Timeline", lead.timeline || "—"], ["Came from", lead.source || "—"]];
+  await transporter().sendMail({
+    from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    to: leadsInbox(),
+    replyTo: `"${lead.name.replace(/"/g, "")}" <${lead.email}>`,
+    subject: `New project enquiry #${id}: ${lead.service}${lead.company ? ` (${lead.company})` : ""}`,
+    text: `${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\n${lead.message}\n\nReply to this email to answer ${lead.name}.`,
+    html: `<div style="font-family:system-ui,sans-serif;max-width:560px;margin:auto;color:#1c2430">
+      <h2 style="margin:0 0 14px">New project enquiry #${id}</h2>
+      <table style="border-collapse:collapse;font-size:14px">${rows.map(([k, v]) => `<tr><td style="padding:4px 14px 4px 0;color:#5b6775">${k}</td><td style="padding:4px 0"><b>${escape(v)}</b></td></tr>`).join("")}</table>
+      <p style="white-space:pre-wrap;background:#f3f6f8;border-radius:10px;padding:14px;margin:16px 0">${escape(lead.message)}</p>
+      <p style="color:#5b6775;font-size:13px">Reply to this email to answer ${escape(lead.name)} directly.</p>
+    </div>`,
+  });
+}
+
+/** Lets the person know their message arrived. */
+export async function sendLeadConfirmation(lead: LeadMail) {
+  await transporter().sendMail({
+    from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    to: lead.email,
+    replyTo: leadsInbox()[0] || undefined,
+    subject: "We got your message, FlightCoders",
+    text: `Hi ${lead.name},\n\nThanks for telling us about your project (${lead.service}). A real person from FlightCoders will reply within one business day.\n\nYour message:\n${lead.message}\n\nFlightCoders, the team behind Veyra Studio\nhttps://veyraeditor.com/flightcoders`,
+    html: `<div style="font-family:system-ui,sans-serif;max-width:520px;margin:auto;color:#1c2430">
+      <h2 style="margin:0 0 12px">Thanks, ${escape(lead.name)}!</h2>
+      <p>We got your message about <b>${escape(lead.service)}</b>. A real person from FlightCoders will reply within one business day.</p>
+      <p style="white-space:pre-wrap;background:#f3f6f8;border-radius:10px;padding:14px;color:#3b4652">${escape(lead.message)}</p>
+      <p style="color:#5b6775;font-size:13px">FlightCoders, the team behind <a href="https://veyraeditor.com">Veyra Studio</a></p>
+    </div>`,
+  });
+}
+
 /* ---------- Diagnostics for /api/health: log in to the SMTP server without sending anything ---------- */
 const MAIL_HINTS:Record<string,string>={
   EAUTH:'The mail server rejected SMTP_USER / SMTP_PASSWORD. Use the full address (no-reply@veyraeditor.com) and that mailbox\'s password (hPanel → Emails), then redeploy.',

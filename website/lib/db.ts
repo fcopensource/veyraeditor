@@ -114,6 +114,21 @@ const SCHEMA=[
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT allowance_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  // Project enquiries from the FlightCoders "work with us" form (/flightcoders).
+  `CREATE TABLE IF NOT EXISTS leads (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    company VARCHAR(120) NOT NULL DEFAULT '',
+    service VARCHAR(60) NOT NULL,
+    budget VARCHAR(40) NOT NULL DEFAULT '',
+    timeline VARCHAR(40) NOT NULL DEFAULT '',
+    message TEXT NOT NULL,
+    source VARCHAR(200) NOT NULL DEFAULT '',
+    emailed TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY leads_created (created_at)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
 ];
 
 /** Create tables once per server process. */
