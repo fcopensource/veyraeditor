@@ -261,6 +261,7 @@ export default async function Home() {
         </section>
 
         <section className="fc-band" data-reveal aria-labelledby="hire-title">
+          <img src="/brand/flightcoders/mark.svg" width={64} height={64} alt="" />
           <div>
             <span>FLIGHTCODERS · WORK WITH US</span>
             <h2 id="hire-title">Need a developer tool, app or extension built?</h2>
