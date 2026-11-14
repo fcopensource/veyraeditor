@@ -2,11 +2,12 @@ import type {MetadataRoute} from 'next';
 import {latestRelease} from '@/lib/releases';
 import {absolute} from '@/lib/site';
 import {allPosts} from '@/lib/blog';
-import {EXTENSIONS} from '@/lib/products';
+import {getLiveProducts} from '@/lib/catalog';
 
 export const revalidate=3600;
 
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
+  const {extensions:EXTENSIONS}=await getLiveProducts();
   const release=await latestRelease();
   const updated=release?.publishedAt?new Date(release.publishedAt):new Date();
   return [

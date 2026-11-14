@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import {EXTENSIONS} from '@/lib/products';
+import {getLiveProducts} from '@/lib/catalog';
 
-export function Footer(){
+export async function Footer(){
+  const {extensions:EXTENSIONS}=await getLiveProducts();
   return <footer className="site-footer">
     <div className="footer-brand">
       <Link className="brand" href="/"><span><Image src="/veyra-96.png" width={30} height={30} alt=""/></span><b>Veyra</b><i>STUDIO</i></Link>
