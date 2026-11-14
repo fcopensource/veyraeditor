@@ -96,6 +96,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/wrapped', icon: '/wrapped-icon.png', name: 'Wrapped', title: 'Veyra Wrapped', group: 'Just for fun', order: 18, tone: 'wrapped', updated: '2026-11-01', tag: 'New',
     copy: 'Your year in code, as a story', cta: 'See your Wrapped',
     summary: 'Your Git history as a story to share: commits, lines written, your coding hours, longest streak, top languages and your coding personality. Save a card for X or LinkedIn.' }),
+  vs({ href: '/garden', icon: '/garden-icon.png', name: 'Code Garden', title: 'Code Garden Veyra', group: 'Just for fun', order: 20, tone: 'garden', updated: '2026-11-15',
+    copy: 'Your coding grows a garden', cta: 'Explore Code Garden',
+    summary: 'A garden that grows while you code. Saving waters it, fixing errors brings butterflies, commits make flowers bloom, and streaks unlock nine plants to collect.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
