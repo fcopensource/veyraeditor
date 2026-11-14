@@ -16,7 +16,7 @@ import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
 import { allPosts, formatDate } from "@/lib/blog";
-import { EXTENSIONS } from "@/lib/products";
+import { getLiveProducts } from "@/lib/catalog";
 import { SHOW_INSTALLS_FROM, compact, extensionName, installsLabel, roundedDown, stats } from "@/lib/stats";
 
 export const revalidate = 300;
@@ -36,7 +36,7 @@ const features = [
 const flowHighlights = ["Shift Shift", "Ctrl+E", "Recent Projects", "TODO window", "Command palette"];
 
 export default async function Home() {
-  const release = await latestRelease();
+  const [release, { extensions: EXTENSIONS }] = await Promise.all([latestRelease(), getLiveProducts()]);
   const version = release?.version ? `v${release.version}` : "preview";
   const sizes = installerSizes(release);
   const numbers = await stats();

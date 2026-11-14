@@ -3,7 +3,7 @@ import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {ArrowRight,Search,X} from 'lucide-react';
-import {ORIGINALS,isNew,type Group} from '@/lib/products';
+import {type Group,type Product} from '@/lib/products';
 import {extensionName,installsLabel} from '@/lib/stats';
 import {Pagination} from './Pagination';
 
@@ -28,7 +28,10 @@ function writeView(v:View,push:boolean){
 }
 
 /** `installs`: real install counts by Marketplace name, from the server (lib/stats). */
-export function OriginalsBrowser({installs={}}:{installs?:Record<string,number>}){
+export function OriginalsBrowser({installs={},items,newest}:{installs?:Record<string,number>;items:Product[];newest:string[]}){
+  const ORIGINALS=items;
+  const fresh=useMemo(()=>new Set(newest),[newest]);
+  const isNew=(p:Product)=>fresh.has(p.href);
   const [view,setView]=useState<View>({q:'',group:'all',sort:'newest',page:1});
   const top=useRef<HTMLDivElement>(null);
   useEffect(()=>{
@@ -41,13 +44,13 @@ export function OriginalsBrowser({installs={}}:{installs?:Record<string,number>}
     setView(v=>{const merged={...v,...next};writeView(merged,push);return merged;});
   },[]);
 
-  const counts=useMemo(()=>Object.fromEntries(FILTERS.map(g=>[g,g==='all'?ORIGINALS.length:ORIGINALS.filter(p=>p.group===g).length])),[]);
+  const counts=useMemo(()=>Object.fromEntries(FILTERS.map(g=>[g,g==='all'?ORIGINALS.length:ORIGINALS.filter(p=>p.group===g).length])),[ORIGINALS]);
   const matching=useMemo(()=>{
     const q=view.q.trim().toLowerCase();
     return ORIGINALS
       .filter(p=>(view.group==='all'||p.group===view.group)&&(!q||[p.title,p.name,p.summary,p.copy,p.group].some(t=>t.toLowerCase().includes(q))))
       .sort((a,b)=>view.sort==='az'?a.title.replace(/^Veyra /,'').localeCompare(b.title.replace(/^Veyra /,'')):b.order-a.order);
-  },[view.q,view.group,view.sort]);
+  },[view.q,view.group,view.sort,ORIGINALS]);
   const pages=Math.max(1,Math.ceil(matching.length/PER_PAGE));
   const page=Math.min(view.page,pages);
   const shown=matching.slice((page-1)*PER_PAGE,page*PER_PAGE);

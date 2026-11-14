@@ -8,7 +8,7 @@ import {BusinessArt,FanArt} from '@/components/FlightArt';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {LeadForm} from '@/components/LeadForm';
-import {EXTENSIONS} from '@/lib/products';
+import {getLiveProducts} from '@/lib/catalog';
 import {absolute,jsonLd} from '@/lib/site';
 import '../live-server/live-server.css';
 import './flightcoders.css';
@@ -37,7 +37,7 @@ const SERVICES=[
 ];
 const WORK=[
   {href:'/download',icon:'/veyra-96.png',title:'Veyra Studio',kind:'Desktop app · Rust + Tauri',copy:'A lightweight code editor for Windows, macOS and Linux, with signed auto-updates and a Microsoft Store listing.'},
-  {href:'/extensions',icon:'/live-server-icon-296.png',title:`${EXTENSIONS.length} VS Code extensions`,kind:'Extensions · Marketplace & Open VSX',copy:'Live Server, Rewind, Error Lens, Container Studio, Query Lens and more, each tested in real VS Code.'},
+  {href:'/extensions',icon:'/live-server-icon-296.png',title:'VS Code extensions',kind:'Extensions · Marketplace & Open VSX',copy:'Live Server, Rewind, Error Lens, Container Studio, Query Lens and more, each tested in real VS Code.'},
   {href:'/salesforce-studio',icon:'/salesforce-studio-icon.png',title:'Salesforce Studio',kind:'Browser extension · Chrome & Firefox',copy:'LWC, Apex and Aura editing in the browser, saved straight to your org.'},
   {href:'/pdf',icon:'/veyra-96.png',title:'Veyra PDF',kind:'Windows app · Microsoft Store',copy:'Edit, sign, merge and organise PDFs offline.'},
   {href:'/baazcyber',icon:'/baazcyber-logo.png',title:'BaazCyber Antivirus',kind:'Security app · Windows',copy:'A modern antivirus with real-time protection and a clean, fast interface.'},
@@ -55,7 +55,9 @@ const FAQ=[
   {q:'Do you work with startups and solo founders?',a:'Yes. Many great developer tools start with one person and an idea. Tell us what you have in mind, however early.'},
 ];
 
-export default function FlightCodersPage(){
+export default async function FlightCodersPage(){
+  const {extensions:EXTENSIONS}=await getLiveProducts();
+  const work=WORK.map(w=>w.href==='/extensions'?{...w,title:`${EXTENSIONS.length} VS Code extensions`}:w);
   const org={
     '@context':'https://schema.org','@type':'ProfessionalService',name:'FlightCoders',url:absolute('/flightcoders'),image:absolute('/brand/flightcoders/icon-192.png'),logo:absolute('/brand/flightcoders/icon-192.png'),
     description:'FlightCoders builds VS Code and JetBrains extensions, desktop apps, browser extensions, web apps and Salesforce solutions.',
@@ -110,7 +112,7 @@ export default function FlightCodersPage(){
 
       <section className="fc-section" id="work">
         <header><span>OUR WORK</span><h2>Shipped, used and maintained by us.</h2><p>Everything here is ours: designed, built, tested and published by FlightCoders.</p></header>
-        <div className="fc-work">{WORK.map(w=><Link key={w.title} href={w.href} className="fc-work-card">
+        <div className="fc-work">{work.map(w=><Link key={w.title} href={w.href} className="fc-work-card">
           <Image src={w.icon} width={52} height={52} alt=""/><div><small>{w.kind}</small><h3>{w.title}</h3><p>{w.copy}</p></div><ArrowRight size={16} className="fc-arrow"/>
         </Link>)}</div>
       </section>
