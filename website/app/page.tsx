@@ -17,7 +17,7 @@ import type { Metadata } from "next";
 import { FAQ } from "@/lib/site";
 import { allPosts, formatDate } from "@/lib/blog";
 import { EXTENSIONS } from "@/lib/products";
-import { compact, extensionName, installsLabel, roundedDown, stats } from "@/lib/stats";
+import { SHOW_INSTALLS_FROM, compact, extensionName, installsLabel, roundedDown, stats } from "@/lib/stats";
 
 export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" }, openGraph: { url: "/" } };
@@ -74,7 +74,7 @@ export default async function Home() {
               </a>
             </div>
             <div className="hero-meta">
-              {downloads >= 100 && <span className="hero-downloads"><Check size={13} /> {compact(downloads)}+ downloads</span>}
+              {downloads >= SHOW_INSTALLS_FROM && <span className="hero-downloads"><Check size={13} /> {compact(downloads)}+ downloads</span>}
               <span><Check size={13} /> Free & open source</span>
               <span><Check size={13} /> {sizes.label}</span>
               <span><Check size={13} /> Auto-updates</span>

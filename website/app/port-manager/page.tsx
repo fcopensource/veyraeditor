@@ -9,6 +9,7 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {latestRelease,RELEASES_URL} from '@/lib/releases';
 import {absolute,jsonLd} from '@/lib/site';
+import {Installs} from '@/components/Installs';
 import '../live-server/live-server.css';
 import './port-manager.css';
 
@@ -68,7 +69,7 @@ export default async function PortManagerPage(){
           <a className="primary" href={MARKETPLACE}><Code2 size={16}/>Get it for VS Code</a>
           <a className="secondary" href={vsixUrl}><Download size={16}/>Download the .vsix</a>
         </div>
-        <p className="live-micro">flightcoders.veyra-port-manager{version?` · v${version}`:''} · Free · MIT · Windows, macOS, Linux</p>
+        <p className="live-micro"><Installs id="flightcoders.veyra-port-manager"/>flightcoders.veyra-port-manager{version?` · v${version}`:''} · Free · MIT · Windows, macOS, Linux</p>
       </section>
 
       <section className="pm-problem" aria-label="The problem it solves">
