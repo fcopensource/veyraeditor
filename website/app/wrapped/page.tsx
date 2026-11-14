@@ -8,12 +8,13 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 import './wrapped.css';
 
-const EXT=VSCODE_EXTENSIONS.wrapped;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.wrapped;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Veyra Wrapped: Your Year in Code, for VS Code',
@@ -53,7 +54,8 @@ const FAQ=[
   {q:'Why don’t my lockfiles count?',a:'Files people don’t write by hand, such as package-lock.json, builds, minified files and source maps, would drown out your real work, so they are left out of lines and languages.'},
 ];
 
-export default function WrappedPage(){
+export default async function WrappedPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Wrapped',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/wrapped'),image:absolute('/wrapped-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

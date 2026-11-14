@@ -8,11 +8,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.garden;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.garden;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Code Garden for VS Code: Your Coding Grows a Garden',
@@ -47,7 +48,8 @@ const FAQ=[
   {q:'Does it work in Cursor and VSCodium?',a:'Yes, it’s a regular VS Code extension: install the .vsix with “Extensions: Install from VSIX…”.'},
 ];
 
-export default function GardenPage(){
+export default async function GardenPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Code Garden Veyra',applicationCategory:'GameApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/garden'),image:absolute('/garden-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

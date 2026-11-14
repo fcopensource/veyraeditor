@@ -87,3 +87,15 @@ export async function liveRelated(href: string, count = 4): Promise<Product[]> {
   const byNewest = (a: Product, b: Product) => b.order - a.order;
   return [...others.filter(p => p.group === self?.group).sort(byNewest), ...others.filter(p => p.group !== self?.group).sort(byNewest)].slice(0, count);
 }
+
+type Registry = {id:string;folder:string;file:string;version:string;listed:boolean};
+/**
+ * An extension page's install details, kept up to date by the catalog: once the extension is on the Marketplace its
+ * page links there, and it shows the Marketplace's latest version. Without the catalog, the registry entry is used.
+ */
+export async function liveExtension<T extends Registry>(base:T):Promise<T>{
+  const {remote}=await getLiveProducts();
+  const r=[...remote.values()].find(x=>x.id===base.id);
+  if(!r) return base;
+  return {...base,listed:base.listed||r.published,version:r.version??base.version};
+}
