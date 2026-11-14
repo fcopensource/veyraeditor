@@ -31,3 +31,6 @@
 .store-button span{display:grid;text-align:left;line-height:1.1;font-weight:600}
 .store-button small{font-size:10.5px;font-weight:400;opacity:.8}
 .platform-card .alt-primary{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;font-size:13px;color:#c5d0db;text-decoration:underline;text-underline-offset:3px}
+
+/* Veyra Studio's real download count on the Download page. */
+.page-head .download-count{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:4px 12px;border-radius:999px;color:var(--mint,#68f4d1);background:#68f4d114;border:1px solid #68f4d133;font:700 12px var(--font-mono,monospace);letter-spacing:.3px}
