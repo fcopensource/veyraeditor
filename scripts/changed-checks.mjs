@@ -13,7 +13,7 @@ const EXTENSIONS = [
   ["live-server", "Live Server"], ["port-manager", "Port Manager"], ["env", "Env"], ["path-intellisense", "Path IntelliSense"],
   ["document-viewer", "Document Viewer"], ["git-graph", "Git Graph"], ["error-lens", "Error Lens"], ["todo-tree", "Todo Tree"],
   ["auto-rename-tag", "Auto Rename Tag"], ["pets", "Pets"], ["codesnap", "CodeSnap"], ["code-guard", "Code Guard"],
-  ["wrapped", "Wrapped"], ["rewind", "Rewind"],
+  ["wrapped", "Wrapped"], ["rewind", "Rewind"], ["garden", "Code Garden"],
 ].map(([dir, name]) => ({ dir, name }));
 
 /** Folders and files that make up the Veyra app (everything that isn't an extension, the website or docs). */
