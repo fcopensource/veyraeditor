@@ -71,3 +71,6 @@
   .live-table .head [role=columnheader]:first-child{display:none}
 }
 @media(prefers-reduced-motion:reduce){.live-icon,.live-kicker i,.live-arrow i,.live-page-preview,.live-page-preview h2,.live-editor .swatch{animation:none}}
+/* The real install count (or "New") in front of an extension's id. */
+.live-micro .installs-badge{display:inline-flex;align-items:center;gap:5px;margin-right:10px;padding:3px 9px;border-radius:999px;color:var(--mint,#68f4d1);background:#68f4d114;border:1px solid #68f4d133;font-weight:700;letter-spacing:.3px}
+.live-micro .installs-badge.new{color:#b79bff;background:#9673ff14;border-color:#9673ff33}

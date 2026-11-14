@@ -189,3 +189,4 @@
 .page-gap{display:grid;place-items:center;min-width:24px;color:#5f6d7a}
 @media(max-width:640px){.page-step span{display:none}.page-step{padding:0 10px}.originals-tools{width:100%}}
 @media(prefers-reduced-motion:reduce){.card-in{animation:none}}
+.ext-original small .card-installs{color:var(--mint,#68f4d1);font-weight:700}

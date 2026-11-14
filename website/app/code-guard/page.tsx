@@ -6,6 +6,7 @@ import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
 import '../live-server/live-server.css';
@@ -116,7 +117,7 @@ export default function CodeGuardPage(){
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Zap size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <a className="secondary" href="#github"><GitPullRequest size={16}/>Add to GitHub</a>
         </div>
-        <p className="live-micro">{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
+        <p className="live-micro"><Installs id={EXT.id}/>{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
         <div className="cg-stats">
           <div><b>45</b><span>attack patterns</span></div>
           <div><b>77</b><span>languages recognised</span></div>

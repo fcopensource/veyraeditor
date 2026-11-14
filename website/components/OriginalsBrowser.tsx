@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {ArrowRight,Search,X} from 'lucide-react';
 import {ORIGINALS,isNew,type Group} from '@/lib/products';
+import {extensionName,installsLabel} from '@/lib/stats';
 import {Pagination} from './Pagination';
 
 const PER_PAGE=6;
@@ -26,7 +27,8 @@ function writeView(v:View,push:boolean){
   if(push)window.history.pushState(null,'',url);else window.history.replaceState(null,'',url);
 }
 
-export function OriginalsBrowser(){
+/** `installs`: real install counts by Marketplace name, from the server (lib/stats). */
+export function OriginalsBrowser({installs={}}:{installs?:Record<string,number>}){
   const [view,setView]=useState<View>({q:'',group:'all',sort:'newest',page:1});
   const top=useRef<HTMLDivElement>(null);
   useEffect(()=>{
@@ -69,7 +71,7 @@ export function OriginalsBrowser(){
     <div className="ext-originals" key={`${page}-${view.group}-${view.sort}`}>
       {shown.map((p,i)=><Link key={p.href} href={p.href} className={`ext-original ${p.tone} card-in`} style={{animationDelay:`${i*45}ms`}}>
         <Image src={p.icon} width={96} height={96} alt=""/>
-        <div><small>{isNew(p)?'NEW · ':''}{(p.platform??'').toUpperCase()}</small><h3>{p.title}</h3><p>{p.summary}</p><span className="ext-link">{p.cta} <ArrowRight size={14}/></span></div>
+        <div><small>{isNew(p)?'NEW · ':''}{(p.platform??'').toUpperCase()}{installsLabel(installs[extensionName(p.href)])?<b className="card-installs"> · {installsLabel(installs[extensionName(p.href)])?.toUpperCase()}</b>:null}</small><h3>{p.title}</h3><p>{p.summary}</p><span className="ext-link">{p.cta} <ArrowRight size={14}/></span></div>
       </Link>)}
     </div>
     {!matching.length&&<p className="ext-gallery-empty">Nothing matches “{view.q}”. <button type="button" className="link-button" onClick={()=>update({q:'',group:'all',page:1})}>Show everything</button></p>}

@@ -9,6 +9,7 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {ExtensionGallery} from '@/components/ExtensionGallery';
 import {OriginalsBrowser} from '@/components/OriginalsBrowser';
+import {stats} from '@/lib/stats';
 import {EXTENSIONS} from '@/lib/products';
 import {TOOLS} from '@/lib/tools';
 import './extensions.css';
@@ -34,7 +35,7 @@ const MAPPED:[string,string,string,'built'|'partial'|'market'][]=[
   ['One Dark Pro, Dracula…','Colour themes','Install from Open VSX in one click','market'],
 ];
 
-export default function Extensions(){
+export default async function Extensions(){
   return <><Nav/><Breadcrumbs items={[{name:'Extensions',path:'/extensions'}]}/>
     <main className="page-shell"><div className="content ext-page-site">
       {/* Hero: the pitch, and Veyra's Extensions view as it looks in the app */}
@@ -69,7 +70,7 @@ export default function Extensions(){
       {/* Veyra originals: searchable, grouped and paged, built from lib/products.ts */}
       <section className="ext-section" id="made-by-veyra">
         <header><span>VEYRA ORIGINALS</span><h2>Made by Veyra.</h2><p>{EXTENSIONS.length} free extensions for VS Code, plus Salesforce Studio. Search them, or pick a group.</p></header>
-        <OriginalsBrowser/>
+        <OriginalsBrowser installs={(await stats()).perExtension}/>
       </section>
 
       {/* Interactive gallery */}

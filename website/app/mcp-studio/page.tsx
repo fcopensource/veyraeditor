@@ -6,6 +6,7 @@ import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {MoreExtensions} from '@/components/MoreExtensions';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
+import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
 import '../live-server/live-server.css';
@@ -65,7 +66,7 @@ export default function McpStudioPage(){
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Zap size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <a className="secondary" href="#install"><Zap size={16}/>How to install</a>
         </div>
-        <p className="live-micro">{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
+        <p className="live-micro"><Installs id={EXT.id}/>{EXT.id} · v{EXT.version} · Free · MIT · Windows, macOS, Linux</p>
       </section>
 
       <section className="pm-shot"><img src="/mcp-studio-inspector.webp" alt="The Inspector: a form for the search_issues tool and its JSON result after running it in 412 ms" width={1600} height={1060}/></section>
