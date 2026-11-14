@@ -234,6 +234,8 @@
 }
 .palette-row>span small { overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 10px }
 .palette-row mark { background: none; color: var(--accent); font-weight: 700 }
+/* The highlighted name is one flex item, so the row's gap doesn't space out its letters. */
+.palette-match { overflow: hidden; text-overflow: ellipsis }
 .palette-group {
     padding: 8px 12px 4px;
     color: var(--muted);
