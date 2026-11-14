@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import './code-guard.css';
 
-const EXT=VSCODE_EXTENSIONS.codeGuard;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.codeGuard;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Veyra Code Guard: Find Trojans, Backdoors and Supply-Chain Attacks',
@@ -90,7 +91,8 @@ jobs:
 
 const Mark=({v}:{v:boolean|'partly'})=>v===true?<Check className="cg-yes" aria-label="Yes"/>:v==='partly'?<Minus className="cg-part" aria-label="Partly"/>:<X className="cg-no" aria-label="No"/>;
 
-export default function CodeGuardPage(){
+export default async function CodeGuardPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Code Guard',applicationCategory:'SecurityApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/code-guard'),image:absolute('/code-guard-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

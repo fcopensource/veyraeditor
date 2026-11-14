@@ -8,11 +8,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.rewind;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.rewind;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Veyra Rewind for VS Code: Local History and Time Travel for Every File',
@@ -41,7 +42,8 @@ const FAQ=[
   {q:'Does my code leave my computer?',a:'Never. History is kept in VS Code’s private storage for the extension on your computer, and Rewind makes no network requests.'},
 ];
 
-export default function RewindPage(){
+export default async function RewindPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Rewind',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/rewind'),image:absolute('/rewind-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

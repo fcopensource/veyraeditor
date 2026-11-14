@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.pets;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.pets;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'VS Code Pets: A Cat, Dog, Fox, Bunny or Panda in Your Editor',
@@ -42,7 +43,8 @@ const FAQ=[
   {q:'Is it the same as the VS Code Pets extension?',a:'It is an independent extension. Every pet is drawn from scratch, and they react to your saves and errors.'},
 ];
 
-export default function PetsPage(){
+export default async function PetsPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Pets Veyra',applicationCategory:'GameApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/pets'),image:absolute('/pets-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

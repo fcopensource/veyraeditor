@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.docker;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.docker;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Docker for VS Code: Containers, Compose and Logs',
@@ -42,7 +43,8 @@ const FAQ=[
   {q:'Is it safe to open someone else’s project?',a:'In Restricted Mode (an untrusted folder) you can still manage your containers, but building images and starting Compose projects from that folder is turned off, because they run code from it.'},
 ];
 
-export default function DockerPage(){
+export default async function DockerPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Container Studio for Docker',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/docker'),image:absolute('/docker-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

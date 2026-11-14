@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.env;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.env;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'.env Files in VS Code: dotenv Checks, Secrets and Sync',
@@ -42,7 +43,8 @@ const FAQ=[
   {q:'Does it work in a monorepo?',a:'Yes. Each code file is checked against the .env files in its own folder and the folders above it.'},
 ];
 
-export default function EnvPage(){
+export default async function EnvPage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Env',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/env'),image:absolute('/env-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,

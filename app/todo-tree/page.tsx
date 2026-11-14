@@ -9,11 +9,12 @@ import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {Installs} from '@/components/Installs';
 import {ClosingCTA} from '@/components/ContentPage';
 import {absolute,jsonLd,marketplaceUrl,VSCODE_EXTENSIONS,vsixUrl} from '@/lib/site';
+import {liveExtension} from '@/lib/catalog';
 import '../live-server/live-server.css';
 import '../port-manager/port-manager.css';
 
-const EXT=VSCODE_EXTENSIONS.todoTree;
-const MARKETPLACE=marketplaceUrl(EXT.id), VSIX=vsixUrl(EXT);
+const EXT_BASE=VSCODE_EXTENSIONS.todoTree;
+const MARKETPLACE=marketplaceUrl(EXT_BASE.id), VSIX=vsixUrl(EXT_BASE);
 
 export const metadata:Metadata={
   title:'Todo Tree for VS Code: Every TODO and FIXME in One Place',
@@ -42,7 +43,8 @@ const FAQ=[
   {q:'Is it the same as the Todo Tree extension?',a:'It is an independent extension, written from scratch, with owners, a Markdown checklist export and updates as you type, and nothing extra to install.'},
 ];
 
-export default function TodoTreePage(){
+export default async function TodoTreePage(){
+  const EXT=await liveExtension(EXT_BASE);
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Todo Tree Veyra',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/todo-tree'),image:absolute('/todo-tree-icon.png'),softwareVersion:EXT.version,downloadUrl:EXT.listed?MARKETPLACE:VSIX,
