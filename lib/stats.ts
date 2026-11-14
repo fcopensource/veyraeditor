@@ -6,8 +6,8 @@ const PUBLISHER = "flightcoders";
 const REPO = "fcopensource/veyraeditor";
 const HOUR = 3600;
 
-/** Below this, a card shows "New" rather than a small number. */
-export const SHOW_INSTALLS_FROM = 50;
+/** From this many, the real count is shown; below it (nobody yet), "New". */
+export const SHOW_INSTALLS_FROM = 1;
 
 /** 950 → "950", 1234 → "1.2K", 90000 → "90K", 1250000 → "1.3M". */
 export function compact(n: number): string {
@@ -79,7 +79,7 @@ export async function stats(): Promise<Stats> {
 
 /** The Marketplace name of an extension page: "/live-server" → "veyra-live-server". */
 export const extensionName = (href: string) => "veyra-" + href.replace(/^\//, "");
-/** "176 installs", or null when it's too early to show a number. */
+/** "176 installs" or "1 install", or null before the first install. */
 export function installsLabel(n: number | undefined): string | null {
   return n !== undefined && n >= SHOW_INSTALLS_FROM ? `${compact(n)} install${n === 1 ? "" : "s"}` : null;
 }
