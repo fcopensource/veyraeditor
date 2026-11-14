@@ -1,8 +1,10 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {AppWindow,ArrowRight,Blocks,Cloud,Code2,Gauge,Globe,LockKeyhole,MessagesSquare,Puzzle,Rocket,ShieldCheck,Wrench} from 'lucide-react';
+import {AppWindow,ArrowRight,Blocks,Building2,Cloud,Code2,Gauge,Globe,LockKeyhole,MessagesSquare,Puzzle,Rocket,ShieldCheck,Wrench} from 'lucide-react';
+import {Geist} from 'next/font/google';
 import {Nav} from '@/components/Nav';
+import {BusinessArt,FanArt} from '@/components/FlightArt';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {LeadForm} from '@/components/LeadForm';
@@ -10,6 +12,9 @@ import {EXTENSIONS} from '@/lib/products';
 import {absolute,jsonLd} from '@/lib/site';
 import '../live-server/live-server.css';
 import './flightcoders.css';
+
+// FlightCoders' typeface: Geist, a free (OFL) font with a clean, technical feel.
+const geist=Geist({subsets:['latin'],display:'swap',variable:'--fc-font'});
 
 export const metadata:Metadata={
   title:'FlightCoders: Custom VS Code Extensions, Desktop Apps & Developer Tools',
@@ -61,7 +66,7 @@ export default function FlightCodersPage(){
   return <><Nav/><Breadcrumbs items={[{name:'FlightCoders',path:'/flightcoders'}]}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(org)}}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(faq)}}/>
-    <main className="page-shell fc-page">
+    <main className={`page-shell fc-page ${geist.variable}`}>
       <section className="fc-hero">
         <div className="fc-glow" aria-hidden="true"/>
         <img className="fc-logo" src="/brand/flightcoders/mark.svg" width={112} height={112} alt="FlightCoders"/>
@@ -75,9 +80,32 @@ export default function FlightCodersPage(){
         </ul>
       </section>
 
+      <section className="fc-business" aria-labelledby="fc-business-title">
+        <p className="fc-for">For <Building2 aria-hidden="true"/> businesses</p>
+        <h2 id="fc-business-title">Ship your product faster,<br/>with a team that ships its own.</h2>
+        <div className="fc-panel">
+          <BusinessArt/>
+          <div className="fc-panel-copy">
+            <h3>Custom software.<br/>Built to last.</h3>
+            <p>Extensions, desktop apps and web products, planned with you, delivered in weekly milestones, and published to the stores your users already trust.</p>
+            <a className="fc-pill" href="#start">Start a project</a>
+          </div>
+        </div>
+      </section>
+
       <section className="fc-section">
         <header><span>WHAT WE BUILD</span><h2>From idea to store listing.</h2></header>
         <div className="fc-services">{SERVICES.map(s=><article key={s.title}><s.icon size={22}/><h3>{s.title}</h3><p>{s.copy}</p></article>)}</div>
+      </section>
+
+      <section className="fc-eco" aria-labelledby="fc-eco-title">
+        <FanArt/>
+        <div className="fc-eco-copy">
+          <img src="/brand/flightcoders/mark.svg" width={72} height={72} alt=""/>
+          <h2 id="fc-eco-title">The FlightCoders<br/>product family</h2>
+          <p>Veyra Studio, {EXTENSIONS.length} VS Code extensions, Salesforce Studio and Veyra PDF: tools we design, build and maintain every day, and the same craft we bring to your project.</p>
+          <a className="fc-pill" href="#work">Explore</a>
+        </div>
       </section>
 
       <section className="fc-section" id="work">
