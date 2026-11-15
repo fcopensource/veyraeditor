@@ -60,15 +60,15 @@ export default async function JetBrainsPluginPage({params}:{params:Promise<{slug
       </section>
 
       {p.shot&&<section className="jb-section">
-        <div className="jb-wrap jb-shot">
+        <div className={p.shot.wide?'jb-wrap jb-shot wide':'jb-wrap jb-shot'}>
           <figure>
-            <Image src={p.shot.src} width={p.shot.width} height={p.shot.height} alt={p.shot.alt} sizes="(max-width: 700px) 70vw, 320px"/>
+            <Image src={p.shot.src} width={p.shot.width} height={p.shot.height} alt={p.shot.alt} sizes={p.shot.wide?'(max-width: 1160px) 92vw, 1080px':'(max-width: 700px) 70vw, 320px'}/>
           </figure>
           <div>
             <small>SEE IT</small>
-            <h2>A real device, one click.</h2>
+            <h2>{p.shot.heading??'A real device, one click.'}</h2>
             <p>{p.shot.caption}</p>
-            <p className="jb-dim">Every setting goes back with Reset, so your phone is never left in a strange state.</p>
+            <p className="jb-dim">{p.shot.note??'Every setting goes back with Reset, so your phone is never left in a strange state.'}</p>
           </div>
         </div>
       </section>}
