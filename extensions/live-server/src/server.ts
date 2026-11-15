@@ -33,13 +33,30 @@ const isHtml = (file: string) => /\.html?$/i.test(file);
     console on it goes at the top of <head> instead, so it hears the page's console from the very first script. */
 export function inject(html: Buffer, withConsole = false): Buffer {
   const text = html.toString("latin1").toLowerCase(); // latin1 keeps byte offsets
-  let index = -1;
-  if (withConsole) {
-    const head = /<head(\s[^>]*)?>/.exec(text);
-    if (head) index = head.index + head[0].length;
-  }
+  let index = withConsole ? afterHeadTag(text) : -1;
   if (index < 0) { const at = text.lastIndexOf("</body>"); index = at < 0 ? html.length : at; }
   return Buffer.concat([html.subarray(0, index), Buffer.from(withConsole ? SCRIPT_TAG_CONSOLE : SCRIPT_TAG), html.subarray(index)]);
+}
+
+/** Where the first <head> or <head …> tag ends (not <header>), or -1. One pass, so no page can make it slow. */
+function afterHeadTag(text: string): number {
+  for (let i = text.indexOf("<head"); i >= 0; i = text.indexOf("<head", i + 5)) {
+    const next = text.charAt(i + 5);
+    if (next === ">") return i + 6;
+    if (next === " " || next === "\t" || next === "\n" || next === "\r" || next === "\f") {
+      const close = text.indexOf(">", i + 5);
+      return close < 0 ? -1 : close + 1;
+    }
+  }
+  return -1;
+}
+
+/** `file` itself when it's the served folder or inside it, otherwise undefined. A second, local check on top of
+    resolve(), in the form code scanners recognise, wherever a path from a request reaches the file system. */
+function inside(root: string, file: string | undefined): string | undefined {
+  if (!file) return undefined;
+  const absolute = path.resolve(file);
+  return absolute === root || absolute.startsWith(root.endsWith(path.sep) ? root : root + path.sep) ? absolute : undefined;
 }
 
 /** The file a URL path refers to, inside `root` (a real path). Undefined for anything that escapes it. */
@@ -247,7 +264,7 @@ export class LiveServer {
 
     const html = { "Content-Type": "text/html; charset=utf-8" };
     const withConsole = !!this.options.onConsole;
-    let file = resolve(this.root, urlPath);
+    const file = inside(this.root, resolve(this.root, urlPath));
     // Single-page apps: /about, /users/42 and the like are routes, not files: serve the app's index.html.
     if (!file && this.options.spa && !path.extname(urlPath.split("/").pop() || "") && (req.headers.accept || "text/html").includes("text/html")) {
       const index = ["index.html", "index.htm"].map(name => path.join(this.root, name)).find(p => fs.existsSync(p));
@@ -260,7 +277,7 @@ export class LiveServer {
     try {
       if (fs.statSync(file).isDirectory()) {
         if (!urlPath.endsWith("/")) return reply(301, { Location: urlPath + "/" });
-        const index = ["index.html", "index.htm"].map(name => path.join(file!, name)).find(p => fs.existsSync(p) && fs.statSync(p).isFile());
+        const index = ["index.html", "index.htm"].map(name => inside(this.root, path.join(file, name))).find((p): p is string => !!p && fs.existsSync(p) && fs.statSync(p).isFile());
         if (index) return reply(200, { "Content-Type": mime(index) }, inject(fs.readFileSync(index), withConsole));
         const entries = fs.readdirSync(file, { withFileTypes: true }).filter(e => !e.name.startsWith("."))
           .map(e => ({ dir: e.isDirectory(), name: e.name }))
@@ -270,7 +287,6 @@ export class LiveServer {
           + entries.map(e => `<li><a href="${encodeURIComponent(e.name)}${e.dir ? "/" : ""}">${escape(e.name)}${e.dir ? "/" : ""}</a></li>`).join("");
         return reply(200, html, this.page(`Index of ${escape(shown)}`, `<h1>Index of ${escape(shown)}</h1><ul>${list}</ul><small>Veyra Live Server</small>`));
       }
-      file = file!;
       if (isHtml(file)) return reply(200, { "Content-Type": mime(file) }, inject(fs.readFileSync(file), withConsole));
       return this.stream(req, res, file, headOnly);
     } catch (error) {
