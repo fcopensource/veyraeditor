@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- **Keeps your place:** after a live reload the page comes back at the same scroll position
+- **Browser console in VS Code:** `console.log`, warnings, errors and unhandled promise rejections from the page appear in the new **Veyra Live Server: Browser Console** output, with an error count in the status bar (`veyraLiveServer.browserConsole`, on by default)
+- **Test on your phone:** **Share on Your Network** serves the page to phones and tablets on the same Wi-Fi and shows the address to open (`veyraLiveServer.shareOnNetwork`, off by default; asks before turning on)
+- **API proxy:** forward paths such as `/api` to your backend, any method, with bodies streamed (`veyraLiveServer.proxy`)
+- **Single-page apps:** routes like `/about` get the root `index.html` (`veyraLiveServer.spa`)
+- **Smarter reloads:** only changes inside the served folder reload the page, and `veyraLiveServer.ignore` skips more (for example `**/*.log`)
+- Changing any of these settings restarts Live Server right away
+
 ## 1.3.0
 
 - **Quick menu:** click the port in the status bar for Open in Browser, Copy Address, Restart or Stop, so one click no longer stops the server by accident

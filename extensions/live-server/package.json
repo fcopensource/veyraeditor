@@ -2,7 +2,7 @@
   "name": "veyra-live-server",
   "displayName": "Veyra Live Server",
   "description": "Save. See it. Instantly. A local development server with live reload for HTML, CSS and JavaScript: CSS updates without a page reload, works over Remote SSH, WSL and Codespaces, no dependencies.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
@@ -108,6 +108,23 @@
         "command": "veyraLiveServer.menu",
         "title": "Live Server Menu",
         "category": "Veyra Live Server"
+      },
+      {
+        "command": "veyraLiveServer.toggleNetwork",
+        "title": "Share on Your Network (Test on Your Phone)",
+        "category": "Veyra Live Server",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "veyraLiveServer.copyNetworkUrl",
+        "title": "Copy Network Address",
+        "category": "Veyra Live Server"
+      },
+      {
+        "command": "veyraLiveServer.showConsole",
+        "title": "Show Browser Console",
+        "category": "Veyra Live Server",
+        "icon": "$(terminal)"
       }
     ],
     "menus": {
@@ -148,6 +165,14 @@
         },
         {
           "command": "veyraLiveServer.goOffline",
+          "when": "veyraLiveServer.running"
+        },
+        {
+          "command": "veyraLiveServer.copyNetworkUrl",
+          "when": "veyraLiveServer.running"
+        },
+        {
+          "command": "veyraLiveServer.showConsole",
           "when": "veyraLiveServer.running"
         }
       ],
@@ -191,6 +216,37 @@
           "type": "boolean",
           "default": true,
           "description": "Open the page in your default browser when Live Server starts."
+        },
+        "veyraLiveServer.shareOnNetwork": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Also serve on your local network, so you can open the page on a **phone or tablet** on the same Wi-Fi. Off: only this computer can open it."
+        },
+        "veyraLiveServer.browserConsole": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the page’s `console.log`, warnings, errors and unhandled promise rejections in the **Veyra Live Server: Browser Console** output, with an error count in the status bar."
+        },
+        "veyraLiveServer.spa": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "**Single-page apps** (React Router, Vue Router…): paths like `/about` that aren’t files get the root `index.html` instead of a 404."
+        },
+        "veyraLiveServer.proxy": {
+          "type": "object",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          },
+          "markdownDescription": "Forward paths to another server, so your page can call your backend without CORS. Example: `{ \"/api\": \"http://localhost:3000\" }` sends `/api/users` to `http://localhost:3000/api/users`."
+        },
+        "veyraLiveServer.ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Changes to files matching these patterns (relative to the served folder) don’t reload the page. Example: `[\"**/*.log\", \"drafts/**\"]`. `.git` and `node_modules` are always ignored."
         }
       }
     }

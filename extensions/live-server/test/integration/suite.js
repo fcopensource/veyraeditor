@@ -7,6 +7,7 @@ const path = require("node:path");
 const vscode = require("vscode");
 
 const get = url => new Promise((done, fail) => http.get(url, res => { let body = ""; res.setEncoding("utf8"); res.on("data", c => body += c); res.on("end", () => done({ status: res.statusCode, body })); }).on("error", fail));
+const post = (url, body) => new Promise((done, fail) => { const req = http.request(url, { method: "POST" }, res => { res.resume(); res.on("end", () => done(res.statusCode)); }); req.on("error", fail); req.end(body); });
 const nextEvent = url => new Promise((done, fail) => {
   const req = http.get(url, res => { let buffer = ""; res.setEncoding("utf8"); res.on("data", text => { buffer += text; const m = buffer.match(/event: (\w+)\n/); if (m) { req.destroy(); done(m[1]); } }); });
   req.on("error", error => { if (!req.destroyed) fail(error); });
@@ -28,7 +29,8 @@ exports.run = async function run() {
 
   const about = await get(page);
   assert.equal(about.status, 200);
-  assert.ok(about.body.includes('<script src="/__veyra_live/client.js"></script></body>'), about.body);
+  // The browser console is on by default: pages are told to send their console messages.
+  assert.ok(about.body.includes('<script src="/__veyra_live/client.js" data-console="1"></script></body>'), about.body);
   assert.ok((await get(base)).body.includes("<h1>Home</h1>"));
 
   const event = nextEvent(base + "__veyra_live/events");
@@ -56,6 +58,33 @@ exports.run = async function run() {
   }
   assert.ok(restarted, "the server restarted on the new root folder");
   await settings.update("root", undefined, vscode.ConfigurationTarget.Global);
+
+  // 1.4: the page's console reaches VS Code.
+  // (The server restarted when the root setting changed, so ask it for its current address.)
+  const api = extension.exports;
+  const until = async (check, what) => { for (let i = 0; i < 60; i++) { await new Promise(r => setTimeout(r, 150)); const ok = await check().catch(() => false); if (ok) return ok; } throw new Error("timed out: " + what); };
+  const current = () => vscode.commands.executeCommand("veyraLiveServer.goLive").then(a => new URL("/", a).href);
+  await until(async () => (await post((await current()) + "__veyra_live/log", JSON.stringify({ level: "error", text: "Uncaught ReferenceError: foo is not defined", page: "/pages/" }))) === 204, "the console message was received");
+  assert.ok(api.consoleLines().some(l => l.includes("foo is not defined")), "console message in the Browser Console");
+
+  // Settings that change how the server runs restart it: single-page app routes, then the API proxy.
+  await settings.update("spa", true, vscode.ConfigurationTarget.Global);
+  await until(async () => (await get((await current()) + "dashboard/settings")).body.includes("<h1>Home</h1>"), "an SPA route served index.html");
+  await settings.update("spa", undefined, vscode.ConfigurationTarget.Global);
+
+  const backend = http.createServer((req, res) => { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify({ from: "backend", path: req.url })); });
+  await new Promise(r => backend.listen(0, "127.0.0.1", r));
+  await settings.update("proxy", { "/api": "http://127.0.0.1:" + backend.address().port }, vscode.ConfigurationTarget.Global);
+  await until(async () => (await get((await current()) + "api/users?x=1")).body === JSON.stringify({ from: "backend", path: "/api/users?x=1" }), "the proxy reached the backend");
+  await settings.update("proxy", undefined, vscode.ConfigurationTarget.Global);
+  backend.close();
+
+  // Sharing on the network: still answers here, and knows its network addresses.
+  await settings.update("shareOnNetwork", true, vscode.ConfigurationTarget.Global);
+  await until(async () => api.server()?.options.network === true && (await get(await current())).status === 200, "sharing on the network");
+  for (const url of api.server().networkUrls) assert.match(url, /^http:\/\/[\d.]+:\d+\/$/);
+  await settings.update("shareOnNetwork", undefined, vscode.ConfigurationTarget.Global);
+  await until(async () => api.server()?.options.network === false, "sharing turned off");
 
   // Restart keeps serving; Stop shuts it down.
   await vscode.commands.executeCommand("veyraLiveServer.restart");

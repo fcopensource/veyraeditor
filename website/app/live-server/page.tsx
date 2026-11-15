@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {Code2,Download,FolderTree,Keyboard,LockKeyhole,MousePointerClick,Paintbrush,Radio,RefreshCw,Save,ShieldCheck,Zap} from 'lucide-react';
+import {ArrowDownUp,Code2,Download,FolderTree,Keyboard,LockKeyhole,MonitorSmartphone,MousePointerClick,Paintbrush,Radio,RefreshCw,Route,Save,ShieldCheck,TerminalSquare,Zap} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
@@ -27,7 +27,11 @@ const FEATURES=[
   {icon:Paintbrush,title:'CSS without a reload',copy:'Save a stylesheet and the new CSS is swapped in place. Scroll position, open menus and typed text stay exactly where they were.'},
   {icon:MousePointerClick,title:'Go Live in one click',copy:'Click Go Live in the status bar, or right-click any HTML file and choose Open with Live Server. The page opens in your browser.'},
   {icon:FolderTree,title:'Folders and media just work',copy:'index.html opens automatically, folders without one show a clean list of their files, and videos and audio stream and seek smoothly.'},
-  {icon:LockKeyhole,title:'Private by design',copy:'Listens on 127.0.0.1 only, so other devices on your network can\'t see your work. Nothing outside your folder is ever served.'},
+  {icon:MonitorSmartphone,title:'Test on your phone',copy:'Turn on Share on Your Network and open the page on any phone or tablet on the same Wi-Fi. It reloads with every save. In VS Code.'},
+  {icon:TerminalSquare,title:'The browser console in your editor',copy:'console.log, warnings, errors and failed promises from the page appear in VS Code, with an error count in the status bar. In VS Code.'},
+  {icon:ArrowDownUp,title:'Keeps your place',copy:'After a reload the page comes back at the same scroll position, so you stay where you were working.'},
+  {icon:Route,title:'API proxy and single-page apps',copy:'Send /api to your backend without CORS headaches, and serve index.html for React or Vue routes. In VS Code.'},
+  {icon:LockKeyhole,title:'Private by design',copy:'Listens on 127.0.0.1 only unless you choose to share it on your network. Nothing outside your folder is ever served.'},
   {icon:Zap,title:'Tiny and native',copy:'Built into Veyra in Rust, with no Node.js and nothing to install. The VS Code edition has zero runtime dependencies and is under 100 KB.'},
 ];
 
