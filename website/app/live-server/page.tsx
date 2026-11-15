@@ -6,12 +6,22 @@ import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
 import {ClosingCTA} from '@/components/ContentPage';
-import {latestRelease,RELEASES_URL} from '@/lib/releases';
 import {absolute,jsonLd} from '@/lib/site';
 import {Installs} from '@/components/Installs';
 
 /** The VS Code edition on the Visual Studio Marketplace. */
 const MARKETPLACE='https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server';
+/** The current VS Code edition, hosted on this site (public/downloads/vscode). */
+const VERSION='1.4.0';
+const VSIX_URL=`/downloads/vscode/veyra-live-server-${VERSION}.vsix`;
+const WHATS_NEW:[string,string][]=[
+  ['Test on your phone','Share on Your Network serves the page to phones and tablets on the same Wi-Fi, and shows the address to open. Off until you turn it on.'],
+  ['Browser console in VS Code','console.log, warnings, errors and unhandled promise rejections appear in the Browser Console output, with an error count in the status bar.'],
+  ['Keeps your place','After a live reload the page comes back at the same scroll position.'],
+  ['API proxy','Forward /api (or any path) to your backend, any method, with request bodies streamed. No CORS setup.'],
+  ['Single-page apps','Routes like /about get your index.html, for React Router, Vue Router and friends.'],
+  ['Smarter reloads','Only changes inside the served folder reload the page, and veyraLiveServer.ignore skips more, like **/*.log.'],
+];
 import './live-server.css';
 
 export const metadata:Metadata={
@@ -48,19 +58,16 @@ const FAQ=[
   {q:'Is Veyra Live Server free?',a:'Yes. It\'s built into Veyra Studio, which is free and open source, and the VS Code edition is free and MIT licensed.'},
   {q:'How is it different from the classic Live Server extension?',a:'It works the same way, with the same port and shortcuts, so it feels familiar. It also applies CSS changes without reloading the page, only accepts connections from your own computer, never serves files outside your folder, and has no runtime dependencies.'},
   {q:'Do I need Node.js?',a:'Not in Veyra: the server is part of the app. In VS Code, the extension runs inside VS Code itself, so there\'s nothing else to install either.'},
-  {q:'Can I open my site on my phone?',a:'Not yet. Veyra Live Server listens on your own computer only (127.0.0.1) to keep your work private. Sharing on your local network is on the roadmap as an opt-in setting.'},
+  {q:'Can I open my site on my phone?',a:'Yes, in VS Code since 1.4. Click the port in the status bar, choose Share on Your Network, and open the address it shows on your phone (same Wi-Fi). It\'s off by default, so your work stays on your computer until you turn it on.'},
+  {q:'Can I see my page\'s console errors without opening DevTools?',a:'Yes, in VS Code since 1.4. Messages and errors from the page appear in the Veyra Live Server: Browser Console output, and the status bar shows how many errors there were. Turn it off with veyraLiveServer.browserConsole.'},
 ];
 
 export default async function LiveServerPage(){
-  const release=await latestRelease();
-  const vsix=release?.assets.find(asset=>/^veyra-live-server-.*\.vsix$/i.test(asset.name));
-  const vsixVersion=vsix?.name.match(/-(\d+\.\d+\.\d+)\.vsix$/i)?.[1];
-  const vsixUrl=vsix?.browser_download_url||RELEASES_URL;
   const app={
     '@context':'https://schema.org','@type':'SoftwareApplication',name:'Veyra Live Server',applicationCategory:'DeveloperApplication',
     operatingSystem:'Windows, macOS, Linux',url:absolute('/live-server'),image:absolute('/live-server-icon.png'),
     description:'A local development server with live reload for HTML, CSS and JavaScript, built into Veyra Studio and available for VS Code.',
-    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},...(vsixVersion?{softwareVersion:vsixVersion}:{}),
+    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},softwareVersion:VERSION,
     publisher:{'@type':'Organization',name:'Veyra Studio',url:absolute('/')},
   };
   const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:FAQ.map(item=>({'@type':'Question',name:item.q,acceptedAnswer:{'@type':'Answer',text:item.a}}))};
@@ -72,6 +79,7 @@ export default async function LiveServerPage(){
       <section className="live-hero">
         <div className="live-hero-glow" aria-hidden="true"/>
         <div className="live-icon"><Image src="/live-server-icon-296.png" width={148} height={148} alt="Veyra Live Server icon" priority/></div>
+        <a className="live-new" href="#whats-new"><b>New</b>Version {VERSION}: test on your phone, browser console, API proxy</a>
         <span className="live-kicker"><i/>VEYRA EDITION · FOR VEYRA AND VS CODE</span>
         <h1>Veyra <em>Live Server</em></h1>
         <p className="live-tagline">Save. See it. Instantly.</p>
@@ -94,6 +102,11 @@ export default async function LiveServerPage(){
           <div className="live-bar"><span/><span/><span/><b>127.0.0.1:5500</b></div>
           <div className="live-page-preview"><small>VEYRA LIVE SERVER</small><h2>Hello from Live Server</h2><p>Typed text stays: the page never reloaded</p></div>
         </div>
+      </section>
+
+      <section className="content-section" id="whats-new">
+        <header><span>NEW IN {VERSION}</span><h2>What&apos;s new in Live Server {VERSION}</h2><p>The VS Code edition. Update from the Extensions view, or <a href={VSIX_URL} download>download the .vsix</a>.</p></header>
+        <ul className="live-new-list">{WHATS_NEW.map(([title,copy])=><li key={title}><strong>{title}</strong><span>{copy}</span></li>)}</ul>
       </section>
 
       <section className="content-section">
@@ -127,14 +140,16 @@ export default async function LiveServerPage(){
             <li>Click <strong>Install</strong>.</li>
             <li>Click <strong>Go Live</strong> in the status bar. Click the port to open, copy, restart or stop.</li>
           </ol>
-          <p className="live-note">Or from a terminal: <code>code --install-extension flightcoders.veyra-live-server</code>. Working offline? <a href={vsixUrl}>Download the <code>.vsix</code></a> and choose <strong>Install from VSIX…</strong>.</p>
+          <p className="live-note">Or from a terminal: <code>code --install-extension flightcoders.veyra-live-server</code>. Working offline? <a href={VSIX_URL} download>Download the <code>.vsix</code> ({VERSION})</a>, then in Extensions click <strong>…</strong> → <strong>Install from VSIX…</strong>.</p>
         </div>
         <div className="visual" aria-label="VS Code settings">
           <small>settings.json · optional</small>
           {'{'}<br/>
           &nbsp;&nbsp;<b>&quot;veyraLiveServer.port&quot;</b>: <i>5500</i>,<br/>
           &nbsp;&nbsp;<b>&quot;veyraLiveServer.root&quot;</b>: <em>&quot;/public&quot;</em>,<br/>
-          &nbsp;&nbsp;<b>&quot;veyraLiveServer.openBrowser&quot;</b>: <i>true</i><br/>
+          &nbsp;&nbsp;<b>&quot;veyraLiveServer.openBrowser&quot;</b>: <i>true</i>,<br/>
+          &nbsp;&nbsp;<b>&quot;veyraLiveServer.spa&quot;</b>: <i>true</i>,<br/>
+          &nbsp;&nbsp;<b>&quot;veyraLiveServer.proxy&quot;</b>: {'{'} <b>&quot;/api&quot;</b>: <em>&quot;http://localhost:3000&quot;</em> {'}'}<br/>
           {'}'}
         </div>
       </section>
@@ -144,7 +159,7 @@ export default async function LiveServerPage(){
           <span className="kicker">SECURITY</span>
           <h2>Private by default.</h2>
           <ul>
-            <li><ShieldCheck/><span>Accepts connections from <strong>your computer only</strong> (127.0.0.1), never from your Wi-Fi or office network.</span></li>
+            <li><ShieldCheck/><span>Accepts connections from <strong>your computer only</strong> (127.0.0.1). Phones on your Wi-Fi can connect only after you turn on <strong>Share on Your Network</strong>, which asks first.</span></li>
             <li><ShieldCheck/><span>Serves <strong>only the open folder</strong>. Tricks like <code>../</code>, encoded slashes and symbolic links that point outside are refused.</span></li>
             <li><ShieldCheck/><span>No telemetry, no accounts, no runtime dependencies to keep patched.</span></li>
           </ul>
