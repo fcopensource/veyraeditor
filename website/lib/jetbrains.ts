@@ -27,7 +27,13 @@ export type JetBrainsPlugin = {
   /** The IDEs it is made for, when not every JetBrains IDE. */
   ides?: string[];
   /** A real screenshot of what it does. */
-  shot?: { src: string; width: number; height: number; alt: string; caption: string };
+  shot?: {
+    src: string; width: number; height: number; alt: string; caption: string;
+    /** The heading and second line next to it (default: Device Lab's). */
+    heading?: string; note?: string;
+    /** A landscape screenshot (an IDE window): shown full width above its story. */
+    wide?: boolean;
+  };
 };
 
 export const JETBRAINS_IDES = ['IntelliJ IDEA', 'WebStorm', 'PyCharm', 'GoLand', 'PhpStorm', 'Rider', 'CLion', 'RubyMine', 'RustRover', 'DataGrip', 'Android Studio'];
@@ -80,6 +86,36 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
     where: ['View → Tool Windows → Device Lab (right side)', 'Tools → Open Device Lab', 'Tools → Device Lab: Set adb Path… (only if your Android SDK is somewhere unusual)'],
     ides: ['Android Studio', 'IntelliJ IDEA'],
     shot: { src: '/device-lab-worst-case.png', width: 1080, height: 2400, alt: 'An Android emulator showing Settings in Arabic, right-to-left, dark theme, with the largest font and layout bounds', caption: 'One click on Worst case, then Layout bounds and a clean status bar: Settings on an Android 16 emulator in Arabic, right-to-left, dark, at 200 % font.' },
+  },
+  {
+    slug: 'veyra-theme',
+    name: 'Veyra Theme',
+    tagline: 'Your IDE, in coral, amber and violet.',
+    summary: 'A warm, modern dark and light theme in the FlightCoders colours: coral, amber and violet on deep ink. Themes the whole IDE and every language in the editor.',
+    version: '1.0.0',
+    file: '/downloads/jetbrains/veyra-theme-1.0.0.zip',
+    size: '36 KB',
+    icon: '/veyra-theme-jetbrains.svg',
+    since: '2024.3',
+    marketplace: null,
+    source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/veyra-theme',
+    released: '2026-11-15',
+    features: [
+      { title: 'Veyra Dark and Veyra Light', copy: 'A deep ink-violet dark theme that is easy on the eyes for long sessions, and a soft lavender-paper light theme with crisp, high-contrast code.' },
+      { title: 'The whole IDE, not just the editor', copy: 'Toolbars, tool windows, tabs, popups, Search Everywhere, dialogs, the Run widget and notifications: 600+ parts of the IDE, all in one palette.' },
+      { title: 'The new Islands look', copy: 'On 2025.3 and newer you get JetBrains’ rounded Islands layout in Veyra colours. Older IDEs get the classic New UI, just as polished.' },
+      { title: 'Every language matches', copy: 'Coral keywords, amber strings, violet types, lavender functions and mint annotations in Java, Kotlin, Python, JavaScript, TypeScript, Go, Rust, PHP, SQL and the rest.' },
+      { title: 'Signature details', copy: 'Coral-to-violet buttons, a coral caret and tab underline, an amber current line number and an amber-to-violet progress bar.' },
+      { title: 'Easy to read', copy: 'Every syntax colour clears WCAG AA contrast on its background, and the debugger, diffs, VCS, search results and terminal are themed too.' },
+    ],
+    where: ['Settings → Appearance & Behavior → Appearance → Theme → Veyra Dark or Veyra Light', 'The editor colour scheme switches with the theme (Settings → Editor → Color Scheme)', 'Quick switch: View → Quick Switch Scheme → Theme'],
+    shot: {
+      src: '/veyra-theme-dark.png', width: 1238, height: 1165, wide: true,
+      alt: 'IntelliJ IDEA 2026.3 with Veyra Dark: rounded ink-violet panels, coral keywords, lavender types and a coral tab border',
+      caption: 'IntelliJ IDEA 2026.3 with Veyra Dark and the Islands look. Coral keywords, violet and lavender types, mint annotations and an amber line number, on deep ink.',
+      heading: 'Every pixel, on brand.',
+      note: 'Veyra Light is in the same plugin: switch between them in Settings → Appearance.',
+    },
   },
 ];
 

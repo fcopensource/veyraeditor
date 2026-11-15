@@ -92,4 +92,8 @@
 .jb-shot h2{margin:12px 0 0;font-size:clamp(30px,4vw,48px);letter-spacing:-.03em}
 .jb-shot p{margin:18px 0 0;max-width:520px;color:#d6d6e0;font-size:17px;line-height:1.65}
 .jb-shot p.jb-dim{color:var(--jb-dim);font-size:15px}
-@media (max-width:760px){.jb-shot{grid-template-columns:1fr;gap:28px}.jb-shot figure{max-width:280px;margin:0 auto}}
+/* A landscape screenshot (an IDE window): full width, its story below */
+.jb-shot.wide{grid-template-columns:1fr;gap:32px}
+.jb-shot.wide figure{padding:8px;border-radius:18px}
+.jb-shot.wide img{border-radius:12px}
+@media (max-width:760px){.jb-shot.wide figure{max-width:none}.jb-shot{grid-template-columns:1fr;gap:28px}.jb-shot figure{max-width:280px;margin:0 auto}}
