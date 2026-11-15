@@ -10,7 +10,7 @@ import { test } from "node:test";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { LiveServer, changeKind, inject, mime, resolve, urlFor, CLIENT_PATH, EVENTS_PATH } = require("../out/server.js");
+const { LiveServer, changeKind, inject, mime, resolve, urlFor, globToRegExp, proxyRules, CLIENT_PATH, EVENTS_PATH, LOG_PATH } = require("../out/server.js");
 const script = fs.readFileSync(new URL("../media/live-reload.js", import.meta.url), "utf8");
 const TAG = '<script src="/__veyra_live/client.js"></script>';
 
@@ -149,4 +149,128 @@ test("streams files with Range support, and survives malformed requests", async 
 
 test("explains a missing folder instead of failing obscurely", async () => {
   await assert.rejects(LiveServer.start(path.join(os.tmpdir(), "veyra-does-not-exist-" + Date.now()), 0, script), /ENOENT|does not exist|no such file/i);
+});
+
+// ---------- 1.4.0 ----------
+
+function request(port, urlPath, { method = "GET", body, headers = {} } = {}) {
+  return new Promise((done, fail) => {
+    const req = http.request({ host: "127.0.0.1", port, path: urlPath, method, headers }, res => {
+      const chunks = []; res.on("data", c => chunks.push(c)); res.on("end", () => done({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks).toString() }));
+    });
+    req.on("error", fail);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+const site = files => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), "veyra-live-")); for (const [name, text] of Object.entries(files)) { fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true }); fs.writeFileSync(path.join(dir, name), text); } return dir; };
+
+test("Veyra Studio's script tag is unchanged; the console flag is only added when asked", () => {
+  assert.equal(inject(Buffer.from("<body></body>")).toString(), `<body>${TAG}</body>`);
+  assert.equal(inject(Buffer.from("<body></body>"), true).toString(), '<body><script src="/__veyra_live/client.js" data-console="1"></script></body>');
+  // With the console on and a <head>, the script comes first, so it hears every console call.
+  assert.equal(inject(Buffer.from('<!doctype html><html><HEAD lang="x"><title>t</title></head><body><script>console.log(1)</script></body></html>'), true).toString(),
+    '<!doctype html><html><HEAD lang="x"><script src="/__veyra_live/client.js" data-console="1"></script><title>t</title></head><body><script>console.log(1)</script></body></html>');
+  assert.ok(!inject(Buffer.from("<html><header>not the head</header><body></body></html>"), true).toString().startsWith("<html><header><script"), "<header> is not <head>");
+});
+
+test("ignore patterns", () => {
+  const t = (glob, file) => globToRegExp(glob).test(file);
+  assert.ok(t("*.log", "debug.log") && t("*.log", "logs/today.log"), "a name pattern matches in any folder");
+  assert.ok(t("**/*.log", "a/b/c.log") && t("**/*.log", "c.log"));
+  assert.ok(t("drafts/**", "drafts/x/y.html") && !t("drafts/**", "pages/drafts.html"));
+  assert.ok(t("dist/*.map", "dist/app.js.map") && !t("dist/*.map", "dist/sub/app.js.map"));
+  assert.ok(!t("*.log", "debug.logs") && t("file?.txt", "file1.txt") && !t("file?.txt", "file10.txt"));
+});
+
+test("only changes inside the served folder, and not ignored, reload the page", async () => {
+  const dir = fs.realpathSync(site({ "public/index.html": "<body>hi</body>", "public/app.log": "x", "src/main.ts": "x" }));
+  const live = await LiveServer.start(path.join(dir, "public"), 0, script, { ignore: ["*.log"] });
+  // Record every event the page would get.
+  const got = [];
+  const stream = await new Promise(done => http.get({ host: "127.0.0.1", port: live.port, path: EVENTS_PATH }, res => {
+    res.setEncoding("utf8"); res.on("data", t => { for (const m of t.matchAll(/event: (\w+)/g)) got.push(m[1]); }); done(res);
+  }));
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    live.notify([path.join(dir, "src", "main.ts"), path.join(dir, "public", "app.log"), path.join(dir, "public", "node_modules", "x.js")]);
+    await wait(500);
+    assert.deepEqual(got, [], "a sibling folder, an ignored file or node_modules does not reload");
+    live.notify([path.join(dir, "public", "index.html")]);
+    await wait(500);
+    assert.deepEqual(got, ["reload"]);
+  } finally { stream.destroy(); await live.close(); }
+});
+
+test("single-page apps get index.html for their routes", async () => {
+  const dir = site({ "index.html": "<html><body><div id=app></div></body></html>", "assets/app.js": "1" });
+  const spa = await LiveServer.start(dir, 0, script, { spa: true });
+  try {
+    for (const route of ["/about", "/users/42", "/deep/route/"]) {
+      const res = await get(spa.port, route);
+      assert.equal(res.status, 200, route);
+      assert.ok(res.body.includes("<div id=app></div>") && res.body.includes(TAG), route);
+    }
+    assert.equal((await get(spa.port, "/assets/missing.js")).status, 404, "a missing file is still a 404");
+    assert.equal((await get(spa.port, "/assets/app.js")).body, "1");
+  } finally { await spa.close(); }
+  const plain = await LiveServer.start(dir, 0, script);
+  try { assert.equal((await get(plain.port, "/about")).status, 404, "off by default"); } finally { await plain.close(); }
+});
+
+test("the API proxy forwards any method, path, query and body to the backend", async () => {
+  const seen = [];
+  const backend = http.createServer((req, res) => {
+    let body = ""; req.on("data", c => body += c);
+    req.on("end", () => { seen.push({ method: req.method, url: req.url, body, host: req.headers.host }); res.writeHead(201, { "Content-Type": "application/json", "X-Backend": "yes" }); res.end(JSON.stringify({ ok: true })); });
+  });
+  await new Promise(r => backend.listen(0, "127.0.0.1", r));
+  const target = `http://127.0.0.1:${backend.address().port}`;
+  const live = await LiveServer.start(site({ "index.html": "<body></body>" }), 0, script, { proxy: { "/api": target, "/bad": "ftp://nope", "/v2/": target + "/base" } });
+  try {
+    const got = await request(live.port, "/api/users?page=2");
+    assert.equal(got.status, 201); assert.equal(got.headers["x-backend"], "yes"); assert.equal(got.body, '{"ok":true}');
+    const posted = await request(live.port, "/api/login", { method: "POST", body: '{"user":"a"}', headers: { "Content-Type": "application/json" } });
+    assert.equal(posted.status, 201);
+    await request(live.port, "/v2/items");
+    assert.deepEqual(seen.map(s => `${s.method} ${s.url} ${s.body}`), ["GET /api/users?page=2 ", 'POST /api/login {"user":"a"}', "GET /base/v2/items "]);
+    assert.equal(seen[0].host, `127.0.0.1:${backend.address().port}`);
+    assert.equal((await get(live.port, "/apiary.html")).status, 404, "a longer name is not the /api prefix");
+    assert.equal((await request(live.port, "/bad/x", { method: "POST" })).status, 405, "invalid targets are ignored");
+  } finally { await live.close(); await new Promise(r => backend.close(r)); }
+  const dead = await LiveServer.start(site({ "index.html": "<body></body>" }), 0, script, { proxy: { "/api": "http://127.0.0.1:1" } });
+  try {
+    const res = await get(dead.port, "/api/x");
+    assert.equal(res.status, 502); assert.match(res.body, /Is your backend running/);
+  } finally { await dead.close(); }
+  assert.deepEqual(proxyRules({ "/a": "http://x", "/a/b": "http://y" }).map(r => r[0]), ["/a/b", "/a"], "longest prefix first");
+});
+
+test("the page's console messages reach the editor, and only when the console is on", async () => {
+  const received = [];
+  const dir = site({ "index.html": "<body>hi</body>" });
+  const live = await LiveServer.start(dir, 0, script, { onConsole: e => received.push(e) });
+  try {
+    assert.ok((await get(live.port, "/")).body.includes('data-console="1"'), "pages are told to send their console");
+    const sent = await request(live.port, LOG_PATH, { method: "POST", body: JSON.stringify({ level: "error", text: "Uncaught TypeError: x is undefined", page: "/" }) });
+    assert.equal(sent.status, 204);
+    await request(live.port, LOG_PATH, { method: "POST", body: JSON.stringify({ level: "nonsense", text: "hello", page: "/a" }) });
+    await request(live.port, LOG_PATH, { method: "POST", body: "not json" });
+    assert.deepEqual(received, [{ level: "error", text: "Uncaught TypeError: x is undefined", page: "/" }, { level: "log", text: "hello", page: "/a" }]);
+  } finally { await live.close(); }
+  const quiet = await LiveServer.start(dir, 0, script);
+  try {
+    assert.ok(!(await get(quiet.port, "/")).body.includes("data-console"));
+    assert.equal((await request(quiet.port, LOG_PATH, { method: "POST", body: "{}" })).status, 204);
+  } finally { await quiet.close(); }
+});
+
+test("sharing on the network still answers on this computer, and lists the network addresses", async () => {
+  const live = await LiveServer.start(site({ "index.html": "<body>phone</body>" }), 0, script, { network: true });
+  try {
+    assert.equal((await get(live.port, "/")).status, 200);
+    for (const url of live.networkUrls) assert.match(url, /^http:\/\/\d+\.\d+\.\d+\.\d+:\d+\/$/);
+  } finally { await live.close(); }
+  const local = await LiveServer.start(site({ "index.html": "<body></body>" }), 0, script);
+  try { assert.deepEqual(local.networkUrls, [], "not shared unless asked"); } finally { await local.close(); }
 });
