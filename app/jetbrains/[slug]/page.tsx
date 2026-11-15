@@ -45,7 +45,7 @@ export default async function JetBrainsPluginPage({params}:{params:Promise<{slug
             <img src={p.icon} alt={`${p.name} icon`}/>
             <div>
               <span className="jb-kicker"><b/>For {p.ides?p.ides.join(' and '):'JetBrains IDEs'} · {p.since}+</span>
-              <h1>{p.name.replace(/ Veyra$/,'')} <span>Veyra</span></h1>
+              <h1>{/ Veyra$/.test(p.name)?<>{p.name.replace(/ Veyra$/,'')} <span>Veyra</span></>:<><span>{p.name.split(' ')[0]}</span> {p.name.split(' ').slice(1).join(' ')}</>}</h1>
             </div>
           </div>
           <p><b>{p.tagline}</b> {p.summary}</p>
