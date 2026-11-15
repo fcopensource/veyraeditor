@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import {ArrowLeft,Download,ExternalLink,Github} from 'lucide-react';
@@ -16,9 +17,9 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
   if(!p) return {};
   return {
     title:`${p.name} for JetBrains IDEs`,
-    description:`${p.summary} For ${JETBRAINS_IDES.slice(0,6).join(', ')} and every JetBrains IDE, version ${p.since} or newer. Free.`,
+    description:`${p.summary} ${p.ides?`For ${p.ides.join(' and ')}`:`For ${JETBRAINS_IDES.slice(0,6).join(', ')} and every JetBrains IDE`}, version ${p.since} or newer. Free.`,
     alternates:{canonical:`/jetbrains/${p.slug}`},
-    openGraph:{url:`/jetbrains/${p.slug}`,title:`${p.name} for JetBrains IDEs`,description:p.tagline},
+    openGraph:{url:`/jetbrains/${p.slug}`,title:`${p.name} for ${p.ides?.[0]??'JetBrains IDEs'}`,description:p.tagline},
   };
 }
 
@@ -43,7 +44,7 @@ export default async function JetBrainsPluginPage({params}:{params:Promise<{slug
             {/* eslint-disable-next-line @next/next/no-img-element -- the plugin's own SVG icon */}
             <img src={p.icon} alt={`${p.name} icon`}/>
             <div>
-              <span className="jb-kicker"><b/>For JetBrains IDEs · {p.since}+</span>
+              <span className="jb-kicker"><b/>For {p.ides?p.ides.join(' and '):'JetBrains IDEs'} · {p.since}+</span>
               <h1>{p.name.replace(/ Veyra$/,'')} <span>Veyra</span></h1>
             </div>
           </div>
@@ -54,13 +55,27 @@ export default async function JetBrainsPluginPage({params}:{params:Promise<{slug
               :<a className="jb-btn primary" href={p.file} download><Download/>Download the plugin (.zip, {p.size})</a>}
             <a className="jb-btn ghost" href={p.source}><Github/>Source code</a>
           </div>
-          <div className="jb-ides" aria-label="Works in">{JETBRAINS_IDES.map(ide=><span key={ide}>{ide}</span>)}</div>
+          <div className="jb-ides" aria-label="Works in">{(p.ides??JETBRAINS_IDES).map(ide=><span key={ide}>{ide}</span>)}</div>
         </div>
       </section>
 
+      {p.shot&&<section className="jb-section">
+        <div className="jb-wrap jb-shot">
+          <figure>
+            <Image src={p.shot.src} width={p.shot.width} height={p.shot.height} alt={p.shot.alt} sizes="(max-width: 700px) 70vw, 320px"/>
+          </figure>
+          <div>
+            <small>SEE IT</small>
+            <h2>A real device, one click.</h2>
+            <p>{p.shot.caption}</p>
+            <p className="jb-dim">Every setting goes back with Reset, so your phone is never left in a strange state.</p>
+          </div>
+        </div>
+      </section>}
+
       <section className="jb-section">
         <div className="jb-wrap">
-          <header className="jb-head"><div><small>FEATURES</small><h2>What it does.</h2></div><p>Version {p.version} · Free · MIT · Windows, macOS and Linux</p></header>
+          <header className="jb-head"><div><small>FEATURES</small><h2>What it does.</h2></div><p>Version {p.version} · Free · MIT · Windows, macOS and Linux{p.ides?' · Android 8 and newer, emulators and real phones':''}</p></header>
           <div className="jb-features">{p.features.map(f=><article key={f.title}><h3>{f.title}</h3><p>{f.copy}</p></article>)}</div>
         </div>
       </section>
