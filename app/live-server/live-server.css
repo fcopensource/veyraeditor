@@ -74,3 +74,11 @@
 /* The real install count (or "New") in front of an extension's id. */
 .live-micro .installs-badge{display:inline-flex;align-items:center;gap:5px;margin-right:10px;padding:3px 9px;border-radius:999px;color:var(--mint,#68f4d1);background:#68f4d114;border:1px solid #68f4d133;font-weight:700;letter-spacing:.3px}
 .live-micro .installs-badge.new{color:#b79bff;background:#9673ff14;border-color:#9673ff33}
+
+/* 1.4: the "New" pill in the hero and the What's new list */
+.live-new{display:flex;width:fit-content;align-items:center;gap:10px;margin:22px auto 0;padding:5px 14px 5px 5px;border:1px solid color-mix(in srgb,var(--mint) 40%,transparent);border-radius:999px;background:color-mix(in srgb,var(--mint) 10%,transparent);color:inherit;font-size:13px;text-decoration:none;max-width:100%;transition:border-color .2s,transform .2s}
+.live-new:hover{border-color:var(--mint);transform:translateY(-1px)}
+.live-new b{padding:2px 9px;border-radius:999px;background:var(--mint);color:#04140f;font:600 10px var(--font-mono);letter-spacing:.04em;text-transform:uppercase}
+.live-new-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.live-new-list li{display:flex;flex-direction:column;gap:6px;padding:18px 20px;border:1px solid var(--line);border-left:3px solid var(--mint);border-radius:12px}
+.live-new-list span{color:var(--muted);line-height:1.55}
