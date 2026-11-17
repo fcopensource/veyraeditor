@@ -1,0 +1,105 @@
+{
+  "name": "veyra-blast-radius",
+  "displayName": "Veyra Blast Radius",
+  "description": "Know what your change can break before you commit. See every file, page, API route, component and test that depends on what you edited, as a list and a graph, and run only the affected tests in one click. JavaScript, TypeScript, React, Vue, Svelte and Python. 100% local.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/blast-radius",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/blast-radius" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Testing", "Visualization", "SCM Providers", "Other"],
+  "keywords": ["impact analysis", "dependency graph", "affected tests", "change impact", "blast radius", "code review", "refactoring", "imports", "pull request", "veyra"],
+  "galleryBanner": { "color": "#14161a", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": "limited", "description": "In Restricted Mode, Blast Radius shows the impact of the current file but does not run git or tests." },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "views": {
+      "scm": [{ "id": "veyraBlast.tree", "name": "Blast Radius", "icon": "media/activity.svg", "contextualTitle": "Veyra Blast Radius" }]
+    },
+    "viewsWelcome": [
+      { "view": "veyraBlast.tree", "contents": "Reading your project's imports…", "when": "veyraBlast.state == scanning" },
+      { "view": "veyraBlast.tree", "contents": "No uncommitted changes to code yet.\nEdit a file and its blast radius shows up here: every page, route, component and test that depends on it.\n[Show Current File's Blast Radius](command:veyraBlast.modeFile)", "when": "veyraBlast.state == empty && veyraBlast.mode == changes" },
+      { "view": "veyraBlast.tree", "contents": "Open a JavaScript, TypeScript or Python file to see what depends on it.\n[Show Uncommitted Changes](command:veyraBlast.modeChanges)", "when": "veyraBlast.state == empty && veyraBlast.mode == file" },
+      { "view": "veyraBlast.tree", "contents": "Open a folder with JavaScript, TypeScript or Python code to see the blast radius of your changes.", "when": "veyraBlast.state == noProject" }
+    ],
+    "commands": [
+      { "command": "veyraBlast.refresh", "title": "Refresh", "category": "Blast Radius", "icon": "$(refresh)" },
+      { "command": "veyraBlast.modeChanges", "title": "Show Uncommitted Changes", "category": "Blast Radius", "icon": "$(git-commit)" },
+      { "command": "veyraBlast.modeFile", "title": "Show Current File", "category": "Blast Radius", "icon": "$(file-code)" },
+      { "command": "veyraBlast.showGraph", "title": "Show Graph", "category": "Blast Radius", "icon": "$(type-hierarchy-sub)" },
+      { "command": "veyraBlast.runTests", "title": "Run Affected Tests", "category": "Blast Radius", "icon": "$(beaker)" },
+      { "command": "veyraBlast.copyReport", "title": "Copy Impact Report (Markdown)", "category": "Blast Radius", "icon": "$(copy)" },
+      { "command": "veyraBlast.forFile", "title": "Show Blast Radius of This File", "category": "Blast Radius", "icon": "$(flame)" },
+      { "command": "veyraBlast.why", "title": "Why Is This Affected?", "category": "Blast Radius" },
+      { "command": "veyraBlast.copyPath", "title": "Copy Path", "category": "Blast Radius" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraBlast.runTests", "when": "view == veyraBlast.tree && veyraBlast.hasTests", "group": "navigation@1" },
+        { "command": "veyraBlast.showGraph", "when": "view == veyraBlast.tree", "group": "navigation@2" },
+        { "command": "veyraBlast.modeFile", "when": "view == veyraBlast.tree && veyraBlast.mode == changes", "group": "navigation@3" },
+        { "command": "veyraBlast.modeChanges", "when": "view == veyraBlast.tree && veyraBlast.mode == file", "group": "navigation@3" },
+        { "command": "veyraBlast.refresh", "when": "view == veyraBlast.tree", "group": "navigation@4" },
+        { "command": "veyraBlast.copyReport", "when": "view == veyraBlast.tree", "group": "9_export" }
+      ],
+      "view/item/context": [
+        { "command": "veyraBlast.why", "when": "view == veyraBlast.tree && viewItem == affected", "group": "1_why" },
+        { "command": "veyraBlast.forFile", "when": "view == veyraBlast.tree && viewItem =~ /affected|changed/", "group": "2_focus" },
+        { "command": "veyraBlast.copyPath", "when": "view == veyraBlast.tree && viewItem =~ /affected|changed/", "group": "9_copy" }
+      ],
+      "explorer/context": [
+        { "command": "veyraBlast.forFile", "when": "resourceExtname =~ /\\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|vue|svelte|astro|py)$/", "group": "7_veyra" }
+      ],
+      "editor/title/context": [
+        { "command": "veyraBlast.forFile", "when": "resourceExtname =~ /\\.(ts|tsx|mts|cts|js|jsx|mjs|cjs|vue|svelte|astro|py)$/", "group": "7_veyra" }
+      ],
+      "commandPalette": [
+        { "command": "veyraBlast.why", "when": "false" },
+        { "command": "veyraBlast.copyPath", "when": "false" },
+        { "command": "veyraBlast.modeChanges", "when": "veyraBlast.mode == file" },
+        { "command": "veyraBlast.modeFile", "when": "veyraBlast.mode == changes" }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Blast Radius",
+      "properties": {
+        "veyraBlast.maxDepth": { "type": "number", "default": 8, "minimum": 1, "maximum": 50, "description": "How many import hops to follow from a changed file." },
+        "veyraBlast.exclude": {
+          "type": "array", "items": { "type": "string" },
+          "default": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/out/**", "**/.next/**", "**/.nuxt/**", "**/.svelte-kit/**", "**/coverage/**", "**/vendor/**", "**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/*.min.js", "**/*.d.ts"],
+          "description": "Globs of files to leave out of the graph."
+        },
+        "veyraBlast.maxFiles": { "type": "number", "default": 20000, "minimum": 100, "description": "The most source files to read. Raise it for very large projects." },
+        "veyraBlast.codeLens": { "type": "boolean", "default": true, "description": "Show \"Used by N files\" at the top of every source file." },
+        "veyraBlast.statusBar": { "type": "boolean", "default": true, "description": "Show the blast radius of your changes in the status bar." },
+        "veyraBlast.testCommand": { "type": "string", "default": "", "markdownDescription": "Your own command for **Run Affected Tests**. `${files}` is replaced by the test files, for example `pnpm vitest run ${files}`. Leave empty to detect Vitest, Jest, Mocha, Playwright, `node --test` or pytest." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
