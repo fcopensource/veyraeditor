@@ -37,6 +37,7 @@ export const VSCODE_EXTENSIONS = {
   mcpStudio: { id: "flightcoders.veyra-mcp-studio", folder: "mcp-studio", file: "veyra-mcp-studio", version: "1.0.0", listed: true },
   garden: { id: "flightcoders.veyra-garden", folder: "garden", file: "veyra-garden", version: "1.0.0", listed: true },
   npmIntelliSense: { id: "flightcoders.veyra-npm-intellisense", folder: "npm-intellisense", file: "veyra-npm-intellisense", version: "1.0.0", listed: true },
+  blastRadius: { id: "flightcoders.veyra-blast-radius", folder: "blast-radius", file: "veyra-blast-radius", version: "1.0.0", listed: false },
 } as const;
 export const marketplaceUrl = (id: string) => `https://marketplace.visualstudio.com/items?itemName=${id}`;
 export const vsixUrl = (ext: { folder: string; file: string; version: string }) =>
