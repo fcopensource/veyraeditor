@@ -100,6 +100,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/garden', icon: '/garden-icon.png', name: 'Code Garden', title: 'Code Garden Veyra', group: 'Just for fun', order: 20, tone: 'garden', updated: '2026-11-15',
     copy: 'Your coding grows a garden', cta: 'Explore Code Garden',
     summary: 'A garden that grows while you code. Saving waters it, fixing errors brings butterflies, commits make flowers bloom, and streaks unlock nine plants to collect.' }),
+  vs({ href: '/blast-radius', icon: '/blast-radius-icon.png', name: 'Blast Radius', title: 'Veyra Blast Radius', group: 'Run and test', order: 21, tone: 'blastradius', updated: '2026-11-18',
+    copy: 'See what your change can break', cta: 'Explore Blast Radius',
+    summary: 'Before you commit, see every file, page, API route, component and test that depends on what you changed, as a list and a graph, and run only the affected tests.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
