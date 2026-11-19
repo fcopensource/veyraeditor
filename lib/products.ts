@@ -103,6 +103,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/blast-radius', icon: '/blast-radius-icon.png', name: 'Blast Radius', title: 'Veyra Blast Radius', group: 'Run and test', order: 21, tone: 'blastradius', updated: '2026-11-18',
     copy: 'See what your change can break', cta: 'Explore Blast Radius',
     summary: 'Before you commit, see every file, page, API route, component and test that depends on what you changed, as a list and a graph, and run only the affected tests.' }),
+  vs({ href: '/hotspots', icon: '/hotspots-icon.png', name: 'Hotspots', title: 'Veyra Hotspots', group: 'Project', order: 22, tone: 'hotspots', updated: '2026-11-19',
+    copy: 'A heat map of your codebase', cta: 'Explore Hotspots',
+    summary: 'Find the files where bugs live: complex code that changes all the time. See who knows each file, which files change together, and the code only one person understands.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
