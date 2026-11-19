@@ -103,7 +103,7 @@ export default async function HotspotsPage(){
             <li>In VS Code, press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> and run <strong>Extensions: Install from VSIX…</strong>, then choose the file.</li>
             <li>Open a git project and click the <strong>Hotspots</strong> icon in the activity bar. There&apos;s nothing to set up.</li>
           </ol>}
-          <p className="live-note">Pairs well with <Link href="/blast-radius">Veyra Blast Radius</Link>, which shows what a change can break before you commit, and <Link href="/git-graph">Git Graph Veyra</Link>. {EXT.listed?'':'Coming to the Visual Studio Marketplace soon.'}</p>
+          <p className="live-note">Pairs well with <Link href="/blast-radius">Veyra Blast Radius</Link>, which shows what a change can break before you commit, and <Link href="/git-graph">Git Graph Veyra</Link>. Using IntelliJ IDEA, Android Studio or PyCharm? Get <Link href="/jetbrains/hotspots">Hotspots Veyra for JetBrains IDEs</Link>. {EXT.listed?'':'Coming to the Visual Studio Marketplace soon.'}</p>
         </div>
         <div className="visual" aria-label="What it finds">
           <small>Your top hotspots</small>

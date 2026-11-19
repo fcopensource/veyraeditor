@@ -93,6 +93,7 @@ export default async function JetBrainsPluginPage({params}:{params:Promise<{slug
           <header className="jb-head" style={{marginTop:56}}><div><small>WHERE TO FIND IT</small><h2>In your IDE.</h2></div></header>
           <ul className="jb-where">{p.where.map(w=><li key={w}>{w}</li>)}</ul>
           {p.slug==='port-manager'&&<p className="jb-note">Using VS Code too? The same idea for VS Code, Cursor and VSCodium: <Link href="/port-manager">Veyra Port Manager for VS Code</Link>.</p>}
+          {p.slug==='hotspots'&&<p className="jb-note">Using VS Code too? The same heat map for VS Code, Cursor and VSCodium: <Link href="/hotspots">Veyra Hotspots for VS Code</Link>.</p>}
         </div>
       </section>
     </main><Footer/></>;
