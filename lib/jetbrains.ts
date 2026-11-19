@@ -117,6 +117,36 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
       note: 'Veyra Light is in the same plugin: switch between them in Settings → Appearance.',
     },
   },
+  {
+    slug: 'hotspots',
+    name: 'Hotspots Veyra',
+    tagline: 'A living heat map of your codebase.',
+    summary: 'Find the files where bugs live: complex code that changes all the time. A heat map of your codebase from its own git history, with files that change together and code only one person knows.',
+    version: '1.0.0',
+    file: '/downloads/jetbrains/hotspots-veyra-1.0.0.zip',
+    size: '189 KB',
+    icon: '/hotspots-jetbrains.svg',
+    since: '2024.3',
+    marketplace: null,
+    source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/hotspots-veyra',
+    released: '2026-11-20',
+    features: [
+      { title: 'Your whole codebase, at a glance', copy: 'Every file is a tile, sized by its code and coloured by risk. Hover for details, click a file for its full story, double-click to open it, click a folder to zoom in.' },
+      { title: 'Top hotspots, ranked', copy: 'The files to refactor first: complex code that changes all the time, with the reason spelled out for each one.' },
+      { title: 'Files that change together', copy: 'Pairs that keep landing in the same commits, often across folders. A hidden dependency, made visible, with lines on the map.' },
+      { title: 'Knowledge risks', copy: 'Files only one person has ever changed, and code whose only author has left. One person with several names or emails counts once.' },
+      { title: 'Where you already work', copy: 'A flame and rank on the hottest files in the Project view, the open file’s rank in the status bar, and Why Is This a Hotspot? on right-click.' },
+      { title: 'Five ways to look, 100% local', copy: 'Hotspots, change frequency, complexity, code age and knowledge risk. It reads your git history and files on your computer, and nothing else.' },
+    ],
+    where: ['View → Tool Windows → Hotspots (bottom)', 'Click “Hotspot #N” in the status bar', 'Right-click a file or an editor tab → Why Is This a Hotspot?', 'Settings → Tools → Hotspots Veyra'],
+    shot: {
+      src: '/hotspots-jetbrains-map.png', width: 1880, height: 1170, wide: true,
+      alt: 'The Hotspots tool window in IntelliJ IDEA: every file of a real project as a tile coloured from calm to hot, with the top hotspots ranked on the right',
+      caption: 'IntelliJ IDEA with Hotspots Veyra on the Veyra Studio repository: 171 commits and 525 files in one view. Its #1 hotspot, App.tsx, glows coral, and the files to refactor first are ranked on the right.',
+      heading: 'Know where the bugs live.',
+      note: 'Also for VS Code, as Veyra Hotspots.',
+    },
+  },
 ];
 
 export const jetbrainsPlugin = (slug: string) => JETBRAINS_PLUGINS.find(p => p.slug === slug);
