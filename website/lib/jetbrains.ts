@@ -49,7 +49,7 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
     size: '120 KB',
     icon: '/port-manager-jetbrains.svg',
     since: '2024.3',
-    marketplace: null,
+    marketplace: 'https://plugins.jetbrains.com/plugin/36142-port-manager-veyra',
     source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/port-manager-veyra',
     released: '2026-11-15',
     features: [
@@ -72,7 +72,7 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
     size: '97 KB',
     icon: '/device-lab-jetbrains.svg',
     since: '2024.3',
-    marketplace: null,
+    marketplace: 'https://plugins.jetbrains.com/plugin/36156-device-lab-veyra',
     source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/device-lab-veyra',
     released: '2026-11-15',
     features: [
@@ -97,7 +97,7 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
     size: '36 KB',
     icon: '/veyra-theme-jetbrains.svg',
     since: '2024.3',
-    marketplace: null,
+    marketplace: 'https://plugins.jetbrains.com/plugin/36164-veyra-theme',
     source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/veyra-theme',
     released: '2026-11-15',
     features: [
