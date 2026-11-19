@@ -1,0 +1,380 @@
+{
+  "name": "veyra-hotspots",
+  "displayName": "Veyra Hotspots",
+  "description": "A living heat map of your codebase. Find the files where bugs live: complex code that changes all the time. See who knows each file, which files always change together, and the code only one person understands. From your own git history, 100% local.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/hotspots",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/hotspots"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "hotspots",
+    "code health",
+    "technical debt",
+    "git history",
+    "heatmap",
+    "treemap",
+    "code churn",
+    "complexity",
+    "bus factor",
+    "code ownership",
+    "refactoring",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#14161a",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Hotspots runs git to read your history, so it needs a trusted folder."
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraHotspots",
+          "title": "Hotspots",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraHotspots": [
+        {
+          "id": "veyraHotspots.top",
+          "name": "Top Hotspots",
+          "contextualTitle": "Veyra Hotspots"
+        },
+        {
+          "id": "veyraHotspots.coupling",
+          "name": "Changes Together",
+          "contextualTitle": "Veyra Hotspots"
+        },
+        {
+          "id": "veyraHotspots.knowledge",
+          "name": "Knowledge Risks",
+          "contextualTitle": "Veyra Hotspots",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraHotspots.top",
+        "contents": "Reading your git history…",
+        "when": "veyraHotspots.state == scanning"
+      },
+      {
+        "view": "veyraHotspots.top",
+        "contents": "Hotspots reads your project's git history. Open a folder that is a git repository to see where the hotspots are.",
+        "when": "veyraHotspots.state == noGit"
+      },
+      {
+        "view": "veyraHotspots.top",
+        "contents": "No commits in this period yet.\n[Change Period](command:veyraHotspots.period)",
+        "when": "veyraHotspots.state == empty"
+      },
+      {
+        "view": "veyraHotspots.top",
+        "contents": "Hotspots needs a trusted folder, because it runs git to read your history.",
+        "when": "!isWorkspaceTrusted"
+      },
+      {
+        "view": "veyraHotspots.coupling",
+        "contents": "No files change together often enough yet. Pairs show up here when two files keep changing in the same commits.",
+        "when": "veyraHotspots.state == ready"
+      },
+      {
+        "view": "veyraHotspots.knowledge",
+        "contents": "Every file has been changed by several people. Nice.",
+        "when": "veyraHotspots.state == ready"
+      }
+    ],
+    "commands": [
+      {
+        "command": "veyraHotspots.showMap",
+        "title": "Show Hotspot Map",
+        "category": "Hotspots",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "veyraHotspots.refresh",
+        "title": "Refresh",
+        "category": "Hotspots",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "veyraHotspots.period",
+        "title": "Change Period…",
+        "category": "Hotspots",
+        "icon": "$(calendar)"
+      },
+      {
+        "command": "veyraHotspots.copyReport",
+        "title": "Copy Hotspots Report (Markdown)",
+        "category": "Hotspots",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "veyraHotspots.explainFile",
+        "title": "Why Is This a Hotspot?",
+        "category": "Hotspots",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "veyraHotspots.openTogether",
+        "title": "Open Files That Change With This One",
+        "category": "Hotspots",
+        "icon": "$(files)"
+      },
+      {
+        "command": "veyraHotspots.revealInMap",
+        "title": "Show in Hotspot Map",
+        "category": "Hotspots",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "veyraHotspots.history",
+        "title": "Show File History",
+        "category": "Hotspots"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "veyraHotspots.showMap",
+          "when": "view == veyraHotspots.top",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraHotspots.period",
+          "when": "view == veyraHotspots.top",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraHotspots.refresh",
+          "when": "view == veyraHotspots.top",
+          "group": "navigation@3"
+        },
+        {
+          "command": "veyraHotspots.copyReport",
+          "when": "view == veyraHotspots.top",
+          "group": "9_export"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "veyraHotspots.explainFile",
+          "when": "viewItem == hotFile",
+          "group": "1_why"
+        },
+        {
+          "command": "veyraHotspots.revealInMap",
+          "when": "viewItem == hotFile",
+          "group": "2_map"
+        },
+        {
+          "command": "veyraHotspots.openTogether",
+          "when": "viewItem == hotFile",
+          "group": "3_open"
+        },
+        {
+          "command": "veyraHotspots.history",
+          "when": "viewItem == hotFile",
+          "group": "3_open"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "veyraHotspots.explainFile",
+          "when": "!explorerResourceIsFolder && isWorkspaceTrusted",
+          "group": "7_veyra"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "veyraHotspots.explainFile",
+          "when": "isWorkspaceTrusted",
+          "group": "7_veyra"
+        },
+        {
+          "command": "veyraHotspots.openTogether",
+          "when": "isWorkspaceTrusted",
+          "group": "7_veyra"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraHotspots.revealInMap",
+          "when": "false"
+        },
+        {
+          "command": "veyraHotspots.history",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Hotspots",
+      "properties": {
+        "veyraHotspots.months": {
+          "type": "number",
+          "default": 12,
+          "enum": [
+            1,
+            3,
+            6,
+            12,
+            24,
+            0
+          ],
+          "enumItemLabels": [
+            "Last month",
+            "Last 3 months",
+            "Last 6 months",
+            "Last year",
+            "Last 2 years",
+            "All history"
+          ],
+          "description": "How much git history to read."
+        },
+        "veyraHotspots.explorerBadges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mark the top hotspots in the Explorer with a flame and a colour."
+        },
+        "veyraHotspots.explorerTop": {
+          "type": "number",
+          "default": 10,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "How many of the hottest files to mark in the Explorer."
+        },
+        "veyraHotspots.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the open file's hotspot rank in the status bar."
+        },
+        "veyraHotspots.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/.next/**",
+            "**/vendor/**",
+            "**/*.min.*",
+            "**/*.map",
+            "**/*.lock",
+            "**/package-lock.json",
+            "**/pnpm-lock.yaml",
+            "**/yarn.lock",
+            "**/*.snap",
+            "**/*.svg",
+            "**/__snapshots__/**",
+            "**/migrations/**",
+            "**/*.generated.*"
+          ],
+          "description": "Files to leave out: generated code, lock files and the like."
+        },
+        "veyraHotspots.maxCommits": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 100,
+          "description": "The most commits to read."
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "veyraHotspots.critical",
+        "description": "Critical hotspots: changed very often and very complex.",
+        "defaults": {
+          "dark": "#ff4f6d",
+          "light": "#d6264a",
+          "highContrast": "#ff6b85",
+          "highContrastLight": "#b3001f"
+        }
+      },
+      {
+        "id": "veyraHotspots.high",
+        "description": "Hotspots.",
+        "defaults": {
+          "dark": "#ff8a50",
+          "light": "#c2410c",
+          "highContrast": "#ffa070",
+          "highContrastLight": "#9a3412"
+        }
+      },
+      {
+        "id": "veyraHotspots.medium",
+        "description": "Warm files.",
+        "defaults": {
+          "dark": "#e3b341",
+          "light": "#9a6700",
+          "highContrast": "#f0c040",
+          "highContrastLight": "#7d4e00"
+        }
+      },
+      {
+        "id": "veyraHotspots.low",
+        "description": "Cool files.",
+        "defaults": {
+          "dark": "#6fb3c8",
+          "light": "#0e6b80",
+          "highContrast": "#8fd0e0",
+          "highContrastLight": "#075060"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning && esbuild src/webview/map.ts --bundle --format=iife --target=es2020 --outfile=bundle/map.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}

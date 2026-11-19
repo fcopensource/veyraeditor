@@ -136,6 +136,7 @@ The team behind Veyra (FlightCoders) also makes free extensions for VS Code, Cur
 | Extension | What it does |
 | --- | --- |
 | [**Veyra Blast Radius**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-blast-radius) | See every file, page, route and test your change can break, and run only the affected tests |
+| [**Veyra Hotspots**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-hotspots) | A heat map of your codebase: find the complex, often-changed files where bugs live |
 | [**Veyra Rewind**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-rewind) | Local history and time travel for every file; find code you deleted |
 | [**Code Garden Veyra**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-garden) | A garden that grows while you code: saves water it, commits make flowers bloom |
 | [**Veyra Live Server**](https://marketplace.visualstudio.com/items?itemName=flightcoders.veyra-live-server) | Live reload on save; CSS updates without a reload |
