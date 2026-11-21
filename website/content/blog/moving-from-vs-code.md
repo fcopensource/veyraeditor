@@ -1,9 +1,10 @@
 ---
 title: Moving from VS Code to Veyra in ten minutes
-description: A practical guide to switching from VS Code to Veyra: shortcuts, language tools, themes, Git and AI, plus an honest list of what Veyra doesn't do yet.
+description: A practical guide to switching from VS Code to Veyra: shortcuts, language tools, themes, Git and the terminal, plus an honest list of what Veyra doesn't do yet.
 date: 2026-09-26
 category: Guides
 readingTime: 7
+updated: 2026-11-21
 ---
 
 If you use VS Code every day, Veyra will feel familiar from the first keystroke. Both are built on the Monaco editor, so most of your muscle memory carries over. This guide covers the few things worth setting up, and is honest about what isn't there yet.
@@ -47,11 +48,9 @@ Search the marketplace in the Extensions panel for your favourite theme: One Dar
 
 Open **Source control** with **Ctrl+Shift+G**. Stage, write a message and commit with **Ctrl+Enter**. Changed lines appear in the editor gutter, and the file tree shows status badges. Veyra uses the Git already installed on your computer, so your credentials, hooks and config all apply.
 
-## 6. Set up Veyra AI
+## 6. Bring your own tools to the terminal
 
-Open the assistant with **Ctrl+L** and sign in with your free Veyra account. There's no API key to paste: each account gets **10 free Veyra AI requests**, and a request that fails isn't counted.
-
-**Edit with AI** (**Ctrl+K**) shows every proposed change as a diff you approve, like a pull request from a colleague.
+Veyra is a pure code editor with **no AI built in** and no telemetry. If you use a command-line AI assistant or any other CLI tool, run it in Veyra's terminal (**Ctrl+`**) exactly as you would in VS Code: it works on your files, and you review the changes in **Source control** before you commit.
 
 ## What Veyra doesn't do yet
 

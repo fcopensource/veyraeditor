@@ -4,7 +4,10 @@ description: AI assistants that read your workspace can pick up .env files, keys
 date: 2026-10-08
 category: Security
 readingTime: 7
+updated: 2026-11-21
 ---
+
+> **Update, November 2026:** since version 0.11 Veyra is a pure code editor with **no AI features**. The AI parts of this post describe earlier versions. If you want an AI assistant, you can run your own command-line tools in Veyra's terminal.
 
 A helpful AI assistant needs context: the code around your question. Many assistants find that context by searching your project. That raises an uncomfortable question: what stops the search from picking up your `.env` file, your SSH key or the API token in a config file, and sending it to an AI service?
 

@@ -15,7 +15,7 @@ export const metadata:Metadata={
 export default function Blog(){
   const [featured,...rest]=allPosts();
   return <ContentPage path="/blog" crumb="Blog" kicker="BLOG" title="Notes from the Veyra team."
-    intro={<>Guides, product news and how Veyra is built. <a href="/blog/rss.xml" className="rss-link"><Rss size={14}/>RSS</a></>}>
+    intro={<>Guides, product news and how Veyra is built, plus <Link href="/news">developer tech news</Link>. <a href="/blog/rss.xml" className="rss-link"><Rss size={14}/>RSS</a></>}>
     {featured&&<Link href={`/blog/${featured.slug}`} className="post-featured">
       <span className="post-meta"><em>{featured.category}</em>{formatDate(featured.date)} · {featured.readingTime} min read</span>
       <h2>{featured.title}</h2>

@@ -5,6 +5,7 @@ date: 2026-11-07
 category: Engineering
 readingTime: 6
 keywords: VS Code alternative, lightweight VS Code alternative, VS Code memory usage, VS Code uses too much RAM, low memory code editor, Veyra
+updated: 2026-11-21
 ---
 
 If you have ever opened Task Manager and found your code editor near the top of the memory list, you are not alone. "VS Code using too much memory" is one of the most common complaints about the world's most popular editor, and it gets worse on laptops with 8 GB of RAM, when several projects are open at once, or when a browser full of documentation tabs is competing for the same memory.
@@ -55,7 +56,7 @@ Moving from VS Code to Veyra is mostly painless, because so much is shared:
 - **The same shortcuts:** `Ctrl+P` to open a file, `Ctrl+Shift+P` for commands, `Ctrl+B` for the sidebar and ``Ctrl+` `` for the terminal.
 - **Git built in:** stage, commit, branch, stash and view diffs and the commit graph.
 - **A real terminal:** PowerShell, zsh or bash, with several sessions side by side.
-- **AI if you want it:** Veyra AI is built in, with free requests on a free account and every AI edit shown as a diff you approve.
+- **No AI, no telemetry:** a pure code editor that doesn't run background AI services, which is part of why it stays light. Use any CLI tool you like in its terminal.
 
 Our step-by-step guide, [Moving from VS Code to Veyra in ten minutes](/blog/moving-from-vs-code), walks through the switch.
 
