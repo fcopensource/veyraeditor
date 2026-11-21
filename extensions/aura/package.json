@@ -1,0 +1,138 @@
+{
+  "name": "veyra-aura",
+  "displayName": "Veyra Aura",
+  "description": "Your coding aura ✨ Farm aura for clearing errors, clean saves, commits, passing tests and staying locked in. Lose it for \"wip\" commits and force pushes 💀 Rank up from NPC to Final Boss, keep your 🔥 streak, and share your aura card. 100% local.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/aura",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/aura"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "aura",
+    "gen z",
+    "streak",
+    "gamification",
+    "productivity",
+    "motivation",
+    "fun",
+    "stats",
+    "coding stats",
+    "rank",
+    "achievements",
+    "xp",
+    "rizz",
+    "sigma",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#14111f",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "veyraAura.open",
+        "title": "Show My Aura",
+        "category": "Aura",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "veyraAura.share",
+        "title": "Share My Aura Card",
+        "category": "Aura",
+        "icon": "$(device-camera)"
+      },
+      {
+        "command": "veyraAura.copyCaption",
+        "title": "Copy My Aura Caption",
+        "category": "Aura"
+      },
+      {
+        "command": "veyraAura.reset",
+        "title": "Reset My Aura",
+        "category": "Aura"
+      }
+    ],
+    "configuration": {
+      "title": "Veyra Aura",
+      "properties": {
+        "veyraAura.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Earn aura while you code."
+        },
+        "veyraAura.roast": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Roast mode: lose a little aura for \"wip\" commit messages, failing tests and builds, force pushes and leftover `debugger` statements. Turn off to only ever gain aura."
+        },
+        "veyraAura.notifications": {
+          "type": "string",
+          "enum": [
+            "rankUps",
+            "all",
+            "off"
+          ],
+          "enumDescriptions": [
+            "A notification when you rank up.",
+            "A notification for rank ups and every move worth 10 aura or more.",
+            "No notifications: just the status bar."
+          ],
+          "default": "rankUps",
+          "description": "When Aura shows a notification."
+        },
+        "veyraAura.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show your aura and streak in the status bar, and each move as it happens."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
