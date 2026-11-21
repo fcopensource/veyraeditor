@@ -13,8 +13,8 @@
     "lucide-react": "^0.468.0",
     "marked": "^18.1.0",
     "mysql2": "^3.24.5",
-    "next": "^15.5.9",
-    "nodemailer": "^10.0.15",
+    "next": "^15.5.28",
+    "nodemailer": "^10.1.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "three": "^0.180.0"
