@@ -207,6 +207,36 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
       note: 'Veyra Aurora Light is in the same plugin: switch between them in Settings → Appearance.',
     },
   },
+  {
+    slug: 'neon-vice',
+    name: 'Veyra Neon Vice',
+    tagline: 'Neon nights in an 80s beach city.',
+    summary: 'Hot-pink and electric-cyan neon over a deep purple night, with a yellow and orange sunset, plus a bright daylight version. Every syntax colour meets WCAG AA.',
+    version: '1.0.0',
+    file: '/downloads/jetbrains/veyra-neon-vice-1.0.0.zip',
+    size: '37 KB',
+    icon: '/neon-vice-jetbrains.svg',
+    since: '2024.3',
+    marketplace: null,
+    source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/veyra-neon-vice',
+    released: '2026-11-22',
+    features: [
+      { title: 'Neon Vice and Neon Vice Daylight', copy: 'A deep purple night lit by hot-pink and electric-cyan neon for late sessions, and the same city by day on a crisp white editor.' },
+      { title: 'The whole IDE, not just the editor', copy: 'Toolbars, tool windows, tabs, popups, Search Everywhere, dialogs, the Run widget and notifications: 1,200+ UI keys, all in one palette.' },
+      { title: 'The new Islands look', copy: 'On 2025.3 and newer you get JetBrains’ rounded Islands layout in neon colours. Older IDEs get the classic New UI, just as polished.' },
+      { title: 'Every language matches', copy: 'Hot-pink keywords, electric-cyan strings, sunset-yellow functions, violet types, mint fields and orange numbers in Java, Kotlin, Python, JS/TS, Go, Rust, PHP, SQL and the rest.' },
+      { title: 'Signature details', copy: 'A pink-to-orange sunset default button, a hot-pink tab underline, an electric-cyan caret, a pink current line number and a pink-to-cyan progress bar.' },
+      { title: 'Easy to read', copy: 'Every syntax colour meets WCAG AA contrast on its background, comments included. The debugger, diffs, VCS, search results and terminal are themed too.' },
+    ],
+    where: ['Settings → Appearance & Behavior → Appearance → Theme → Veyra Neon Vice or Veyra Neon Vice Daylight', 'The editor colour scheme switches with the theme (Settings → Editor → Color Scheme)', 'Quick switch: View → Quick Switch Scheme → Theme'],
+    shot: {
+      src: '/neon-vice-jetbrains-hero.png', width: 1600, height: 900, wide: true,
+      alt: 'Veyra Neon Vice: an IDE window in deep purple with hot-pink keywords, electric-cyan strings, sunset-yellow functions and violet types, under a striped synthwave sun over a neon grid',
+      caption: 'Veyra Neon Vice, drawn from its own colours: hot-pink keywords, electric-cyan strings, sunset-yellow functions, violet types and mint fields on a deep purple night.',
+      heading: 'Your code, after dark.',
+      note: 'Veyra Neon Vice Daylight is in the same plugin: switch between them in Settings → Appearance.',
+    },
+  },
 ];
 
 export const jetbrainsPlugin = (slug: string) => JETBRAINS_PLUGINS.find(p => p.slug === slug);
