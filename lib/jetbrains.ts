@@ -177,6 +177,36 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
       note: 'Also for VS Code, as Veyra Aura.',
     },
   },
+  {
+    slug: 'aurora',
+    name: 'Veyra Aurora',
+    tagline: 'The northern lights, in your IDE.',
+    summary: 'A midnight-blue theme lit by the aurora: ice-blue keywords, aurora-green strings, teal functions and soft-violet types, plus a crisp light version. Every syntax colour meets WCAG AA.',
+    version: '1.0.0',
+    file: '/downloads/jetbrains/veyra-aurora-1.0.0.zip',
+    size: '37 KB',
+    icon: '/aurora-jetbrains.svg',
+    since: '2024.3',
+    marketplace: null,
+    source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/veyra-aurora',
+    released: '2026-11-22',
+    features: [
+      { title: 'Veyra Aurora and Aurora Light', copy: 'A deep midnight-blue sky with glowing aurora colours for long sessions, and a crisp white light theme in the same palette, deepened for contrast.' },
+      { title: 'The whole IDE, not just the editor', copy: 'Toolbars, tool windows, tabs, popups, Search Everywhere, dialogs, the Run widget and notifications: 1,200+ UI keys, all in one palette.' },
+      { title: 'The new Islands look', copy: 'On 2025.3 and newer you get JetBrains’ rounded Islands layout in aurora colours. Older IDEs get the classic New UI, just as polished.' },
+      { title: 'Every language matches', copy: 'Ice-blue keywords, aurora-green strings, teal functions, violet types, pink fields and starlight-gold numbers in Java, Kotlin, Python, JS/TS, Go, Rust, PHP, SQL and the rest.' },
+      { title: 'Signature details', copy: 'An aurora green-to-violet default button, an aurora-green caret and tab underline, a gold current line number and a green-to-violet progress bar.' },
+      { title: 'Easy to read', copy: 'Every syntax colour meets WCAG AA contrast on its background, comments included. The debugger, diffs, VCS, search results and terminal are themed too.' },
+    ],
+    where: ['Settings → Appearance & Behavior → Appearance → Theme → Veyra Aurora or Veyra Aurora Light', 'The editor colour scheme switches with the theme (Settings → Editor → Color Scheme)', 'Quick switch: View → Quick Switch Scheme → Theme'],
+    shot: {
+      src: '/aurora-jetbrains-hero.png', width: 1600, height: 900, wide: true,
+      alt: 'Veyra Aurora: an IDE window in midnight blue with ice-blue keywords, aurora-green strings, teal functions and violet types, under an aurora sky',
+      caption: 'Veyra Aurora, drawn from its own colours: midnight blue with ice-blue keywords, aurora-green strings, teal functions, violet types and starlight-gold numbers.',
+      heading: 'Code under the northern lights.',
+      note: 'Veyra Aurora Light is in the same plugin: switch between them in Settings → Appearance.',
+    },
+  },
 ];
 
 export const jetbrainsPlugin = (slug: string) => JETBRAINS_PLUGINS.find(p => p.slug === slug);
