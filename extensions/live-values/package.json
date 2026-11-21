@@ -1,0 +1,335 @@
+{
+  "name": "veyra-live-values",
+  "displayName": "Veyra Live Values",
+  "description": "See console.log values, warnings, errors and crashes right next to the line that printed them, as your Node.js app runs. No more switching to the terminal. Works with node, tsx, ts-node, npm scripts, Express, NestJS and the debugger. Free and 100% local.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/live-values",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/live-values"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "console.log",
+    "console",
+    "log",
+    "inline values",
+    "live values",
+    "runtime values",
+    "debug",
+    "debugging",
+    "node",
+    "nodejs",
+    "typescript",
+    "javascript",
+    "errors",
+    "quokka",
+    "console ninja",
+    "veyra"
+  ],
+  "galleryBanner": {
+    "color": "#14161a",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Live Values changes how Node.js starts in your terminals, so it needs a trusted folder."
+    },
+    "virtualWorkspaces": false
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "veyraLiveValues",
+          "title": "Live Values",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "veyraLiveValues": [
+        {
+          "id": "veyraLiveValues.feed",
+          "name": "Live Values",
+          "contextualTitle": "Veyra Live Values"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "veyraLiveValues.feed",
+        "contents": "Run your Node.js code in a VS Code terminal and every console.log, warning, error and crash shows up right next to the line that printed it, and here.\n[$(play) Run This File](command:veyraLiveValues.runFile)\n[$(terminal) New Live Values Terminal](command:veyraLiveValues.newTerminal)\nTerminals that were open before Live Values was installed need a restart. Works with node, tsx, ts-node, npm scripts and the debugger."
+      }
+    ],
+    "commands": [
+      {
+        "command": "veyraLiveValues.runFile",
+        "title": "Run This File with Live Values",
+        "category": "Live Values",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "veyraLiveValues.newTerminal",
+        "title": "New Live Values Terminal",
+        "category": "Live Values",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "veyraLiveValues.clear",
+        "title": "Clear All Values",
+        "category": "Live Values",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "veyraLiveValues.clearFile",
+        "title": "Clear Values in This File",
+        "category": "Live Values",
+        "icon": "$(close)"
+      },
+      {
+        "command": "veyraLiveValues.removeEntry",
+        "title": "Clear This Value",
+        "category": "Live Values",
+        "icon": "$(close)"
+      },
+      {
+        "command": "veyraLiveValues.copyValue",
+        "title": "Copy Value",
+        "category": "Live Values",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "veyraLiveValues.reveal",
+        "title": "Go to Line",
+        "category": "Live Values"
+      },
+      {
+        "command": "veyraLiveValues.toggleInline",
+        "title": "Show or Hide Values in the Editor",
+        "category": "Live Values",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "veyraLiveValues.pause",
+        "title": "Pause",
+        "category": "Live Values",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "veyraLiveValues.resume",
+        "title": "Resume",
+        "category": "Live Values",
+        "icon": "$(debug-continue)"
+      },
+      {
+        "command": "veyraLiveValues.menu",
+        "title": "Show Options",
+        "category": "Live Values"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "veyraLiveValues.runFile",
+          "when": "resourceScheme == file && resourceExtname =~ /^\\.(m|c)?(j|t)s$/ && config.veyraLiveValues.enabled",
+          "group": "navigation@20"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "veyraLiveValues.copyValue",
+          "when": "resourceScheme == file && config.veyraLiveValues.enabled",
+          "group": "9_cutcopypaste@9"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "veyraLiveValues.runFile",
+          "when": "resourceScheme == file && resourceExtname =~ /^\\.(m|c)?(j|t)s$/ && config.veyraLiveValues.enabled",
+          "group": "navigation@90"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "veyraLiveValues.newTerminal",
+          "when": "view == veyraLiveValues.feed",
+          "group": "navigation@1"
+        },
+        {
+          "command": "veyraLiveValues.pause",
+          "when": "view == veyraLiveValues.feed && !veyraLiveValues.paused",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraLiveValues.resume",
+          "when": "view == veyraLiveValues.feed && veyraLiveValues.paused",
+          "group": "navigation@2"
+        },
+        {
+          "command": "veyraLiveValues.toggleInline",
+          "when": "view == veyraLiveValues.feed",
+          "group": "navigation@3"
+        },
+        {
+          "command": "veyraLiveValues.clear",
+          "when": "view == veyraLiveValues.feed",
+          "group": "navigation@4"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "veyraLiveValues.copyValue",
+          "when": "view == veyraLiveValues.feed && viewItem == entry",
+          "group": "inline@1"
+        },
+        {
+          "command": "veyraLiveValues.removeEntry",
+          "when": "view == veyraLiveValues.feed && viewItem == entry",
+          "group": "inline@2"
+        },
+        {
+          "command": "veyraLiveValues.clearFile",
+          "when": "view == veyraLiveValues.feed && viewItem == file",
+          "group": "inline@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "veyraLiveValues.reveal",
+          "when": "false"
+        },
+        {
+          "command": "veyraLiveValues.removeEntry",
+          "when": "false"
+        },
+        {
+          "command": "veyraLiveValues.pause",
+          "when": "!veyraLiveValues.paused"
+        },
+        {
+          "command": "veyraLiveValues.resume",
+          "when": "veyraLiveValues.paused"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Veyra Live Values",
+      "properties": {
+        "veyraLiveValues.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Collect console.log values from Node.js started in VS Code terminals and Node debug sessions. Turn off to leave Node exactly as it was (restart open terminals)."
+        },
+        "veyraLiveValues.inline": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show each value at the end of the line that printed it."
+        },
+        "veyraLiveValues.maxLength": {
+          "type": "number",
+          "default": 120,
+          "minimum": 10,
+          "description": "The longest value shown in the editor, in characters. Hover a value to see all of it."
+        },
+        "veyraLiveValues.clearOnNewRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "When you run your code again, clear the values from the previous run in each file it prints from."
+        },
+        "veyraLiveValues.debugSessions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Also collect values from Node.js debug sessions (F5 and launch.json)."
+        },
+        "veyraLiveValues.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Live Values counter in the status bar."
+        }
+      }
+    },
+    "colors": [
+      {
+        "id": "veyraLiveValues.value",
+        "description": "Values printed with console.log, shown after the line.",
+        "defaults": {
+          "dark": "#68f4d1b8",
+          "light": "#0b7d68",
+          "highContrast": "#68f4d1",
+          "highContrastLight": "#065c4c"
+        }
+      },
+      {
+        "id": "veyraLiveValues.warning",
+        "description": "Values printed with console.warn, shown after the line.",
+        "defaults": {
+          "dark": "editorWarning.foreground",
+          "light": "editorWarning.foreground",
+          "highContrast": "editorWarning.foreground",
+          "highContrastLight": "editorWarning.foreground"
+        }
+      },
+      {
+        "id": "veyraLiveValues.error",
+        "description": "Values printed with console.error, and crashes, shown after the line.",
+        "defaults": {
+          "dark": "editorError.foreground",
+          "light": "editorError.foreground",
+          "highContrast": "editorError.foreground",
+          "highContrastLight": "editorError.foreground"
+        }
+      },
+      {
+        "id": "veyraLiveValues.crashBackground",
+        "description": "The background of a line that crashed your program.",
+        "defaults": {
+          "dark": "#ff4f6d1f",
+          "light": "#ff4f6d1a",
+          "highContrast": "#00000000",
+          "highContrastLight": "#00000000"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs test/hook.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
