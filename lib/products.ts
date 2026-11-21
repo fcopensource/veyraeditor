@@ -106,6 +106,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/hotspots', icon: '/hotspots-icon.png', name: 'Hotspots', title: 'Veyra Hotspots', group: 'Project', order: 22, tone: 'hotspots', updated: '2026-11-19',
     copy: 'A heat map of your codebase', cta: 'Explore Hotspots',
     summary: 'Find the files where bugs live: complex code that changes all the time. See who knows each file, which files change together, and the code only one person understands.' }),
+  vs({ href: '/live-values', icon: '/live-values-icon.png', name: 'Live Values', title: 'Veyra Live Values', group: 'Run and test', order: 23, tone: 'livevalues', updated: '2026-11-21',
+    copy: 'console.log values next to your code', cta: 'Explore Live Values',
+    summary: 'Run your Node.js code and every console.log value, warning, error and crash appears at the end of the line that printed it, live. No more digging through the terminal.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
