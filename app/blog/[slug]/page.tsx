@@ -30,11 +30,11 @@ export default async function BlogPost({params}:Params){
   const posts=allPosts();
   const index=posts.findIndex(item=>item.slug===post.slug);
   const newer=posts[index-1],older=posts[index+1];
-  const article={'@context':'https://schema.org','@type':'BlogPosting',headline:post.title,description:post.description,datePublished:post.date,dateModified:post.updated,
+  const article={'@context':'https://schema.org','@type':post.category==='Tech News'?'NewsArticle':'BlogPosting',headline:post.title,description:post.description,datePublished:post.date,dateModified:post.updated,
     mainEntityOfPage:absolute(`/blog/${post.slug}`),image:absolute(`/blog/${post.slug}/opengraph-image`),articleSection:post.category,
     ...(post.keywords.length?{keywords:post.keywords.join(', ')}:{}),wordCount:post.html.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length,inLanguage:'en',
     author:{'@type':'Organization',name:'Veyra',url:absolute('/')},publisher:{'@id':absolute('/#organization')}};
-  return <><Nav/><Breadcrumbs items={[{name:'Blog',path:'/blog'},{name:post.title,path:`/blog/${post.slug}`}]}/>
+  return <><Nav/><Breadcrumbs items={[post.category==='Tech News'?{name:'Tech News',path:'/news'}:{name:'Blog',path:'/blog'},{name:post.title,path:`/blog/${post.slug}`}]}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(article)}}/>
     <main className="page-shell">
       <article className="post">

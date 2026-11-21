@@ -1,10 +1,13 @@
 ---
-title: Introducing Veyra: a fast, local-first AI code editor
+title: Introducing Veyra: a fast, local-first code editor
 description: Why we built Veyra, what makes it different from VS Code and Cursor, and what you can do with it today on Windows, macOS and Linux.
 date: 2026-09-22
 category: Product
 readingTime: 6
+updated: 2026-11-21
 ---
+
+> **Update, November 2026:** since version 0.11 Veyra is a pure code editor with **no AI features**. The AI parts of this post describe earlier versions. If you want an AI assistant, you can run your own command-line tools in Veyra's terminal.
 
 Most of us spend more hours in a code editor than in any other app. Over the last few years editors have gained a lot of power, and a lot of weight: big downloads, slow start-ups, and AI features that quietly decide what leaves your machine.
 
@@ -20,7 +23,7 @@ Around the editor, Veyra builds in the tools you reach for every day:
 - **A real terminal**: PowerShell, zsh or bash on a native pseudo-terminal, with several sessions side by side.
 - **Real language intelligence**: one-click TypeScript, ESLint, Prettier, Tailwind CSS, Emmet, Svelte and Vue tools, running the same language servers behind VS Code's most popular extensions.
 - **Extensions**: browse the open Open VSX marketplace with real icons and ratings, and install colour themes and snippets.
-- **AI on your terms**: Veyra AI is built in. Sign in with a free Veyra account, with no API key, and get 10 free requests.
+- **No AI, no telemetry**: a pure code editor. Your code stays on your computer.
 
 ## Small on purpose
 

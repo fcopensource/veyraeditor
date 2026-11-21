@@ -4,6 +4,7 @@ description: Most desktop code editors download over 100 MB. Veyra's Windows ins
 date: 2026-10-11
 category: Engineering
 readingTime: 7
+updated: 2026-11-21
 ---
 
 Download sizes say a lot about how an app is built. Most popular desktop code editors are built on **Electron**, which bundles an entire copy of the Chromium browser and the Node.js runtime with every app. That's a reliable foundation, but it means every editor ships its own browser, often 100 MB or more before any of the editor's own code.
@@ -16,8 +17,8 @@ Veyra has two halves:
 
 | Half | Built with | Responsible for |
 |---|---|---|
-| **Interface** | React and the Monaco editor | Everything you see: editor, tabs, panels, AI chat |
-| **Core** | Rust | Files, search, Git, the terminal, language servers, AI requests, secrets, updates |
+| **Interface** | React and the Monaco editor | Everything you see: editor, tabs and panels |
+| **Core** | Rust | Files, search, Git, the terminal, language servers, secrets, updates |
 
 The two halves talk through **Tauri**, an open-source framework for building desktop apps with a web interface and a Rust core.
 
@@ -36,7 +37,7 @@ That alone removes most of the weight. The rest of the savings come from Rust: t
 - **Fast downloads and updates.** Updates are small, so they install in seconds.
 - **Quick start-up.** There's no bundled browser to boot.
 - **Lower memory use** for the editor itself.
-- **A smaller attack surface.** Less bundled code means less to patch. The Rust core also handles anything sensitive (file access, processes, network calls to Veyra AI) behind a narrow, explicit set of commands, and the interface runs under a strict Content Security Policy.
+- **A smaller attack surface.** Less bundled code means less to patch. The Rust core also handles anything sensitive (file access, processes and network calls) behind a narrow, explicit set of commands, and the interface runs under a strict Content Security Policy.
 
 ## The trade-offs we accepted
 
@@ -49,7 +50,7 @@ Every architecture has costs. These are ours:
 
 ## Doing more in Rust
 
-Moving work into the Rust core has a nice side effect: it's where we can be most careful. Path checks stop the interface from reading files outside your workspace. Saves are atomic, so a crash mid-save can't corrupt a file. Background processes like Git and the language servers start without console windows and are cleaned up when you close a project. And there are no AI provider keys in the app at all: Veyra AI's provider key stays on our server, and the app keeps only a revocable sign-in token.
+Moving work into the Rust core has a nice side effect: it's where we can be most careful. Path checks stop the interface from reading files outside your workspace. Saves are atomic, so a crash mid-save can't corrupt a file. Background processes like Git and the language servers start without console windows and are cleaned up when you close a project.
 
 ## Small is a feature
 

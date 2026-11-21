@@ -6,7 +6,7 @@ import {ArrowLeft,Download,ExternalLink,Github} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {JETBRAINS_IDES,JETBRAINS_PLUGINS,jetbrainsPlugin} from '@/lib/jetbrains';
-import {absolute,jsonLd} from '@/lib/site';
+import {OG_IMAGE,absolute,jsonLd} from '@/lib/site';
 import '../jetbrains.css';
 
 export const dynamicParams=false;
@@ -19,7 +19,10 @@ export async function generateMetadata({params}:{params:Promise<{slug:string}>})
     title:`${p.name} for JetBrains IDEs`,
     description:`${p.summary} ${p.ides?`For ${p.ides.join(' and ')}`:`For ${JETBRAINS_IDES.slice(0,6).join(', ')} and every JetBrains IDE`}, version ${p.since} or newer. Free.`,
     alternates:{canonical:`/jetbrains/${p.slug}`},
-    openGraph:{url:`/jetbrains/${p.slug}`,title:`${p.name} for ${p.ides?.[0]??'JetBrains IDEs'}`,description:p.tagline},
+    // A real screenshot when there is one, else the site's share image (a page's own openGraph replaces the layout's, images included).
+    openGraph:{url:`/jetbrains/${p.slug}`,title:`${p.name} for ${p.ides?.[0]??'JetBrains IDEs'}`,description:p.tagline,
+      images:[p.shot?{url:p.shot.src,width:p.shot.width,height:p.shot.height,alt:p.shot.alt}:OG_IMAGE]},
+    twitter:{card:'summary_large_image',title:`${p.name} for ${p.ides?.[0]??'JetBrains IDEs'}`,description:p.tagline},
   };
 }
 
