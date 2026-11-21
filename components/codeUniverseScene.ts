@@ -14,18 +14,19 @@ const TOKENS:[string,string][]=[
 ];
 
 type Seg=[string,string];
-// The program the holographic editor types. Line 5's tail is an IntelliSense completion accepted with Tab.
+// The program the holographic editor types: plain code, written by hand (Veyra has no AI).
+// Line 5's tail is an IntelliSense completion accepted with Tab.
 const PROGRAM:Seg[][]=[
-  [['import ',VIOLET],['{ veyra } ',TEXT],['from ',VIOLET],['"@veyra/studio"',MINT],[';',TEXT]],
+  [['import ',VIOLET],['{ serve } ',TEXT],['from ',VIOLET],['"./server"',MINT],[';',TEXT]],
   [],
-  [['export async function ',VIOLET],['ship',CYAN],['(idea: ',TEXT],['Idea',GOLD],[') {',TEXT]],
-  [['  const ',VIOLET],['plan ',TEXT],['= await ',VIOLET],['veyra.ai.',TEXT],['plan',CYAN],['(idea);',TEXT]],
-  [['  const ',VIOLET],['patch ',TEXT],['= await ',VIOLET],['plan.',TEXT],['write',CYAN],['({ review: ',TEXT],['true',GOLD],[' });',TEXT]],
-  [['  await ',VIOLET],['git.',TEXT],['commit',CYAN],['(patch, ',TEXT],['"feat: "',MINT],[' + idea.name);',TEXT]],
-  [['  return ',VIOLET],['deploy',CYAN],['(patch);',TEXT],['  // ✓ 42 tests passed',MUTED]],
+  [['export async function ',VIOLET],['start',CYAN],['(port = ',TEXT],['3000',GOLD],[') {',TEXT]],
+  [['  const ',VIOLET],['app ',TEXT],['= await ',VIOLET],['serve',CYAN],['({ port, watch: ',TEXT],['true',GOLD],[' });',TEXT]],
+  [['  app.',TEXT],['get',CYAN],['(',TEXT],['"/health"',MINT],[', () => ({ ok: ',TEXT],['true',GOLD],[' }));',TEXT]],
+  [['  await ',VIOLET],['git.',TEXT],['commit',CYAN],['(',TEXT],['"feat: health check"',MINT],[');',TEXT]],
+  [['  return ',VIOLET],['app',TEXT],[';',TEXT],['  // ✓ 42 tests passed',MUTED]],
   [['}',TEXT]],
 ];
-const GHOST_LINE=4,GHOST_AT=13; // characters typed by hand on line 5 before autocomplete finishes it
+const GHOST_LINE=4,GHOST_AT=9; // characters typed by hand on line 5 before autocomplete finishes it
 
 function rounded(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 const lineText=(line:Seg[])=>line.map(s=>s[0]).join('');
@@ -40,7 +41,7 @@ function drawEditor(ctx:CanvasRenderingContext2D,typed:number,phase:'typing'|'gh
   // Title bar
   ctx.fillStyle='rgba(255,255,255,0.04)';ctx.fillRect(8,8,W-16,52);
   ['#ff5f57','#febc2e','#28c840'].forEach((c,i)=>{ctx.fillStyle=c;ctx.beginPath();ctx.arc(40+i*24,34,7,0,Math.PI*2);ctx.fill();});
-  ctx.font=`500 20px ${mono}`;ctx.fillStyle='#9aa7b4';ctx.textAlign='center';ctx.fillText('ship.ts — Veyra Studio',W/2,41);ctx.textAlign='left';
+  ctx.font=`500 20px ${mono}`;ctx.fillStyle='#9aa7b4';ctx.textAlign='center';ctx.fillText('server.ts — Veyra Studio',W/2,41);ctx.textAlign='left';
   ctx.fillStyle=MINT;ctx.fillText('⇧⇧ Search',W-130,41);
   // Code
   const top=104,lh=46,left=118;let start=0,caret=null as {x:number,y:number}|null;
