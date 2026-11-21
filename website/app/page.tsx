@@ -7,6 +7,7 @@ import {
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { CodeUniverse } from "@/components/CodeUniverse";
+import { HeroSpotlight } from "@/components/HeroSpotlight";
 import { LiveIDE } from "@/components/LiveIDE";
 import { DownloadCTA } from "@/components/DownloadCTA";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -50,16 +51,18 @@ export default async function Home() {
         <section className="hero hero-universe">
           <CodeUniverse />
           <div className="hero-vignette" />
+          <HeroSpotlight />
           <div className="hero-copy">
             <a className="eyebrow" href="https://github.com/fcopensource/veyraeditor/releases/latest">
               <i />
               {version.toUpperCase()} · NOW ON WINDOWS, MACOS & LINUX
               <ArrowRight size={12} />
             </a>
-            <h1>
-              The lightweight
+            <h1 className="hero-title">
+              <span className="hero-word" style={{ "--i": 0 } as React.CSSProperties}>The</span>{" "}
+              <span className="hero-word" style={{ "--i": 1 } as React.CSSProperties}>lightweight</span>
               <br />
-              <em>VS Code alternative.</em>
+              <em className="hero-word" style={{ "--i": 2 } as React.CSSProperties}>VS Code alternative.</em>
             </h1>
             <p>
               Veyra feels like VS Code (the same Monaco editor, the same shortcuts) but it&apos;s a native
@@ -73,12 +76,19 @@ export default async function Home() {
                 Star on GitHub
               </a>
             </div>
-            <div className="hero-meta">
-              {downloads >= SHOW_INSTALLS_FROM && <span className="hero-downloads"><Check size={13} /> {compact(downloads)}+ downloads</span>}
-              <span><Check size={13} /> Free & open source</span>
-              <span><Check size={13} /> {sizes.label}</span>
-              <span><Check size={13} /> Auto-updates</span>
-            </div>
+            <ul className="hero-proof" aria-label="Veyra at a glance">
+              <li><b>{sizes.min && sizes.max ? (sizes.min === sizes.max ? sizes.min : `${sizes.min}–${sizes.max}`) : "~10"}<small> MB</small></b><span>installer</span></li>
+              {downloads >= SHOW_INSTALLS_FROM && <li className="hero-downloads"><b>{compact(downloads)}+</b><span>downloads</span></li>}
+              <li><b>0</b><span>AI or telemetry</span></li>
+              <li><b>Free</b><span>& open source</span></li>
+            </ul>
+          </div>
+          {/* What the editor beside the headline gives you, floating around it (wide screens only). */}
+          <div className="hero-chips" aria-hidden="true">
+            <span className="chip-a"><Search size={14} /><b>Search Everywhere</b><kbd>⇧⇧</kbd></span>
+            <span className="chip-b"><FolderGit2 size={14} /><b>Git you can see</b></span>
+            <span className="chip-c"><TerminalSquare size={14} /><b>A real terminal</b></span>
+            <span className="chip-d"><LockKeyhole size={14} /><b>Stays on your machine</b></span>
           </div>
           <a className="scroll-cue" href="#showcase" aria-label="Scroll to explore"><span /></a>
         </section>
