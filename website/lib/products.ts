@@ -109,6 +109,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/live-values', icon: '/live-values-icon.png', name: 'Live Values', title: 'Veyra Live Values', group: 'Run and test', order: 23, tone: 'livevalues', updated: '2026-11-21',
     copy: 'console.log values next to your code', cta: 'Explore Live Values',
     summary: 'Run your Node.js code and every console.log value, warning, error and crash appears at the end of the line that printed it, live. No more digging through the terminal.' }),
+  vs({ href: '/aura', icon: '/aura-icon.png', name: 'Aura', title: 'Veyra Aura', group: 'Just for fun', order: 24, tone: 'aura', updated: '2026-11-22',
+    copy: 'Your coding aura ✨', cta: 'Explore Aura',
+    summary: 'Farm aura for clearing errors, commits and passing tests, lose it for “wip” commits and force pushes. Rank up from NPC to Final Boss, keep your streak, share your aura card.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
