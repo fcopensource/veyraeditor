@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14062E"/>
+      <stop offset="0.45" stop-color="#4A0F6B"/>
+      <stop offset="0.62" stop-color="#B3206F"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE45C"/>
+      <stop offset="0.5" stop-color="#FF8A3D"/>
+      <stop offset="1" stop-color="#FF3EA5"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B1264"/>
+      <stop offset="1" stop-color="#0C0420"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF3EA5" stop-opacity=".75"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".08"/>
+      <stop offset="1" stop-color="#22E6FF" stop-opacity=".75"/>
+    </linearGradient>
+    <!-- The sun's stripes: cut-outs that get thicker towards the horizon -->
+    <mask id="stripes">
+      <rect x="0" y="0" width="256" height="256" fill="#fff"/>
+      <rect x="0" y="118" width="256" height="3" fill="#000"/>
+      <rect x="0" y="127" width="256" height="4.5" fill="#000"/>
+      <rect x="0" y="137" width="256" height="6" fill="#000"/>
+      <rect x="0" y="148" width="256" height="8" fill="#000"/>
+    </mask>
+    <clipPath id="tile"><rect x="8" y="8" width="240" height="240" rx="54"/></clipPath>
+    <clipPath id="above"><rect x="0" y="0" width="256" height="158"/></clipPath>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="neon" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <rect x="8" y="8" width="240" height="160" fill="url(#sky)"/>
+    <!-- Stars -->
+    <g fill="#ffffff">
+      <circle cx="38" cy="36" r="1.6" opacity=".9"/><circle cx="76" cy="22" r="1.1" opacity=".7"/>
+      <circle cx="196" cy="30" r="1.5" opacity=".85"/><circle cx="222" cy="58" r="1" opacity=".6"/>
+      <circle cx="128" cy="24" r="1" opacity=".6"/><circle cx="30" cy="70" r="0.9" opacity=".5"/>
+    </g>
+    <!-- The sun, glowing, striped, half-set behind the horizon -->
+    <g clip-path="url(#above)">
+      <circle cx="128" cy="124" r="62" fill="#FF5FB0" opacity=".55" filter="url(#glow)"/>
+      <circle cx="128" cy="124" r="56" fill="url(#sun)" mask="url(#stripes)"/>
+    </g>
+    <!-- The sea, with the sun's reflection and a neon horizon -->
+    <rect x="8" y="158" width="240" height="90" fill="url(#sea)"/>
+    <g stroke-linecap="round">
+      <path d="M92 170 H164" stroke="#FF8A3D" stroke-width="3" opacity=".8"/>
+      <path d="M100 181 H156" stroke="#FF3EA5" stroke-width="3" opacity=".7"/>
+      <path d="M108 192 H148" stroke="#FF3EA5" stroke-width="2.5" opacity=".55"/>
+      <path d="M116 203 H140" stroke="#B96BFF" stroke-width="2" opacity=".5"/>
+      <path d="M40 176 H64 M188 184 H214 M56 198 H72" stroke="#22E6FF" stroke-width="1.6" opacity=".45"/>
+    </g>
+    <path d="M8 158 H248" stroke="#22E6FF" stroke-width="5" opacity=".7" filter="url(#neon)"/>
+    <path d="M8 158 H248" stroke="#9FF8FF" stroke-width="1.6"/>
+
+    <!-- Palm trees, in silhouette -->
+    <g fill="#0B0418">
+      <!-- left palm: a curved trunk and fronds -->
+      <path d="M40 248 C 44 206, 50 170, 66 132 L 71 134 C 58 172, 54 208, 52 248 Z"/>
+      <path d="M68 132 C 50 118, 30 120, 16 132 C 34 124, 50 126, 66 136 Z"/>
+      <path d="M68 132 C 58 108, 40 100, 24 104 C 42 108, 56 118, 66 134 Z"/>
+      <path d="M68 132 C 76 108, 94 98, 112 104 C 94 108, 80 118, 70 134 Z"/>
+      <path d="M68 132 C 88 122, 106 126, 116 140 C 100 130, 86 130, 70 136 Z"/>
+      <path d="M68 132 C 64 114, 66 98, 74 88 C 72 102, 72 116, 70 132 Z"/>
+      <!-- right palm, smaller and further away -->
+      <path d="M214 248 C 212 214, 206 186, 196 160 L 200 158 C 212 186, 220 214, 222 248 Z"/>
+      <path d="M198 158 C 210 146, 226 146, 238 154 C 224 150, 212 152, 200 162 Z"/>
+      <path d="M198 158 C 204 140, 218 132, 232 134 C 218 138, 208 146, 200 160 Z"/>
+      <path d="M198 158 C 186 142, 172 138, 160 142 C 174 144, 186 150, 196 160 Z"/>
+      <path d="M198 158 C 184 152, 170 154, 162 164 C 174 158, 186 158, 196 162 Z"/>
+    </g>
+  </g>
+  <rect x="9" y="9" width="238" height="238" rx="53" fill="none" stroke="url(#rim)" stroke-width="2.2"/>
+</svg>
