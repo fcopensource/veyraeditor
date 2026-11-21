@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1c1733"/>
+      <stop offset="1" stop-color="#0a0c14"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#68f4d1"/>
+      <stop offset=".35" stop-color="#4cdcf2"/>
+      <stop offset=".65" stop-color="#9673ff"/>
+      <stop offset=".85" stop-color="#ff5fa8"/>
+      <stop offset="1" stop-color="#ffb02e"/>
+    </linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#c9fff1"/>
+    </linearGradient>
+    <radialGradient id="core" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#9673ff" stop-opacity=".55"/>
+      <stop offset=".6" stop-color="#4cdcf2" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#68f4d1" stop-opacity=".5"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".05"/>
+      <stop offset="1" stop-color="#ff5fa8" stop-opacity=".5"/>
+    </linearGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#bg)"/>
+  <circle cx="128" cy="128" r="92" fill="url(#core)"/>
+  <rect x="9" y="9" width="238" height="238" rx="53" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <!-- The aura ring: a blurred glow under a crisp ring -->
+  <circle cx="128" cy="128" r="74" fill="none" stroke="url(#ring)" stroke-width="16" filter="url(#blur)" opacity=".9"/>
+  <circle cx="128" cy="128" r="74" fill="none" stroke="url(#ring)" stroke-width="11"/>
+  <!-- The sparkle -->
+  <path d="M128 76 C133 112 144 123 180 128 C144 133 133 144 128 180 C123 144 112 133 76 128 C112 123 123 112 128 76 Z" fill="#68f4d1" filter="url(#soft)" opacity=".7"/>
+  <path d="M128 76 C133 112 144 123 180 128 C144 133 133 144 128 180 C123 144 112 133 76 128 C112 123 123 112 128 76 Z" fill="url(#star)"/>
+  <!-- Little sparkles -->
+  <path d="M196 52 C197.5 60 200 62.5 208 64 C200 65.5 197.5 68 196 76 C194.5 68 192 65.5 184 64 C192 62.5 194.5 60 196 52 Z" fill="#ffb02e"/>
+  <path d="M58 182 C59 188 61 190 67 191 C61 192 59 194 58 200 C57 194 55 192 49 191 C55 190 57 188 58 182 Z" fill="#ff5fa8"/>
+</svg>
