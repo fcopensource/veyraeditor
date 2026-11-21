@@ -108,7 +108,7 @@ export default async function AuraPage(){
             <li>In VS Code, press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> and run <strong>Extensions: Install from VSIX…</strong>, then choose the file.</li>
             <li>Start coding. Your aura shows in the status bar; click it for the panel and your aura card.</li>
           </ol>}
-          <p className="live-note">More fun with code: <Link href="/garden">Code Garden Veyra</Link> grows a garden as you code, and <Link href="/pets">Veyra Pets</Link> keeps you company. {EXT.listed?'':'Coming to the Visual Studio Marketplace soon.'}</p>
+          <p className="live-note">More fun with code: <Link href="/garden">Code Garden Veyra</Link> grows a garden as you code, and <Link href="/pets">Veyra Pets</Link> keeps you company. Using IntelliJ IDEA, PyCharm, WebStorm or Android Studio? Get <Link href="/jetbrains/aura">Aura Veyra for JetBrains IDEs</Link>. {EXT.listed?'':'Coming to the Visual Studio Marketplace soon.'}</p>
         </div>
         <div className="visual" aria-label="The ranks">
           <small>The ranks</small>
