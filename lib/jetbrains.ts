@@ -147,6 +147,36 @@ export const JETBRAINS_PLUGINS: JetBrainsPlugin[] = [
       note: 'Also for VS Code, as Veyra Hotspots.',
     },
   },
+  {
+    slug: 'aura',
+    name: 'Aura Veyra',
+    tagline: 'Your coding aura. Farm it, flex it, share it.',
+    summary: 'Earn aura for clearing errors, commits and green tests; lose a little for “wip” commits and leftover debuggers. Rank up from NPC to Final Boss, keep your streak and share your aura card.',
+    version: '1.0.0',
+    file: '/downloads/jetbrains/aura-veyra-1.0.0.zip',
+    size: '102 KB',
+    icon: '/aura-jetbrains.svg',
+    since: '2024.3',
+    marketplace: null,
+    source: 'https://github.com/fcopensource/jetbrains-plugins/tree/main/aura-veyra',
+    released: '2026-11-22',
+    features: [
+      { title: 'Aura for real wins', copy: 'Clear every error in a file, ship a commit, get your tests green in the IDE’s test runner, pass a build, delete dead code. Real wins, real aura.' },
+      { title: 'Roast mode 💀', copy: 'A “wip” commit message, failing tests or a leftover debugger costs you a little. Turn it off if you only want the W’s.' },
+      { title: 'NPC to Final Boss', copy: 'Eight ranks: NPC, Side Character, Main Character, Locked In, Sigma, Aura Farmer, Goated and Final Boss, with a notification when you rank up.' },
+      { title: 'Your 🔥 streak', copy: 'Code every day to keep it alive. Each streak day adds a bonus, and every move has a daily limit so aura can’t be farmed.' },
+      { title: 'The Aura tool window', copy: 'A glowing ring with your aura, your rank and progress, the week as a chart, your best moves and every move. Your aura sits in the status bar too.' },
+      { title: 'Share your aura card', copy: 'One click makes a 1200 × 630 card for X, Instagram and LinkedIn, with the caption copied. 100% local: no account, no telemetry.' },
+    ],
+    where: ['Your aura in the status bar (click it)', 'View → Tool Windows → Aura', 'Tools → Aura → Share My Aura Card…', 'Settings → Tools → Aura Veyra'],
+    shot: {
+      src: '/aura-jetbrains-card.png', width: 1200, height: 630, wide: true,
+      alt: 'An aura card made by Aura Veyra: 1,150 aura, Locked In, a 7-day streak and +590 this week, with a glowing ring',
+      caption: 'Your aura card, made in the Aura tool window: your aura, rank, streak and week, ready to post.',
+      heading: 'Main character energy.',
+      note: 'Also for VS Code, as Veyra Aura.',
+    },
+  },
 ];
 
 export const jetbrainsPlugin = (slug: string) => JETBRAINS_PLUGINS.find(p => p.slug === slug);
