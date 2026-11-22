@@ -25,6 +25,7 @@ export default async function sitemap():Promise<MetadataRoute.Sitemap>{
     {url:absolute('/salesforce-studio/privacy'),lastModified:updated,changeFrequency:'yearly',priority:0.3},
     {url:absolute('/baazcyber/privacy'),lastModified:new Date('2026-11-08'),changeFrequency:'yearly',priority:0.3},
     {url:absolute('/pdf'),lastModified:new Date('2026-10-19'),changeFrequency:'monthly',priority:0.8},
+    {url:absolute('/veyra-snap'),lastModified:new Date('2026-11-22'),changeFrequency:'monthly',priority:0.8},
     {url:absolute('/pdf/privacy'),lastModified:new Date('2026-10-19'),changeFrequency:'yearly',priority:0.3},
     {url:absolute('/docs'),lastModified:updated,changeFrequency:'monthly',priority:0.8},
     {url:absolute('/vs-code-alternative'),changeFrequency:'monthly',priority:0.8},

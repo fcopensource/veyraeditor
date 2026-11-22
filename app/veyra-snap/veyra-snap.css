@@ -1,0 +1,57 @@
+/* veyra-snap: the Python library page. Builds on live-server.css (hero, steps, FAQ) and content.css (cards). */
+.snap-page .live-kicker{border-color:#ffd35c40;background:#ffd35c0d;color:#ffe08a}
+.snap-page .live-kicker i{background:#ffd35c;box-shadow:0 0 12px #ffd35c}
+.snap-page .live-hero h1{font-family:var(--font-mono);letter-spacing:-2px}
+
+/* the install command with its copy button */
+.snap-cmd{display:flex;align-items:center;gap:10px;max-width:560px;margin:26px auto 10px;padding:6px 6px 6px 16px;border:1px solid #68f4d140;border-radius:14px;background:#080b11;box-shadow:0 14px 40px #0008,0 0 40px #68f4d10f;text-align:left}
+.snap-cmd code{flex:1;min-width:0;overflow-x:auto;padding:0!important;background:none!important;color:#e9fbf7;font:600 15px var(--font-mono)!important;white-space:nowrap;word-break:normal!important}
+.snap-cmd code span{margin-right:10px;color:var(--mint)}
+.snap-cmd button{display:inline-flex;align-items:center;gap:7px;flex:none;padding:10px 14px;border:0;border-radius:10px;background:linear-gradient(120deg,#dffff7,#80efd5);color:#07100e;font-size:12px;font-weight:800;cursor:pointer}
+.snap-cmd button:hover{filter:brightness(1.05)}
+.snap-cmd.small{margin:14px 0}
+.snap-cmd.small code{font-size:12.5px!important}
+
+/* a terminal session */
+.snap-term{overflow:hidden;border:1px solid #ffffff17;border-radius:18px;background:#080b11;box-shadow:0 40px 100px #000c,0 0 80px #68f4d10d}
+.snap-term pre{margin:0;padding:22px 24px 26px;overflow-x:auto;color:#c9d4de;font:13px/1.75 var(--font-mono);white-space:pre}
+.snap-term .p{color:var(--mint)}
+.snap-term .c{color:#e9fbf7;font-weight:700}
+.snap-term .m{color:#5f6b78}
+.snap-term .b{color:#68f4d1;font-weight:700}
+.snap-term .n{color:#7fd0ff}
+.snap-term .ok{color:#3ddc97}
+.snap-term .w{color:#ffcf6b}
+.snap-term .d{color:#6f7c89}
+
+/* the generated test */
+.snap-code{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#0a0e15}
+.snap-code pre{margin:0;padding:20px 22px;overflow-x:auto;color:#c9d4de;font:12.5px/1.8 var(--font-mono);white-space:pre}
+.snap-code .k{color:#c792ea}
+.snap-code .f{color:#82aaff}
+.snap-code .s{color:#c3e88d}
+.snap-code .n{color:#f78c6c}
+.snap-code .d{color:#ffcb6b}
+.snap-code .cm{color:#5f6b78;font-style:italic}
+
+.snap-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.snap-two article{padding:22px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#111722,#0a0e15)}
+.snap-two h3{margin:0 0 10px;font-size:16px}
+.snap-two p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.7}
+.snap-types{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.snap-types li{padding:6px 10px;border:1px solid #ffffff14;border-radius:8px;background:#ffffff06;color:#c9d4de;font:12px var(--font-mono)}
+.snap-status{display:inline-flex;align-items:center;gap:8px;margin-top:4px;color:#ffe08a;font-size:12.5px}
+.snap-status i{width:7px;height:7px;border-radius:50%;background:#ffd35c;box-shadow:0 0 10px #ffd35c}
+
+@media(max-width:800px){
+  .snap-two{grid-template-columns:1fr}
+  .snap-term pre{font-size:11px;padding:18px 16px}
+  .snap-cmd{margin-left:0;margin-right:0}
+  .snap-cmd code{font-size:13px!important}
+  .snap-cmd button span{display:none}
+}
+/* the install steps sit in a two-column row: keep the long command inside its column */
+.snap-page .split>div{min-width:0}
+.snap-page .live-install .snap-cmd{max-width:100%;margin:12px 0 4px}
+.snap-page .live-install{grid-template-columns:minmax(0,1fr)}
+.snap-page p code,.snap-page li code{word-break:normal;white-space:nowrap}
