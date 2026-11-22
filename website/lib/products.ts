@@ -34,6 +34,7 @@ export const APPS: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>[] = 
   { href: '/pdf', icon: '/veyra-96.png', name: 'Veyra PDF', copy: 'Edit, sign and merge PDFs offline', tag: 'New' },
   { href: '/salesforce-studio', icon: '/salesforce-studio-icon.png', name: 'Salesforce Studio', copy: 'LWC, Apex and Aura in your browser' },
   { href: '/jetbrains', icon: '/port-manager-jetbrains.svg', name: 'JetBrains plugins', copy: 'For IntelliJ IDEA, WebStorm, PyCharm and more', tag: 'New' },
+  { href: '/veyra-snap', icon: '/veyra-snap-icon.png', name: 'veyra-snap', copy: 'Run your Python code, get pytest tests', tag: 'New' },
 ];
 
 const vs = (p: Omit<Product, 'platform'> & { platform?: string }): Product => ({ platform: 'For VS Code', ...p });
