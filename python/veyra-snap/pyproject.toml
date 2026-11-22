@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "veyra-snap"
+dynamic = ["version"]
+description = "Run your code, get pytest tests: records real function calls and writes them as regression tests."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "FlightCoders", email = "hire@flightcoders.com" }]
+keywords = ["pytest", "testing", "snapshot", "regression", "test generation", "golden master", "characterization tests", "veyra"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Framework :: Pytest",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Software Development :: Code Generators",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/fcopensource/veyraeditor/tree/main/python/veyra-snap"
+Source = "https://github.com/fcopensource/veyraeditor/tree/main/python/veyra-snap"
+Issues = "https://github.com/fcopensource/veyraeditor/issues"
+Changelog = "https://github.com/fcopensource/veyraeditor/blob/main/python/veyra-snap/CHANGELOG.md"
+
+[project.scripts]
+veyra-snap = "veyra_snap.cli:main"
+
+[tool.hatch.version]
+path = "src/veyra_snap/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/veyra_snap"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
