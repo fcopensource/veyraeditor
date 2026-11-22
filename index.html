@@ -6,133 +6,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Veyra</title>
     <style>
-      /* Launch screen: the hummingbird flies in, hovers, and "Veyra Studio" types itself out from the cursor at its
-         beak. Pure HTML and CSS, shown before any script runs; main.tsx sets the status and fades it out. */
-      html, body { margin: 0; background: #07081a }
+      /* Launch screen, pure HTML and CSS so it shows before any script runs (main.tsx sets the status, the progress
+         and fades it out). About 2.5 s: stars drift toward you over a glowing grid, the hummingbird sweeps in leaving
+         a trail of code, lands with a pulse of light, "Veyra Studio" types out from its beak and a wave of light runs
+         across it; at the end the bird zips away and the editor appears. Motion stops for reduced-motion users. */
+      html, body { margin: 0; background: #05061a }
       #splash { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; display: grid; place-items: center;
-        background: radial-gradient(900px 620px at 50% 42%, #1a1d52 0%, #0d0f2c 45%, #07081a 100%);
+        background: radial-gradient(1100px 720px at 50% 40%, #1b1c5c 0%, #0c0e33 42%, #05061a 100%);
         font-family: Inter, "Segoe UI", system-ui, sans-serif; color: #edf5f5; -webkit-user-select: none; user-select: none; cursor: default;
-        transition: opacity .55s ease, visibility .55s }
+        --p: 0; transition: opacity .6s ease .05s, visibility .65s }
       #splash.done { opacity: 0; visibility: hidden; pointer-events: none }
 
-      /* sky */
-      #splash .sky { position: absolute; inset: 0; pointer-events: none }
-      #splash .aurora { position: absolute; left: 50%; top: 58%; width: 760px; height: 300px; transform: translate(-50%, -50%);
-        background: radial-gradient(closest-side, #68f4d11f, transparent 70%); filter: blur(10px); animation: splash-breathe 5s ease-in-out infinite }
-      #splash .halo { position: absolute; left: 50%; top: 44%; width: 520px; height: 520px; transform: translate(-50%, -50%);
-        background: radial-gradient(closest-side, #6d5cf62e, transparent 72%) }
+      /* --- space: three star layers drifting toward the viewer, nebula glows, a grid floor --- */
+      #splash .space { position: absolute; inset: 0; pointer-events: none; perspective: 520px; perspective-origin: 50% 64% }
+      #splash .stars { position: absolute; left: 0; top: 0; width: 1px; height: 1px; border-radius: 50%; background: transparent; transform-origin: 50vw 42vh }
+      #splash .stars.far { box-shadow: 28.4vw 36.4vh #c9c3ff,33.3vw 53.2vh #c9c3ff,23.3vw 90.6vh #c9c3ff,86.3vw 63.5vh #c9c3ff,51.6vw 50.5vh #c9c3ff,94.0vw 39.7vh #bdeee6,25.1vw 58.7vh #bdeee6,33.1vw 39.1vh #c9c3ff,87.8vw 11.1vh #bdeee6,7.8vw 40.7vh #bdeee6,7.8vw 99.6vh #ffffff,63.2vw 14.4vh #ffffff,59.3vw 13.8vh #c9c3ff,88.5vw 89.1vh #bdeee6,90.8vw 76.1vh #bdeee6,1.0vw 24.8vh #ffffff,0.2vw 61.7vh #ffffff,74.1vw 48.9vh #ffffff,23.8vw 88.2vh #bdeee6,37.4vw 89.4vh #ffffff,48.9vw 0.3vh #ffffff,63.7vw 92.2vh #bdeee6,90.0vw 18.8vh #ffffff,56.5vw 67.9vh #bdeee6,22.3vw 20.9vh #ffffff,5.2vw 76.9vh #c9c3ff,71.4vw 49.8vh #bdeee6,11.0vw 91.9vh #ffffff,68.8vw 89.3vh #ffffff,88.3vw 86.1vh #ffffff,95.4vw 76.5vh #bdeee6,24.8vw 72.8vh #c9c3ff,39.8vw 23.5vh #bdeee6,88.7vw 55.9vh #c9c3ff,62.2vw 73.5vh #c9c3ff,72.5vw 42.3vh #c9c3ff,31.2vw 98.5vh #ffffff,63.2vw 87.2vh #bdeee6,20.0vw 64.5vh #bdeee6,49.7vw 55.7vh #ffffff,94.6vw 48.2vh #bdeee6,44.7vw 16.6vh #ffffff,52.2vw 56.2vh #c9c3ff,75.7vw 36.2vh #c9c3ff,2.6vw 29.9vh #bdeee6,20.3vw 72.3vh #c9c3ff,23.6vw 66.0vh #ffffff,7.5vw 77.3vh #c9c3ff,91.5vw 91.0vh #bdeee6,95.9vw 2.5vh #bdeee6,60.1vw 72.4vh #bdeee6,3.7vw 13.6vh #bdeee6,10.8vw 8.5vh #ffffff,60.5vw 94.6vh #ffffff,13.4vw 20.2vh #ffffff,24.3vw 45.6vh #bdeee6,42.3vw 67.4vh #bdeee6,39.7vw 41.6vh #bdeee6,23.0vw 80.8vh #ffffff,15.2vw 92.6vh #bdeee6,12.2vw 21.0vh #c9c3ff,17.1vw 7.8vh #c9c3ff,64.7vw 55.6vh #ffffff,99.4vw 7.5vh #c9c3ff,31.4vw 0.4vh #c9c3ff,41.3vw 9.1vh #ffffff,92.4vw 77.7vh #ffffff,43.7vw 85.5vh #bdeee6,80.1vw 66.2vh #bdeee6,34.8vw 40.7vh #c9c3ff,49.5vw 56.7vh #c9c3ff,66.5vw 63.3vh #bdeee6,88.5vw 84.5vh #bdeee6,43.8vw 48.7vh #bdeee6,97.5vw 35.8vh #bdeee6,34.3vw 88.3vh #ffffff,73.8vw 95.5vh #bdeee6,20.7vw 23.8vh #bdeee6,10.4vw 91.6vh #bdeee6,63.5vw 71.1vh #bdeee6,44.3vw 87.2vh #c9c3ff,87.4vw 27.1vh #c9c3ff,43.4vw 39.5vh #bdeee6,58.9vw 23.1vh #ffffff,82.2vw 33.8vh #bdeee6,87.7vw 11.6vh #bdeee6,92.1vw 0.1vh #ffffff,39.7vw 2.2vh #ffffff,89.8vw 17.3vh #bdeee6,94.7vw 70.0vh #ffffff,11.7vw 62.7vh #ffffff,81.2vw 59.2vh #ffffff,12.8vw 33.1vh #bdeee6,95.5vw 54.8vh #bdeee6,77.7vw 70.2vh #c9c3ff,59.8vw 10.0vh #bdeee6,61.3vw 22.5vh #ffffff,25.1vw 22.3vh #c9c3ff,62.9vw 81.3vh #c9c3ff,90.6vw 5.3vh #ffffff,40.7vw 79.2vh #bdeee6,80.5vw 10.5vh #c9c3ff,50.1vw 82.3vh #bdeee6,86.6vw 79.1vh #c9c3ff,90.8vw 85.8vh #bdeee6,72.0vw 15.5vh #ffffff,94.9vw 95.5vh #ffffff,7.7vw 26.2vh #ffffff,87.0vw 95.7vh #bdeee6,19.8vw 3.0vh #ffffff,55.9vw 14.2vh #c9c3ff,48.1vw 22.7vh #ffffff,4.4vw 9.4vh #ffffff,46.8vw 80.8vh #c9c3ff,51.1vw 70.0vh #bdeee6,61.3vw 96.5vh #c9c3ff,96.2vw 71.2vh #bdeee6,80.3vw 17.1vh #c9c3ff,72.7vw 64.7vh #ffffff,54.5vw 38.7vh #c9c3ff,12.2vw 6.6vh #c9c3ff,35.4vw 34.5vh #ffffff,64.0vw 12.5vh #ffffff,0.2vw 83.6vh #ffffff,4.4vw 76.8vh #bdeee6,40.2vw 90.8vh #ffffff,1.2vw 99.3vh #bdeee6,64.3vw 42.8vh #ffffff,17.3vw 75.5vh #ffffff,24.9vw 85.8vh #bdeee6,31.8vw 45.9vh #bdeee6,25.3vw 88.2vh #ffffff,67.8vw 49.8vh #bdeee6,82.0vw 81.3vh #bdeee6,97.0vw 69.1vh #bdeee6,71.2vw 32.4vh #ffffff,16.3vw 84.5vh #bdeee6,81.6vw 46.7vh #c9c3ff,82.9vw 4.3vh #bdeee6,19.6vw 2.3vh #ffffff,81.2vw 62.7vh #c9c3ff,86.5vw 81.3vh #bdeee6,56.2vw 46.0vh #ffffff,53.8vw 75.1vh #c9c3ff,38.4vw 50.0vh #c9c3ff,70.3vw 77.2vh #ffffff,25.5vw 61.4vh #ffffff,93.8vw 56.8vh #c9c3ff,60.0vw 57.4vh #ffffff,57.1vw 16.1vh #c9c3ff,11.8vw 33.3vh #ffffff,87.5vw 64.4vh #c9c3ff,34.7vw 39.8vh #c9c3ff,15.5vw 5.3vh #ffffff,37.6vw 9.1vh #c9c3ff,40.4vw 45.7vh #c9c3ff,84.0vw 27.4vh #ffffff,12.2vw 20.3vh #ffffff,20.0vw 60.8vh #c9c3ff,75.4vw 78.5vh #c9c3ff,86.7vw 68.4vh #c9c3ff,62.4vw 73.6vh #ffffff,58.0vw 96.7vh #bdeee6,99.5vw 3.7vh #ffffff,30.8vw 85.6vh #ffffff,72.3vw 54.7vh #bdeee6,53.5vw 77.7vh #ffffff,81.2vw 68.3vh #ffffff,95.1vw 30.7vh #c9c3ff,73.5vw 51.5vh #ffffff; opacity: .55; animation: splash-drift 3.2s cubic-bezier(.2, .6, .3, 1) both }
+      #splash .stars.mid { width: 1.5px; height: 1.5px; box-shadow: 69.2vw 68.2vh #d7d1ff,70.6vw 98.1vh #ffffff,68.0vw 56.7vh #a8f7e5,63.0vw 56.7vh #ffffff,2.3vw 86.3vh #d7d1ff,97.6vw 30.8vh #d7d1ff,93.8vw 57.1vh #a8f7e5,19.8vw 24.2vh #d7d1ff,43.2vw 4.7vh #d7d1ff,78.1vw 84.0vh #d7d1ff,30.6vw 61.5vh #ffffff,31.7vw 29.0vh #d7d1ff,36.9vw 43.2vh #ffffff,50.4vw 54.4vh #d7d1ff,62.3vw 89.8vh #d7d1ff,46.2vw 83.2vh #a8f7e5,64.9vw 40.5vh #a8f7e5,5.3vw 28.6vh #d7d1ff,84.1vw 11.2vh #ffffff,66.6vw 22.1vh #ffffff,14.1vw 76.0vh #ffffff,62.5vw 75.6vh #ffffff,82.5vw 91.1vh #ffffff,95.4vw 7.3vh #a8f7e5,3.9vw 98.3vh #ffffff,27.7vw 52.3vh #d7d1ff,70.8vw 79.1vh #a8f7e5,11.5vw 61.7vh #ffffff,8.8vw 28.8vh #a8f7e5,77.0vw 67.6vh #d7d1ff,15.7vw 93.0vh #d7d1ff,61.8vw 72.2vh #a8f7e5,88.9vw 16.0vh #ffffff,69.7vw 42.1vh #d7d1ff,98.5vw 44.8vh #d7d1ff,66.1vw 10.2vh #d7d1ff,18.4vw 83.8vh #ffffff,99.6vw 54.1vh #d7d1ff,47.9vw 50.8vh #ffffff,54.2vw 81.9vh #ffffff,21.1vw 6.7vh #d7d1ff,43.6vw 13.0vh #d7d1ff,2.1vw 91.3vh #a8f7e5,89.0vw 66.9vh #a8f7e5,84.1vw 27.5vh #a8f7e5,46.6vw 0.1vh #a8f7e5,8.9vw 5.9vh #ffffff,12.0vw 22.2vh #d7d1ff,65.4vw 24.4vh #d7d1ff,71.6vw 75.0vh #ffffff,86.3vw 18.0vh #a8f7e5,54.7vw 40.4vh #ffffff,40.7vw 55.1vh #d7d1ff,85.3vw 40.8vh #a8f7e5,97.3vw 73.9vh #d7d1ff,23.9vw 96.1vh #a8f7e5,71.3vw 56.8vh #a8f7e5,89.4vw 18.2vh #d7d1ff,44.2vw 77.0vh #d7d1ff,69.2vw 61.2vh #a8f7e5,29.7vw 76.0vh #ffffff,3.4vw 55.2vh #d7d1ff,1.1vw 95.2vh #a8f7e5,54.8vw 86.1vh #a8f7e5,91.7vw 5.5vh #a8f7e5,36.3vw 69.9vh #a8f7e5,41.2vw 7.9vh #ffffff,37.0vw 31.5vh #ffffff,1.2vw 39.7vh #d7d1ff,80.1vw 82.0vh #d7d1ff; opacity: .75; animation: splash-drift-mid 3.2s cubic-bezier(.2, .6, .3, 1) both }
+      #splash .stars.near { width: 2px; height: 2px; box-shadow: 44.3vw 57.2vh #ffffff,13.5vw 11.7vh #68f4d1,4.5vw 27.7vh #68f4d1,18.6vw 96.9vh #68f4d1,55.9vw 15.8vh #b79bff,70.1vw 28.4vh #68f4d1,30.9vw 39.0vh #68f4d1,0.7vw 22.0vh #ffffff,65.6vw 3.1vh #68f4d1,8.6vw 10.8vh #b79bff,68.3vw 68.0vh #b79bff,94.0vw 5.9vh #68f4d1,16.5vw 36.7vh #ffffff,20.2vw 3.2vh #ffffff,51.0vw 97.1vh #ffffff,51.6vw 62.9vh #ffffff,91.8vw 67.5vh #ffffff,93.8vw 69.1vh #b79bff,38.6vw 44.6vh #ffffff,14.9vw 40.5vh #ffffff,64.2vw 67.8vh #b79bff,85.2vw 53.8vh #b79bff,34.3vw 96.0vh #ffffff,73.7vw 83.1vh #68f4d1,76.8vw 36.1vh #68f4d1,1.4vw 56.0vh #68f4d1; animation: splash-drift-near 3.2s cubic-bezier(.2, .6, .3, 1) both, splash-twinkle 2.2s ease-in-out .4s infinite }
+      #splash .nebula { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; animation: splash-nebula 6s ease-in-out infinite alternate }
+      #splash .nebula.a { left: 8%; top: 8%; width: 46vw; height: 38vh; background: radial-gradient(closest-side, #6d5cf655, transparent) }
+      #splash .nebula.b { right: 4%; top: 30%; width: 40vw; height: 40vh; background: radial-gradient(closest-side, #19c9c033, transparent); animation-delay: -3s }
+      /* the grid: a plane hinged at the bottom of the screen and laid flat, running away to the horizon */
+      #splash .floor { position: absolute; left: -100vw; right: -100vw; top: 100vh; height: 600vh; transform: rotateX(-90deg); transform-origin: 50% 0;
+        background:
+          linear-gradient(#8f7dffaa 2px, transparent 2px) 0 0 / 100% 90px,
+          linear-gradient(90deg, #68f4d177 2px, transparent 2px) 50% 0 / 90px 100%;
+        -webkit-mask-image: linear-gradient(#000 4%, #0008 18%, transparent 60%); mask-image: linear-gradient(#000 4%, #0008 18%, transparent 60%);
+        opacity: 0; animation: splash-fade-in .9s ease .1s forwards, splash-floor 1.2s linear infinite }
+      #splash .horizon { position: absolute; left: 0; right: 0; top: 66vh; height: 2px; opacity: 0;
+        background: linear-gradient(90deg, transparent, #68f4d1aa 30%, #b79bffcc 70%, transparent); box-shadow: 0 0 24px #68f4d188, 0 0 60px #8f7dff66;
+        animation: splash-fade-in 1s ease .35s forwards }
 
-      /* stage */
-      #splash .stage { position: relative; display: grid; justify-items: center; gap: 22px; animation: splash-rise .7s cubic-bezier(.2, .8, .2, 1) both }
-      #splash .row { display: flex; align-items: center }
-      #splash .bird { width: 172px; height: auto; overflow: visible; margin-right: 6px; animation: splash-arrive .9s cubic-bezier(.2, .9, .25, 1) both }
-      #splash .hover { animation: splash-hover 2.4s ease-in-out .9s infinite }
-      #splash .wl { transform-box: fill-box; transform-origin: 100% 100%; animation: splash-flap .13s ease-in-out infinite alternate }
-      #splash .wr { transform-box: fill-box; transform-origin: 0% 100%; animation: splash-flap .13s ease-in-out -.065s infinite alternate }
-      #splash .trail { stroke-dasharray: 46 400; animation: splash-trail 1.6s ease-out .2s both }
+      /* --- stage --- */
+      #splash .stage { position: relative; display: grid; justify-items: center; gap: clamp(14px, 2.4vh, 24px); margin-top: -4vh;
+        transition: transform .65s cubic-bezier(.6, 0, .4, 1), filter .65s ease }
+      #splash.done .stage { transform: scale(1.08); filter: blur(8px) }
+      #splash .row { position: relative; display: flex; align-items: center }
 
-      #splash .word { display: flex; align-items: center; height: 72px; margin-top: -26px }
-      #splash .word span { display: inline-block; font-size: 56px; font-weight: 700; letter-spacing: -1.6px; color: #edf5f5; opacity: 0;
-        animation: splash-type .01s linear both }
+      /* the bird: flies in along a curve, lands, hovers; zips off up-right when the editor is ready */
+      #splash .exit { position: relative; transition: transform .55s cubic-bezier(.5, 0, .8, .4) }
+      #splash.done .exit { transform: translate(70vw, -60vh) rotate(-18deg) scale(.7) }
+      #splash .fly { animation: splash-fly 1s cubic-bezier(.25, .7, .3, 1) both }
+      #splash .bird { display: block; width: clamp(110px, 12.5vw, 184px); height: auto; overflow: visible; margin-right: 6px;
+        filter: drop-shadow(0 0 22px #6d5cf688) drop-shadow(0 12px 30px #0008) }
+      #splash .hover { animation: splash-hover 2.4s ease-in-out 1s infinite }
+      #splash .wl { transform-box: fill-box; transform-origin: 100% 100%; animation: splash-flap .12s ease-in-out infinite alternate }
+      #splash .wr { transform-box: fill-box; transform-origin: 0% 100%; animation: splash-flap .12s ease-in-out -.06s infinite alternate }
+
+      /* the trail of light and code it leaves behind (positioned from the bird's landing spot) */
+      #splash .trail { position: absolute; left: calc(clamp(55px, 6.2vw, 92px) - 48vw); top: calc(50% - 14vh); width: 48vw; height: 32vh; overflow: visible; pointer-events: none;
+        clip-path: inset(-40% 100% -40% 0); animation: splash-wipe .95s cubic-bezier(.25, .7, .3, 1) both }
+      #splash .trail path { fill: none; stroke-linecap: round; animation: splash-fade-out .9s ease 1s forwards }
+      #splash .glyphs { position: absolute; left: calc(clamp(55px, 6.2vw, 92px) - 48vw); top: calc(50% - 14vh); width: 48vw; height: 32vh; pointer-events: none }
+      #splash .glyphs b { position: absolute; font: 700 clamp(13px, 1.3vw, 18px) "JetBrains Mono", Consolas, monospace; color: #68f4d1; text-shadow: 0 0 12px currentColor; opacity: 0;
+        animation: splash-glyph 1.5s ease-out both }
+      #splash .glyphs b:nth-child(even) { color: #b79bff }
+      #splash .glyphs b:nth-child(3n) { color: #4cdcf2 }
+
+      /* landing: rings of light and a flare */
+      #splash .pulse { position: absolute; left: clamp(55px, 6.2vw, 92px); top: 50%; width: 0; height: 0; pointer-events: none }
+      #splash .pulse i { position: absolute; left: -90px; top: -90px; width: 180px; height: 180px; border-radius: 50%; border: 2px solid #68f4d1; opacity: 0;
+        box-shadow: 0 0 30px #68f4d166, inset 0 0 30px #68f4d133; animation: splash-ring 1.1s cubic-bezier(.2, .7, .3, 1) .88s both }
+      #splash .pulse i + i { border-color: #b79bff; box-shadow: 0 0 30px #b79bff66; animation-delay: 1.02s }
+      #splash .pulse s { position: absolute; left: -160px; top: -160px; width: 320px; height: 320px; border-radius: 50%; opacity: 0;
+        background: radial-gradient(closest-side, #ffffffaa, #68f4d144 35%, transparent 70%); animation: splash-flare .9s ease-out .84s both }
+
+      /* the name: typed from the cursor at the beak, then a wave of light across the letters */
+      #splash .word { display: flex; align-items: center; width: 6.3em; height: 1.3em; margin-top: -22px; font-size: clamp(38px, 4.6vw, 64px) }
+      #splash .word span { display: inline-block; max-width: 0; overflow: hidden; white-space: pre; font-size: 1em; line-height: 1.2; font-weight: 750; letter-spacing: -.03em; color: #edf5f5; opacity: 0;
+        animation: splash-type .01s linear var(--d) both, splash-glint .7s ease-in-out calc(var(--d) + 1.05s) both }
       #splash .word .sp { width: .28em }
-      /* "Studio" in the website's headline gradient (mint, cyan, lavender), spread across its six letters */
       #splash .word .studio { color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff) 0 0 / 600% 100%; -webkit-background-clip: text; background-clip: text }
       #splash .word .studio:nth-of-type(8) { background-position: 20% 0 } #splash .word .studio:nth-of-type(9) { background-position: 40% 0 }
       #splash .word .studio:nth-of-type(10) { background-position: 60% 0 } #splash .word .studio:nth-of-type(11) { background-position: 80% 0 }
       #splash .word .studio:nth-of-type(12) { background-position: 100% 0 }
-      #splash .caret { width: 5px; height: 54px; margin-left: 6px; border-radius: 3px; background: #68f4d1; box-shadow: 0 0 18px #68f4d199;
-        animation: splash-caret 1s steps(1) infinite }
-      #splash .tagline em { font-style: normal; font-weight: 600; color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff); -webkit-background-clip: text; background-clip: text }
-      #splash .tagline { margin: -6px 0 0; font-size: 17px; letter-spacing: .2px; color: #9aa7b4; opacity: 0; animation: splash-fade .6s ease 1.25s both }
+      #splash .caret { flex: none; width: 5px; height: .92em; margin-left: 7px; border-radius: 3px; background: #68f4d1; box-shadow: 0 0 18px #68f4d1aa, 0 0 40px #68f4d155;
+        animation: splash-caret 1s steps(1) .5s infinite }
+      #splash .tagline { margin: -4px 0 0; font-size: clamp(14px, 1.35vw, 18px); letter-spacing: .2px; color: #9aa7b4; opacity: 0; animation: splash-rise .7s ease 1.3s both }
+      #splash .tagline em { font-style: normal; font-weight: 650; color: transparent; background: linear-gradient(100deg, #68f4d1, #4cdcf2, #b79bff); -webkit-background-clip: text; background-clip: text }
 
-      /* bottom */
-      #splash .foot { position: absolute; left: 50%; bottom: 46px; width: min(460px, calc(100vw - 48px)); transform: translateX(-50%); display: grid; gap: 12px }
-      #splash .bar { position: relative; height: 2px; overflow: hidden; border-radius: 2px; background: #ffffff12 }
-      #splash .bar::after { content: ""; position: absolute; top: 0; bottom: 0; left: -30%; width: 30%; border-radius: 2px;
-        background: linear-gradient(90deg, transparent, #68f4d1, #4cdcf2, #9673ff, transparent); animation: splash-load 1.2s ease-in-out infinite }
-      #splash .meta { display: flex; justify-content: space-between; font: 500 11px "JetBrains Mono", Consolas, monospace; letter-spacing: .4px; color: #84919f }
+      /* --- bottom: a progress bar that fills as the editor loads --- */
+      #splash .foot { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: clamp(30px, 6vh, 54px); width: min(480px, calc(100vw - 48px)); display: grid; gap: 12px;
+        opacity: 0; animation: splash-rise .6s ease .5s both }
+      #splash .bar { position: relative; height: 3px; overflow: hidden; border-radius: 3px; background: #ffffff12 }
+      #splash .fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(max(var(--p), .06) * 100%); border-radius: inherit; overflow: hidden;
+        background: linear-gradient(90deg, #68f4d1, #4cdcf2 55%, #9673ff); box-shadow: 0 0 14px #68f4d1aa; transition: width .55s cubic-bezier(.3, .7, .3, 1) }
+      #splash .fill::after { content: ""; position: absolute; top: 0; bottom: 0; width: 60px; left: -60px; background: linear-gradient(90deg, transparent, #ffffffcc, transparent);
+        animation: splash-shine 1.1s ease-in-out infinite }
+      #splash .meta { display: flex; justify-content: space-between; gap: 16px; font: 500 11px "JetBrains Mono", Consolas, monospace; letter-spacing: .4px; color: #84919f }
       #splash .meta #splash-status { color: #68f4d1cc }
-      #splash .legal { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font: 10px "JetBrains Mono", Consolas, monospace; color: #46515e; letter-spacing: 1.6px; text-transform: uppercase }
+      #splash .legal { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font: 10px "JetBrains Mono", Consolas, monospace; color: #46515e; letter-spacing: 1.6px; text-transform: uppercase }
 
-      @keyframes splash-rise { from { opacity: 0; transform: translateY(10px) } }
-      @keyframes splash-arrive { 0% { opacity: 0; transform: translate(-90px, 26px) rotate(-8deg) } 70% { opacity: 1 } 100% { transform: none } }
-      @keyframes splash-hover { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-7px) } }
-      @keyframes splash-flap { from { transform: scale(1, 1) } to { transform: scale(.84, .5) } }
-      @keyframes splash-trail { 0% { stroke-dashoffset: 0; opacity: 0 } 20% { opacity: .9 } 100% { stroke-dashoffset: -420; opacity: 0 } }
-      @keyframes splash-type { to { opacity: 1 } }
+      @keyframes splash-drift { from { transform: scale(1) } to { transform: scale(1.06) } }
+      @keyframes splash-drift-mid { from { transform: scale(.96); opacity: 0 } 30% { opacity: .75 } to { transform: scale(1.16) } }
+      @keyframes splash-drift-near { from { transform: scale(.9); opacity: 0 } 30% { opacity: 1 } to { transform: scale(1.38) } }
+      @keyframes splash-twinkle { 50% { opacity: .55 } }
+      @keyframes splash-nebula { to { transform: translate(3vw, 2vh) scale(1.1) } }
+      @keyframes splash-floor { from { background-position: 0 90px, 50% 0 } to { background-position: 0 0, 50% 0 } }
+      @keyframes splash-fly {
+        0% { opacity: 0; transform: translate(-48vw, 15vh) rotate(16deg) scale(.45) }
+        12% { opacity: 1 }
+        50% { transform: translate(-19vw, -7vh) rotate(-7deg) scale(.8) }
+        78% { transform: translate(-3vw, 2vh) rotate(5deg) scale(1.04) }
+        100% { opacity: 1; transform: none }
+      }
+      @keyframes splash-hover { 50% { transform: translateY(-7px) } }
+      @keyframes splash-flap { from { transform: scale(1, 1) } to { transform: scale(.84, .45) } }
+      @keyframes splash-wipe { to { clip-path: inset(-40% 0 -40% 0) } }
+      @keyframes splash-glyph { 0% { opacity: 0; transform: scale(.4) } 15% { opacity: 1; transform: scale(1.15) } 100% { opacity: 0; transform: translate(var(--dx, 0), var(--dy, -40px)) scale(.8) rotate(var(--r, 0deg)) } }
+      @keyframes splash-ring { 0% { opacity: 0; transform: scale(.15) } 8% { opacity: .95; transform: scale(.3) } 100% { opacity: 0; transform: scale(2.3) } }
+      @keyframes splash-flare { 0% { opacity: 0; transform: scale(.3) } 30% { opacity: .9 } 100% { opacity: 0; transform: scale(1.4) } }
+      @keyframes splash-type { to { opacity: 1; max-width: 1.4em; overflow: visible } }
+      @keyframes splash-glint { 0%, 100% { filter: none; transform: none } 45% { filter: brightness(1.7) drop-shadow(0 0 14px #68f4d1cc); transform: translateY(-3px) } }
       @keyframes splash-caret { 50% { opacity: 0 } }
-      @keyframes splash-fade { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: none } }
-      @keyframes splash-load { to { left: 100% } }
-      @keyframes splash-breathe { 50% { opacity: .55 } }
-      @keyframes splash-twinkle { 50% { opacity: .15 } }
+      @keyframes splash-rise { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+      @keyframes splash-fade-in { to { opacity: 1 } }
+      @keyframes splash-fade-out { to { opacity: 0 } }
+      @keyframes splash-shine { to { left: 100% } }
+
       @media (prefers-reduced-motion: reduce) {
-        #splash *, #splash *::after { animation-duration: .01s !important; animation-iteration-count: 1 !important; animation-delay: 0s !important }
-        #splash .word span, #splash .tagline { opacity: 1 }
+        #splash *, #splash *::before, #splash *::after { animation: none !important; transition: none !important }
+        #splash .word span, #splash .tagline, #splash .foot, #splash .floor, #splash .horizon, #splash .stars { opacity: 1 }
+        #splash .word span { max-width: none; overflow: visible }
+        #splash .floor { opacity: .7 }
+        #splash .trail, #splash .glyphs, #splash .pulse { display: none }
+        #splash.done .stage, #splash.done .exit { transform: none; filter: none }
       }
     </style>
   </head>
 
   <body>
     <div id="splash" role="status" aria-label="Starting Veyra Studio">
-      <div class="sky" aria-hidden="true">
-        <svg width="100%" height="100%" preserveAspectRatio="none">
-          <g fill="#ffffff">
-            <circle cx="8%" cy="14%" r="1.2" opacity=".6" style="animation: splash-twinkle 3s ease-in-out infinite" />
-            <circle cx="22%" cy="72%" r="1" opacity=".45" style="animation: splash-twinkle 4s ease-in-out -1s infinite" />
-            <circle cx="34%" cy="22%" r=".8" opacity=".4" />
-            <circle cx="68%" cy="16%" r="1.1" opacity=".55" style="animation: splash-twinkle 3.5s ease-in-out -2s infinite" />
-            <circle cx="82%" cy="64%" r="1.2" opacity=".5" style="animation: splash-twinkle 4.5s ease-in-out infinite" />
-            <circle cx="91%" cy="28%" r=".9" opacity=".45" />
-            <circle cx="58%" cy="84%" r=".9" opacity=".35" style="animation: splash-twinkle 3.2s ease-in-out -1.5s infinite" />
-            <circle cx="14%" cy="44%" r=".8" opacity=".35" />
-          </g>
-        </svg>
-        <div class="halo"></div>
-        <div class="aurora"></div>
+      <div class="space" aria-hidden="true">
+        <div class="nebula a"></div><div class="nebula b"></div>
+        <div class="stars far"></div><div class="stars mid"></div><div class="stars near"></div>
+        <div class="horizon"></div>
+        <div class="floor"></div>
       </div>
 
       <div class="stage">
         <div class="row">
-          <!-- the hummingbird -->
-          <svg class="bird" viewBox="96 74 352 388" aria-hidden="true" focusable="false">
+          <!-- the light trail and the code it scatters, drawn back along the flight path -->
+          <svg class="trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             <defs>
-              <linearGradient id="sp-wl" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#4c3be0" /><stop offset="1" stop-color="#8f7dff" /></linearGradient>
-              <linearGradient id="sp-wr" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#3a2bc4" /><stop offset="1" stop-color="#6d5cf6" /></linearGradient>
-              <linearGradient id="sp-body" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#241a7a" /><stop offset=".55" stop-color="#4a38d6" /><stop offset="1" stop-color="#7a6af8" /></linearGradient>
-              <linearGradient id="sp-throat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cf5b6" /><stop offset=".5" stop-color="#3ddc84" /><stop offset="1" stop-color="#14a6a0" /></linearGradient>
-              <linearGradient id="sp-beak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f7dff" /><stop offset="1" stop-color="#d2cbff" /></linearGradient>
-              <linearGradient id="sp-trail" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#8f7dff" /><stop offset="1" stop-color="#3ddc84" stop-opacity="0" /></linearGradient>
+              <linearGradient id="sp-tr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#68f4d1" stop-opacity="0" /><stop offset=".6" stop-color="#68f4d1" stop-opacity=".7" /><stop offset="1" stop-color="#b79bff" /></linearGradient>
             </defs>
-            <!-- motion trails it leaves as it arrives -->
-            <path class="trail" d="M196 392 C 120 420, 40 410, -60 380" fill="none" stroke="url(#sp-trail)" stroke-width="4" stroke-linecap="round" />
-            <path class="trail" d="M214 340 C 140 360, 60 356, -40 330" fill="none" stroke="url(#sp-trail)" stroke-width="3" stroke-linecap="round" style="animation-delay: .32s" />
-            <g class="hover">
-              <g class="wl">
-                <path d="M244 270 C 214 214, 172 156, 118 104 C 170 118, 232 176, 276 252 Z" fill="url(#sp-wl)" />
-                <path d="M250 262 C 228 222, 196 182, 150 138 C 196 158, 238 202, 266 252 Z" fill="#ffffff" opacity=".12" />
-              </g>
-              <g class="wr">
-                <path d="M262 262 C 270 198, 296 142, 346 88 C 334 152, 314 214, 292 270 Z" fill="url(#sp-wr)" />
-                <path d="M270 252 C 280 204, 298 162, 328 122 C 318 166, 304 210, 288 256 Z" fill="#ffffff" opacity=".16" />
-              </g>
-              <path d="M340 230 C 342 202, 312 194, 288 206 C 258 222, 236 250, 218 288 C 200 326, 180 356, 154 394 L 132 438 L 172 410 L 170 452 L 198 392 C 240 362, 282 330, 310 298 C 328 276, 340 254, 340 230 Z" fill="url(#sp-body)" />
-              <path d="M340 230 C 342 202, 312 194, 288 206 C 258 222, 236 250, 218 288 C 244 262, 280 238, 340 230 Z" fill="#ffffff" opacity=".12" />
-              <path d="M338 240 C 334 262, 318 282, 296 296 C 300 278, 306 262, 316 248 C 322 244, 330 240, 338 240 Z" fill="url(#sp-throat)" />
-              <path d="M338 240 C 330 246, 322 254, 316 264 C 326 258, 334 250, 338 240 Z" fill="#d8ffe9" opacity=".7" />
-              <circle cx="316" cy="226" r="7" fill="#0c0a2a" /><circle cx="318.5" cy="223.5" r="2.4" fill="#ffffff" />
-              <path d="M336 222 L 446 213 L 338 238 Z" fill="url(#sp-beak)" />
-            </g>
+            <path pathLength="1" d="M 0 92 C 22 100, 38 18, 62 22 S 92 50, 100 44" stroke="url(#sp-tr)" stroke-width="1.1" vector-effect="non-scaling-stroke" style="stroke-width: 3px" />
+            <path pathLength="1" d="M 4 104 C 26 108, 40 34, 64 32 S 92 58, 100 52" stroke="url(#sp-tr)" vector-effect="non-scaling-stroke" style="stroke-width: 1.5px; animation-delay: 1.08s" />
           </svg>
-          <!-- "Veyra Studio" typed from the cursor at its beak -->
+          <div class="glyphs" aria-hidden="true">
+            <b style="left: 7.7%; top: 87.2%; animation-delay: 0.10s; --dx: -25px; --dy: -76px; --r: -13deg">{</b>
+            <b style="left: 13.9%; top: 89.5%; animation-delay: 0.14s; --dx: 11px; --dy: -57px; --r: -10deg">}</b>
+            <b style="left: 19.9%; top: 79.4%; animation-delay: 0.18s; --dx: 13px; --dy: -57px; --r: 11deg">&lt;/&gt;</b>
+            <b style="left: 25.9%; top: 69.9%; animation-delay: 0.22s; --dx: 16px; --dy: -42px; --r: -8deg">;</b>
+            <b style="left: 31.8%; top: 55.1%; animation-delay: 0.27s; --dx: 10px; --dy: -33px; --r: 11deg">=&gt;</b>
+            <b style="left: 37.8%; top: 44.4%; animation-delay: 0.31s; --dx: 21px; --dy: -70px; --r: -23deg">()</b>
+            <b style="left: 44.0%; top: 35.3%; animation-delay: 0.35s; --dx: 21px; --dy: -64px; --r: 9deg">[ ]</b>
+            <b style="left: 50.4%; top: 24.2%; animation-delay: 0.39s; --dx: 21px; --dy: -75px; --r: -8deg">#</b>
+            <b style="left: 57.2%; top: 19.5%; animation-delay: 0.43s; --dx: 17px; --dy: -47px; --r: -21deg">//</b>
+            <b style="left: 64.4%; top: 23.3%; animation-delay: 0.47s; --dx: -4px; --dy: -45px; --r: 26deg">&lt;</b>
+            <b style="left: 70.8%; top: 21.4%; animation-delay: 0.52s; --dx: 11px; --dy: -74px; --r: -26deg">/&gt;</b>
+            <b style="left: 76.3%; top: 23.2%; animation-delay: 0.56s; --dx: 3px; --dy: -55px; --r: -5deg">*</b>
+            <b style="left: 81.0%; top: 28.8%; animation-delay: 0.60s; --dx: 20px; --dy: -33px; --r: -8deg">&&</b>
+            <b style="left: 84.9%; top: 30.0%; animation-delay: 0.64s; --dx: 8px; --dy: -76px; --r: 1deg">{ }</b>
+          </div>
+          <div class="pulse" aria-hidden="true"><s></s><i></i><i></i></div>
+
+          <div class="exit"><div class="fly">
+            <svg class="bird" viewBox="96 74 352 388" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="sp-wl" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#4c3be0" /><stop offset="1" stop-color="#8f7dff" /></linearGradient>
+                <linearGradient id="sp-wr" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#3a2bc4" /><stop offset="1" stop-color="#6d5cf6" /></linearGradient>
+                <linearGradient id="sp-body" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#241a7a" /><stop offset=".55" stop-color="#4a38d6" /><stop offset="1" stop-color="#7a6af8" /></linearGradient>
+                <linearGradient id="sp-throat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cf5b6" /><stop offset=".5" stop-color="#3ddc84" /><stop offset="1" stop-color="#14a6a0" /></linearGradient>
+                <linearGradient id="sp-beak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f7dff" /><stop offset="1" stop-color="#d2cbff" /></linearGradient>
+              </defs>
+              <g class="hover">
+                <g class="wl">
+                  <path d="M244 270 C 214 214, 172 156, 118 104 C 170 118, 232 176, 276 252 Z" fill="url(#sp-wl)" />
+                  <path d="M250 262 C 228 222, 196 182, 150 138 C 196 158, 238 202, 266 252 Z" fill="#ffffff" opacity=".12" />
+                </g>
+                <g class="wr">
+                  <path d="M262 262 C 270 198, 296 142, 346 88 C 334 152, 314 214, 292 270 Z" fill="url(#sp-wr)" />
+                  <path d="M270 252 C 280 204, 298 162, 328 122 C 318 166, 304 210, 288 256 Z" fill="#ffffff" opacity=".16" />
+                </g>
+                <path d="M340 230 C 342 202, 312 194, 288 206 C 258 222, 236 250, 218 288 C 200 326, 180 356, 154 394 L 132 438 L 172 410 L 170 452 L 198 392 C 240 362, 282 330, 310 298 C 328 276, 340 254, 340 230 Z" fill="url(#sp-body)" />
+                <path d="M340 230 C 342 202, 312 194, 288 206 C 258 222, 236 250, 218 288 C 244 262, 280 238, 340 230 Z" fill="#ffffff" opacity=".12" />
+                <path d="M338 240 C 334 262, 318 282, 296 296 C 300 278, 306 262, 316 248 C 322 244, 330 240, 338 240 Z" fill="url(#sp-throat)" />
+                <path d="M338 240 C 330 246, 322 254, 316 264 C 326 258, 334 250, 338 240 Z" fill="#d8ffe9" opacity=".7" />
+                <circle cx="316" cy="226" r="7" fill="#0c0a2a" /><circle cx="318.5" cy="223.5" r="2.4" fill="#ffffff" />
+                <path d="M336 222 L 446 213 L 338 238 Z" fill="url(#sp-beak)" />
+              </g>
+            </svg>
+          </div></div>
+
           <div class="word" aria-label="Veyra Studio">
-            <span style="animation-delay: .55s">V</span><span style="animation-delay: .61s">e</span><span style="animation-delay: .67s">y</span><span style="animation-delay: .73s">r</span><span style="animation-delay: .79s">a</span><span class="sp" style="animation-delay: .85s">&nbsp;</span><span class="studio" style="animation-delay: .9s">S</span><span class="studio" style="animation-delay: .96s">t</span><span class="studio" style="animation-delay: 1.02s">u</span><span class="studio" style="animation-delay: 1.08s">d</span><span class="studio" style="animation-delay: 1.14s">i</span><span class="studio" style="animation-delay: 1.2s">o</span><i class="caret"></i>
+            <span style="--d: 0.860s">V</span><span style="--d: 0.915s">e</span><span style="--d: 0.970s">y</span><span style="--d: 1.025s">r</span><span style="--d: 1.080s">a</span><span class="sp" style="--d: 1.135s">&nbsp;</span><span class="studio" style="--d: 1.190s">S</span><span class="studio" style="--d: 1.245s">t</span><span class="studio" style="--d: 1.300s">u</span><span class="studio" style="--d: 1.355s">d</span><span class="studio" style="--d: 1.410s">i</span><span class="studio" style="--d: 1.465s">o</span><i class="caret"></i>
           </div>
         </div>
         <p class="tagline">The lightweight <em>VS Code alternative</em></p>
       </div>
 
       <div class="foot">
-        <div class="bar"></div>
+        <div class="bar"><div class="fill"></div></div>
         <div class="meta"><span id="splash-status">Starting Veyra Studio…</span><span id="splash-version"></span></div>
       </div>
       <div class="legal">© 2026 FlightCoders</div>
