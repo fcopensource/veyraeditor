@@ -55,6 +55,9 @@ def ask(data: Any, question: str, *, target: str | None = None, model: str = DEF
     try:
         import anthropic
     except ImportError:
+        import sys
+        if sys.version_info < (3, 10):
+            raise AskError("dx.ask() needs Python 3.10 or newer (the Anthropic SDK does). Everything else in dxray works on your Python.") from None
         raise AskError('dx.ask() needs the Anthropic SDK. Install it with:  pip install "dxray[ai]"') from None
     df, name = _frame(data)
     context = for_llm(df, target=target, report=scan(df, target, name=name))

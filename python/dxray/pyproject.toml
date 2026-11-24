@@ -34,8 +34,9 @@ classifiers = [
 dependencies = ["pandas>=1.5", "numpy>=1.23"]
 
 [project.optional-dependencies]
-ai = ["anthropic>=2.13"]
-all = ["anthropic>=2.13", "pyarrow>=12", "openpyxl>=3.1"]
+# The Anthropic SDK needs Python 3.10+: on 3.9 everything but dx.ask() still installs and works.
+ai = ["anthropic>=2.13; python_version >= '3.10'"]
+all = ["anthropic>=2.13; python_version >= '3.10'", "pyarrow>=12", "openpyxl>=3.1"]
 
 [project.urls]
 Homepage = "https://github.com/fcopensource/veyraeditor/tree/main/python/dxray"
