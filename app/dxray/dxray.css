@@ -10,3 +10,12 @@
 .dx-notes svg{flex:none;margin-top:4px;color:#ffcf6b}
 .dx-notes b{color:#fff}
 @media(max-width:800px){.dx-notes{grid-template-columns:1fr}}
+
+/* the official PyPI address, shown in full so people can check it */
+.dx-pypi{display:inline-flex;align-items:center;gap:12px;margin:6px auto 0;padding:10px 16px;border:1px solid #ffd43b33;border-radius:12px;background:#ffd43b0a;color:#e9eef5;text-align:left;transition:border-color .2s,background .2s}
+.dx-pypi:hover{border-color:#ffd43b80;background:#ffd43b14}
+.dx-pypi img{flex:none}
+.dx-pypi span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dx-pypi small{display:inline-flex;align-items:center;gap:5px;color:#ffe08a;font:500 10px var(--font-mono);letter-spacing:.8px;text-transform:uppercase}
+.dx-pypi b{font:600 13.5px var(--font-mono);overflow-wrap:anywhere}
+.dx-pypi>svg{flex:none;color:#8997a5}
