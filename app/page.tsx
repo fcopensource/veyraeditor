@@ -304,7 +304,7 @@ export default async function Home() {
               <small>Python Package Index</small>
               <h3>Python</h3>
               <p>Open-source libraries for pip: dxray, an X-ray for your data, and veyra-snap, which turns a run of your code into pytest tests.</p>
-              <div className="ship-links"><Link href="/dxray">dxray <ArrowRight size={14} /></Link><a href="https://pypi.org/project/dxray/">dxray on PyPI <ArrowRight size={14} /></a><Link href="/veyra-snap">veyra-snap <ArrowRight size={14} /></Link></div>
+              <div className="ship-links"><Link href="/dxray">dxray <ArrowRight size={14} /></Link><a href="https://pypi.org/project/dxray/">dxray on PyPI <ArrowRight size={14} /></a><a href="https://pypi.org/project/veyra-snap/">veyra-snap on PyPI <ArrowRight size={14} /></a><Link href="/veyra-snap">veyra-snap <ArrowRight size={14} /></Link></div>
             </article>
           </div>
           <p className="ship-note">Microsoft, JetBrains and Python are trademarks of their owners, named here to say where our software is published. It doesn&apos;t mean they sponsor or endorse it.</p>
