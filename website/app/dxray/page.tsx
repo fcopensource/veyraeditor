@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {AlertTriangle,BookOpen,Bot,FileText,Github,HeartPulse,Lightbulb,Lock,Package,ScanSearch,Sparkles,Terminal,Wrench} from 'lucide-react';
+import {AlertTriangle,BadgeCheck,BookOpen,ExternalLink,Bot,FileText,Github,HeartPulse,Lightbulb,Lock,Package,ScanSearch,Sparkles,Terminal,Wrench} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
@@ -69,7 +69,7 @@ export default async function DxrayPage(){
     operatingSystem:'Windows, macOS, Linux',url:absolute('/dxray'),image:absolute('/dxray-icon.png'),softwareVersion:version,
     downloadUrl:published?PYPI:SOURCE,programmingLanguage:'Python',license:'https://opensource.org/licenses/MIT',
     description:'A free Python library that finds what’s wrong with a dataset and what stands out in it, in plain English.',
-    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@type':'Organization',name:'FlightCoders',url:'https://flightcoders.com'},
+    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@type':'Organization',name:'FlightCoders',url:'https://flightcoders.com'},sameAs:[PYPI,SOURCE],
   };
   const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:FAQ.map(item=>({'@type':'Question',name:item.q,acceptedAnswer:{'@type':'Answer',text:item.a}}))};
 
@@ -85,6 +85,7 @@ export default async function DxrayPage(){
         <p className="live-tagline">An X-ray for your data.</p>
         <p className="live-intro">One line tells you what&apos;s wrong with a dataset and what stands out in it, in plain English, with the pandas code that fixes each problem. Then clean it, share a report, or ask Claude about it.</p>
         <CopyCommand command={install}/>
+        {published&&<a className="dx-pypi" href={PYPI} target="_blank" rel="noopener"><img src="/brand/platforms/python.svg" width={18} height={18} alt=""/><span><small><BadgeCheck size={12}/>Official package on PyPI · by FlightCoders</small><b>https://pypi.org/project/dxray/</b></span><ExternalLink size={15}/></a>}
         {!published&&<p className="snap-status"><i/>Coming to PyPI as <code>pip install dxray</code>. Until then, install it from GitHub with the command above.</p>}
         <div className="live-actions">
           {published?<a className="primary" href={PYPI}><Package size={16}/>View on PyPI</a>:<a className="primary" href={SOURCE}><Github size={16}/>Source on GitHub</a>}
@@ -167,7 +168,7 @@ dx.<span className="f">ask</span>(df, <span className="s">&quot;Why did revenue 
             <li>In a notebook or script: <code>import dxray as dx</code>, then <code>dx.scan(df)</code>.</li>
             <li>Or in a terminal: <code>dxray sales.csv --html report.html</code>.</li>
           </ol>
-          <p className="live-note">The source, docs and changelog are <a href={SOURCE}>on GitHub</a>. Also from us for Python: <Link href="/veyra-snap">veyra-snap</Link>, which turns a run of your code into pytest tests.</p>
+          <p className="live-note">{published&&<>The official package is <a href={PYPI}>pypi.org/project/dxray</a>, published by FlightCoders. </>}The source, docs and changelog are <a href={SOURCE}>on GitHub</a>. Also from us for Python: <Link href="/veyra-snap">veyra-snap</Link>, which turns a run of your code into pytest tests.</p>
         </div>
         <div className="visual" aria-label="Commands">
           <small>in python</small>
