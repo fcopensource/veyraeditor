@@ -1,5 +1,6 @@
 """dx.clean(), dx.for_llm(), dx.ask() (with a fake Claude client) and the dxray command."""
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -10,6 +11,9 @@ import pytest
 
 import dxray as dx
 from dxray.cli import main
+
+# The Anthropic SDK needs Python 3.10+, so on 3.9 these are skipped (and test_ask_without_the_sdk covers that case).
+needs_sdk = pytest.mark.skipif(importlib.util.find_spec("anthropic") is None, reason="the Anthropic SDK isn't installed")
 
 
 # ------------------------------------------------------------------ clean
@@ -83,6 +87,7 @@ class FakeClient:
         self.beta = SimpleNamespace(messages=beta_messages)
 
 
+@needs_sdk
 def test_ask_sends_the_description_and_returns_the_answer(orders):
     client = FakeClient()
     answer = dx.ask(orders, "How did revenue change?", target="revenue", client=client)
@@ -96,6 +101,7 @@ def test_ask_sends_the_description_and_returns_the_answer(orders):
     assert call["output_config"] == {"effort": "medium"}
 
 
+@needs_sdk
 def test_ask_refusal_and_bad_question(orders):
     with pytest.raises(dx.AskError, match="declined"):
         dx.ask(orders, "something", client=FakeClient(stop="refusal"))
@@ -103,6 +109,7 @@ def test_ask_refusal_and_bad_question(orders):
         dx.ask(orders, "   ", client=FakeClient())
 
 
+@needs_sdk
 def test_ask_without_a_key_explains(orders, monkeypatch):
     for v in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_PROFILE"):
         monkeypatch.delenv(v, raising=False)
@@ -134,3 +141,18 @@ def test_module_entry_point(orders, tmp_path):
     orders.head(200).to_csv(p, index=False)
     r = subprocess.run([sys.executable, "-m", "dxray", str(p), "--markdown"], capture_output=True, text=True, encoding="utf-8")
     assert r.returncode == 0 and r.stdout.startswith("# o.csv")
+
+
+def test_ask_without_the_sdk(monkeypatch):
+    """No Anthropic SDK (not installed, or Python 3.9): a clear message, not a crash."""
+    monkeypatch.setitem(sys.modules, "anthropic", None)  # makes `import anthropic` fail
+    with pytest.raises(dx.AskError) as caught:
+        dx.ask(pd.DataFrame({"a": [1, 2, 3]}), "anything?")
+    message = str(caught.value)
+    if sys.version_info < (3, 10):
+        assert "Python 3.10" in message
+    else:
+        assert 'pip install "dxray[ai]"' in message
+    monkeypatch.setattr(sys, "version_info", (3, 9, 18))
+    with pytest.raises(dx.AskError, match="Python 3.10"):
+        dx.ask(pd.DataFrame({"a": [1, 2, 3]}), "anything?")

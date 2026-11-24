@@ -35,9 +35,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      # Every Python on Linux; Windows and macOS on the oldest and newest. Ten jobs, so macOS runners aren't queued for hours.
       matrix:
-        os: [ubuntu-22.04, windows-latest, macos-latest]
+        os: [ubuntu-22.04]
         python: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        include:
+          - { os: windows-latest, python: "3.9" }
+          - { os: windows-latest, python: "3.14" }
+          - { os: macos-latest, python: "3.9" }
+          - { os: macos-latest, python: "3.14" }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

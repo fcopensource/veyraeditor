@@ -33,7 +33,7 @@ pip install dxray
 ```
 
 Works with pandas DataFrames (and polars or pyarrow tables, dicts, lists) and with CSV, Excel, Parquet and JSON files.
-Python 3.9+. Only needs pandas and numpy.
+Python 3.9+. Only needs pandas and numpy (`dx.ask()` needs Python 3.10+, like the Anthropic SDK).
 
 ## Why dxray
 
