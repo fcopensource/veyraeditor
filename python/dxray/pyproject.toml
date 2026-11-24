@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dxray"
+dynamic = ["version"]
+description = "An X-ray for your data: one line finds what's wrong with a dataset and what stands out, in plain English. Clean it, report it, or ask Claude about it."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [{ name = "FlightCoders", email = "hire@flightcoders.com" }]
+keywords = ["pandas", "data analysis", "eda", "exploratory data analysis", "data profiling", "data quality", "data cleaning", "insights", "llm", "ai", "claude", "jupyter", "dataframe", "automated eda"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Financial and Insurance Industry",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Framework :: Jupyter",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+dependencies = ["pandas>=1.5", "numpy>=1.23"]
+
+[project.optional-dependencies]
+ai = ["anthropic>=2.13"]
+all = ["anthropic>=2.13", "pyarrow>=12", "openpyxl>=3.1"]
+
+[project.urls]
+Homepage = "https://github.com/fcopensource/veyraeditor/tree/main/python/dxray"
+Source = "https://github.com/fcopensource/veyraeditor/tree/main/python/dxray"
+Issues = "https://github.com/fcopensource/veyraeditor/issues"
+Changelog = "https://github.com/fcopensource/veyraeditor/blob/main/python/dxray/CHANGELOG.md"
+
+[project.scripts]
+dxray = "dxray.cli:main"
+
+[tool.hatch.version]
+path = "src/dxray/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dxray"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "examples/make_orders.py", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
