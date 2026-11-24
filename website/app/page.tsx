@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Apple, ArrowRight, Braces, Check, Command, FolderGit2, Github, HeartPulse, KeyRound,
-  ListTodo, LockKeyhole, Monitor, Search, Wrench, RefreshCw, Sparkles, Terminal, TerminalSquare, Zap,
+  ListTodo, LockKeyhole, Monitor, Store, Search, Wrench, RefreshCw, Sparkles, Terminal, TerminalSquare, Zap,
 } from "lucide-react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -15,7 +15,8 @@ import { ScrollBird } from "@/components/ScrollBird";
 import "./flightcoders/flightcoders.css";
 import { installerSizes, latestRelease } from "@/lib/releases";
 import type { Metadata } from "next";
-import { FAQ } from "@/lib/site";
+import { FAQ, MS_STORE_URL } from "@/lib/site";
+import "./where-we-ship.css";
 import { allPosts, formatDate } from "@/lib/blog";
 import { getLiveProducts } from "@/lib/catalog";
 import { SHOW_INSTALLS_FROM, compact, extensionName, installsLabel, roundedDown, stats } from "@/lib/stats";
@@ -268,6 +269,45 @@ export default async function Home() {
             <DownloadCTA />
             <a className="secondary" href="https://github.com/fcopensource/veyraeditor"><Github size={16} />View source</a>
           </div>
+        </section>
+
+        <section className="ship" data-reveal aria-labelledby="ship-title">
+          <div className="ship-head">
+            <span>// WHERE OUR WORK LIVES</span>
+            <h2 id="ship-title">Made by FlightCoders.<br />Published where developers already are.</h2>
+            <p>Apps, extensions, plugins and libraries, each in the store or registry its users install from.</p>
+          </div>
+          <div className="ship-grid">
+            <article className="ship-card fc">
+              <div className="ship-logo"><img src="/brand/flightcoders/mark.svg" width={34} height={34} alt="FlightCoders" /></div>
+              <small>The company behind Veyra</small>
+              <h3>FlightCoders</h3>
+              <p>We design, build and maintain everything on this site, and build developer tools, apps and extensions for clients.</p>
+              <Link href="/flightcoders">About FlightCoders <ArrowRight size={14} /></Link>
+            </article>
+            <article className="ship-card ms">
+              <div className="ship-logo"><Store size={28} /></div>
+              <small>Microsoft Store · Visual Studio Marketplace</small>
+              <h3>Microsoft</h3>
+              <p>Veyra Studio is in the Microsoft Store for Windows, and our VS Code extensions are on the Visual Studio Marketplace.</p>
+              <div className="ship-links"><a href={MS_STORE_URL}>Microsoft Store <ArrowRight size={14} /></a><Link href="/extensions">Extensions <ArrowRight size={14} /></Link></div>
+            </article>
+            <article className="ship-card jb">
+              <div className="ship-logo"><img src="/brand/platforms/jetbrains.svg" width={30} height={30} alt="JetBrains" /></div>
+              <small>JetBrains Marketplace</small>
+              <h3>JetBrains</h3>
+              <p>Plugins for IntelliJ IDEA, WebStorm, PyCharm and the other JetBrains IDEs, from the JetBrains Marketplace.</p>
+              <Link href="/jetbrains">JetBrains plugins <ArrowRight size={14} /></Link>
+            </article>
+            <article className="ship-card py">
+              <div className="ship-logo"><img src="/brand/platforms/python.svg" width={30} height={30} alt="Python" /></div>
+              <small>Python Package Index</small>
+              <h3>Python</h3>
+              <p>Open-source libraries for pip: dxray, an X-ray for your data, and veyra-snap, which turns a run of your code into pytest tests.</p>
+              <div className="ship-links"><Link href="/dxray">dxray <ArrowRight size={14} /></Link><Link href="/veyra-snap">veyra-snap <ArrowRight size={14} /></Link></div>
+            </article>
+          </div>
+          <p className="ship-note">Microsoft, JetBrains and Python are trademarks of their owners, named here to say where our software is published. It doesn&apos;t mean they sponsor or endorse it.</p>
         </section>
 
         <section className="fc-band" data-reveal aria-labelledby="hire-title">

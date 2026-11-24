@@ -1,8 +1,8 @@
 import {NavMenu} from './NavMenu';
-import {liveExtensionGroups,liveProductPaths} from '@/lib/catalog';
+import {liveFeaturedExtensions,liveProductPaths} from '@/lib/catalog';
 
-/** The site menu, with the extensions from the live catalog. */
+/** The site menu: the apps, the Python libraries and a few featured extensions from the live catalog. */
 export async function Nav(){
-  const [groups,productPaths]=await Promise.all([liveExtensionGroups(),liveProductPaths()]);
-  return <NavMenu groups={groups} productPaths={productPaths}/>;
+  const [{featured,total},productPaths]=await Promise.all([liveFeaturedExtensions(),liveProductPaths()]);
+  return <NavMenu featured={featured} total={total} productPaths={productPaths}/>;
 }
