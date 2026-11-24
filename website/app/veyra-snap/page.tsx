@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import {AlertTriangle,Ban,BookOpen,Camera,CheckCheck,FileCode2,Gauge,Github,Layers,Package,ShieldCheck,Wand2} from 'lucide-react';
+import {AlertTriangle,BadgeCheck,Ban,BookOpen,Camera,CheckCheck,ExternalLink,FileCode2,Gauge,Github,Layers,Package,ShieldCheck,Wand2} from 'lucide-react';
 import {Nav} from '@/components/Nav';
 import {Footer} from '@/components/Footer';
 import {Breadcrumbs} from '@/components/Breadcrumbs';
@@ -69,7 +69,7 @@ export default async function VeyraSnapPage(){
     operatingSystem:'Windows, macOS, Linux',url:absolute('/veyra-snap'),image:absolute('/veyra-snap-icon.png'),softwareVersion:version,
     downloadUrl:published?PYPI:SOURCE,programmingLanguage:'Python',license:'https://opensource.org/licenses/MIT',
     description:'A free Python library that records real function calls and writes them as pytest regression tests.',
-    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@type':'Organization',name:'FlightCoders',url:'https://flightcoders.com'},
+    offers:{'@type':'Offer',price:'0',priceCurrency:'USD'},publisher:{'@type':'Organization',name:'FlightCoders',url:'https://flightcoders.com'},sameAs:[PYPI,SOURCE],
   };
   const faq={'@context':'https://schema.org','@type':'FAQPage',mainEntity:FAQ.map(item=>({'@type':'Question',name:item.q,acceptedAnswer:{'@type':'Answer',text:item.a}}))};
 
@@ -85,6 +85,7 @@ export default async function VeyraSnapPage(){
         <p className="live-tagline">Run your code. Get pytest tests.</p>
         <p className="live-intro">veyra-snap watches your program run, records what each of your functions was given and what it returned or raised, and writes those real calls as ready-to-run pytest tests. A safety net for code without tests, in one command.</p>
         <CopyCommand command={install}/>
+        {published&&<a className="pypi-official" href={PYPI} target="_blank" rel="noopener"><img src="/brand/platforms/python.svg" width={18} height={18} alt=""/><span><small><BadgeCheck size={12}/>Official package on PyPI · by FlightCoders</small><b>https://pypi.org/project/veyra-snap/</b></span><ExternalLink size={15}/></a>}
         {!published&&<p className="snap-status"><i/>Coming to PyPI as <code>pip install veyra-snap</code>. Until then, install it from GitHub with the command above.</p>}
         <div className="live-actions">
           {published?<a className="primary" href={PYPI}><Package size={16}/>View on PyPI</a>:<a className="primary" href={SOURCE}><Github size={16}/>Source on GitHub</a>}
@@ -175,7 +176,7 @@ export default async function VeyraSnapPage(){
             <li>In your project, run your program with <code>veyra-snap run app.py</code>, or <code>veyra-snap run -m yourpackage</code>.</li>
             <li>Run <code>veyra-snap write</code>, then <code>pytest</code>.</li>
           </ol>
-          <p className="live-note">The source, docs and changelog are <a href={SOURCE}>on GitHub</a>. For JavaScript, try <Link href="/live-values">Veyra Live Values</Link>, which shows console.log values next to your code, and <Link href="/blast-radius">Veyra Blast Radius</Link>, which runs only the tests your change affects.</p>
+          <p className="live-note">{published&&<>The official package is <a href={PYPI}>pypi.org/project/veyra-snap</a>, published by FlightCoders. </>}The source, docs and changelog are <a href={SOURCE}>on GitHub</a>. For JavaScript, try <Link href="/live-values">Veyra Live Values</Link>, which shows console.log values next to your code, and <Link href="/blast-radius">Veyra Blast Radius</Link>, which runs only the tests your change affects.</p>
         </div>
         <div className="visual" aria-label="Commands">
           <small>commands</small>
