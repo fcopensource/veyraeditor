@@ -1,0 +1,120 @@
+{
+  "name": "neon-getaway",
+  "displayName": "Neon Getaway: Open World Driving Game",
+  "description": "A neon open-world driving game inside VS Code. Steal cars, outrun the cops, drift through Solara Bay, run missions and races, and spend the cash your coding earns. Free, offline, no account.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": {
+    "name": "Flight Coders"
+  },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/neon-getaway",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcopensource/veyraeditor.git",
+    "directory": "extensions/neon-getaway"
+  },
+  "bugs": {
+    "url": "https://github.com/fcopensource/veyraeditor/issues"
+  },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "game",
+    "games",
+    "open world",
+    "driving game",
+    "car game",
+    "racing",
+    "police chase",
+    "drift",
+    "arcade",
+    "retro",
+    "neon",
+    "synthwave",
+    "80s",
+    "fun",
+    "break",
+    "coffee break",
+    "vscode game"
+  ],
+  "galleryBanner": {
+    "color": "#120b24",
+    "theme": "dark"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "main": "./bundle/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "neonGetaway.play",
+        "title": "Play Neon Getaway",
+        "category": "Neon Getaway",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "neonGetaway.reset",
+        "title": "Start Over (delete my save)",
+        "category": "Neon Getaway"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "neonGetaway.play",
+        "key": "ctrl+alt+g",
+        "mac": "cmd+alt+g"
+      }
+    ],
+    "configuration": {
+      "title": "Neon Getaway",
+      "properties": {
+        "neonGetaway.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Neon Getaway button, with the cash your coding has earned, in the status bar."
+        },
+        "neonGetaway.paycheck": {
+          "type": "boolean",
+          "default": true,
+          "description": "Earn in-game cash when you save files ($25 a save, up to $1,000 a day)."
+        },
+        "neonGetaway.sound": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play the engine, siren and synthwave radio sounds (they start only after you press a key in the game)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/engine.test.mjs test/pay.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
