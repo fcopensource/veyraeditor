@@ -34,8 +34,16 @@ export const APPS: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>[] = 
   { href: '/pdf', icon: '/veyra-96.png', name: 'Veyra PDF', copy: 'Edit, sign and merge PDFs offline', tag: 'New' },
   { href: '/salesforce-studio', icon: '/salesforce-studio-icon.png', name: 'Salesforce Studio', copy: 'LWC, Apex and Aura in your browser' },
   { href: '/jetbrains', icon: '/port-manager-jetbrains.svg', name: 'JetBrains plugins', copy: 'For IntelliJ IDEA, WebStorm, PyCharm and more', tag: 'New' },
-  { href: '/veyra-snap', icon: '/veyra-snap-icon.png', name: 'veyra-snap', copy: 'Run your Python code, get pytest tests', tag: 'New' },
 ];
+
+/** Our Python libraries on PyPI, under the apps in the Products menu. */
+export const LIBRARIES: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>[] = [
+  { href: '/dxray', icon: '/dxray-icon.png', name: 'dxray', copy: 'An X-ray for your data, in one line', tag: 'New' },
+  { href: '/veyra-snap', icon: '/veyra-snap-icon.png', name: 'veyra-snap', copy: 'Run your Python code, get pytest tests' },
+];
+
+/** The few extensions the Products menu shows; the rest are one click away on /extensions. */
+export const FEATURED_EXTENSIONS = ['/live-server', '/api-client', '/git-graph', '/error-lens', '/mcp-studio', '/docker', '/codesnap', '/live-values'];
 
 const vs = (p: Omit<Product, 'platform'> & { platform?: string }): Product => ({ platform: 'For VS Code', ...p });
 
@@ -133,7 +141,7 @@ export const isNew = (p: Pick<Product, 'href'>) => NEWEST.has(p.href);
 export const GROUPS: Group[] = ['Write code', 'Run and test', 'Project', 'Just for fun'];
 /** The extensions grouped for the Products menu, in GROUPS order. */
 export const EXTENSION_GROUPS = GROUPS.map(group => ({ group, items: EXTENSIONS.filter(p => p.group === group) })).filter(g => g.items.length);
-export const PRODUCT_PATHS = [...APPS, ...EXTENSIONS].map(p => p.href);
+export const PRODUCT_PATHS = [...APPS, ...LIBRARIES, ...EXTENSIONS].map(p => p.href);
 
 /** A few other extensions to suggest on an extension's page: the same group first, then the newest. */
 export function related(href: string, count = 4): Product[] {

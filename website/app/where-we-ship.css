@@ -1,0 +1,20 @@
+/* The home page's "Where our work lives" section: FlightCoders and the stores we publish to. */
+.ship{max-width:1180px;margin:0 auto 120px;padding:0 24px}
+.ship-head{text-align:center}
+.ship-head>span{font:500 10px var(--font-mono);color:var(--mint);letter-spacing:2.2px}
+.ship-head h2{margin:18px 0 16px;font-size:clamp(32px,4.2vw,54px);line-height:1.05;letter-spacing:-2.4px}
+.ship-head p{max-width:560px;margin:0 auto;color:#8997a5;line-height:1.75}
+.ship-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:44px}
+.ship-card{--tone:#68f4d1;position:relative;display:flex;flex-direction:column;gap:8px;padding:24px 22px;border:1px solid #ffffff12;border-radius:18px;background:radial-gradient(260px 160px at 0 0,color-mix(in srgb,var(--tone) 12%,transparent),transparent 70%),linear-gradient(160deg,#111722,#0a0e15);transition:transform .2s,border-color .2s}
+.ship-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--tone) 40%,transparent)}
+.ship-card.fc{--tone:#f0a540}.ship-card.ms{--tone:#4cc2ff}.ship-card.jb{--tone:#ff5a8a}.ship-card.py{--tone:#ffd43b}
+.ship-logo{display:grid;place-items:center;width:56px;height:56px;margin-bottom:8px;border:1px solid #ffffff14;border-radius:14px;background:#ffffff08;color:var(--tone)}
+.ship-card small{color:var(--tone);font:500 10px var(--font-mono);letter-spacing:1px;text-transform:uppercase}
+.ship-card h3{margin:0;font-size:20px;letter-spacing:-.4px}
+.ship-card p{flex:1;margin:0;color:#8997a5;font-size:13.5px;line-height:1.7}
+.ship-card a{display:inline-flex;align-items:center;gap:6px;margin-top:6px;color:#e9eef5;font-size:13px;font-weight:600}
+.ship-card a:hover{color:var(--tone)}
+.ship-links{display:flex;flex-wrap:wrap;gap:4px 16px}
+.ship-note{margin:22px auto 0;max-width:720px;color:#5f6b78;font-size:11.5px;line-height:1.6;text-align:center}
+@media(max-width:1000px){.ship-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.ship-grid{grid-template-columns:1fr}.ship{margin-bottom:80px}}

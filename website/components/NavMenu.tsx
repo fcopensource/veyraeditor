@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {ArrowRight,ChevronDown,Download,Menu,UserRound,X} from 'lucide-react';
-import {APPS,type Product} from '@/lib/products';
+import {APPS,LIBRARIES,type Product} from '@/lib/products';
 
 const links=[
   {href:'/features',label:'Features'},
@@ -17,8 +17,8 @@ const links=[
   {href:'https://github.com/fcopensource/veyraeditor',label:'GitHub',external:true},
 ];
 
-export function NavMenu({groups,productPaths}:{groups:{group:string;items:Product[]}[];productPaths:string[]}){
-  const EXTENSION_GROUPS=groups;
+export function NavMenu({featured,total,productPaths}:{featured:Product[];total:number;productPaths:string[]}){
+  const seeAll=total>featured.length?`See all ${total} extensions`:'See all extensions';
   const pathname=usePathname();
   const [open,setOpen]=useState(false);
   const [products,setProducts]=useState(false);
@@ -57,16 +57,19 @@ export function NavMenu({groups,productPaths}:{groups:{group:string;items:Produc
               <Image src={item.icon} width={36} height={36} alt=""/>
               <span><b>{item.name}{item.tag?<em>{item.tag}</em>:null}</b><small>{item.copy}</small></span>
             </Link>)}
+            <small className="products-sub">Python libraries</small>
+            {LIBRARIES.map(item=><Link key={item.href} href={item.href} className="product-link" aria-current={pathname===item.href?'page':undefined}>
+              <Image src={item.icon} width={36} height={36} alt=""/>
+              <span><b>{item.name}{item.tag?<em>{item.tag}</em>:null}</b><small>{item.copy}</small></span>
+            </Link>)}
           </div>
           <div className="products-extensions">
-            <div className="products-extensions-head"><small>For VS Code</small><Link href="/extensions">See all extensions<ArrowRight size={12}/></Link></div>
-            <div className="products-extension-groups">
-              {EXTENSION_GROUPS.map(group=><div key={group.group} className="products-extension-group">
-                <span>{group.group}</span>
-                {group.items.map(item=><Link key={item.href} href={item.href} className="extension-link" title={item.copy} aria-current={pathname===item.href?'page':undefined}>
-                  <Image src={item.icon} width={22} height={22} alt=""/>{item.name}
-                </Link>)}
-              </div>)}
+            <div className="products-extensions-head"><small>Popular for VS Code</small><Link href="/extensions">{seeAll}<ArrowRight size={12}/></Link></div>
+            <div className="products-featured">
+              {featured.map(item=><Link key={item.href} href={item.href} className="product-link" aria-current={pathname===item.href?'page':undefined}>
+                <Image src={item.icon} width={32} height={32} alt=""/>
+                <span><b>{item.name}</b><small>{item.copy}</small></span>
+              </Link>)}
             </div>
           </div>
         </div>
@@ -87,11 +90,15 @@ export function NavMenu({groups,productPaths}:{groups:{group:string;items:Produc
           <small>Apps</small>
           {APPS.map(item=><Link key={item.href+item.name} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
         </div>
-        {EXTENSION_GROUPS.map(group=><div key={group.group} className="mobile-extensions">
-          <small>{group.group}</small>
-          <div>{group.items.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={22} height={22} alt=""/>{item.name}</Link>)}</div>
-        </div>)}
-        <Link className="mobile-all" href="/extensions" onClick={()=>setOpen(false)}>See all extensions<ArrowRight size={14}/></Link>
+        <div className="mobile-apps">
+          <small>Python libraries</small>
+          {LIBRARIES.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
+        </div>
+        <div className="mobile-extensions">
+          <small>Popular for VS Code</small>
+          <div>{featured.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={22} height={22} alt=""/>{item.name}</Link>)}</div>
+        </div>
+        <Link className="mobile-all" href="/extensions" onClick={()=>setOpen(false)}>{seeAll}<ArrowRight size={14}/></Link>
       </div>
       <nav aria-label="Mobile">{links.map(link=>link.external
         ?<a key={link.href} href={link.href} target="_blank" rel="noreferrer" onClick={()=>setOpen(false)}>{link.label}</a>

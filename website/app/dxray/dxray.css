@@ -1,0 +1,12 @@
+/* dxray: the Python data library page. Builds on veyra-snap.css (terminal, code, install) and live-server.css. */
+.dx-page .live-kicker{border-color:#68f4d140;background:#68f4d10d;color:#9ff7e1}
+.dx-page .live-kicker i{background:var(--mint);box-shadow:0 0 12px var(--mint)}
+.dx-shot{margin:22px 0 0;overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 40px 100px #000a}
+.dx-shot img{display:block;width:100%;height:auto}
+.dx-page .snap-two .snap-code{margin:14px 0}
+.dx-page .snap-two .snap-code pre{padding:16px 18px;font-size:12px}
+.dx-notes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dx-notes p{display:flex;gap:12px;margin:0;padding:20px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#111722,#0a0e15);color:var(--muted);font-size:13.5px;line-height:1.7}
+.dx-notes svg{flex:none;margin-top:4px;color:#ffcf6b}
+.dx-notes b{color:#fff}
+@media(max-width:800px){.dx-notes{grid-template-columns:1fr}}
