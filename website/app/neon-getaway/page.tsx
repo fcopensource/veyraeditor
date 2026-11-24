@@ -21,7 +21,7 @@ export const metadata:Metadata={
   description:'A free neon open-world driving game inside VS Code. Take any car, drift through Solara Bay, outrun the cops, pull off missions and races, and spend the in-game cash your coding earns. Offline, no account.',
   keywords:['VS Code game','game for VS Code','open world game','driving game','car game','police chase game','drift game','retro neon game','coffee break game','VS Code extension'],
   alternates:{canonical:'/neon-getaway'},
-  openGraph:{url:'/neon-getaway',title:'Neon Getaway: an open-world driving game in VS Code',description:'Steal cars, outrun the cops and drift through a neon city, right inside VS Code. Free.',images:[{url:'/neon-getaway-chase.jpg',width:1600,height:1000,alt:'A four-star police chase at night in Neon Getaway'}]},
+  openGraph:{url:'/neon-getaway',title:'Neon Getaway: an open-world driving game in VS Code',description:'Drive any car, escape police chases and drift through a neon city, right inside VS Code. Free.',images:[{url:'/neon-getaway-chase.jpg',width:1600,height:1000,alt:'A four-star police chase at night in Neon Getaway'}]},
 };
 
 const FEATURES=[
@@ -29,7 +29,7 @@ const FEATURES=[
   {icon:Car,title:'Take any car',copy:'Walk up to a car and press E: parked, passing, even a police car if you dare. Four cars to buy at Rico\'s Garage, up to the 250 km/h Hyperion.'},
   {icon:Zap,title:'Drift it',copy:'Arcade handling, and Space for handbrake drifts that leave tyre marks across the junction.'},
   {icon:Siren,title:'Outrun the cops',copy:'Up to five wanted stars. The police hunt you through the streets; get out of sight and they lose you. Stop next to one and you\'re busted.'},
-  {icon:Trophy,title:'Jobs to pull off',copy:'Six story jobs for Rico and Nova: a timed delivery, a car to "borrow", a bank getaway, a street race and The Big Score. Plus taxi fares and 20 hidden mixtapes.'},
+  {icon:Trophy,title:'Jobs to pull off',copy:'Six story jobs for Rico and Nova: a timed delivery, a car to bring in, a chase across town, a street race and The Last Run. Plus taxi fares and 20 hidden mixtapes.'},
   {icon:Coins,title:'Your code pays',copy:'Every file you save in VS Code earns $25 of in-game cash, up to $1,000 a day. The status bar shows what\'s waiting.'},
   {icon:Music,title:'A synthwave radio',copy:'Two stations, an engine and sirens, all made live by the game: nothing to download. M turns the sound off.'},
   {icon:Gamepad2,title:'Right in a tab',copy:'Ctrl+Alt+G, or the button in the status bar. Pause any time, close the tab, and your progress is saved.'},
@@ -44,7 +44,7 @@ const FAQ=[
   {q:'How does my coding earn cash?',a:'Every time you save a file in VS Code you earn $25 of in-game cash, up to $1,000 a day. Saves a few seconds apart count once. The cash waits in the status bar until you play.'},
   {q:'Will it slow down VS Code?',a:'No. The game only runs while its tab is open, it pauses when you switch away, and the whole extension is about 65 KB. In the tab it runs at 60 frames a second.'},
   {q:'Can I play without sound?',a:'Yes. Sound starts only after you press a key in the game, M turns it off, and the neonGetaway.sound setting turns it off for good.'},
-  {q:'Is it violent?',a:'No. There are no weapons and no blood. You steal cars and run from the police, and people always jump clear of your car.'},
+  {q:'Is it violent?',a:'No. There are no weapons and no blood. You drive cars and get away from the police, and people always jump clear of your car.'},
 ];
 
 export default async function NeonGetawayPage(){
@@ -67,7 +67,7 @@ export default async function NeonGetawayPage(){
         <span className="live-kicker"><i/>NEW · A GAME FOR VS CODE</span>
         <h1>Neon <em>Getaway</em></h1>
         <p className="live-tagline">An open-world driving game, right inside VS Code.</p>
-        <p className="live-intro">Take any car, drift through the neon streets of Solara Bay, outrun the cops and pull off the big score. Then get back to work: every file you save earns you cash for your next car.</p>
+        <p className="live-intro">Take any car, drift through the neon streets of Solara Bay, escape police chases and take on the last run. Then get back to work: every file you save earns you cash for your next car.</p>
         <div className="live-actions">
           {EXT.listed?<a className="primary" href={MARKETPLACE}><Gamepad2 size={16}/>Get it for VS Code</a>:<a className="primary" href={VSIX}><Download size={16}/>Download for VS Code</a>}
           <a className="secondary" href="#install"><Zap size={16}/>How to install</a>
@@ -78,7 +78,7 @@ export default async function NeonGetawayPage(){
       <section className="pm-shot"><img src="/neon-getaway-chase.jpg" alt="A four-star police chase at night: a purple sports car at 214 km/h with police cars and flashing lights behind it, the Fresh Coat Spray shop, the minimap, $12,450 and four wanted stars" width={1600} height={1000}/></section>
 
       <section className="content-section">
-        <header><span>THE GAME</span><h2>Steal it. Drift it. Lose the cops.</h2></header>
+        <header><span>THE GAME</span><h2>Drive it. Drift it. Lose the cops.</h2></header>
         <div className="cards">{FEATURES.map(feature=><article className="card" key={feature.title}><feature.icon/><h3>{feature.title}</h3><p>{feature.copy}</p></article>)}</div>
       </section>
 

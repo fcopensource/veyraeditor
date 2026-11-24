@@ -62,7 +62,7 @@
     garage: [4, 4, "Rico's Garage", '#68f4d1'],
     police: [2, 6, 'Police HQ', '#4c8dff'],
     spray: [6, 2, 'Fresh Coat Spray', '#ff3fa4'],
-    bank: [1, 1, 'Solara Savings', '#ffd35c'],
+    bank: [1, 1, 'Solara Plaza', '#ffd35c'],
     raceStart: [7, 6, 'Race Start', '#fdf05a'],
   };
 
@@ -409,17 +409,17 @@
       intro: "A client at the pier wants this package. Don't ask what's in it. Don't be late.",
       steps: [{ type: 'goto', poi: 'pier', car: true, timer: 75, text: 'Deliver the package to the pier before time runs out.' }] },
     { id: 'hotwheels', title: 'Hot Wheels', from: 'Rico', start: 'garage', reward: 900,
-      intro: 'There\'s a Vapor S sitting in a Palm Shore lot. Its owner owes me. Bring it here.',
-      steps: [{ type: 'stealCar', model: 'sports', poi: 'lotPalm', stars: 2, text: 'Take the Vapor S from the Palm Shore lot.' }, { type: 'goto', poi: 'garage', model: 'sports', text: 'The alarm called the cops. Bring the Vapor S to the garage.' }] },
+      intro: 'A customer left a Vapor S in a Palm Shore lot for a tune-up. The keys are in it, but the alarm is twitchy.',
+      steps: [{ type: 'stealCar', model: 'sports', poi: 'lotPalm', stars: 2, text: 'Pick up the Vapor S from the Palm Shore lot.' }, { type: 'goto', poi: 'garage', model: 'sports', text: 'The alarm went off and the cops are confused. Bring the Vapor S to the garage.' }] },
     { id: 'getaway', title: 'The Getaway', from: 'Nova', start: 'garage', reward: 1600,
-      intro: "I'm Nova. I need a driver who doesn't panic. Pick me up at Solara Savings. Keep the engine running.",
-      steps: [{ type: 'goto', poi: 'bank', car: true, text: 'Pick Nova up outside Solara Savings.' }, { type: 'heat', stars: 3, text: 'The alarm is ringing. Lose the cops!' }, { type: 'goto', poi: 'garage', car: true, text: 'Bring Nova back to the garage.' }] },
+      intro: "I'm Nova. I need a driver who doesn't panic. Pick me up at Solara Plaza. Keep the engine running.",
+      steps: [{ type: 'goto', poi: 'bank', car: true, text: 'Pick Nova up outside Solara Plaza.' }, { type: 'heat', stars: 3, text: 'Someone called the cops on your driving. Lose them!' }, { type: 'goto', poi: 'garage', car: true, text: 'Bring Nova back to the garage.' }] },
     { id: 'kings', title: 'Street Kings', from: 'Nova', start: 'raceStart', reward: 2200,
       intro: "The Street Kings think they own these roads. Prove them wrong.",
       steps: [{ type: 'race', text: 'Win the race: hit every checkpoint before the Street Kings.' }] },
-    { id: 'bigscore', title: 'The Big Score', from: 'Rico & Nova', start: 'garage', reward: 6000,
-      intro: 'One last job, then we all disappear. The boat leaves from the pier. Don\'t miss it.',
-      steps: [{ type: 'goto', poi: 'bank', car: true, text: 'Pick up the crew at Solara Savings.' }, { type: 'heat', stars: 4, text: 'Four stars. Lose them!' }, { type: 'goto', poi: 'pier', car: true, timer: 100, text: 'Make it to the boat at the pier before it leaves!' }] },
+    { id: 'bigscore', title: 'The Last Run', from: 'Rico & Nova', start: 'garage', reward: 6000,
+      intro: 'One last run before the city sleeps. The boat leaves from the pier. Don\'t miss it.',
+      steps: [{ type: 'goto', poi: 'bank', car: true, text: 'Pick up the crew at Solara Plaza.' }, { type: 'heat', stars: 4, text: 'Four stars. Lose them!' }, { type: 'goto', poi: 'pier', car: true, timer: 100, text: 'Make it to the boat at the pier before it leaves!' }] },
   ];
   const RACE = [[7, 6], [7, 2], [3, 2], [3, 7], [8, 8], [8, 6]]; // intersections, then back to the start
 
@@ -490,7 +490,7 @@
       best.vx = best.vy = 0;
       if (witnessed) setStars(w, Math.max(w.wanted.stars, 1), 'Car theft');
     } else if (best.kind === 'police') {
-      setStars(w, Math.max(w.wanted.stars, 2), 'Stole a police car');
+      setStars(w, Math.max(w.wanted.stars, 2), 'Took a police car');
       best.siren = false;
     } else if (best.kind === 'parked' && !best.owned && witnessed) setStars(w, Math.max(w.wanted.stars, 1), 'Car theft');
     best.kind = 'player'; best.stun = 0; best.pending = null;

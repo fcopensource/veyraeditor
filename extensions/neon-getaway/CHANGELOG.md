@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Gentler wording in the description, the README and a few missions: you drive cars and escape police chases. The game plays the same, and saves carry over.
+
 ## 1.0.0
 
 First release of Neon Getaway, an open-world driving game in VS Code.

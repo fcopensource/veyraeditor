@@ -1,8 +1,8 @@
 {
   "name": "neon-getaway",
   "displayName": "Neon Getaway: Open World Driving Game",
-  "description": "A neon open-world driving game inside VS Code. Steal cars, outrun the cops, drift through Solara Bay, run missions and races, and spend the cash your coding earns. Free, offline, no account.",
-  "version": "1.0.0",
+  "description": "A neon open-world driving game inside VS Code. Drive any car through Solara Bay, drift, win street races, escape police chases, take on missions, and spend the cash your coding earns. Free, offline, no account.",
+  "version": "1.0.1",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
