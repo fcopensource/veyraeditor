@@ -17,7 +17,8 @@
 .products-extensions-head{display:flex;justify-content:space-between;align-items:center;padding-right:6px}
 .nav .products-extensions-head a{display:inline-flex;align-items:center;gap:5px;color:var(--mint);font-size:11.5px;font-weight:600}
 .nav .products-extensions-head a:hover{text-decoration:underline}
-.products-extension-groups{columns:3;column-gap:6px}
+.products-featured{display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
+.products-group>small.products-sub{margin-top:10px;padding-top:12px;border-top:1px solid #ffffff0d}
 .products-extension-group{display:flex;flex-direction:column;gap:1px;break-inside:avoid;margin-bottom:10px}
 .products-extension-group>span{padding:2px 8px 4px;color:#7d8a97;font-size:10.5px;font-weight:600}
 .nav .extension-link{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:9px;color:#d5dee6;font-size:13px;font-weight:600;white-space:nowrap;transition:background .15s}
