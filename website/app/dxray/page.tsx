@@ -85,7 +85,7 @@ export default async function DxrayPage(){
         <p className="live-tagline">An X-ray for your data.</p>
         <p className="live-intro">One line tells you what&apos;s wrong with a dataset and what stands out in it, in plain English, with the pandas code that fixes each problem. Then clean it, share a report, or ask Claude about it.</p>
         <CopyCommand command={install}/>
-        {published&&<a className="dx-pypi" href={PYPI} target="_blank" rel="noopener"><img src="/brand/platforms/python.svg" width={18} height={18} alt=""/><span><small><BadgeCheck size={12}/>Official package on PyPI · by FlightCoders</small><b>https://pypi.org/project/dxray/</b></span><ExternalLink size={15}/></a>}
+        {published&&<a className="pypi-official" href={PYPI} target="_blank" rel="noopener"><img src="/brand/platforms/python.svg" width={18} height={18} alt=""/><span><small><BadgeCheck size={12}/>Official package on PyPI · by FlightCoders</small><b>https://pypi.org/project/dxray/</b></span><ExternalLink size={15}/></a>}
         {!published&&<p className="snap-status"><i/>Coming to PyPI as <code>pip install dxray</code>. Until then, install it from GitHub with the command above.</p>}
         <div className="live-actions">
           {published?<a className="primary" href={PYPI}><Package size={16}/>View on PyPI</a>:<a className="primary" href={SOURCE}><Github size={16}/>Source on GitHub</a>}
