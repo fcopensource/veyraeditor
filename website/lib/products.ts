@@ -113,6 +113,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/aura', icon: '/aura-icon.png', name: 'Aura', title: 'Veyra Aura', group: 'Just for fun', order: 24, tone: 'aura', updated: '2026-11-22',
     copy: 'Your coding aura ✨', cta: 'Explore Aura',
     summary: 'Farm aura for clearing errors, commits and passing tests, lose it for “wip” commits and force pushes. Rank up from NPC to Final Boss, keep your streak, share your aura card.' }),
+  vs({ href: '/neon-getaway', icon: '/neon-getaway-icon.png', name: 'Neon Getaway', title: 'Neon Getaway', group: 'Just for fun', order: 25, tone: 'neongetaway', updated: '2026-11-24',
+    copy: 'An open-world driving game 🚗', cta: 'Explore Neon Getaway',
+    summary: 'An open-world driving game in a VS Code tab. Take any car, drift through a neon city, outrun the cops and pull off jobs, with cash your coding earns.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */

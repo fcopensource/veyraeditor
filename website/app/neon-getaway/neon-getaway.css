@@ -1,0 +1,10 @@
+/* Neon Getaway: the game's page. Builds on live-server.css and port-manager.css. Synthwave pink and cyan. */
+.ng-page .live-hero-glow{background:radial-gradient(circle,#ff3fa440,transparent 62%)}
+.ng-page .live-kicker{border-color:#ff3fa445;background:#ff3fa40f;color:#ffb3d9}
+.ng-page .live-kicker i{background:#ff3fa4;box-shadow:0 0 12px #ff3fa4}
+.ng-page .live-hero h1 em{background:linear-gradient(100deg,#ff3fa4,#ff8a5c 50%,#4cdcf2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ng-page .pm-shot img{border-color:#ff3fa430;box-shadow:0 40px 100px #000c,0 0 80px #ff3fa418}
+.ng-pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0 30px}
+.ng-pair img{display:block;width:100%;height:auto;border:1px solid #ffffff17;border-radius:16px;box-shadow:0 24px 60px #000a}
+.ng-keys b{color:#ff8ac8}
+@media(max-width:800px){.ng-pair{grid-template-columns:1fr}}
