@@ -41,6 +41,7 @@ export const VSCODE_EXTENSIONS = {
   hotspots: { id: "flightcoders.veyra-hotspots", folder: "hotspots", file: "veyra-hotspots", version: "1.0.0", listed: false },
   liveValues: { id: "flightcoders.veyra-live-values", folder: "live-values", file: "veyra-live-values", version: "1.0.0", listed: false },
   aura: { id: "flightcoders.veyra-aura", folder: "aura", file: "veyra-aura", version: "1.0.0", listed: false },
+  neonGetaway: { id: "flightcoders.neon-getaway", folder: "neon-getaway", file: "neon-getaway", version: "1.0.0", listed: false },
 } as const;
 export const marketplaceUrl = (id: string) => `https://marketplace.visualstudio.com/items?itemName=${id}`;
 export const vsixUrl = (ext: { folder: string; file: string; version: string }) =>
