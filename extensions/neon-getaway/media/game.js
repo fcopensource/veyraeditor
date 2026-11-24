@@ -699,7 +699,7 @@
     ctx.restore();
     text('SOLARA BAY  ·  OPEN WORLD', W / 2, H * 0.4 + size * 1.55, 14, '#c9d4de', 'center', 700);
     if (Math.floor(now * 2) % 2 === 0) text('Press Enter to play', W / 2, H * 0.78, 20, '#ffffff', 'center', 800);
-    text('W A S D drive  ·  Space drift  ·  E steal a car  ·  Tab map  ·  M sound', W / 2, H * 0.78 + 30, 13, '#9aa7b4', 'center', 600);
+    text('W A S D drive  ·  Space drift  ·  E get in a car  ·  Tab map  ·  M sound', W / 2, H * 0.78 + 30, 13, '#9aa7b4', 'center', 600);
     if (world.save.cash) text(`$${world.save.cash.toLocaleString('en')}  ·  missions ${world.save.story}/${NG.MISSIONS.length}`, W / 2, H - 24, 13, '#68f4d1', 'center', 700);
   }
 
