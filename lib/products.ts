@@ -124,6 +124,9 @@ export const EXTENSIONS: Product[] = [
   vs({ href: '/neon-getaway', icon: '/neon-getaway-icon.png', name: 'Neon Getaway', title: 'Neon Getaway', group: 'Just for fun', order: 25, tone: 'neongetaway', updated: '2026-11-24',
     copy: 'An open-world driving game 🚗', cta: 'Explore Neon Getaway',
     summary: 'An open-world driving game in a VS Code tab. Take any car, drift through a neon city, outrun the cops and pull off jobs, with cash your coding earns.' }),
+  vs({ href: '/project-manager', icon: '/project-manager-icon.png', name: 'Project Manager', title: 'Project Manager Veyra', group: 'Project', order: 26, tone: 'projectmgr', updated: '2026-11-25',
+    copy: 'Switch projects in a keystroke', cta: 'Explore Project Manager',
+    summary: 'All your projects, one keystroke away. Save folders as projects, tag them, find every Git repository on your disk, and reopen recent folders from one sidebar and one search box.' }),
 ];
 
 /** Everything on the Extensions page's "Made by Veyra" list: the extensions, plus Salesforce Studio. */
