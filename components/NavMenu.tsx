@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {ArrowRight,ChevronDown,Download,Menu,UserRound,X} from 'lucide-react';
-import {APPS,LIBRARIES,type Product} from '@/lib/products';
+import {APPS,BROWSER_EXTENSIONS,LIBRARIES,type Product} from '@/lib/products';
 
 const links=[
   {href:'/features',label:'Features'},
@@ -62,6 +62,11 @@ export function NavMenu({featured,total,productPaths}:{featured:Product[];total:
               <Image src={item.icon} width={36} height={36} alt=""/>
               <span><b>{item.name}{item.tag?<em>{item.tag}</em>:null}</b><small>{item.copy}</small></span>
             </Link>)}
+            <small className="products-sub">For Chrome</small>
+            {BROWSER_EXTENSIONS.map(item=><Link key={item.href} href={item.href} className="product-link" aria-current={pathname===item.href?'page':undefined}>
+              <Image src={item.icon} width={36} height={36} alt=""/>
+              <span><b>{item.name}{item.tag?<em>{item.tag}</em>:null}</b><small>{item.copy}</small></span>
+            </Link>)}
           </div>
           <div className="products-extensions">
             <div className="products-extensions-head"><small>Popular for VS Code</small><Link href="/extensions">{seeAll}<ArrowRight size={12}/></Link></div>
@@ -93,6 +98,10 @@ export function NavMenu({featured,total,productPaths}:{featured:Product[];total:
         <div className="mobile-apps">
           <small>Python libraries</small>
           {LIBRARIES.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
+        </div>
+        <div className="mobile-apps">
+          <small>For Chrome</small>
+          {BROWSER_EXTENSIONS.map(item=><Link key={item.href} href={item.href} onClick={()=>setOpen(false)}><Image src={item.icon} width={26} height={26} alt=""/>{item.name}{item.tag?<em>{item.tag}</em>:null}</Link>)}
         </div>
         <div className="mobile-extensions">
           <small>Popular for VS Code</small>
