@@ -12,7 +12,7 @@ on:
       extension:
         description: Which extension
         type: choice
-        options: [api-client, aura, auto-rename-tag, blast-radius, code-guard, codesnap, docker, document-viewer, env, error-lens, garden, git-graph, hotspots, live-server, live-values, mcp-studio, mongodb, neon-getaway, npm-intellisense, path-intellisense, pets, port-manager, rewind, todo-tree, wrapped]
+        options: [api-client, aura, auto-rename-tag, blast-radius, code-guard, codesnap, docker, document-viewer, env, error-lens, garden, git-graph, hotspots, live-server, live-values, mcp-studio, mongodb, neon-getaway, npm-intellisense, path-intellisense, pets, port-manager, project-manager, rewind, todo-tree, wrapped]
         default: live-server
       target:
         description: Where to publish
