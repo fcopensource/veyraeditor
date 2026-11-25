@@ -1,0 +1,126 @@
+{
+  "name": "veyra-project-manager",
+  "displayName": "Project Manager Veyra",
+  "description": "Switch between your projects in a keystroke. Save folders as projects, tag them, find every Git repository on your disk, and reopen recent folders, from one sidebar and one search box.",
+  "version": "1.0.0",
+  "publisher": "flightcoders",
+  "author": { "name": "Flight Coders" },
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "pricing": "Free",
+  "homepage": "https://veyraeditor.com/project-manager",
+  "repository": { "type": "git", "url": "https://github.com/fcopensource/veyraeditor.git", "directory": "extensions/project-manager" },
+  "bugs": { "url": "https://github.com/fcopensource/veyraeditor/issues" },
+  "qna": "https://github.com/fcopensource/veyraeditor/issues",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "keywords": ["project manager", "projects", "switch projects", "workspace", "git repositories", "favorites", "recent folders", "veyra"],
+  "galleryBanner": { "color": "#12161f", "theme": "dark" },
+  "capabilities": {
+    "untrustedWorkspaces": { "supported": true },
+    "virtualWorkspaces": false
+  },
+  "extensionKind": ["ui", "workspace"],
+  "main": "./bundle/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{ "id": "veyraProjects", "title": "Projects", "icon": "media/activity.svg" }]
+    },
+    "views": {
+      "veyraProjects": [{ "id": "veyraProjects.tree", "name": "Projects", "contextualTitle": "Project Manager Veyra" }]
+    },
+    "commands": [
+      { "command": "veyraProjects.list", "title": "Open a Project…", "category": "Project Manager", "icon": "$(search)" },
+      { "command": "veyraProjects.listNewWindow", "title": "Open a Project in a New Window…", "category": "Project Manager" },
+      { "command": "veyraProjects.save", "title": "Save Project", "category": "Project Manager", "icon": "$(save)" },
+      { "command": "veyraProjects.openHere", "title": "Open in This Window", "category": "Project Manager", "icon": "$(arrow-right)" },
+      { "command": "veyraProjects.openNewWindow", "title": "Open in New Window", "category": "Project Manager", "icon": "$(empty-window)" },
+      { "command": "veyraProjects.rename", "title": "Rename…", "category": "Project Manager", "icon": "$(edit)" },
+      { "command": "veyraProjects.editTags", "title": "Tags…", "category": "Project Manager", "icon": "$(tag)" },
+      { "command": "veyraProjects.remove", "title": "Remove from Projects", "category": "Project Manager", "icon": "$(close)" },
+      { "command": "veyraProjects.toggleGroupByTag", "title": "Group Saved Projects by Tag", "category": "Project Manager", "icon": "$(list-tree)" },
+      { "command": "veyraProjects.sortBy", "title": "Sort Saved Projects By…", "category": "Project Manager", "icon": "$(list-ordered)" },
+      { "command": "veyraProjects.editProjects", "title": "Edit projects.json", "category": "Project Manager", "icon": "$(json)" },
+      { "command": "veyraProjects.addScanFolder", "title": "Add a Folder to Look for Git Repositories In…", "category": "Project Manager", "icon": "$(new-folder)" },
+      { "command": "veyraProjects.refresh", "title": "Refresh", "category": "Project Manager", "icon": "$(refresh)" },
+      { "command": "veyraProjects.revealInOS", "title": "Reveal in File Explorer", "category": "Project Manager" },
+      { "command": "veyraProjects.copyPath", "title": "Copy Path", "category": "Project Manager" },
+      { "command": "veyraProjects.openTerminal", "title": "Open in Terminal", "category": "Project Manager", "icon": "$(terminal)" }
+    ],
+    "keybindings": [
+      { "command": "veyraProjects.list", "key": "shift+alt+p", "mac": "shift+alt+p" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "veyraProjects.list", "when": "view == veyraProjects.tree", "group": "navigation@1" },
+        { "command": "veyraProjects.save", "when": "view == veyraProjects.tree && workspaceFolderCount > 0", "group": "navigation@2" },
+        { "command": "veyraProjects.refresh", "when": "view == veyraProjects.tree", "group": "navigation@3" },
+        { "command": "veyraProjects.toggleGroupByTag", "when": "view == veyraProjects.tree", "group": "1_view@1" },
+        { "command": "veyraProjects.sortBy", "when": "view == veyraProjects.tree", "group": "1_view@2" },
+        { "command": "veyraProjects.addScanFolder", "when": "view == veyraProjects.tree", "group": "2_setup@1" },
+        { "command": "veyraProjects.editProjects", "when": "view == veyraProjects.tree", "group": "2_setup@2" }
+      ],
+      "view/item/context": [
+        { "command": "veyraProjects.openNewWindow", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "inline@1" },
+        { "command": "veyraProjects.save", "when": "view == veyraProjects.tree && viewItem == project-unsaved", "group": "inline@2" },
+        { "command": "veyraProjects.editTags", "when": "view == veyraProjects.tree && viewItem == project-saved", "group": "inline@2" },
+        { "command": "veyraProjects.openHere", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "1_open@1" },
+        { "command": "veyraProjects.openNewWindow", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "1_open@2" },
+        { "command": "veyraProjects.openTerminal", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "1_open@3" },
+        { "command": "veyraProjects.save", "when": "view == veyraProjects.tree && viewItem == project-unsaved", "group": "2_edit@1" },
+        { "command": "veyraProjects.rename", "when": "view == veyraProjects.tree && viewItem == project-saved", "group": "2_edit@1" },
+        { "command": "veyraProjects.editTags", "when": "view == veyraProjects.tree && viewItem == project-saved", "group": "2_edit@2" },
+        { "command": "veyraProjects.revealInOS", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "3_path@1" },
+        { "command": "veyraProjects.copyPath", "when": "view == veyraProjects.tree && viewItem =~ /^project-/", "group": "3_path@2" },
+        { "command": "veyraProjects.remove", "when": "view == veyraProjects.tree && viewItem == project-saved", "group": "9_remove@1" },
+        { "command": "veyraProjects.addScanFolder", "when": "view == veyraProjects.tree && viewItem == section-git", "group": "inline@1" }
+      ],
+      "explorer/context": [
+        { "command": "veyraProjects.save", "when": "explorerResourceIsFolder", "group": "9_veyraProjects@1" }
+      ],
+      "commandPalette": [
+        { "command": "veyraProjects.openHere", "when": "false" },
+        { "command": "veyraProjects.openNewWindow", "when": "false" },
+        { "command": "veyraProjects.revealInOS", "when": "false" },
+        { "command": "veyraProjects.copyPath", "when": "false" },
+        { "command": "veyraProjects.openTerminal", "when": "false" },
+        { "command": "veyraProjects.save", "when": "workspaceFolderCount > 0" },
+        { "command": "veyraProjects.rename", "when": "veyraProjects.saved" },
+        { "command": "veyraProjects.editTags", "when": "veyraProjects.saved" },
+        { "command": "veyraProjects.remove", "when": "veyraProjects.saved" }
+      ]
+    },
+    "configuration": {
+      "title": "Project Manager Veyra",
+      "properties": {
+        "veyraProjects.scanFolders": { "type": "array", "items": { "type": "string" }, "default": [], "scope": "machine", "markdownDescription": "Folders to look for Git repositories in, like `~/code` or `D:/projects`. Every folder with a `.git` inside shows up under **Git Repositories**." },
+        "veyraProjects.scanDepth": { "type": "integer", "default": 4, "minimum": 1, "maximum": 10, "markdownDescription": "How many folders deep to look under each folder in `#veyraProjects.scanFolders#`." },
+        "veyraProjects.ignoreFolders": { "type": "array", "items": { "type": "string" }, "default": [], "markdownDescription": "Folder names to skip while looking for repositories, on top of `node_modules`, `dist`, `build`, `vendor`, virtual environments and hidden folders." },
+        "veyraProjects.openInNewWindow": { "type": "boolean", "default": false, "description": "Open projects in a new window instead of this one." },
+        "veyraProjects.sortBy": { "type": "string", "enum": ["name", "recent", "saved"], "enumDescriptions": ["By name", "Most recently opened first", "In the order you saved them"], "default": "name", "description": "How saved projects are sorted." },
+        "veyraProjects.groupByTag": { "type": "boolean", "default": false, "description": "Group saved projects by their tags." },
+        "veyraProjects.showRecent": { "type": "boolean", "default": true, "description": "Show the folders VS Code opened recently." },
+        "veyraProjects.recentLimit": { "type": "integer", "default": 10, "minimum": 1, "maximum": 50, "description": "How many recent folders to show." },
+        "veyraProjects.showInStatusBar": { "type": "boolean", "default": true, "description": "Show the current project's name in the status bar. Click it to switch projects." },
+        "veyraProjects.projectsLocation": { "type": "string", "default": "", "scope": "machine", "markdownDescription": "The folder to keep `projects.json` in, for example a synced folder to share your projects between computers. Empty: the extension's own storage." }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node18 --external:vscode --outfile=bundle/extension.js --log-level=warning",
+    "test": "tsc -p . && node --test test/model.test.mjs",
+    "test:integration": "tsc -p . && npm run bundle && node test/integration/run.mjs",
+    "package": "npm run bundle && node -e \"require('fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --out dist/",
+    "vscode:prepublish": "tsc -p . && npm run bundle"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "~1.85.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
