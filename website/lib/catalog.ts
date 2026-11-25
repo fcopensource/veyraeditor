@@ -1,5 +1,5 @@
 import 'server-only';
-import {APPS,EXTENSIONS,FEATURED_EXTENSIONS,GROUPS,LIBRARIES,type Group,type Product} from './products';
+import {APPS,BROWSER_EXTENSIONS,EXTENSIONS,FEATURED_EXTENSIONS,GROUPS,LIBRARIES,type Group,type Product} from './products';
 
 /**
  * The live list of Veyra extensions. The shared catalog at flightcoders.com/api/catalog (fed by the VS Code
@@ -83,7 +83,7 @@ export async function liveFeaturedExtensions() {
 /** Every product page, for the menu's "current page" highlight and the sitemap. */
 export async function liveProductPaths() {
   const { extensions } = await getLiveProducts();
-  return [...APPS, ...LIBRARIES, ...extensions].map(p => p.href);
+  return [...APPS, ...LIBRARIES, ...BROWSER_EXTENSIONS, ...extensions].map(p => p.href);
 }
 
 /** A few other extensions to suggest on an extension's page: the same group first, then the newest. */

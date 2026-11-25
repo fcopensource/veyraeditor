@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSON Viewer</title>
+  <link rel="icon" href="../icons/icon-32.png">
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body class="vjv-app">
+  <main class="vjv-start" id="start">
+    <h1><span>{ }</span> JSON Viewer</h1>
+    <p>Paste JSON, drop a file, or open one. It stays on your computer.</p>
+    <textarea id="input" spellcheck="false" placeholder='{"paste": "your JSON here"}' aria-label="JSON to view"></textarea>
+    <div class="vjv-start-actions">
+      <button type="button" id="view" class="vjv-primary">View</button>
+      <label class="vjv-file">Open a file<input type="file" id="file" accept=".json,.geojson,.jsonld,application/json,text/plain"></label>
+      <button type="button" id="sample">Try an example</button>
+    </div>
+    <p class="vjv-tip">JSON pages you open in Chrome are shown as a tree automatically.</p>
+  </main>
+  <div id="out" class="vjv-host"></div>
+  <script src="core.js"></script>
+  <script src="render.js"></script>
+  <script src="viewer.js"></script>
+</body>
+</html>

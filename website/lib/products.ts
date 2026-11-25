@@ -42,6 +42,11 @@ export const LIBRARIES: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>
   { href: '/veyra-snap', icon: '/veyra-snap-icon.png', name: 'veyra-snap', copy: 'Run your Python code, get pytest tests' },
 ];
 
+/** Our browser extensions, under the Python libraries in the Products menu. */
+export const BROWSER_EXTENSIONS: Pick<Product, 'href' | 'icon' | 'name' | 'copy' | 'tag'>[] = [
+  { href: '/json-viewer', icon: '/json-viewer-icon.png', name: 'JSON Viewer', copy: 'JSON as a clear, searchable tree', tag: 'New' },
+];
+
 /** The few extensions the Products menu shows; the rest are one click away on /extensions. */
 export const FEATURED_EXTENSIONS = ['/live-server', '/api-client', '/git-graph', '/error-lens', '/mcp-studio', '/docker', '/codesnap', '/live-values'];
 
@@ -144,7 +149,7 @@ export const isNew = (p: Pick<Product, 'href'>) => NEWEST.has(p.href);
 export const GROUPS: Group[] = ['Write code', 'Run and test', 'Project', 'Just for fun'];
 /** The extensions grouped for the Products menu, in GROUPS order. */
 export const EXTENSION_GROUPS = GROUPS.map(group => ({ group, items: EXTENSIONS.filter(p => p.group === group) })).filter(g => g.items.length);
-export const PRODUCT_PATHS = [...APPS, ...LIBRARIES, ...EXTENSIONS].map(p => p.href);
+export const PRODUCT_PATHS = [...APPS, ...LIBRARIES, ...BROWSER_EXTENSIONS, ...EXTENSIONS].map(p => p.href);
 
 /** A few other extensions to suggest on an extension's page: the same group first, then the newest. */
 export function related(href: string, count = 4): Product[] {

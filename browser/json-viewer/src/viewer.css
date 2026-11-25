@@ -1,0 +1,107 @@
+/*
+ * JSON Viewer Veyra. Chrome adds this file to every page, so every rule is scoped to the viewer (.vjv, .vjv-page,
+ * .vjv-app) and does nothing anywhere else.
+ */
+.vjv, .vjv-app {
+  --bg: #0f1218; --panel: #151a22; --line: #252c38; --text: #d7dde6; --muted: #7d8a99; --accent: #4fd1b5;
+  --key: #8cc8ff; --str: #a8e08a; --num: #ffb86b; --bool: #d4a5ff; --null: #ff8fa3; --sel: #1d3a5a; --hit: #4a3d12; --hitnow: #7a5d0a;
+  --btn: #1c222c; --btnh: #252d3a; --err: #3a1820; --errline: #5a1f2c;
+}
+.vjv[data-theme="light"] {
+  --bg: #ffffff; --panel: #f6f8fa; --line: #e3e7ec; --text: #1f2933; --muted: #6b7785; --accent: #0f8f75;
+  --key: #0a58b8; --str: #2f7d1e; --num: #b5530a; --bool: #7a3ec2; --null: #c2264a; --sel: #dcebff; --hit: #fff1b8; --hitnow: #ffd75e;
+  --btn: #eef1f4; --btnh: #e2e7ec; --err: #ffe8ec; --errline: #ffd0d9;
+}
+@media (prefers-color-scheme: light) {
+  .vjv[data-theme="auto"], .vjv-app {
+    --bg: #ffffff; --panel: #f6f8fa; --line: #e3e7ec; --text: #1f2933; --muted: #6b7785; --accent: #0f8f75;
+    --key: #0a58b8; --str: #2f7d1e; --num: #b5530a; --bool: #7a3ec2; --null: #c2264a; --sel: #dcebff; --hit: #fff1b8; --hitnow: #ffd75e;
+    --btn: #eef1f4; --btnh: #e2e7ec; --err: #ffe8ec; --errline: #ffd0d9;
+  }
+}
+
+html.vjv-page, html.vjv-page body { margin: 0; padding: 0; height: 100%; }
+html.vjv-page body { background: #0f1218; }
+@media (prefers-color-scheme: light) { html.vjv-page body { background: #fff; } }
+
+.vjv { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color-scheme: dark; }
+.vjv[data-theme="light"] { color-scheme: light; }
+.vjv *, .vjv *::before, .vjv *::after { box-sizing: border-box; }
+.vjv [hidden] { display: none !important; }
+
+/* toolbar */
+.vjv-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.vjv-brand { font: 700 13px ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--accent); white-space: nowrap; }
+.vjv-tabs { display: flex; background: var(--btn); border-radius: 8px; padding: 2px; }
+.vjv-btn { font: 500 12px system-ui, sans-serif; color: var(--text); background: var(--btn); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; cursor: pointer; white-space: nowrap; }
+.vjv-btn:hover { background: var(--btnh); }
+.vjv-btn:disabled { opacity: .45; cursor: default; }
+.vjv-btn:focus-visible, .vjv-search:focus-visible, .vjv-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.vjv-tab { border: 0; background: transparent; padding: 4px 12px; border-radius: 6px; }
+.vjv-tab.vjv-on { background: var(--bg); color: var(--accent); box-shadow: 0 1px 2px #0003; }
+.vjv-searchwrap { display: flex; align-items: center; gap: 4px; flex: 1 1 260px; min-width: 0; }
+.vjv-search { flex: 1; min-width: 0; font: 13px system-ui, sans-serif; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; }
+.vjv-hits { color: var(--muted); font-size: 12px; white-space: nowrap; min-width: 0; }
+.vjv-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.vjv-select { font: 12px system-ui, sans-serif; color: var(--text); background: var(--btn); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px; }
+.vjv-back { margin-right: 2px; }
+
+/* path bar */
+.vjv-pathbar { display: flex; align-items: center; gap: 10px; padding: 5px 12px; border-bottom: 1px solid var(--line); background: var(--bg); min-height: 34px; }
+.vjv-path { font: 12.5px ui-monospace, "Cascadia Code", Consolas, monospace; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 0 1 auto; }
+.vjv-summary { color: var(--muted); font-size: 12px; margin-right: auto; white-space: nowrap; }
+.vjv-pathbar .vjv-btn { padding: 3px 8px; font-size: 11.5px; }
+
+/* the tree */
+.vjv-body { flex: 1; overflow: auto; }
+.vjv-tree, .vjv-raw { font: 13px/1.6 ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace; }
+.vjv-tree { padding: 8px 0 40px; outline: none; }
+.vjv-row { display: flex; align-items: baseline; padding: 0 12px 0 calc(12px + var(--d, 0) * 18px); white-space: nowrap; cursor: default; border-radius: 0; }
+.vjv-row:hover { background: color-mix(in srgb, var(--sel) 45%, transparent); }
+.vjv-row.vjv-sel { background: var(--sel); }
+.vjv-row.vjv-hit { background: var(--hit); }
+.vjv-row.vjv-hit-now { background: var(--hitnow); }
+.vjv-row:focus { outline: none; }
+.vjv-tog { display: inline-block; width: 16px; flex: none; color: var(--muted); cursor: pointer; user-select: none; text-align: center; }
+.vjv-tog-none { cursor: default; }
+.vjv-key { color: var(--key); }
+.vjv-idx { color: var(--muted); }
+.vjv-colon, .vjv-brace { color: var(--muted); }
+.vjv-colon { margin-right: .6ch; }
+.vjv-more { color: var(--muted); font: italic 12px system-ui, sans-serif; margin: 0 6px; }
+.vjv-str { color: var(--str); white-space: pre-wrap; word-break: break-word; }
+.vjv-number { color: var(--num); }
+.vjv-boolean { color: var(--bool); }
+.vjv-null { color: var(--null); }
+.vjv-link { color: var(--str); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--str) 50%, transparent); }
+.vjv-link:hover { text-decoration-color: currentColor; }
+.vjv-showall { font: 12px system-ui, sans-serif; color: var(--accent); background: none; border: 0; padding: 0 6px; cursor: pointer; text-decoration: underline; }
+.vjv-morerow { padding-top: 2px; padding-bottom: 2px; }
+
+/* raw and original */
+.vjv-raw { margin: 0; padding: 12px 16px 40px; white-space: pre-wrap; word-break: break-word; color: var(--text); }
+.vjv-t-key { color: var(--key); } .vjv-t-string { color: var(--str); } .vjv-t-number { color: var(--num); } .vjv-t-boolean { color: var(--bool); } .vjv-t-null { color: var(--null); }
+.vjv-line { display: flex; }
+.vjv-ln { flex: none; width: 52px; padding-right: 14px; text-align: right; color: var(--muted); user-select: none; }
+.vjv-line-bad { background: var(--errline); }
+.vjv-error { padding: 10px 14px; background: var(--err); border-bottom: 1px solid var(--line); }
+.vjv-error b { color: var(--null); }
+
+@media (max-width: 640px) {
+  .vjv-brand { display: none; }
+  .vjv-tools .vjv-btn { padding: 5px 8px; }
+}
+
+/* the start page behind the toolbar button */
+.vjv-app { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 14px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.vjv-start { max-width: 760px; margin: 0 auto; padding: 48px 20px; }
+.vjv-start h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.4px; }
+.vjv-start h1 span { color: var(--accent); font-family: ui-monospace, Consolas, monospace; }
+.vjv-start p { margin: 0 0 18px; color: var(--muted); }
+.vjv-start textarea { width: 100%; min-height: 320px; box-sizing: border-box; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); font: 13px/1.55 ui-monospace, "Cascadia Code", Consolas, monospace; resize: vertical; }
+.vjv-start textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.vjv-start-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 22px; }
+.vjv-start-actions button, .vjv-file { font: 600 13px system-ui, sans-serif; color: var(--text); background: var(--btn); border: 1px solid var(--line); border-radius: 9px; padding: 9px 16px; cursor: pointer; }
+.vjv-start-actions .vjv-primary { background: var(--accent); border-color: var(--accent); color: #062019; }
+.vjv-file input { display: none; }
+.vjv-tip { font-size: 12.5px; }
