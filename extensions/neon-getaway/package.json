@@ -1,8 +1,8 @@
 {
   "name": "neon-getaway",
-  "displayName": "Neon Getaway: Open World Driving Game",
-  "description": "A neon open-world driving game inside VS Code. Drive any car through Solara Bay, drift, win street races, escape police chases, take on missions, and spend the cash your coding earns. Free, offline, no account.",
-  "version": "1.0.1",
+  "displayName": "Neon Getaway",
+  "description": "A retro neon driving game for your coffee break. Explore Solara Bay, drift, race and play story missions, right in the editor. Free and offline.",
+  "version": "1.0.2",
   "publisher": "flightcoders",
   "author": {
     "name": "Flight Coders"
@@ -29,21 +29,13 @@
   "keywords": [
     "game",
     "games",
-    "open world",
-    "driving game",
-    "car game",
+    "driving",
     "racing",
-    "police chase",
-    "drift",
     "arcade",
     "retro",
-    "neon",
     "synthwave",
-    "80s",
-    "fun",
-    "break",
-    "coffee break",
-    "vscode game"
+    "drift",
+    "coffee break"
   ],
   "galleryBanner": {
     "color": "#120b24",
@@ -86,17 +78,17 @@
         "neonGetaway.statusBar": {
           "type": "boolean",
           "default": true,
-          "description": "Show the Neon Getaway button, with the cash your coding has earned, in the status bar."
+          "description": "Show the Neon Getaway button in the status bar."
         },
         "neonGetaway.paycheck": {
           "type": "boolean",
           "default": true,
-          "description": "Earn in-game cash when you save files ($25 a save, up to $1,000 a day)."
+          "description": "Give a small in-game bonus when you save files, to spend on cars in the game."
         },
         "neonGetaway.sound": {
           "type": "boolean",
           "default": true,
-          "description": "Play the engine, siren and synthwave radio sounds (they start only after you press a key in the game)."
+          "description": "Play the engine and radio sounds (they start only after you press a key in the game)."
         }
       }
     }

@@ -1,8 +1,8 @@
-# Neon Getaway: Open World Driving Game
+# Neon Getaway
 
-**A neon open-world driving game, right inside VS Code.** Hop into any car, drift through Solara Bay at night, escape police chases, take on missions, and spend the cash your coding earns.
+**A retro neon driving game for your coffee break, right in the editor.** Hop into any car, drift through Solara Bay at night, race, and play the story missions.
 
-<img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/neon-getaway/media/readme/chase.png" alt="A four-star police chase at night: a purple sports car at 214 km/h with police cars and flashing lights behind it, the Fresh Coat Spray shop, the minimap, $12,450 and four wanted stars" width="100%">
+<img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/neon-getaway/media/readme/chase.png" alt="Driving a purple sports car through the city at night, with the minimap in the corner" width="100%">
 
 Press **Ctrl+Alt+G** (**Cmd+Alt+G** on Mac), or click **🚀 Neon Getaway** in the status bar.
 
@@ -26,11 +26,11 @@ Six story missions for **Rico** the mechanic and **Nova** the racer: a timed del
 
 <img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/neon-getaway/media/readme/map.png" alt="The Solara Bay map: four districts, Rico's Garage, Police HQ, the spray shop, Solara Plaza, the race start and the pier" width="100%">
 
-## Your code pays
+## A bonus for your work
 
-Every file you save in VS Code earns **$25** of in-game cash, up to $1,000 a day. The status bar shows what's waiting, so a good day of work buys you a supercar.
+Saving files gives you a small in-game bonus to spend on cars in the game (there's a daily limit). It's game money only: nothing real is paid or earned. Turn it off with `neonGetaway.paycheck`.
 
-<img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/neon-getaway/media/readme/garage.png" alt="Rico's Garage: the Hyperion supercar for $9,000, with bars for top speed, acceleration and handling" width="100%">
+<img src="https://raw.githubusercontent.com/fcopensource/veyraeditor/main/extensions/neon-getaway/media/readme/garage.png" alt="Rico's Garage: the Hyperion supercar, with bars for top speed, acceleration and handling" width="100%">
 
 ## Controls
 
@@ -50,7 +50,7 @@ Every file you save in VS Code earns **$25** of in-game cash, up to $1,000 a day
 - **Free, offline, no account.** No ads, no tracking, nothing sent anywhere. Your progress is saved in VS Code.
 - **Sound** is a synthwave radio and engine made live by the game. It starts only after you press a key, and **M** turns it off (or set `neonGetaway.sound` to false).
 - **No weapons, no gore.** People always dive out of the way.
-- **Settings:** `neonGetaway.statusBar` (the status bar button), `neonGetaway.paycheck` (cash for saving files), `neonGetaway.sound`.
+- **Settings:** `neonGetaway.statusBar` (the status bar button), `neonGetaway.paycheck` (the in-game bonus for saving files), `neonGetaway.sound`.
 - **Start over** with *Neon Getaway: Start Over* in the Command Palette.
 
 Made by [FlightCoders](https://flightcoders.com). MIT licensed.
